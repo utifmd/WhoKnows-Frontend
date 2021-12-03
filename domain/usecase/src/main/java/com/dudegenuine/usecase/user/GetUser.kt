@@ -7,12 +7,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
 /**
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
-class GetUser( // @Inject
+class GetUser
+    @Inject constructor(
+
     private val repository: IUserRepository) {
     operator fun invoke(id: String): Flow<Resource<User>> = flow {
         try {

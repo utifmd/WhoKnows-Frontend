@@ -11,6 +11,7 @@ import com.dudegenuine.whoknows.ui.view.user.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 /**
  * Thu, 02 Dec 2021
@@ -18,7 +19,8 @@ import kotlinx.coroutines.flow.onEach
  **/
 
 @HiltViewModel
-class UserViewModel( // @Inject
+class UserViewModel
+    @Inject constructor(
     private val getUserUseCase: GetUser,
     savedStateHandle: SavedStateHandle): ViewModel() {
 

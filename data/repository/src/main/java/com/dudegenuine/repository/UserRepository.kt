@@ -5,12 +5,14 @@ import com.dudegenuine.model.request.LoginRequest
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.dudegenuine.remote.service.contract.IUserService
 import com.dudegenuine.repository.contract.IUserRepository
+import javax.inject.Inject
 
 /**
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
-class UserRepository( // @Inject
+class UserRepository
+    @Inject constructor(
 
     private val service: IUserService,
     private val mapper: IUserDataMapper ): IUserRepository {

@@ -13,12 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 import com.dudegenuine.whoknows.ui.view.UserViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,10 +91,12 @@ fun ProfileScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    WhoKnowsTheme {
-        Greeting("Android")
-    }
-}
+/*
+* @Preview(showBackground = true)
+* @Composable
+* fun DefaultPreview() {
+*   WhoKnowsTheme {
+*       ProfileScreen()
+*   }
+* }
+* */

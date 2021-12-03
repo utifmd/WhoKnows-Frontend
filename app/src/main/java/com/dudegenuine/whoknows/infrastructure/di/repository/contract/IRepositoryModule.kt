@@ -13,12 +13,6 @@ import javax.inject.Singleton
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
-@Module
-@InstallIn(SingletonComponent::class)
 interface IRepositoryModule {
-    @Provides
-    @Singleton
-    fun provideUserRepository(
-        service: IUserService,
-        mapper: IUserDataMapper): IUserRepository
+    fun provideUserRepository(service: IUserService, mapper: IUserDataMapper): IUserRepository
 }
