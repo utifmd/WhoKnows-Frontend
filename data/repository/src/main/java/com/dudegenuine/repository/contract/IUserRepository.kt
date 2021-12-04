@@ -13,6 +13,5 @@ interface IUserRepository {
     suspend fun update(id: String, user: User): User
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<User>
-
     suspend fun signIn(loginRequest: LoginRequest): User
 }

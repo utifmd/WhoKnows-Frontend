@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Resource
 import com.dudegenuine.usecase.user.GetUser
+import com.dudegenuine.usecase.user.GetUsers
 import com.dudegenuine.whoknows.ui.view.user.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -21,21 +22,38 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel
     @Inject constructor(
-    private val getUserUseCase: GetUser,
-    savedStateHandle: SavedStateHandle): ViewModel() {
+        private val getUserUseCase: GetUser,
+        private val getUsersUseCase: GetUsers //, savedStateHandle: SavedStateHandle
+    ): ViewModel() {
 
     private val _state = mutableStateOf(UserState())
     val state: State<UserState> = _state
 
     init {
-        getUser("A00001")
+        getUsers(0, 10)
+        // getUser("A00001")
     }
 
     private fun getUser(userId: String) {
         getUserUseCase(userId).onEach { result ->
             when(result){
                 is Resource.Success -> _state.value = UserState(
-                    data = result.data )
+                    user = result.data )
+                is Resource.Error -> _state.value = UserState(
+                    error = result.message ?: "An expected error occurred." )
+                is Resource.Loading -> _state.value = UserState(
+                    loading = true
+                )
+            }
+
+        }.launchIn(viewModelScope)
+    }
+
+    private fun getUsers(page: Int, size: Int) {
+        getUsersUseCase(page, size).onEach { result ->
+            when(result){
+                is Resource.Success -> _state.value = UserState(
+                    users = result.data )
                 is Resource.Error -> _state.value = UserState(
                     error = result.message ?: "An expected error occurred." )
                 is Resource.Loading -> _state.value = UserState(

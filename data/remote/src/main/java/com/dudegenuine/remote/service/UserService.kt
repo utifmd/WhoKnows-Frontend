@@ -2,7 +2,7 @@ package com.dudegenuine.remote.service
 
 import com.dudegenuine.model.request.LoginRequest
 import com.dudegenuine.remote.entity.Response
-import com.dudegenuine.remote.entity.User
+import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.service.contract.IUserService
 import retrofit2.http.*
 
@@ -12,35 +12,35 @@ import retrofit2.http.*
  **/
 interface UserService: IUserService {
 
-    // @Headers("Accept: application/json", "Content-Type: application/json")
     @POST("/api/users")
+    @Headers("X-Api-Key: utif.pages.dev")
     override suspend fun create(
-        @Body user: User): Response<User>
+        @Body entity: UserEntity): Response<Any>
 
-    // @Headers("Accept: application/json", "Content-Type: application/json")
     @GET("/api/users/{userId}")
+    @Headers("X-Api-Key: utif.pages.dev")
     override suspend fun read(
-        @Path("userId") id: String): Response<User>
+        @Path("userId") id: String): Response<Any>
 
-    // @Headers("Accept: application/json", "Content-Type: application/json")
     @PUT("/api/users/{userId}")
+    @Headers("X-Api-Key: utif.pages.dev")
     override suspend fun update(
         @Path("userId") id: String,
-        @Body user: User): Response<User>
+        @Body entity: UserEntity): Response<Any>
 
-    // @Headers("Accept: application/json", "Content-Type: application/json")
     @DELETE("/api/users/{userId}")
+    @Headers("X-Api-Key: utif.pages.dev")
     override suspend fun delete(
         @Path("userId") id: String)
 
-    // @Headers("Accept: application/json", "Content-Type: application/json")
     @GET("/api/users")
+    @Headers("X-Api-Key: utif.pages.dev")
     override suspend fun list(
         @Query("page") page: Int,
-        @Query("size") size: Int): Response<List<User>>
+        @Query("size") size: Int): Response<Any>
 
-    // @Headers("Accept: application/json", "Content-Type: application/json")
     @POST("/api/auth/sign-in")
+    @Headers("X-Api-Key: utif.pages.dev")
     override suspend fun signIn(
-        @Body loginRequest: LoginRequest): Response<User>
+        @Body loginRequest: LoginRequest): Response<Any>
 }

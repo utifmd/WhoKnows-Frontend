@@ -7,7 +7,7 @@ import java.util.*
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
-data class Quiz(
+data class QuizEntity(
 
     @SerializedName("quizId")
     val id: String,

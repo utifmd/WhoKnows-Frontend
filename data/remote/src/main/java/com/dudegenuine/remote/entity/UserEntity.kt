@@ -8,7 +8,7 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 
-data class User (
+data class UserEntity (
 
     @SerializedName("userId")
     val id: String,

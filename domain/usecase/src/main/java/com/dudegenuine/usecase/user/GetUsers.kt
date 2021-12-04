@@ -11,25 +11,25 @@ import java.io.IOException
 import javax.inject.Inject
 
 /**
- * Thu, 02 Dec 2021
+ * Sat, 04 Dec 2021
  * WhoKnows by utifmd
  **/
-class GetUser
+class GetUsers
     @Inject constructor(
 
     private val repository: IUserRepository) {
-    operator fun invoke(id: String): Flow<Resource<User>> = flow {
+    operator fun invoke(page: Int, size: Int): Flow<Resource<List<User>>> = flow {
         try {
             emit(Resource.Loading())
 
-            val user = repository.read(id)
-            emit(Resource.Success(user))
+            val users = repository.list(page, size)
+            emit(Resource.Success(users))
 
-        } catch (e: HttpFailureException){
+        }catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
-        } catch (e: HttpException){
+        }catch (e: HttpException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
-        } catch (e: IOException){
+        }catch (e: IOException){
             emit(Resource.Error(Resource.IO_EXCEPTION))
         }
     }

@@ -7,10 +7,13 @@ import java.util.*
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
-data class Participant(
+data class ResultEntity (
+
+    @SerializedName("resultId")
+    val id: String,
 
     @SerializedName("participantId")
-    val id: String,
+    val participantId: String,
 
     @SerializedName("roomId")
     val roomId: String,
@@ -18,21 +21,18 @@ data class Participant(
     @SerializedName("userId")
     val userId: String,
 
-    @SerializedName("currentPage")
-    val currentPage: String,
+    @SerializedName("correctQuiz")
+    val correctQuiz: List<String>,
 
-    @SerializedName("timeLeft")
-    val timeLeft: Int?,
+    @SerializedName("wrongQuiz")
+    val wrongQuiz: List<String>,
 
-    @SerializedName("expired")
-    val expired: Boolean,
+    @SerializedName("score")
+    val score: Int?,
 
     @SerializedName("createdAt")
     val createdAt: Date,
 
     @SerializedName("updatedAt")
-    val updatedAt: Date?,
-
-    @SerializedName("results")
-    val results: List<Result>
+    val updatedAt: Date?
 )

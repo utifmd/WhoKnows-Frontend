@@ -30,8 +30,8 @@ data class Room(
     val updatedAt: Date?,
 
     @SerializedName("questions")
-    val questions: List<Quiz>,
+    val questions: List<QuizEntity>,
 
     @SerializedName("participants")
-    val participants: List<Participant>
+    val participants: List<ParticipantEntity>
 )
