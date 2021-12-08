@@ -1,6 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.service.contract
 
-import com.dudegenuine.remote.service.contract.IUserService
+import com.dudegenuine.remote.service.contract.*
 import retrofit2.Retrofit
 
 /**
@@ -9,4 +9,8 @@ import retrofit2.Retrofit
  **/
 interface IServiceModule {
     fun provideUserService(network: Retrofit.Builder): IUserService
+    fun provideRoomService(network: Retrofit.Builder): IRoomService
+    fun provideQuizService(network: Retrofit.Builder): IQuizService
+    fun provideParticipantService(network: Retrofit.Builder): IParticipantService
+    fun provideResultService(network: Retrofit.Builder): IResultService
 }

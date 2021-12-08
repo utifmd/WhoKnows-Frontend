@@ -1,7 +1,8 @@
 package com.dudegenuine.whoknows.infrastructure.di.mapper
 
+import com.dudegenuine.remote.mapper.RoomDataMapper
 import com.dudegenuine.remote.mapper.UserDataMapper
-import com.dudegenuine.remote.mapper.contract.IUserDataMapper
+import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.mapper.contract.IDataMapperModule
 import dagger.Module
 import dagger.Provides
@@ -22,4 +23,28 @@ object DataMapperModule: IDataMapperModule {
     override fun provideUserDataMapper(): IUserDataMapper {
         return UserDataMapper()
     }
+
+    @Provides
+    @Singleton
+    override fun provideRoomDataMapper(): IRoomDataMapper {
+        return RoomDataMapper()
+    }
+
+//    @Provides
+//    @Singleton
+//    override fun provideQuizDataMapper(): IQuizDataMapper {
+//        return QuizDataMapper()
+//    }
+//
+//    @Provides
+//    @Singleton
+//    override fun provideParticipantDataMapper(): IParticipantDataMapper {
+//        return ParticipantDataMapper()
+//    }
+//
+//    @Provides
+//    @Singleton
+//    override fun provideResultDataMapper(): IResultDataMapper {
+//        return ResultDataMapper()
+//    }
 }

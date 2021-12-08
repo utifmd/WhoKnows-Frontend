@@ -9,7 +9,7 @@ import com.dudegenuine.remote.entity.ParticipantEntity
  * WhoKnows by utifmd
  **/
 interface IParticipantDataMapper {
-    fun asEntity(user: Participant): ParticipantEntity
+    fun asEntity(participant: Participant): ParticipantEntity
     fun asParticipant(entity: ParticipantEntity): Participant
     fun asParticipant(response: Response<ParticipantEntity>): Participant
     fun asParticipants(response: Response<List<ParticipantEntity>>): List<Participant>

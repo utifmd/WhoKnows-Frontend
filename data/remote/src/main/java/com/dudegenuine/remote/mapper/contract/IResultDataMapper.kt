@@ -9,7 +9,7 @@ import com.dudegenuine.remote.entity.ResultEntity
  * WhoKnows by utifmd
  **/
 interface IResultDataMapper {
-    fun asEntity(user: Result): ResultEntity
+    fun asEntity(result: Result): ResultEntity
     fun asResult(entity: ResultEntity): Result
     fun asResult(response: Response<ResultEntity>): Result
     fun asResults(response: Response<List<ResultEntity>>): List<Result>

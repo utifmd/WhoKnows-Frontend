@@ -2,7 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import com.dudegenuine.repository.UserRepository
 import com.dudegenuine.usecase.user.*
-import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUseCaseModule
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +15,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
  **/
 @Module
 @InstallIn(ViewModelComponent::class)
-object UseCaseModule: IUseCaseModule {
+object UserUseCaseModule: IUserUseCaseModule {
     @Provides
     @ViewModelScoped
     override fun providePostUserModule(userRepository: UserRepository): PostUser =

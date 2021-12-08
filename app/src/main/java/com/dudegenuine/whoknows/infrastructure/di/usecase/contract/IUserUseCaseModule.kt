@@ -7,7 +7,7 @@ import com.dudegenuine.usecase.user.*
  * Fri, 03 Dec 2021
  * WhoKnows by utifmd
  **/
-interface IUseCaseModule {
+interface IUserUseCaseModule {
     fun providePostUserModule(userRepository: UserRepository): PostUser
     fun provideGetUserModule(userRepository: UserRepository): GetUser
     fun providePatchUserModule(userRepository: UserRepository): PatchUser

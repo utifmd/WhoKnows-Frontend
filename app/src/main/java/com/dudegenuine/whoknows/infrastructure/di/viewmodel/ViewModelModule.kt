@@ -1,7 +1,9 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
+import com.dudegenuine.usecase.room.GetRoom
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
+import com.dudegenuine.whoknows.ui.view.room.RoomViewModel
 import com.dudegenuine.whoknows.ui.view.user.UserViewModel
 import dagger.Module
 import dagger.Provides
@@ -30,5 +32,24 @@ object ViewModelModule: IViewModelModule {
     ): UserViewModel {
 
         return UserViewModel(postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
+    }
+    @Provides
+    @ViewModelScoped
+    override fun provideRoomViewModel(
+//        postRoom: PostRoom,
+        getRoom: GetRoom,
+//        patchRoom: PatchRoom,
+//        deleteRoom: DeleteRoom,
+//        getRooms: GetRooms,
+//        signInRoom: SignInRoom,
+    ): RoomViewModel {
+        return RoomViewModel(
+//            postRoom,
+            getRoom,
+//            patchRoom,
+//            deleteRoom,
+//            getRooms,
+//            signInRoom,
+        )
     }
 }

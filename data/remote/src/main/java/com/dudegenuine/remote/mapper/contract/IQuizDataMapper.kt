@@ -8,8 +8,8 @@ import com.dudegenuine.remote.entity.QuizEntity
  * Wed, 08 Dec 2021
  * WhoKnows by utifmd
  **/
-interface IQuizDataRepository {
-    fun asEntity(user: Quiz): QuizEntity
+interface IQuizDataMapper {
+    fun asEntity(quiz: Quiz): QuizEntity
     fun asQuiz(entity: QuizEntity): Quiz
     fun asQuiz(response: Response<QuizEntity>): Quiz
     fun asQuestions(response: Response<List<QuizEntity>>): List<Quiz>

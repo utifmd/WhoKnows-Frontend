@@ -1,7 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.service
 
-import com.dudegenuine.remote.service.UserService
-import com.dudegenuine.remote.service.contract.IUserService
+import com.dudegenuine.remote.service.*
+import com.dudegenuine.remote.service.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.service.contract.IServiceModule
 import dagger.Module
 import dagger.Provides
@@ -22,5 +22,29 @@ object ServiceModule: IServiceModule {
     @Singleton
     override fun provideUserService(network: Retrofit.Builder): IUserService {
         return network.build().create(UserService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideRoomService(network: Retrofit.Builder): IRoomService {
+        return network.build().create(RoomService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideQuizService(network: Retrofit.Builder): IQuizService {
+        return network.build().create(QuizService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideParticipantService(network: Retrofit.Builder): IParticipantService {
+        return network.build().create(ParticipantService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideResultService(network: Retrofit.Builder): IResultService {
+        return network.build().create(ResultService::class.java)
     }
 }

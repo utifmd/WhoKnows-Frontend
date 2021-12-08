@@ -9,7 +9,7 @@ import com.dudegenuine.remote.entity.RoomEntity
  * WhoKnows by utifmd
  **/
 interface IRoomDataMapper {
-    fun asEntity(user: Room): RoomEntity
+    fun asEntity(room: Room): RoomEntity
     fun asRoom(entity: RoomEntity): Room
     fun asRoom(response: Response<RoomEntity>): Room
     fun asRooms(response: Response<List<RoomEntity>>): List<Room>
