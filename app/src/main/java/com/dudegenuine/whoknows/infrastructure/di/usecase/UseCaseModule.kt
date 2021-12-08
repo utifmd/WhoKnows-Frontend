@@ -6,43 +6,43 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUseCaseModul
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 /**
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object UseCaseModule: IUseCaseModule {
     @Provides
-    @Singleton
+    @ViewModelScoped
     override fun providePostUserModule(userRepository: UserRepository): PostUser =
         PostUser(userRepository)
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     override fun provideGetUserModule(userRepository: UserRepository): GetUser =
         GetUser(userRepository)
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     override fun providePatchUserModule(userRepository: UserRepository): PatchUser =
         PatchUser(userRepository)
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     override fun provideDeleteUserModule(userRepository: UserRepository): DeleteUser =
         DeleteUser(userRepository)
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     override fun provideGetUsersModule(userRepository: UserRepository): GetUsers =
         GetUsers(userRepository)
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     override fun provideSignInUsersModule(userRepository: UserRepository): SignInUser =
         SignInUser(userRepository)
 }

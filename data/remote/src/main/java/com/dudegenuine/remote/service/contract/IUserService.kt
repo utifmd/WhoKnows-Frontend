@@ -1,11 +1,9 @@
 package com.dudegenuine.remote.service.contract
 
 import com.dudegenuine.model.request.LoginRequest
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.remote.BuildConfig
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
-import retrofit2.HttpException
-import java.io.IOException
 
 /**
  * Wed, 01 Dec 2021
@@ -20,7 +18,7 @@ interface IUserService {
     suspend fun signIn(loginRequest: LoginRequest): Response<UserEntity>
 
     companion object {
-        const val HEADER = "X-Api-Key: utif.pages.dev"
+        const val HEADER = BuildConfig.HEADER_API
         const val ENDPOINT = "/api/users"
     }
 }

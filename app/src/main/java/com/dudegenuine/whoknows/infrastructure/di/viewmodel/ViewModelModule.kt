@@ -1,25 +1,24 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
-import com.dudegenuine.whoknows.ui.view.UserViewModel
+import com.dudegenuine.whoknows.ui.view.user.UserViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 /**
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object ViewModelModule: IViewModelModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     override fun provideUserViewModel(
         postUser: PostUser,
         getUser: GetUser,

@@ -1,8 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
-import androidx.lifecycle.SavedStateHandle
 import com.dudegenuine.usecase.user.*
-import com.dudegenuine.whoknows.ui.view.UserViewModel
+import com.dudegenuine.whoknows.ui.view.user.UserViewModel
 
 /**
  * Fri, 03 Dec 2021

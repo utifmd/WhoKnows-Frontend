@@ -12,7 +12,7 @@ import com.dudegenuine.remote.mapper.contract.IUserDataMapper
  * WhoKnows by utifmd
  **/
 class UserDataMapper: IUserDataMapper {
-    private val TAG = javaClass.simpleName
+    // private val TAG = javaClass.simpleName
 
     override fun asEntity(user: User): UserEntity {
         return UserEntity(
