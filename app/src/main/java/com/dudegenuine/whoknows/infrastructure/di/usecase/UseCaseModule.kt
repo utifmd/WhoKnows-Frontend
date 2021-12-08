@@ -1,8 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import com.dudegenuine.repository.UserRepository
-import com.dudegenuine.usecase.user.GetUser
-import com.dudegenuine.usecase.user.GetUsers
+import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUseCaseModule
 import dagger.Module
 import dagger.Provides
@@ -19,13 +18,31 @@ import javax.inject.Singleton
 object UseCaseModule: IUseCaseModule {
     @Provides
     @Singleton
-    override fun provideReadUserModule(userRepository: UserRepository): GetUser {
-        return GetUser(userRepository)
-    }
+    override fun providePostUserModule(userRepository: UserRepository): PostUser =
+        PostUser(userRepository)
 
     @Provides
     @Singleton
-    override fun provideReadUsersModule(userRepository: UserRepository): GetUsers {
-        return GetUsers(userRepository)
-    }
+    override fun provideGetUserModule(userRepository: UserRepository): GetUser =
+        GetUser(userRepository)
+
+    @Provides
+    @Singleton
+    override fun providePatchUserModule(userRepository: UserRepository): PatchUser =
+        PatchUser(userRepository)
+
+    @Provides
+    @Singleton
+    override fun provideDeleteUserModule(userRepository: UserRepository): DeleteUser =
+        DeleteUser(userRepository)
+
+    @Provides
+    @Singleton
+    override fun provideGetUsersModule(userRepository: UserRepository): GetUsers =
+        GetUsers(userRepository)
+
+    @Provides
+    @Singleton
+    override fun provideSignInUsersModule(userRepository: UserRepository): SignInUser =
+        SignInUser(userRepository)
 }

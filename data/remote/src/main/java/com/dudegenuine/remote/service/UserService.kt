@@ -4,6 +4,8 @@ import com.dudegenuine.model.request.LoginRequest
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.service.contract.IUserService
+import com.dudegenuine.remote.service.contract.IUserService.Companion.ENDPOINT
+import com.dudegenuine.remote.service.contract.IUserService.Companion.HEADER
 import retrofit2.http.*
 
 /**
@@ -12,35 +14,35 @@ import retrofit2.http.*
  **/
 interface UserService: IUserService {
 
-    @POST("/api/users")
-    @Headers("X-Api-Key: utif.pages.dev")
+    @Headers(HEADER)
+    @POST(ENDPOINT)
     override suspend fun create(
-        @Body entity: UserEntity): Response<Any>
+        @Body entity: UserEntity): Response<UserEntity>
 
-    @GET("/api/users/{userId}")
-    @Headers("X-Api-Key: utif.pages.dev")
+    @Headers(HEADER)
+    @GET("${ENDPOINT}/{userId}")
     override suspend fun read(
-        @Path("userId") id: String): Response<Any>
+        @Path("userId") id: String): Response<UserEntity>
 
-    @PUT("/api/users/{userId}")
-    @Headers("X-Api-Key: utif.pages.dev")
+    @Headers(HEADER)
+    @PUT("${ENDPOINT}/{userId}")
     override suspend fun update(
         @Path("userId") id: String,
-        @Body entity: UserEntity): Response<Any>
+        @Body entity: UserEntity): Response<UserEntity>
 
-    @DELETE("/api/users/{userId}")
-    @Headers("X-Api-Key: utif.pages.dev")
+    @Headers(HEADER)
+    @DELETE("${ENDPOINT}/{userId}")
     override suspend fun delete(
         @Path("userId") id: String)
 
-    @GET("/api/users")
-    @Headers("X-Api-Key: utif.pages.dev")
+    @Headers(HEADER)
+    @GET(ENDPOINT)
     override suspend fun list(
         @Query("page") page: Int,
-        @Query("size") size: Int): Response<Any>
+        @Query("size") size: Int): Response<List<UserEntity>>
 
+    @Headers(HEADER)
     @POST("/api/auth/sign-in")
-    @Headers("X-Api-Key: utif.pages.dev")
     override suspend fun signIn(
-        @Body loginRequest: LoginRequest): Response<Any>
+        @Body loginRequest: LoginRequest): Response<UserEntity>
 }

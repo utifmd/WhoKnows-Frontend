@@ -1,8 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
-import com.dudegenuine.usecase.user.GetUser
-import com.dudegenuine.usecase.user.GetUsers
+import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
 import com.dudegenuine.whoknows.ui.view.UserViewModel
 import dagger.Module
@@ -22,11 +21,15 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @Singleton
     override fun provideUserViewModel(
+        postUser: PostUser,
         getUser: GetUser,
-        getUsers: GetUsers
+        patchUser: PatchUser,
+        deleteUser: DeleteUser,
+        getUsers: GetUsers,
+        signInUser: SignInUser
         //savedStateHandle: SavedStateHandle
     ): UserViewModel {
 
-        return UserViewModel(getUser, getUsers)
+        return UserViewModel(postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
     }
 }

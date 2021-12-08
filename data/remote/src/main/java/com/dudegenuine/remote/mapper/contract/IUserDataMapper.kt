@@ -11,6 +11,6 @@ import com.dudegenuine.remote.entity.UserEntity
 interface IUserDataMapper {
     fun asEntity(user: User): UserEntity
     fun asUser(entity: UserEntity): User
-    fun asUser(response: Response<Any>): User
-    fun asUsers(response: Response<Any>): List<User>
+    fun asUser(response: Response<UserEntity>): User
+    fun asUsers(response: Response<List<UserEntity>>): List<User>
 }

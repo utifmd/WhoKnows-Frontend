@@ -14,4 +14,8 @@ interface IUserRepository {
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<User>
     suspend fun signIn(loginRequest: LoginRequest): User
+
+    companion object {
+        const val NOT_FOUND = "User not found."
+    }
 }

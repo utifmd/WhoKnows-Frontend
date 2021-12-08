@@ -1,5 +1,7 @@
 package com.dudegenuine.remote.mapper
 
+import android.util.Log
+import com.dudegenuine.model.User
 import com.dudegenuine.model.validation.HttpFailureException
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
@@ -10,7 +12,9 @@ import com.dudegenuine.remote.mapper.contract.IUserDataMapper
  * WhoKnows by utifmd
  **/
 class UserDataMapper: IUserDataMapper {
-    override fun asEntity(user: com.dudegenuine.model.User): UserEntity {
+    private val TAG = javaClass.simpleName
+
+    override fun asEntity(user: User): UserEntity {
         return UserEntity(
             id = user.id,
             fullName = user.fullName,
@@ -23,8 +27,8 @@ class UserDataMapper: IUserDataMapper {
         )
     }
 
-    override fun asUser(entity: UserEntity): com.dudegenuine.model.User {
-        return com.dudegenuine.model.User(
+    override fun asUser(entity: UserEntity): User {
+        return User(
             id = entity.id,
             fullName = entity.fullName,
             username = entity.username,
@@ -36,21 +40,23 @@ class UserDataMapper: IUserDataMapper {
         )
     }
 
-    override fun asUser(response: Response<Any>): com.dudegenuine.model.User {
+    override fun asUser(response: Response<UserEntity>): User {
         return when(response.data){
             is UserEntity -> asUser(response.data)
             else -> throw HttpFailureException(response.data.toString())
         }
     }
 
-    override fun asUsers(response: Response<Any>): List<com.dudegenuine.model.User> {
-        val list = mutableListOf<com.dudegenuine.model.User>()
+    override fun asUsers(response: Response<List<UserEntity>>): List<User> {
+        val list = mutableListOf<User>()
+
         when(response.data){
             is List<*> -> response.data.filterIsInstance<UserEntity>().forEach {
                 list.add(asUser(it))
             }
             else -> throw HttpFailureException(response.data.toString())
         }
+
         return list
     }
 }

@@ -1,11 +1,12 @@
 package com.dudegenuine.whoknows.infrastructure.di.network
 
+import com.dudegenuine.whoknows.infrastructure.common.BodyFactory
 import com.dudegenuine.whoknows.infrastructure.common.Constants
+import com.dudegenuine.whoknows.infrastructure.common.RespInterceptor
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.CONNECT_TIMEOUT
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.READ_TIMEOUT
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.WRITE_TIMEOUT
-import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -29,9 +30,8 @@ object NetworkModule: INetworkModule {
 
     @Provides
     @Singleton
-    override fun provideGson(): Gson = GsonBuilder()
-        .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-        .create()
+    override fun provideGson(): Gson = GsonBuilder().create()
+        // .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 
     @Provides
     @Singleton
@@ -41,6 +41,7 @@ object NetworkModule: INetworkModule {
             writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
             readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
             retryOnConnectionFailure(true)
+            // addInterceptor(RespInterceptor())
             addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
@@ -51,7 +52,8 @@ object NetworkModule: INetworkModule {
     @Singleton
     override fun provideNetwork(gson: Gson, client: OkHttpClient): Retrofit.Builder {
         return Retrofit.Builder().baseUrl(Constants.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(BodyFactory.create(gson))
+            // .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
     }
 }

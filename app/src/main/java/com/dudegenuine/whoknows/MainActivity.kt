@@ -12,6 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,28 +49,35 @@ fun ProfileScreen(
 ) {
     val state = viewModel.state.value
     Box(modifier = Modifier.fillMaxSize()) {
-        state.user?.let { user ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(20.dp)) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "${user.fullName} (${user.username})",
-                            style = MaterialTheme.typography.h2,
-                            modifier = Modifier.weight(8f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(15.dp))
-
-                    Spacer(modifier = Modifier.height(15.dp))
-                    Text(
-                        text = "Tags",
-                        style = MaterialTheme.typography.h3
-                    )
+//        state.user?.let { user ->
+//            LazyColumn(
+//                modifier = Modifier.fillMaxSize(),
+//                contentPadding = PaddingValues(20.dp)) {
+//                item {
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        Text(
+//                            text = "${user.fullName} (${user.username})",
+//                            style = MaterialTheme.typography.h2,
+//                            modifier = Modifier.weight(8f)
+//                        )
+//                    }
+//                    Spacer(modifier = Modifier.height(15.dp))
+//
+//                    Spacer(modifier = Modifier.height(15.dp))
+//                    Text(
+//                        text = "Tags",
+//                        style = MaterialTheme.typography.h3
+//                    )
+//                }
+//            }
+//        }
+        Box(modifier = Modifier.fillMaxSize()){
+            state.users?.let {
+                it.map { user ->
+                    Text(text = user.fullName)
                 }
             }
         }

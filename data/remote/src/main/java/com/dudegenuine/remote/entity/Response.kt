@@ -15,5 +15,5 @@ data class Response<T> (
     val status: String,
 
     @SerializedName("data")
-    val data: T
+    val data: T? = null
 )
