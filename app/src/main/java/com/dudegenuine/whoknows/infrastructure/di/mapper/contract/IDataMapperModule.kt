@@ -9,7 +9,7 @@ import com.dudegenuine.remote.mapper.contract.*
 interface IDataMapperModule {
     fun provideUserDataMapper(): IUserDataMapper
     fun provideRoomDataMapper(): IRoomDataMapper
-//    fun provideQuizDataMapper(): IQuizDataMapper
-//    fun provideParticipantDataMapper(): IParticipantDataMapper
-//    fun provideResultDataMapper(): IResultDataMapper
+    fun provideQuizDataMapper(): IQuizDataMapper
+    fun provideParticipantDataMapper(): IParticipantDataMapper
+    fun provideResultDataMapper(): IResultDataMapper
 }

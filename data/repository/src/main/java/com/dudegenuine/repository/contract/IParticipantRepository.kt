@@ -7,9 +7,9 @@ import com.dudegenuine.model.Participant
  * WhoKnows by utifmd
  **/
 interface IParticipantRepository {
-    suspend fun create(user: Participant): Participant
+    suspend fun create(participant: Participant): Participant
     suspend fun read(id: String): Participant
-    suspend fun update(id: String, user: Participant): Participant
+    suspend fun update(id: String, participant: Participant): Participant
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Participant>
 

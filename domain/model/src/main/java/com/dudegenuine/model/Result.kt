@@ -9,6 +9,7 @@ import java.util.*
 data class Result (
     val id: String,
     var roomId: String,
+    var participantId: String,
     var userId: String,
     var correctQuiz: List<String>,
     var wrongQuiz: List<String>,

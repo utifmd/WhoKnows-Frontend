@@ -7,9 +7,9 @@ import com.dudegenuine.model.Quiz
  * WhoKnows by utifmd
  **/
 interface IQuizRepository {
-    suspend fun create(user: Quiz): Quiz
+    suspend fun create(quiz: Quiz): Quiz
     suspend fun read(id: String): Quiz
-    suspend fun update(id: String, user: Quiz): Quiz
+    suspend fun update(id: String, quiz: Quiz): Quiz
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Quiz>
 

@@ -1,6 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
-import com.dudegenuine.usecase.room.GetRoom
+import com.dudegenuine.usecase.room.*
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.ui.view.room.RoomViewModel
 import com.dudegenuine.whoknows.ui.view.user.UserViewModel
@@ -20,11 +20,10 @@ interface IViewModelModule {
     ): UserViewModel
 
     fun provideRoomViewModel(
-//        postRoom: PostRoom,
+        postRoom: PostRoom,
         getRoom: GetRoom,
-//        patchRoom: PatchRoom,
-//        deleteRoom: DeleteRoom,
-//        getRooms: GetRooms,
-//        signInRoom: SignInRoom
+        patchRoom: PatchRoom,
+        deleteRoom: DeleteRoom,
+        getRooms: GetRooms
     ): RoomViewModel
 }

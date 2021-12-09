@@ -1,6 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
-import com.dudegenuine.usecase.room.GetRoom
+import com.dudegenuine.usecase.room.*
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
 import com.dudegenuine.whoknows.ui.view.room.RoomViewModel
@@ -27,8 +27,7 @@ object ViewModelModule: IViewModelModule {
         patchUser: PatchUser,
         deleteUser: DeleteUser,
         getUsers: GetUsers,
-        signInUser: SignInUser
-        //savedStateHandle: SavedStateHandle
+        signInUser: SignInUser //savedStateHandle: SavedStateHandle
     ): UserViewModel {
 
         return UserViewModel(postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
@@ -36,20 +35,12 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
-//        postRoom: PostRoom,
+        postRoom: PostRoom,
         getRoom: GetRoom,
-//        patchRoom: PatchRoom,
-//        deleteRoom: DeleteRoom,
-//        getRooms: GetRooms,
-//        signInRoom: SignInRoom,
+        patchRoom: PatchRoom,
+        deleteRoom: DeleteRoom,
+        getRooms: GetRooms
     ): RoomViewModel {
-        return RoomViewModel(
-//            postRoom,
-            getRoom,
-//            patchRoom,
-//            deleteRoom,
-//            getRooms,
-//            signInRoom,
-        )
+        return RoomViewModel(postRoom, getRoom, patchRoom, deleteRoom, getRooms)
     }
 }
