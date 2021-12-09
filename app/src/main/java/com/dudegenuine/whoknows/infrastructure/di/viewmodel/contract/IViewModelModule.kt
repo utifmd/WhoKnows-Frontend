@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
+import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.usecase.room.*
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.ui.view.room.RoomViewModel
@@ -26,4 +27,12 @@ interface IViewModelModule {
         deleteRoom: DeleteRoom,
         getRooms: GetRooms
     ): RoomViewModel
+
+//    fun provideQuizViewModel(
+//        postQuiz: PostQuiz,
+//        getQuiz: GetQuiz,
+//        patchQuiz: PatchQuiz,
+//        deleteQuiz: DeleteQuiz,
+//        getQuestions: GetQuestions
+//    ): QuizViewModel
 }
