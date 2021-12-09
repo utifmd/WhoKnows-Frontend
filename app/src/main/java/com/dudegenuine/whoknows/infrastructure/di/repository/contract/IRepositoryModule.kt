@@ -11,7 +11,7 @@ import com.dudegenuine.repository.contract.*
 interface IRepositoryModule {
     fun provideUserRepository(service: IUserService, mapper: IUserDataMapper): IUserRepository
     fun provideRoomRepository(service: IRoomService, mapper: IRoomDataMapper): IRoomRepository
-//    fun provideQuizRepository(service: IQuizService, mapper: IQuizDataMapper): IQuizRepository
-//    fun provideParticipantRepository(service: IParticipantService, mapper: IParticipantDataMapper): IParticipantRepository
-//    fun provideResultRepository(service: IResultService, mapper: IResultDataMapper): IResultRepository
+    fun provideQuizRepository(service: IQuizService, mapper: IQuizDataMapper): IQuizRepository
+    fun provideParticipantRepository(service: IParticipantService, mapper: IParticipantDataMapper): IParticipantRepository
+    fun provideResultRepository(service: IResultService, mapper: IResultDataMapper): IResultRepository
 }
