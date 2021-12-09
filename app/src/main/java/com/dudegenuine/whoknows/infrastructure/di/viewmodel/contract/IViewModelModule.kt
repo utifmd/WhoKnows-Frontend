@@ -1,10 +1,15 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
+import com.dudegenuine.usecase.participant.*
 import com.dudegenuine.usecase.quiz.*
+import com.dudegenuine.usecase.result.*
 import com.dudegenuine.usecase.room.*
 import com.dudegenuine.usecase.user.*
-import com.dudegenuine.whoknows.ui.view.room.RoomViewModel
-import com.dudegenuine.whoknows.ui.view.user.UserViewModel
+import com.dudegenuine.whoknows.ui.view.participant.contract.IParticipantViewModel
+import com.dudegenuine.whoknows.ui.view.quiz.contract.IQuizViewModel
+import com.dudegenuine.whoknows.ui.view.result.contract.IResultViewModel
+import com.dudegenuine.whoknows.ui.view.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ui.view.user.contract.IUserViewModel
 
 /**
  * Fri, 03 Dec 2021
@@ -18,7 +23,7 @@ interface IViewModelModule {
         deleteUser: DeleteUser,
         getUsers: GetUsers,
         signInUser: SignInUser
-    ): UserViewModel
+    ): IUserViewModel
 
     fun provideRoomViewModel(
         postRoom: PostRoom,
@@ -26,13 +31,29 @@ interface IViewModelModule {
         patchRoom: PatchRoom,
         deleteRoom: DeleteRoom,
         getRooms: GetRooms
-    ): RoomViewModel
+    ): IRoomViewModel
 
-//    fun provideQuizViewModel(
-//        postQuiz: PostQuiz,
-//        getQuiz: GetQuiz,
-//        patchQuiz: PatchQuiz,
-//        deleteQuiz: DeleteQuiz,
-//        getQuestions: GetQuestions
-//    ): QuizViewModel
+    fun provideQuizViewModel(
+        postQuiz: PostQuiz,
+        getQuiz: GetQuiz,
+        patchQuiz: PatchQuiz,
+        deleteQuiz: DeleteQuiz,
+        getQuestions: GetQuestions
+    ): IQuizViewModel
+
+    fun provideResultViewModel(
+        postResult: PostResult,
+        getResult: GetResult,
+        patchResult: PatchResult,
+        deleteResult: DeleteResult,
+        getResults: GetResults
+    ): IResultViewModel
+
+    fun provideParticipantViewModel(
+        postParticipant: PostParticipant,
+        getParticipant: GetParticipant,
+        patchParticipant: PatchParticipant,
+        deleteParticipant: DeleteParticipant,
+        getParticipants: GetParticipants
+    ): IParticipantViewModel
 }
