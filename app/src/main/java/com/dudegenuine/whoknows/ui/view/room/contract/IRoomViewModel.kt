@@ -7,7 +7,7 @@ import com.dudegenuine.model.Room
  * WhoKnows by utifmd
  **/
 interface IRoomViewModel {
-    fun postRoom(user: Room)
+    fun postRoom(room: Room)
     fun getRoom(id: String)
     fun patchRoom(id: String, current: Room)
     fun deleteRoom(id: String)

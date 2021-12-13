@@ -24,5 +24,9 @@ data class ViewState(
     val results: List<Result>? = null,
 
     val participant: Participant? = null,
-    val participants: List<Participant>? = null
-)
+    val participants: List<Participant>? = null){
+
+    companion object {
+        const val DONT_EMPTY = "Fields must not be empty."
+    }
+}

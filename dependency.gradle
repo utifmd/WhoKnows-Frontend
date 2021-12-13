@@ -20,11 +20,12 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
     // Dagger - Hilt
-    implementation "com.google.dagger:hilt-android:$hilt_dagger_version"
-    kapt "com.google.dagger:hilt-android-compiler:$hilt_dagger_version"
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_droidx_version"
-    kapt "androidx.hilt:hilt-compiler:$hilt_droidx_version"
     implementation "androidx.hilt:hilt-navigation-compose:$hilt_droidx_version"
+    implementation "com.google.dagger:hilt-android:$hilt_dagger_version"
+    kapt "androidx.hilt:hilt-compiler:$hilt_droidx_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_dagger_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_dagger_version"
 
     testImplementation "junit:junit:$test_junit_version"
     androidTestImplementation "androidx.test.ext:junit:$android_test_junit_version"
@@ -32,4 +33,13 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    // Dagger - Hilt (Test)
+    // For instrumentation tests
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_dagger_version"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_dagger_version"
+
+    // For local unit tests
+    testImplementation "com.google.dagger:hilt-android-testing:$hilt_dagger_version"
+    kaptTest "com.google.dagger:hilt-compiler:$hilt_dagger_version"
 }

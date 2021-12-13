@@ -7,7 +7,7 @@ plugins {
 android {
     defaultConfig {
         applicationId "com.dudegenuine.whoknows"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.dudegenuine.whoknows.AppTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
         }
