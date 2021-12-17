@@ -1,13 +1,13 @@
-package com.dudegenuine.whoknows.ui.view.room
+package com.dudegenuine.whoknows.ui.presenter.room
 
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Room
 import com.dudegenuine.usecase.room.*
-import com.dudegenuine.whoknows.ui.view.BaseViewModel
-import com.dudegenuine.whoknows.ui.view.ViewState
-import com.dudegenuine.whoknows.ui.view.ViewState.Companion.DONT_EMPTY
-import com.dudegenuine.whoknows.ui.view.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
+import com.dudegenuine.whoknows.ui.presenter.ViewState
+import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.room.contract.IRoomViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -37,9 +37,7 @@ class RoomViewModel
     }
 
     override fun postRoom(room: Room) {
-        if (room.minute != 0 ||
-            room.title.isEmpty() ||
-            room.description.isEmpty()){
+        if (room.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -51,7 +49,7 @@ class RoomViewModel
     }
 
     override fun getRoom(id: String) {
-        if (id.isEmpty()){
+        if (id.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -61,9 +59,7 @@ class RoomViewModel
     }
 
     override fun patchRoom(id: String, current: Room) {
-        if (current.minute != 0 ||
-            current.title.isEmpty() ||
-            current.description.isEmpty()){
+        if (id.isBlank() || current.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
         }
 
@@ -74,7 +70,7 @@ class RoomViewModel
     }
 
     override fun deleteRoom(id: String) {
-        if (id.isEmpty()){
+        if (id.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -84,7 +80,7 @@ class RoomViewModel
     }
 
     override fun getRooms(page: Int, size: Int) {
-        if (size != 0){
+        if (size == 0){
             _state.value = ViewState(error = DONT_EMPTY)
         }
 

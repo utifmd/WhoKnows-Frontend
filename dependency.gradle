@@ -37,9 +37,13 @@ dependencies {
     // Dagger - Hilt (Test)
     // For instrumentation tests
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_dagger_version"
+    androidTestImplementation "com.google.truth:truth:1.0.1"
+    androidTestImplementation 'org.robolectric:robolectric:4.4'
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_dagger_version"
 
     // For local unit tests
     testImplementation "com.google.dagger:hilt-android-testing:$hilt_dagger_version"
+    testImplementation "com.google.truth:truth:1.0.1"
+    testImplementation 'org.robolectric:robolectric:4.4'
     kaptTest "com.google.dagger:hilt-compiler:$hilt_dagger_version"
 }

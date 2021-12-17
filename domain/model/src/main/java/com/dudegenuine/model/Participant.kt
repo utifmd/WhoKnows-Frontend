@@ -16,4 +16,8 @@ data class Participant (
     var createdAt: Date,
     var updatedAt: Date?,
     var results: List<Result>
-)
+){
+    val isPropsBlank: Boolean =
+        roomId.isBlank() || userId.isBlank() ||
+                currentPage.isBlank() || timeLeft == 0
+}

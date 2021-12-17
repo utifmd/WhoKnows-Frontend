@@ -16,4 +16,11 @@ data class Result (
     var score: Int?,
     var createdAt: Date,
     var updatedAt: Date?
-)
+){
+    val isPropsBlank: Boolean = roomId.isBlank() ||
+            participantId.isBlank() ||
+            userId.isBlank() ||
+            correctQuiz.isEmpty() ||
+            wrongQuiz.isEmpty() ||
+            score != 0
+}

@@ -1,9 +1,7 @@
-package com.dudegenuine.whoknows.ui.view.user.contract
+package com.dudegenuine.whoknows.ui.presenter.user.contract
 
 import com.dudegenuine.model.User
 import com.dudegenuine.model.request.LoginRequest
-import com.dudegenuine.repository.UserRepository
-import com.dudegenuine.usecase.user.*
 
 /**
  * Sat, 04 Dec 2021

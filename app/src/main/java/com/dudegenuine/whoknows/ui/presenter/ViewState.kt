@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.view
+package com.dudegenuine.whoknows.ui.presenter
 
 import com.dudegenuine.model.*
 
@@ -27,6 +27,6 @@ data class ViewState(
     val participants: List<Participant>? = null){
 
     companion object {
-        const val DONT_EMPTY = "Fields must not be empty."
+        const val DONT_EMPTY = "Fields must not be blank."
     }
 }

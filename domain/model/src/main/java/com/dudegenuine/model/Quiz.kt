@@ -16,4 +16,10 @@ data class Quiz(
     var createdBy: String,
     var createdAt: Date,
     var updatedAt: Date?
-)
+){
+    val isPropsBlank: Boolean = roomId.isBlank() ||
+            question.isBlank() ||
+            options.isEmpty() ||
+            answer.isBlank() ||
+            createdBy.isBlank()
+}

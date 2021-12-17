@@ -1,14 +1,14 @@
-package com.dudegenuine.whoknows.ui.view.user
+package com.dudegenuine.whoknows.ui.presenter.user
 
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.User
 import com.dudegenuine.model.request.LoginRequest
 import com.dudegenuine.usecase.user.*
-import com.dudegenuine.whoknows.ui.view.BaseViewModel
-import com.dudegenuine.whoknows.ui.view.ViewState
-import com.dudegenuine.whoknows.ui.view.ViewState.Companion.DONT_EMPTY
-import com.dudegenuine.whoknows.ui.view.user.contract.IUserViewModel
+import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
+import com.dudegenuine.whoknows.ui.presenter.ViewState
+import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -34,8 +34,8 @@ class UserViewModel
     val state: State<ViewState> = _state // init { getUsers(0, 10); getUser("USR00002") }
 
     override fun signInUser(loginRequest: LoginRequest) {
-        if (loginRequest.email.isEmpty() ||
-            loginRequest.password.isEmpty()){
+        if (loginRequest.email.isBlank() ||
+            loginRequest.password.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -45,11 +45,7 @@ class UserViewModel
     }
 
     override fun postUser(user: User) {
-        if (user.fullName.isEmpty() ||
-            user.email.isEmpty() ||
-            user.phone.isEmpty() ||
-            user.username.isEmpty() ||
-            user.password.isEmpty()){
+        if (user.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -61,7 +57,7 @@ class UserViewModel
     }
 
     override fun getUser(id: String) {
-        if (id.isEmpty()){
+        if (id.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -71,12 +67,7 @@ class UserViewModel
     }
 
     override fun patchUser(id: String, current: User) {
-        if (id.isEmpty() ||
-            current.fullName.isEmpty() ||
-            current.email.isEmpty() ||
-            current.phone.isEmpty() ||
-            current.username.isEmpty() ||
-            current.password.isEmpty()){
+        if (id.isBlank() || current.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -88,7 +79,7 @@ class UserViewModel
     }
 
     override fun deleteUser(id: String) {
-        if (id.isEmpty()) {
+        if (id.isBlank()) {
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -98,7 +89,7 @@ class UserViewModel
     }
 
     override fun getUsers(page: Int, size: Int) {
-        if (size != 0){
+        if (size == 0){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }

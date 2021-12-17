@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.view.quiz.contract
+package com.dudegenuine.whoknows.ui.presenter.quiz.contract
 
 import com.dudegenuine.model.Quiz
 

@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.view.participant.contract
+package com.dudegenuine.whoknows.ui.presenter.participant.contract
 
 import com.dudegenuine.model.Participant
 
@@ -7,6 +7,7 @@ import com.dudegenuine.model.Participant
  * WhoKnows by utifmd
  **/
 interface IParticipantViewModel {
+    fun initParticipant(participant: Participant)
     fun postParticipant(participant: Participant)
     fun getParticipant(id: String)
     fun patchParticipant(id: String, current: Participant)

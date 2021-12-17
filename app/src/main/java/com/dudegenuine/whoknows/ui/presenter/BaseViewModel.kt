@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.view
+package com.dudegenuine.whoknows.ui.presenter
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel

@@ -5,11 +5,11 @@ import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.usecase.result.*
 import com.dudegenuine.usecase.room.*
 import com.dudegenuine.usecase.user.*
-import com.dudegenuine.whoknows.ui.view.participant.contract.IParticipantViewModel
-import com.dudegenuine.whoknows.ui.view.quiz.contract.IQuizViewModel
-import com.dudegenuine.whoknows.ui.view.result.contract.IResultViewModel
-import com.dudegenuine.whoknows.ui.view.room.contract.IRoomViewModel
-import com.dudegenuine.whoknows.ui.view.user.contract.IUserViewModel
+import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
+import com.dudegenuine.whoknows.ui.presenter.quiz.contract.IQuizViewModel
+import com.dudegenuine.whoknows.ui.presenter.result.contract.IResultViewModel
+import com.dudegenuine.whoknows.ui.presenter.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
 
 /**
  * Fri, 03 Dec 2021

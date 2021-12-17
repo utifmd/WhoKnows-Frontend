@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.view.room.contract
+package com.dudegenuine.whoknows.ui.presenter.room.contract
 
 import com.dudegenuine.model.Room
 

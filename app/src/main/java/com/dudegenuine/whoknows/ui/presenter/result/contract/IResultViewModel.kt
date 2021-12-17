@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.view.result.contract
+package com.dudegenuine.whoknows.ui.presenter.result.contract
 
 import com.dudegenuine.model.Result
 

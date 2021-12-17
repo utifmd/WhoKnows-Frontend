@@ -1,12 +1,12 @@
-package com.dudegenuine.whoknows.ui.view.quiz
+package com.dudegenuine.whoknows.ui.presenter.quiz
 
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.usecase.quiz.*
-import com.dudegenuine.whoknows.ui.view.BaseViewModel
-import com.dudegenuine.whoknows.ui.view.ViewState
-import com.dudegenuine.whoknows.ui.view.ViewState.Companion.DONT_EMPTY
-import com.dudegenuine.whoknows.ui.view.quiz.contract.IQuizViewModel
+import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
+import com.dudegenuine.whoknows.ui.presenter.ViewState
+import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.quiz.contract.IQuizViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -28,11 +28,11 @@ class QuizViewModel
 ): BaseViewModel(), IQuizViewModel {
 
     override fun postQuiz(quiz: Quiz) {
-        if (quiz.roomId.isEmpty() ||
-            quiz.question.isEmpty() ||
+        if (quiz.roomId.isBlank() ||
+            quiz.question.isBlank() ||
             quiz.options.isEmpty() ||
-            quiz.answer.isEmpty() ||
-            quiz.createdBy.isEmpty()){
+            quiz.answer.isBlank() ||
+            quiz.createdBy.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -44,7 +44,7 @@ class QuizViewModel
     }
 
     override fun getQuiz(id: String) {
-        if (id.isEmpty()){
+        if (id.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -54,12 +54,12 @@ class QuizViewModel
     }
 
     override fun patchQuiz(id: String, current: Quiz) {
-        if (id.isEmpty() ||
-            current.roomId.isEmpty() ||
-            current.question.isEmpty() ||
+        if (id.isBlank() ||
+            current.roomId.isBlank() ||
+            current.question.isBlank() ||
             current.options.isEmpty() ||
-            current.answer.isEmpty() ||
-            current.createdBy.isEmpty()){
+            current.answer.isBlank() ||
+            current.createdBy.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -71,7 +71,7 @@ class QuizViewModel
     }
 
     override fun deleteQuiz(id: String) {
-        if (id.isEmpty()){
+        if (id.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -81,7 +81,7 @@ class QuizViewModel
     }
 
     override fun getQuestions(page: Int, size: Int) {
-        if (size != 0){
+        if (size == 0){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }

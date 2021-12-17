@@ -1,12 +1,12 @@
-package com.dudegenuine.whoknows.ui.view.participant
+package com.dudegenuine.whoknows.ui.presenter.participant
 
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Participant
 import com.dudegenuine.usecase.participant.*
-import com.dudegenuine.whoknows.ui.view.BaseViewModel
-import com.dudegenuine.whoknows.ui.view.ViewState
-import com.dudegenuine.whoknows.ui.view.ViewState.Companion.DONT_EMPTY
-import com.dudegenuine.whoknows.ui.view.participant.contract.IParticipantViewModel
+import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
+import com.dudegenuine.whoknows.ui.presenter.ViewState
+import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -27,11 +27,12 @@ class ParticipantViewModel
     private val deleteParticipantUseCase: DeleteParticipant,
     private val getParticipantsUseCase: GetParticipants): BaseViewModel(), IParticipantViewModel {
 
+    override fun initParticipant(participant: Participant) {
+        _state.value = ViewState(participant = participant)
+    }
+
     override fun postParticipant(participant: Participant) {
-        if (participant.roomId.isEmpty() ||
-            participant.userId.isEmpty() ||
-            participant.currentPage.isEmpty() ||
-            participant.timeLeft != 0){
+        if (participant.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -43,7 +44,7 @@ class ParticipantViewModel
     }
 
     override fun getParticipant(id: String) {
-        if (id.isEmpty()){
+        if (id.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -53,10 +54,7 @@ class ParticipantViewModel
     }
 
     override fun patchParticipant(id: String, current: Participant) {
-        if (id.isEmpty() || current.roomId.isEmpty() ||
-            current.userId.isEmpty() ||
-            current.currentPage.isEmpty() ||
-            current.timeLeft != 0){
+        if (id.isBlank() || current.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -68,7 +66,7 @@ class ParticipantViewModel
     }
 
     override fun deleteParticipant(id: String) {
-        if (id.isEmpty()){
+        if (id.isBlank()){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
@@ -78,7 +76,7 @@ class ParticipantViewModel
     }
 
     override fun getParticipants(page: Int, size: Int) {
-        if (size != 0){
+        if (size == 0){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
