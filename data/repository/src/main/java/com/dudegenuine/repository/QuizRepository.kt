@@ -1,6 +1,8 @@
 package com.dudegenuine.repository
 
+import android.util.Log
 import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.common.Utility.strOf
 import com.dudegenuine.model.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
 import com.dudegenuine.remote.service.contract.IQuizService
@@ -16,8 +18,11 @@ class QuizRepository
     @Inject constructor(
     private val service: IQuizService,
     private val mapper: IQuizDataMapper): IQuizRepository {
+    private val TAG: String = strOf<QuizRepository>()
 
-    override suspend fun create(quiz: Quiz): Quiz = try { mapper.asQuiz(
+    override suspend fun create(quiz: Quiz): Quiz = try {
+        Log.d(TAG, "create: triggered")
+        mapper.asQuiz(
         service.create(mapper.asEntity(quiz)))
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)

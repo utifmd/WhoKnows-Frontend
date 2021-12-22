@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.mapper.contract
 
 import com.dudegenuine.remote.mapper.contract.*
+import com.google.gson.Gson
 
 /**
  * Thu, 02 Dec 2021
@@ -9,7 +10,7 @@ import com.dudegenuine.remote.mapper.contract.*
 interface IDataMapperModule {
     fun provideUserDataMapper(): IUserDataMapper
     fun provideRoomDataMapper(): IRoomDataMapper
-    fun provideQuizDataMapper(): IQuizDataMapper
+    fun provideQuizDataMapper(gson: Gson): IQuizDataMapper
     fun provideParticipantDataMapper(): IParticipantDataMapper
     fun provideResultDataMapper(): IResultDataMapper
 }

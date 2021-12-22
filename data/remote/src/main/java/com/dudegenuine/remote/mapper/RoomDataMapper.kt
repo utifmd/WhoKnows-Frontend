@@ -19,22 +19,22 @@ class RoomDataMapper: IRoomDataMapper {
     override fun asEntity(room: Room): RoomEntity {
         return RoomEntity(
             room.id,
+            room.userId,
             room.minute,
             room.title,
             room.description,
             room.expired,
             room.createdAt,
             room.updatedAt,
-            room.questions
-                .filterIsInstance<QuizEntity>(),
-            room.participants
-                .filterIsInstance<ParticipantEntity>(),
+            room.questions?.filterIsInstance<QuizEntity>() ?: emptyList(),
+            room.participants?.filterIsInstance<ParticipantEntity>() ?: emptyList(),
         )
     }
 
     override fun asRoom(entity: RoomEntity): Room {
         return Room(
             entity.id,
+            entity.userid,
             entity.minute,
             entity.title,
             entity.description,

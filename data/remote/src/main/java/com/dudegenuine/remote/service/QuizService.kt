@@ -12,26 +12,26 @@ import retrofit2.http.*
  * WhoKnows by utifmd
  **/
 interface QuizService: IQuizService {
-    @Headers(HEADER)
+    @Headers("X-Api-Key: utif.pages.dev", "Content-Type: application/json", "Accept: application/json")
     @POST(ENDPOINT)
     override suspend fun create(
         @Body entity: QuizEntity): Response<QuizEntity>
 
     @Headers(HEADER)
-    @GET("${ENDPOINT}/{userId}")
+    @GET("${ENDPOINT}/{quizId}")
     override suspend fun read(
-        @Path("userId") id: String): Response<QuizEntity>
+        @Path("quizId") id: String): Response<QuizEntity>
 
     @Headers(HEADER)
-    @PATCH("${ENDPOINT}/{userId}")
+    @PATCH("${ENDPOINT}/{quizId}")
     override suspend fun update(
-        @Path("userId") id: String,
+        @Path("quizId") id: String,
         @Body entity: QuizEntity): Response<QuizEntity>
 
     @Headers(HEADER)
-    @DELETE("${ENDPOINT}/{userId}")
+    @DELETE("${ENDPOINT}/{quizId}")
     override suspend fun delete(
-        @Path("userId") id: String)
+        @Path("quizId") id: String)
 
     @Headers(HEADER)
     @GET(ENDPOINT)

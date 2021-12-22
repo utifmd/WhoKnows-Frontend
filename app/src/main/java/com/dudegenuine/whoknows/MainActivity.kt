@@ -3,38 +3,30 @@ package com.dudegenuine.whoknows
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
-import com.dudegenuine.whoknows.ui.compose.component.BtmNavBar
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Explore
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.DISCOVER
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SETTING
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SUMMARY
-import com.dudegenuine.whoknows.ui.compose.route.Navigation
+import com.dudegenuine.whoknows.ui.compose.screen.OnBoardingScreen
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
-import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
+@ExperimentalMaterialApi
 class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             WhoKnowsTheme {
-                val navController = rememberNavController()
+                OnBoardingScreen()
+
+                /*val navController = rememberNavController()
+
                 Scaffold(
                     bottomBar = {
                         BtmNavBar(
@@ -46,7 +38,7 @@ class MainActivity: ComponentActivity() {
                     Navigation(
                         controller = navController
                     )
-                }
+                }*/
             }
         }
     }
@@ -56,19 +48,19 @@ class MainActivity: ComponentActivity() {
             BtmNavItem(
                 name = SUMMARY,
                 route = SUMMARY.lowercase(),
-                icon = Icons.Default.AccountBox
+                icon = Icons.Default.Block
             ),
 
             BtmNavItem(
                 name = DISCOVER,
                 route = DISCOVER.lowercase(),
-                icon = Icons.Default.Search //, badge = 2
+                icon = Icons.Default.Explore //, badge = 2
             ),
 
             BtmNavItem(
                 name = SETTING,
                 route = SETTING.lowercase(),
-                icon = Icons.Default.Settings
+                icon = Icons.Default.Edit
             )
         )
     }

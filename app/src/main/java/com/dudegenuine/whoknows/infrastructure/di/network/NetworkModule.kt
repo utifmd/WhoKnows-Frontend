@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.infrastructure.di.network
 
 import com.dudegenuine.whoknows.infrastructure.common.BodyFactory
 import com.dudegenuine.whoknows.infrastructure.common.Constants
-import com.dudegenuine.whoknows.infrastructure.common.RespInterceptor
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.CONNECT_TIMEOUT
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.READ_TIMEOUT
@@ -43,7 +42,7 @@ object NetworkModule: INetworkModule {
             retryOnConnectionFailure(true)
             // addInterceptor(RespInterceptor())
             addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level = HttpLoggingInterceptor.Level.HEADERS
             })
         }.build()
     }
@@ -53,7 +52,7 @@ object NetworkModule: INetworkModule {
     override fun provideNetwork(gson: Gson, client: OkHttpClient): Retrofit.Builder {
         return Retrofit.Builder().baseUrl(Constants.BASE_URL)
             .addConverterFactory(BodyFactory.create(gson))
-            // .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
     }
 }

@@ -1,8 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.route
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.toLowerCase
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable

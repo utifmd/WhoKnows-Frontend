@@ -6,4 +6,5 @@ package com.dudegenuine.whoknows.infrastructure.common
  **/
 object Constants {
     const val BASE_URL = "https://who-knows-backend.herokuapp.com"
+    // const val BASE_URL = "http://127.0.0.1:8080"
 }

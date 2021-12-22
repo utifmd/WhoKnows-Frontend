@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.ui.presenter.quiz
 
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.common.Utility
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ViewState
@@ -26,18 +27,17 @@ class QuizViewModel
     private val deleteQuizUseCase: DeleteQuiz,
     private val getQuestionsUseCase: GetQuestions
 ): BaseViewModel(), IQuizViewModel {
+    private val TAG: String = Utility.strOf<QuizViewModel>()
+
+    init {
+        getQuestions(0, 10)
+    }
 
     override fun postQuiz(quiz: Quiz) {
-        if (quiz.roomId.isBlank() ||
-            quiz.question.isBlank() ||
-            quiz.options.isEmpty() ||
-            quiz.answer.isBlank() ||
-            quiz.createdBy.isBlank()){
+        if (quiz.roomId.isBlank() || quiz.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }
-
-        quiz.apply { createdAt = Date() }
 
         postQuizUseCase(quiz)
             .onEach(this::resourcing).launchIn(viewModelScope)
@@ -54,12 +54,7 @@ class QuizViewModel
     }
 
     override fun patchQuiz(id: String, current: Quiz) {
-        if (id.isBlank() ||
-            current.roomId.isBlank() ||
-            current.question.isBlank() ||
-            current.options.isEmpty() ||
-            current.answer.isBlank() ||
-            current.createdBy.isBlank()){
+        if (id.isBlank() || current.isPropsBlank){
             _state.value = ViewState(error = DONT_EMPTY)
             return
         }

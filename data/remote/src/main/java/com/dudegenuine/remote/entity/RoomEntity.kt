@@ -8,8 +8,11 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 data class RoomEntity(
-    @SerializedName("userId")
+    @SerializedName("roomId")
     val id: String,
+
+    @SerializedName("userId")
+    val userid: String,
 
     @SerializedName("minute")
     val minute: Int,

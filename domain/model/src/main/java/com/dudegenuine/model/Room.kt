@@ -8,14 +8,15 @@ import java.util.*
  **/
 data class Room(
     val id: String,
+    val userId: String,
     var minute: Int,
     var title: String,
     var description: String,
     var expired: Boolean,
     var createdAt: Date,
     var updatedAt: Date?,
-    var questions: List<Quiz>,
-    var participants: List<Participant>
+    var questions: List<Quiz>?,
+    var participants: List<Participant>?
 ){
     val isPropsBlank: Boolean =
         minute == 0 || title.isBlank() ||

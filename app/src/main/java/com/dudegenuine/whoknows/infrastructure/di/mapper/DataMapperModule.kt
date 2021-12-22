@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.infrastructure.di.mapper
 import com.dudegenuine.remote.mapper.*
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.mapper.contract.IDataMapperModule
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,8 +32,8 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideQuizDataMapper(): IQuizDataMapper {
-        return QuizDataMapper()
+    override fun provideQuizDataMapper(gson: Gson): IQuizDataMapper {
+        return QuizDataMapper(gson)
     }
 
     @Provides

@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.presenter.room
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Room
@@ -32,6 +33,7 @@ class RoomViewModel
     val state: State<ViewState> = _state
 
     init {
+        Log.d(TAG, "initial: triggered")
         // getRoom("ROOM00001")
         getRooms(0, 10)
     }

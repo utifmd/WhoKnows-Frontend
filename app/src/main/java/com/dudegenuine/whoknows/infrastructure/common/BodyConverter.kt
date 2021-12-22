@@ -1,8 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.common
 
+import android.util.Log
 import com.dudegenuine.model.validation.HttpFailureException
-import com.dudegenuine.remote.entity.Response
-import com.dudegenuine.remote.entity.UserEntity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -10,10 +9,8 @@ import com.google.gson.TypeAdapter
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import java.io.IOException
-import java.lang.Exception
 import java.lang.reflect.Type
 import java.nio.charset.Charset
-import kotlin.jvm.Throws
 
 /**
  * Tue, 07 Dec 2021
@@ -24,7 +21,7 @@ class BodyConverter<T>(
     private val type: Type,
     private val typeAdapter: TypeAdapter<T>
 ): Converter<ResponseBody, T> {
-    // private val TAG: String = javaClass.simpleName
+     private val TAG: String = javaClass.simpleName
 
     @Throws(IOException::class)
     override fun convert(body: ResponseBody): T? {
@@ -43,6 +40,7 @@ class BodyConverter<T>(
 
             gson.fromJson<T>(body.string(), type)
         } catch (e: Exception){
+            Log.d(TAG, "exception: ${e.localizedMessage}")
             throw HttpFailureException(e.localizedMessage ?: "Exception.")
         }
     }
