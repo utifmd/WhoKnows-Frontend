@@ -20,9 +20,8 @@ class QuizDataMapper
     val TAG: String = strOf<QuizDataMapper>()
 
     override fun asEntity(quiz: Quiz): QuizEntity {
-        val strAnswer: String = gson.toJson(quiz.answer)
+        val strAnswer = gson.toJson(quiz.answer)
 
-        // Log.d(TAG, "asEntity: $result")
         return QuizEntity(
             quiz.id, quiz.roomId, quiz.images, quiz.question,
             quiz.options, strAnswer, quiz.createdBy, quiz.createdAt, quiz.updatedAt
@@ -30,22 +29,16 @@ class QuizDataMapper
     }
 
     override fun asQuiz(entity: QuizEntity): Quiz {
-        val possibility: Answer = gson.fromJson(entity.answer, Answer::class.java)
         val result = Quiz(entity.id, entity.roomId, entity.images, entity.question, entity.options, null, entity.createdBy, entity.createdAt, entity.updatedAt)
+        val possibility: Answer = gson.fromJson(entity.answer, Answer::class.java)
 
         return when(possibility.type){
             strOf<PossibleAnswer.SingleChoice>() -> result.apply {
-                answer = PossibleAnswer.SingleChoice(possibility.answer)
+                answer = PossibleAnswer.SingleChoice(possibility.answer ?: "")
             }
-            strOf<PossibleAnswer.MultipleChoice>() -> {
-                val setData: Set<*> = gson.fromJson(possibility.answer, Set::class.java)
-                val data: List<String> = setData.map { it as String }
-                result.apply {
-                    answer = PossibleAnswer.MultipleChoice(data.toSet())
-                }
-            }
-//            strOf<PossibleAnswer.Slider>() -> {}
-//            strOf<PossibleAnswer.Action>() -> {}
+            strOf<PossibleAnswer.MultipleChoice>() -> result.apply {
+                answer = PossibleAnswer.MultipleChoice(possibility.answers ?: emptySet())
+            } /*val itemType = object : TypeToken<List<String>>(){ }.type val data: List<String> = gson.fromJson(entity.answer, itemType)*/ //            strOf<PossibleAnswer.Slider>() -> {} //            strOf<PossibleAnswer.Action>() -> {}
             else -> { result }
         }
     }

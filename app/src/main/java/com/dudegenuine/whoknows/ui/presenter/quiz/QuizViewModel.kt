@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.presenter.quiz
 
+import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.Utility
@@ -25,13 +26,14 @@ class QuizViewModel
     private val getQuizUseCase: GetQuiz,
     private val patchQuizUseCase: PatchQuiz,
     private val deleteQuizUseCase: DeleteQuiz,
-    private val getQuestionsUseCase: GetQuestions
-): BaseViewModel(), IQuizViewModel {
+    private val getQuestionsUseCase: GetQuestions): BaseViewModel(), IQuizViewModel {
     private val TAG: String = Utility.strOf<QuizViewModel>()
 
-    init {
-        getQuestions(0, 10)
-    }
+    val state: State<ViewState> = _state
+
+//    init {
+//        getQuestions(0, 10)
+//    }
 
     override fun postQuiz(quiz: Quiz) {
         if (quiz.roomId.isBlank() || quiz.isPropsBlank){

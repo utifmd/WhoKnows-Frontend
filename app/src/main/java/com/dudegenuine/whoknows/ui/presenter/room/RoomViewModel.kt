@@ -1,10 +1,13 @@
 package com.dudegenuine.whoknows.ui.presenter.room
 
-import android.util.Log
 import androidx.compose.runtime.State
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Room
 import com.dudegenuine.usecase.room.*
+import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
+import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ViewState
 import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
@@ -30,12 +33,37 @@ class RoomViewModel
     private val getRoomsUseCase: GetRooms): BaseViewModel(), IRoomViewModel {
     private val TAG: String = javaClass.simpleName
 
-    val state: State<ViewState> = _state
+    val resourceState: State<ViewState>
+        get() = _state
+
+    private val _uiState = MutableLiveData<RoomState>()
+    val uiState: LiveData<RoomState>
+        get() = _uiState
+
+    private lateinit var roomInitialState: RoomState
 
     init {
-        Log.d(TAG, "initial: triggered")
-        // getRoom("ROOM00001")
-        getRooms(0, 10)
+        /*
+        * Boarding
+        * */ // Log.d(TAG, "initial: triggered") // getRooms(0, 10)
+        getRoom("ROM-f80365e5-0e65-4674-9e7b-bee666b62bda")
+
+        resourceState.value.room?.let { room ->
+            roomInitialState = RoomState.BoardingQuiz(room)
+            _uiState.value = roomInitialState
+
+            room.questions?.let { quizzes ->
+                quizzes.mapIndexed { index, quiz ->
+                    OnBoardingState(
+                        quiz = quiz,
+                        questionIndex = index,
+                        totalQuestionsCount = quizzes.size,
+                        showPrevious = index > 0,
+                        showDone = index == quizzes.size -1
+                    )
+                }
+            }
+        }
     }
 
     override fun postRoom(room: Room) {

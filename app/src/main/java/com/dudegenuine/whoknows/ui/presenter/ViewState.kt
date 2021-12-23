@@ -12,19 +12,19 @@ data class ViewState(
     val error: String = "", //Error? = null,
 
     val user: User? = null,
-    val users: List<User> = emptyList(),
+    val users: List<User>? = null,
 
     val room: Room? = null,
-    val rooms: List<Room> = emptyList(),
+    val rooms: List<Room>? = null,
 
     val quiz: Quiz? = null,
-    val questions: List<Quiz> = emptyList(),
+    val questions: List<Quiz>? = null,
 
     val result: Result? = null,
-    val results: List<Result> = emptyList(),
+    val results: List<Result>? = null,
 
     val participant: Participant? = null,
-    val participants: List<Participant> = emptyList()){
+    val participants: List<Participant>? = null){
 
     sealed class Error {
         object BadRequest: Error()

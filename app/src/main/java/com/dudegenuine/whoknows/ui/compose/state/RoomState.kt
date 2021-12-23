@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Result
+import com.dudegenuine.model.Room
 
 /**
  * Mon, 20 Dec 2021
@@ -25,8 +26,7 @@ class OnBoardingState(
 
 sealed class RoomState {
     data class BoardingQuiz(
-        val title: String,
-        val listOnBoardingState: List<OnBoardingState>): RoomState(){
+        val room: Room): RoomState(){
             var currentQuestionIdx by mutableStateOf(0)
         }
     data class BoardingResult(

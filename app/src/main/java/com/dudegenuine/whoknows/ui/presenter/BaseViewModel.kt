@@ -3,9 +3,7 @@ package com.dudegenuine.whoknows.ui.presenter
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.dudegenuine.model.Quiz
-import com.dudegenuine.model.Resource
-import com.dudegenuine.model.User
+import com.dudegenuine.model.*
 
 /**
  * Wed, 08 Dec 2021
@@ -26,10 +24,14 @@ abstract class BaseViewModel: ViewModel() {
                         users = payload.filterIsInstance<User>(),
                         questions = payload.filterIsInstance<Quiz>()
                     )
-                } else _state.value = ViewState(
-                    user = result.data as User,
-                    quiz = result.data as Quiz
-                )
+                } else _state.value = when(result.data){
+                    is User -> ViewState(user = result.data as User)
+                    is Room ->ViewState(room = result.data as Room)
+                    is Quiz -> ViewState(quiz = result.data as Quiz)
+                    is Participant -> ViewState(participant = result.data as Participant)
+                    is Result -> ViewState(result = result.data as Result)
+                    else -> ViewState()
+                }
             }
             is Resource.Error -> {
                 Log.d(TAG, "Resource.ERROR: ${result.message}")

@@ -32,12 +32,16 @@ sealed class QuizActionResult {
 
 sealed class PossibleAnswer(val type: String) {
     data class SingleChoice(val answer: String): PossibleAnswer(strOf<SingleChoice>())
-    data class MultipleChoice(val answer: Set<String>): PossibleAnswer(strOf<MultipleChoice>())
+    data class MultipleChoice(val answers: Set<String>): PossibleAnswer(strOf<MultipleChoice>())
     data class Action(val answer: QuizActionResult): PossibleAnswer(strOf<Action>())
     data class Slider(val answer: Float): PossibleAnswer(strOf<Slider>())
 }
 
-data class Answer(val answer: String, val type: String)
+data class Answer(
+    val type: String,
+    val answer: String? = null,
+    val answers: Set<String>? = null
+)
 
 sealed class PossibleOption {
     data class SingleChoice(val options: List<String>): PossibleOption()
