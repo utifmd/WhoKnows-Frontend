@@ -26,8 +26,8 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideRoomDataMapper(): IRoomDataMapper {
-        return RoomDataMapper()
+    override fun provideRoomDataMapper(mapperQuiz: IQuizDataMapper, mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
+        return RoomDataMapper(mapperQuiz, mapperParticipant)
     }
 
     @Provides

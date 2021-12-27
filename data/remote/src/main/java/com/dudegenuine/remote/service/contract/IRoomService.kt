@@ -1,6 +1,5 @@
 package com.dudegenuine.remote.service.contract
 
-import com.dudegenuine.remote.BuildConfig
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
 
@@ -16,7 +15,9 @@ interface IRoomService {
     suspend fun list(page: Int, size: Int): Response<List<RoomEntity>>
 
     companion object {
-        const val HEADER = BuildConfig.HEADER_API
+        const val API_KEY = "X-Api-Key: utif.pages.dev"
+        const val CONTENT_TYPE = "Content-Type: application/json"
+        const val ACCEPT = "Accept: application/json"
         const val ENDPOINT = "/api/rooms"
     }
 }

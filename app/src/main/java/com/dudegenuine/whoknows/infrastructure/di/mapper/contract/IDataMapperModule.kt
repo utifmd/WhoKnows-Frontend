@@ -9,7 +9,7 @@ import com.google.gson.Gson
  **/
 interface IDataMapperModule {
     fun provideUserDataMapper(): IUserDataMapper
-    fun provideRoomDataMapper(): IRoomDataMapper
+    fun provideRoomDataMapper(mapperQuiz: IQuizDataMapper, mapperParticipant: IParticipantDataMapper): IRoomDataMapper
     fun provideQuizDataMapper(gson: Gson): IQuizDataMapper
     fun provideParticipantDataMapper(): IParticipantDataMapper
     fun provideResultDataMapper(): IResultDataMapper

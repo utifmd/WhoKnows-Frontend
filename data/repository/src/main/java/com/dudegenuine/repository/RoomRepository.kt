@@ -1,5 +1,6 @@
 package com.dudegenuine.repository
 
+import android.util.Log
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
@@ -27,6 +28,7 @@ class RoomRepository
     override suspend fun read(id: String): Room = try { mapper.asRoom(
         service.read(id))
     } catch (e: Exception){
+        Log.d(TAG, e.message ?: "throwable") //Parameter specified as non-null is null: method kotlin.jvm.internal.Intrinsics.checkNotNullParameter, parameter description
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
 

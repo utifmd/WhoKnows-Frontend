@@ -1,16 +1,18 @@
 package com.dudegenuine.whoknows.ui.presenter.room
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
 import com.dudegenuine.usecase.room.*
 import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
-import com.dudegenuine.whoknows.ui.presenter.ViewState
-import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.ResourceState
+import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.presenter.room.contract.IRoomViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -33,7 +35,7 @@ class RoomViewModel
     private val getRoomsUseCase: GetRooms): BaseViewModel(), IRoomViewModel {
     private val TAG: String = javaClass.simpleName
 
-    val resourceState: State<ViewState>
+    val resourceState: State<ResourceState>
         get() = _state
 
     private val _uiState = MutableLiveData<RoomState>()
@@ -44,31 +46,14 @@ class RoomViewModel
 
     init {
         /*
-        * Boarding
-        * */ // Log.d(TAG, "initial: triggered") // getRooms(0, 10)
+        * Boarding begin
+        * */
         getRoom("ROM-f80365e5-0e65-4674-9e7b-bee666b62bda")
-
-        resourceState.value.room?.let { room ->
-            roomInitialState = RoomState.BoardingQuiz(room)
-            _uiState.value = roomInitialState
-
-            room.questions?.let { quizzes ->
-                quizzes.mapIndexed { index, quiz ->
-                    OnBoardingState(
-                        quiz = quiz,
-                        questionIndex = index,
-                        totalQuestionsCount = quizzes.size,
-                        showPrevious = index > 0,
-                        showDone = index == quizzes.size -1
-                    )
-                }
-            }
-        }
     }
 
     override fun postRoom(room: Room) {
         if (room.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -80,17 +65,17 @@ class RoomViewModel
 
     override fun getRoom(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
         getRoomUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onBoarding).launchIn(viewModelScope)
     }
 
     override fun patchRoom(id: String, current: Room) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
         }
 
         current.apply { updatedAt = Date() }
@@ -101,7 +86,7 @@ class RoomViewModel
 
     override fun deleteRoom(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -111,10 +96,56 @@ class RoomViewModel
 
     override fun getRooms(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
         }
 
         getRoomsUseCase(page, size)
             .onEach(this::resourcing).launchIn(viewModelScope)
+    }
+
+    private fun onBoarding(resource: Resource<Room>){
+        when(resource){
+            is Resource.Success -> {
+                resource.data?.let { room ->
+                    val quizzes = room.questions.mapIndexed { index, quiz ->
+                        OnBoardingState(
+                            quiz = quiz,
+                            questionIndex = index,
+                            totalQuestionsCount = room.questions.size,
+                            showPrevious = index > 0,
+                            showDone = index == room.questions.size -1
+                        )
+                    }
+
+                    if (quizzes.isEmpty()) return
+
+                    roomInitialState = RoomState.BoardingQuiz(room, quizzes)
+                    _uiState.value = roomInitialState
+                }
+            }
+            is Resource.Error -> _state.value = ResourceState(
+                error = resource.message ?: "An unexpected error occurred.")
+            is Resource.Loading -> _state.value = ResourceState(
+                loading = true)
+        }
+    }
+
+    fun computeResult(roomState: RoomState.BoardingQuiz) {
+//        val bothId = UUID.randomUUID()
+        Log.d(TAG, "computeResult: ${roomState.list.map { it.isCorrect }}")
+
+//        val result = Result(
+//            id = "RSL-$bothId",
+//            roomId = roomState.room.id,
+//            participantId = "null",
+//            userId = "null",
+//            correctQuiz = roomState.list,
+//            wrongQuiz = "",
+//            score = "",
+//            createdAt = "",
+//            updatedAt = "",
+//        )
+
+        _uiState.value = RoomState.BoardingResult(roomState.room.title, null)
     }
 }

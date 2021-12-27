@@ -6,8 +6,8 @@ import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.Utility
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
-import com.dudegenuine.whoknows.ui.presenter.ViewState
-import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.ResourceState
+import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.presenter.quiz.contract.IQuizViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -29,7 +29,7 @@ class QuizViewModel
     private val getQuestionsUseCase: GetQuestions): BaseViewModel(), IQuizViewModel {
     private val TAG: String = Utility.strOf<QuizViewModel>()
 
-    val state: State<ViewState> = _state
+    val state: State<ResourceState> = _state
 
 //    init {
 //        getQuestions(0, 10)
@@ -37,7 +37,7 @@ class QuizViewModel
 
     override fun postQuiz(quiz: Quiz) {
         if (quiz.roomId.isBlank() || quiz.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -47,7 +47,7 @@ class QuizViewModel
 
     override fun getQuiz(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -57,7 +57,7 @@ class QuizViewModel
 
     override fun patchQuiz(id: String, current: Quiz) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -69,7 +69,7 @@ class QuizViewModel
 
     override fun deleteQuiz(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -79,7 +79,7 @@ class QuizViewModel
 
     override fun getQuestions(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 

@@ -1,8 +1,7 @@
 package com.dudegenuine.remote.service.contract
 
-import com.dudegenuine.remote.BuildConfig
-import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.QuizEntity
+import com.dudegenuine.remote.entity.Response
 
 /**
  * Wed, 08 Dec 2021
@@ -16,7 +15,9 @@ interface IQuizService {
     suspend fun list(page: Int, size: Int): Response<List<QuizEntity>>
 
     companion object {
-        const val HEADER = BuildConfig.HEADER_API
+        const val API_KEY = "X-Api-Key: utif.pages.dev"
+        const val CONTENT_TYPE = "Content-Type: application/json"
+        const val ACCEPT = "Accept: application/json"
         const val ENDPOINT = "/api/questions"
     }
 }

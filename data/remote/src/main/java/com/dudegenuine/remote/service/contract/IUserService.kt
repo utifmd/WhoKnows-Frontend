@@ -1,7 +1,6 @@
 package com.dudegenuine.remote.service.contract
 
 import com.dudegenuine.model.request.LoginRequest
-import com.dudegenuine.remote.BuildConfig
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
 
@@ -18,7 +17,9 @@ interface IUserService {
     suspend fun signIn(loginRequest: LoginRequest): Response<UserEntity>
 
     companion object {
-        const val HEADER = BuildConfig.HEADER_API
+        const val API_KEY = "X-Api-Key: utif.pages.dev"
+        const val CONTENT_TYPE = "Content-Type: application/json"
+        const val ACCEPT = "Accept: application/json"
         const val ENDPOINT = "/api/users"
     }
 }

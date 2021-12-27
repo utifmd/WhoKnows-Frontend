@@ -1,19 +1,22 @@
 package com.dudegenuine.remote.mapper
 
-import com.dudegenuine.model.Participant
-import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
-import com.dudegenuine.remote.entity.ParticipantEntity
-import com.dudegenuine.remote.entity.QuizEntity
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
+import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
+import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
+import javax.inject.Inject
 
 /**
  * Wed, 08 Dec 2021
  * WhoKnows by utifmd
  **/
-class RoomDataMapper: IRoomDataMapper {
+class RoomDataMapper
+
+    @Inject constructor(
+    private val mapperQuiz: IQuizDataMapper,
+    private val mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
     private val TAG: String = javaClass.simpleName
 
     override fun asEntity(room: Room): RoomEntity {
@@ -26,8 +29,10 @@ class RoomDataMapper: IRoomDataMapper {
             room.expired,
             room.createdAt,
             room.updatedAt,
-            room.questions?.filterIsInstance<QuizEntity>() ?: emptyList(),
-            room.participants?.filterIsInstance<ParticipantEntity>() ?: emptyList(),
+            room.questions
+                .map { mapperQuiz.asEntity(it) },
+            room.participants
+                .map { mapperParticipant.asEntity(it) },
         )
     }
 
@@ -42,9 +47,9 @@ class RoomDataMapper: IRoomDataMapper {
             entity.createdAt,
             entity.updatedAt,
             entity.questions
-                .filterIsInstance<Quiz>(),
+                .map { mapperQuiz.asQuiz(it) },
             entity.participants
-                .filterIsInstance<Participant>()
+                .map { mapperParticipant.asParticipant(it) }
         )
     }
 

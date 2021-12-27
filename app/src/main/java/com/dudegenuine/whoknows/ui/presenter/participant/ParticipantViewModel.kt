@@ -4,8 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Participant
 import com.dudegenuine.usecase.participant.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
-import com.dudegenuine.whoknows.ui.presenter.ViewState
-import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.ResourceState
+import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -28,12 +28,12 @@ class ParticipantViewModel
     private val getParticipantsUseCase: GetParticipants): BaseViewModel(), IParticipantViewModel {
 
     override fun initParticipant(participant: Participant) {
-        _state.value = ViewState(participant = participant)
+        _state.value = ResourceState(participant = participant)
     }
 
     override fun postParticipant(participant: Participant) {
         if (participant.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -45,7 +45,7 @@ class ParticipantViewModel
 
     override fun getParticipant(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -55,7 +55,7 @@ class ParticipantViewModel
 
     override fun patchParticipant(id: String, current: Participant) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -67,7 +67,7 @@ class ParticipantViewModel
 
     override fun deleteParticipant(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -77,7 +77,7 @@ class ParticipantViewModel
 
     override fun getParticipants(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 

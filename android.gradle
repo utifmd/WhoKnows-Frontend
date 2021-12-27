@@ -15,11 +15,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "HEADER_API", "\"X-Api-Key: utif.pages.dev\""
+            // buildConfigField "String", "HEADER_API", "\"X-Api-Key: utif.pages.dev\""
         }
 
         debug {
-            buildConfigField "String", "HEADER_API", "\"X-Api-Key: utif.pages.dev\""
+            // buildConfigField "String", "HEADER_API", "\"X-Api-Key: utif.pages.dev\""
         }
     }
 

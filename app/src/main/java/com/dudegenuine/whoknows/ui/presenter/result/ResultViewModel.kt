@@ -4,8 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Result
 import com.dudegenuine.usecase.result.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
-import com.dudegenuine.whoknows.ui.presenter.ViewState
-import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.ResourceState
+import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.presenter.result.contract.IResultViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -29,7 +29,7 @@ class ResultViewModel
 
     override fun postResult(result: Result) {
         if (result.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -41,7 +41,7 @@ class ResultViewModel
 
     override fun getResult(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -51,7 +51,7 @@ class ResultViewModel
 
     override fun patchResult(id: String, current: Result) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -63,7 +63,7 @@ class ResultViewModel
 
     override fun deleteResult(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -73,7 +73,7 @@ class ResultViewModel
 
     override fun getResults(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 

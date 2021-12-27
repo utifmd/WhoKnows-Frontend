@@ -12,7 +12,7 @@ import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.DISCOVER
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SETTING
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SUMMARY
-import com.dudegenuine.whoknows.ui.compose.screen.RoomBoardingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.RoomScreen
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,7 +23,7 @@ class MainActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WhoKnowsTheme {
-                RoomBoardingScreen()
+                RoomScreen()
 
                 /*val navController = rememberNavController()
 
@@ -34,6 +34,7 @@ class MainActivity: ComponentActivity() {
                             controller = navController,
                             onItemClick = { navController.navigate(it.route) })
                     }
+                    -pa
                 ) {
                     Navigation(
                         controller = navController

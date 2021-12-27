@@ -6,8 +6,8 @@ import com.dudegenuine.model.User
 import com.dudegenuine.model.request.LoginRequest
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
-import com.dudegenuine.whoknows.ui.presenter.ViewState
-import com.dudegenuine.whoknows.ui.presenter.ViewState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.presenter.ResourceState
+import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -31,12 +31,12 @@ class UserViewModel
     private val getUsersUseCase: GetUsers, //, savedStateHandle: SavedStateHandle
     private val signInUsersUseCase: SignInUser): BaseViewModel(), IUserViewModel {
 
-    val state: State<ViewState> = _state // init { getUsers(0, 10); getUser("USR00002") }
+    val state: State<ResourceState> = _state // init { getUsers(0, 10); getUser("USR00002") }
 
     override fun signInUser(loginRequest: LoginRequest) {
         if (loginRequest.email.isBlank() ||
             loginRequest.password.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -46,7 +46,7 @@ class UserViewModel
 
     override fun postUser(user: User) {
         if (user.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -58,7 +58,7 @@ class UserViewModel
 
     override fun getUser(id: String) {
         if (id.isBlank()){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -68,7 +68,7 @@ class UserViewModel
 
     override fun patchUser(id: String, current: User) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -80,7 +80,7 @@ class UserViewModel
 
     override fun deleteUser(id: String) {
         if (id.isBlank()) {
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
@@ -90,7 +90,7 @@ class UserViewModel
 
     override fun getUsers(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ViewState(error = DONT_EMPTY)
+            _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 

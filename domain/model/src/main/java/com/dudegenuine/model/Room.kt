@@ -15,8 +15,8 @@ data class Room(
     var expired: Boolean,
     var createdAt: Date,
     var updatedAt: Date?,
-    var questions: List<Quiz>?,
-    var participants: List<Participant>?
+    var questions: List<Quiz>,
+    var participants: List<Participant>
 ){
     val isPropsBlank: Boolean =
         minute == 0 || title.isBlank() ||

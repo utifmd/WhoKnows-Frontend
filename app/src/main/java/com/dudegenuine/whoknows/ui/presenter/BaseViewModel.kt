@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.presenter
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.dudegenuine.model.*
@@ -10,43 +9,32 @@ import com.dudegenuine.model.*
  * WhoKnows by utifmd
  **/
 abstract class BaseViewModel: ViewModel() {
-    protected val _state = mutableStateOf(ViewState())
+    protected val _state = mutableStateOf(ResourceState())
     private val TAG: String = javaClass.simpleName
 
     protected fun<T> resourcing(result: Resource<T>){
         when(result){
-            is Resource.Success -> {
-                Log.d(TAG, "Resource.Success")
-                if (result.data is List<*>) {
-                    val payload = result.data as List<*>
+            is Resource.Success -> if (result.data is List<*>) {
+                val payload = result.data as List<*>
 
-                    _state.value = ViewState(
-                        users = payload.filterIsInstance<User>(),
-                        questions = payload.filterIsInstance<Quiz>()
-                    )
-                } else _state.value = when(result.data){
-                    is User -> ViewState(user = result.data as User)
-                    is Room ->ViewState(room = result.data as Room)
-                    is Quiz -> ViewState(quiz = result.data as Quiz)
-                    is Participant -> ViewState(participant = result.data as Participant)
-                    is Result -> ViewState(result = result.data as Result)
-                    else -> ViewState()
-                }
-            }
-            is Resource.Error -> {
-                Log.d(TAG, "Resource.ERROR: ${result.message}")
-
-                _state.value = ViewState(
-                    error = result.message ?: "An expected error occurred."
+                _state.value = ResourceState(
+                    users = payload.filterIsInstance<User>(),
+                    questions = payload.filterIsInstance<Quiz>()
                 )
-            }
-            is Resource.Loading -> {
-                Log.d(TAG, "Resource.LOADING..")
-
-                _state.value = ViewState(
-                    loading = true
-                )
-            }
+            } else _state.value = when(result.data){
+                is User -> ResourceState(user = result.data as User)
+                is Room -> ResourceState(room = result.data as Room)
+                is Quiz -> ResourceState(quiz = result.data as Quiz)
+                is Participant -> ResourceState(participant = result.data as Participant)
+                is Result -> ResourceState(result = result.data as Result)
+                else -> ResourceState()
+            } //{ Log.d(TAG, "Resource.Success") }
+            is Resource.Error -> _state.value = ResourceState(
+                error = result.message ?: "An expected error occurred."
+            ) //{ Log.d(TAG, "Resource.ERROR: ${result.message}") }
+            is Resource.Loading -> _state.value = ResourceState(
+                loading = true
+            ) //{ Log.d(TAG, "Resource.LOADING..") }
         }
     }
 }

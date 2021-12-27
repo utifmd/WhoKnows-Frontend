@@ -7,7 +7,7 @@ import com.dudegenuine.model.*
  * WhoKnows by utifmd
  **/
 
-data class ViewState(
+data class ResourceState(
     val loading: Boolean = false,
     val error: String = "", //Error? = null,
 
