@@ -43,14 +43,66 @@ class QuizViewModel
     val resourceState: State<ResourceState> = _state
 
     val question = mutableStateOf("")
-    val option = mutableStateOf("")
-    val options = mutableStateListOf<String>()
     val images = mutableStateListOf<Bitmap>()
-    val currentAnswer = mutableStateOf<Answer?>(null)
-    val selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
-    val multipleAnswer = mutableSetOf<String>()
+
+    val options = mutableStateListOf<String>()
+    val mOption = mutableStateOf("")
+
+    private val selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
+    private val multipleAnswer = mutableSetOf<String>()
+    val mAnswer = mutableStateOf<Answer?>(null)
 
     // init { getQuestions(0, 10) }
+
+    val onResultImage: (Context, Uri?) -> Unit = { context, result ->
+        result?.let { uri ->
+            val item = context.contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(item)
+            if(!images.contains(bitmap)) images.add(bitmap)
+            item?.close()
+        }
+    }
+
+    val onPushedOption: () -> Unit = {
+        options.add(mOption.value).apply {
+            mOption.value = ""
+        }
+    }
+
+    val onOptionKeyEvent: (KeyEvent) -> Boolean = {
+        if (it.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_ENTER && mOption.value.isNotBlank())
+            onPushedOption()
+        false
+    }
+
+    val onAnsweredSingle: (String) -> Unit = { newAnswer ->
+        selectedAnswer.value = PossibleAnswer.SingleChoice(newAnswer)
+    }
+
+    val onAnsweredMultiple: (String, Boolean) -> Unit = { newAnswer, selected ->
+        if (selected) multipleAnswer.add(newAnswer)
+        else multipleAnswer.remove(newAnswer)
+
+        selectedAnswer.value = PossibleAnswer.MultipleChoice(multipleAnswer)
+    }
+
+    val onPostPressed: () -> Unit = {
+        val model = Quiz(
+            "QIZ-${UUID.randomUUID()}",
+            "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
+            images = images.map { Utility.asBase64(it) },
+            question = question.value,
+            options = options.toList(),
+            answer = selectedAnswer.value,
+            createdBy = "Diyanti Ratna Puspita Sari",
+            createdAt = Date(),
+            updatedAt = null
+        )
+
+        Log.d(TAG, model.toString())
+
+        // postQuiz(model)
+    }
 
     override fun postQuiz(quiz: Quiz) {
         if (quiz.roomId.isBlank() || quiz.isPropsBlank){
@@ -102,42 +154,5 @@ class QuizViewModel
 
         getQuestionsUseCase(page, size)
             .onEach(this::resourcing).launchIn(viewModelScope)
-    }
-
-    val onResultImage: (Context, Uri?) -> Unit = { context, result ->
-        result?.let { uri ->
-            val item = context.contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeStream(item)
-            if(!images.contains(bitmap)) images.add(bitmap)
-            item?.close()
-        }
-    }
-
-    val onPushedOption: () -> Unit = {
-        options.add(option.value).apply {
-            option.value = ""
-        }
-    }
-
-    val onOptionKeyEvent: (KeyEvent) -> Boolean = {
-        if (it.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_ENTER && option.value.isNotBlank())
-            onPushedOption()
-        false
-    }
-
-    val onPostPressed: () -> Unit = {
-        val model = Quiz(
-            "QIZ-${UUID.randomUUID()}",
-            "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
-            images = images.map { Utility.asBase64(it) },
-            question = question.value,
-            options = options.toList(),
-            answer = selectedAnswer.value,
-            createdBy = "Diyanti Ratna Puspita Sari",
-            createdAt = Date(),
-            updatedAt = null
-        )
-
-        Log.d(TAG, model.toString())
     }
 }
