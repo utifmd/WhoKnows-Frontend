@@ -1,28 +1,37 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
+import android.graphics.Bitmap
 import android.util.Log
 import android.view.KeyEvent.KEYCODE_ENTER
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Landscape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.Answer
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.common.Utility.asBase64
 import com.dudegenuine.model.common.Utility.strOf
 import com.dudegenuine.whoknows.ui.compose.component.ButtonGroup
 import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
@@ -37,15 +46,21 @@ import java.util.*
 fun QuizCreatorScreen(
     viewModel: QuizViewModel = hiltViewModel()) {
     val TAG = "QuizCreatorScreen"
+    val context = LocalContext.current
+
     val question = remember { mutableStateOf("") }
     val option = remember { mutableStateOf("") }
-    val image = remember { mutableStateOf("") }
     val options = remember { mutableStateListOf<String>() }
-    val images = remember { mutableStateListOf<String>() }
+    val images = remember { mutableStateListOf<Bitmap>() }
     val currentAnswer = remember { mutableStateOf<Answer?>(null) }
     val selectedAnswer = remember { mutableStateOf<PossibleAnswer?>(null) }
     val selectedType = remember { mutableStateOf(strOf<PossibleAnswer.SingleChoice>()) }
     val multipleAnswer = remember { mutableSetOf<String>() }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { viewModel.onResultImage(context, it) }
+    )
 
     val onPushedOption: () -> Unit = {
         options.add(option.value).apply {
@@ -63,7 +78,7 @@ fun QuizCreatorScreen(
         val model = Quiz(
             "QIZ-${UUID.randomUUID()}",
             "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
-            images = images.toList(),
+            images = images.map { asBase64(it) },
             question = question.value,
             options = options.toList(),
             answer = selectedAnswer.value,
@@ -94,12 +109,23 @@ fun QuizCreatorScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item {
-                    LazyRow(contentPadding = PaddingValues(horizontal = 8.dp)){
-                        items(6) {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)){
+                        itemsIndexed(images) { idx, bitmap ->
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "uri $idx",
+                                modifier = Modifier.size(128.dp))
+                        }
+                        item {
                             Icon(
-                                imageVector = Icons.Default.Landscape,
+                                imageVector = Icons.Default.AddAPhoto,
+                                tint = MaterialTheme.colors.primary,
                                 contentDescription = "landscape",
-                                modifier = Modifier.size(128.dp)
+                                modifier = Modifier
+                                    .size(128.dp)
+                                    .clickable {
+                                        launcher.launch("image/*")
+                                    }
                             )
                         }
                     }
@@ -111,9 +137,11 @@ fun QuizCreatorScreen(
                         label = { Text(
                             text = "Enter a question"
                         )},
-                        modifier = Modifier.fillMaxWidth().background(
-                            color = MaterialTheme.colors.surface
-                        )
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = MaterialTheme.colors.surface
+                            )
                     )
                 }
                 item {
@@ -125,8 +153,11 @@ fun QuizCreatorScreen(
                             text = "Push some option"
                         )},
                         trailingIcon = { Icon(
-                           imageVector = Icons.Default.AddCircle,
-                           contentDescription = "AddOption"
+                            imageVector = Icons.Default.AddCircle,
+                            contentDescription = "AddOption",
+                            modifier = Modifier.clickable(
+                                onClick = onPushedOption
+                            )
                         )},
                         modifier = Modifier
                             .fillMaxWidth()
