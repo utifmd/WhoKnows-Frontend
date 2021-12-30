@@ -46,7 +46,10 @@ fun SingleChoiceQuestion(
                             selected = optionSelected,
                             onClick = onClickHandle
                         )
-                        .padding(vertical = 16.dp, horizontal = 24.dp),
+                        .padding(
+                            vertical = 16.dp,
+                            horizontal = 24.dp
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(text = text)

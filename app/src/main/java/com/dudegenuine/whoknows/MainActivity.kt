@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
@@ -17,6 +18,7 @@ import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

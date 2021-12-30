@@ -6,12 +6,13 @@ buildscript {
         activity_version = '1.4.0'
         navigation_version = '2.4.0-beta02'
         flowlayout_version = '0.17.0'
+        coil_version = '1.4.0'
 
         retrofit_version = '2.9.0'
         google_gson_version = '2.8.6'
         okhttp_version = '5.0.0-alpha.2'
 
-        room_version = '2.3.0'
+        room_version = '2.4.0'
         hilt_dagger_version = '2.38.1' // 2.40.5
         hilt_droidx_version = '1.0.0-alpha03'
         coroutine_jet_version = '1.5.2'

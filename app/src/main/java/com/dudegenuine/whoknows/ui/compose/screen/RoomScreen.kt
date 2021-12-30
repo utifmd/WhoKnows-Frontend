@@ -1,11 +1,13 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
@@ -15,6 +17,7 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
  * WhoKnows by utifmd
  **/
 @Composable
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
     val TAG = "RoomScreen"
@@ -23,6 +26,12 @@ fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
 
     uiState?.let { roomState ->
         when(roomState){
+            is RoomState.CurrentRoom -> {
+                // TODO: listing users room's
+            }
+            is RoomState.CreateQuizzes -> {
+                QuizCreatorScreen()
+            }
             is RoomState.BoardingQuiz -> {
                 RoomBoardingScreen(
                     // resourceState = resourceState,

@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.sp
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.QuizActionType
 import com.dudegenuine.whoknows.ui.compose.screen.QuestionScreen
-import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import kotlinx.coroutines.launch
 
@@ -31,11 +30,11 @@ fun RoomBoardingScreen(
     onPrevPressed: () -> Unit,
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
-
     // val TAG = "RoomBoardingScreen"
+
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed) // val selectedMenu = remember { mutableStateOf("") }
-    val boardingState: OnBoardingState = remember(state.currentQuestionIdx){
+    val boardingState = remember(state.currentQuestionIdx){
         state.list[state.currentQuestionIdx]
     }
 
@@ -44,22 +43,23 @@ fun RoomBoardingScreen(
         appBar = {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()) { // .padding(16.dp)
                 if (boardingState.showPrevious){
                     TextButton( //val question = Quiz("QIZ-${UUID.randomUUID()}", "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda", images = listOf("https://avatars.githubusercontent.com/u/16291551?s=400&u=c0b02c25fef325be78f7a1faca541f44120fb591&v=4"), "Bagaimana ciri fisik pria tersebut?", options = listOf("Ikal", "Sawo matang", "Misterius", "Tinggi", "Kumis tipis", "Kurus kering"), answer = PossibleAnswer.MultipleChoice(setOf("Ikal", "Sawo matang", "Misterius", "Kumis tipis")), createdBy = "Utif Milkedori", createdAt = Date(), null) //                            quizViewModel.postQuiz(question)
-                        onClick = onPrevPressed
-                    ) {
+                        onClick = onPrevPressed) {
                         Text(text = "Previous", color = Color.LightGray)
                     }
                 }
-                Text(text = "Number ${state.currentQuestionIdx+1} of ${boardingState.totalQuestionsCount} questions")
-                Row(
-                    verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Question number ${boardingState.questionIndex} from ${boardingState.totalQuestionsCount}",
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                Row {
                     if (boardingState.showDone) {
                         TextButton(
                             enabled = boardingState.enableNext,
-                            onClick = onDonePressed
-                        ) {
+                            onClick = onDonePressed) {
                             Text(text = "Done", color = Color.LightGray)
                         }
                     } else {
@@ -78,8 +78,13 @@ fun RoomBoardingScreen(
             Column(
                 modifier = Modifier.fillMaxSize(), // verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Text( text = state.room.title, fontSize = 24.sp )
-                Text( text = state.room.description, fontSize = 16.sp )
+                Text(text = state.room.title, fontSize = 24.sp)
+                Text(text = state.room.description, fontSize = 16.sp)
+                Text(text = "Total ${state.room.minute} minutes", fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(24.dp))
+//                Row {
+//
+//                }
             }
        },
 
@@ -89,10 +94,8 @@ fun RoomBoardingScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween) {
                 LinearProgressIndicator(
-                    progress = (state.currentQuestionIdx +1 / boardingState.totalQuestionsCount).toFloat(),
-                    modifier = Modifier
-                        .requiredWidth(126.dp)
-                        .padding(16.dp),
+                    progress = boardingState.questionIndex / boardingState.totalQuestionsCount.toFloat(),
+                    modifier = Modifier.requiredWidth(126.dp).padding(16.dp),
                     color = MaterialTheme.colors.primaryVariant,
                     backgroundColor = Color.LightGray)
                 QuestionScreen(
@@ -102,7 +105,7 @@ fun RoomBoardingScreen(
                         boardingState.apply {
                             answer = chosenAnswer
                             enableNext = true
-                            isCorrect = when(quiz.answer){
+                            isCorrect = when(quiz.answer) {
                                 is PossibleAnswer.SingleChoice -> {
                                     val singleChoice = quiz.answer as PossibleAnswer.SingleChoice
 
@@ -121,7 +124,10 @@ fun RoomBoardingScreen(
                 TextButton(
                     onClick = {
                         scope.launch {
-                            scaffoldState.reveal() }}) {
+                            scaffoldState.reveal()
+                        }
+                    }
+                ) {
                     Text(text = "Select a different one?")
                 }
             }

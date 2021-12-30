@@ -26,11 +26,15 @@ class OnBoardingState(
 }
 
 sealed class RoomState {
+    object CurrentRoom: RoomState() //{ var currentUserId by mutableStateOf("") }
+    object CreateQuizzes: RoomState()
+
     data class BoardingQuiz(
         val room: Room,
         val list: List<OnBoardingState>): RoomState(){
             var currentQuestionIdx by mutableStateOf(0)
-        }
+    }
+
     data class BoardingResult(
         val title: String,
         val data: Result?): RoomState()

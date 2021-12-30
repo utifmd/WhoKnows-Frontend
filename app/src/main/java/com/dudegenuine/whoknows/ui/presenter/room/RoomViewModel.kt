@@ -24,7 +24,6 @@ import javax.inject.Inject
  * Wed, 08 Dec 2021
  * WhoKnows by utifmd
  **/
-
 @HiltViewModel
 class RoomViewModel
     @Inject constructor(
@@ -45,10 +44,17 @@ class RoomViewModel
     private lateinit var roomInitialState: RoomState
 
     init {
+        _uiState.value = RoomState.CreateQuizzes
+
+        /*
+        * Current Room Begin
+        * */
+        // getRoom("ROM-f80365e5-0e65-4674-9e7b-bee666b62bda")
+
         /*
         * Boarding begin
         * */
-        getRoom("ROM-f80365e5-0e65-4674-9e7b-bee666b62bda")
+        // onBoarding("ROM-xxx-xxx")
     }
 
     override fun postRoom(room: Room) {
@@ -70,7 +76,7 @@ class RoomViewModel
         }
 
         getRoomUseCase(id)
-            .onEach(this::onBoarding).launchIn(viewModelScope)
+            .onEach(this::resourcing).launchIn(viewModelScope)
     }
 
     override fun patchRoom(id: String, current: Room) {
@@ -103,34 +109,36 @@ class RoomViewModel
             .onEach(this::resourcing).launchIn(viewModelScope)
     }
 
-    private fun onBoarding(resource: Resource<Room>){
-        when(resource){
-            is Resource.Success -> {
-                resource.data?.let { room ->
-                    val quizzes = room.questions.mapIndexed { index, quiz ->
-                        OnBoardingState(
-                            quiz = quiz,
-                            questionIndex = index,
-                            totalQuestionsCount = room.questions.size,
-                            showPrevious = index > 0,
-                            showDone = index == room.questions.size -1
-                        )
+    override fun onBoarding(id: String){
+        getRoomUseCase(id).onEach { resource ->
+            when(resource){
+                is Resource.Success -> {
+                    resource.data?.let { room ->
+                        val quizzes = room.questions.mapIndexed { index, quiz ->
+                            OnBoardingState(
+                                quiz = quiz,
+                                questionIndex = index +1,
+                                totalQuestionsCount = room.questions.size,
+                                showPrevious = index > 0,
+                                showDone = index == room.questions.size -1
+                            )
+                        }
+
+                        if (quizzes.isEmpty()) return@let
+
+                        roomInitialState = RoomState.BoardingQuiz(room, quizzes)
+                        _uiState.value = roomInitialState
                     }
-
-                    if (quizzes.isEmpty()) return
-
-                    roomInitialState = RoomState.BoardingQuiz(room, quizzes)
-                    _uiState.value = roomInitialState
                 }
+                is Resource.Error -> _state.value = ResourceState(
+                    error = resource.message ?: "An unexpected error occurred.")
+                is Resource.Loading -> _state.value = ResourceState(
+                    loading = true)
             }
-            is Resource.Error -> _state.value = ResourceState(
-                error = resource.message ?: "An unexpected error occurred.")
-            is Resource.Loading -> _state.value = ResourceState(
-                loading = true)
-        }
+        }.launchIn(viewModelScope)
     }
 
-    fun computeResult(roomState: RoomState.BoardingQuiz) {
+    override fun computeResult(roomState: RoomState.BoardingQuiz) {
 //        val bothId = UUID.randomUUID()
         Log.d(TAG, "computeResult: ${roomState.list.map { it.isCorrect }}")
 
