@@ -15,4 +15,6 @@ apply from: '../../dependency.gradle'
 
 dependencies {
     // implementation project(':domain:model')
+
+    implementation "id.zelory:compressor:$compressor_version"
 }

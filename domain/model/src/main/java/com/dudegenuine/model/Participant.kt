@@ -15,7 +15,7 @@ data class Participant (
     var expired: Boolean,
     var createdAt: Date,
     var updatedAt: Date?,
-    var results: List<Result>
+    //var results: List<Result>
 ){
     val isPropsBlank: Boolean =
         roomId.isBlank() || userId.isBlank() ||

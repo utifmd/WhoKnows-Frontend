@@ -11,17 +11,15 @@ import java.io.ByteArrayOutputStream
  **/
 object Utility {
     val TAG = strOf<Utility>()
-    inline fun< reified T> strOf(): String = T::class.java.simpleName
+    inline fun <reified T> strOf(): String = T::class.java.simpleName
 
-    fun asBase64(bitmap: Bitmap): String {
-        ByteArrayOutputStream().let {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+    fun asBase64 (bitmap: Bitmap): String = ByteArrayOutputStream().use {
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, it)
 
-            return Base64.encodeToString(it.toByteArray(), Base64.DEFAULT)
-        }
+        Base64.encodeToString(it.toByteArray(), Base64.DEFAULT)
     }
 
-    fun asBitmap(base64: String): Bitmap {
+    fun asBitmap (base64: String): Bitmap {
         val byteArray: ByteArray = Base64.decode(base64, Base64.DEFAULT)
 
         return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)

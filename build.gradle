@@ -7,6 +7,7 @@ buildscript {
         navigation_version = '2.4.0-beta02'
         flowlayout_version = '0.17.0'
         coil_version = '1.4.0'
+        compressor_version = '3.0.1'
 
         retrofit_version = '2.9.0'
         google_gson_version = '2.8.6'

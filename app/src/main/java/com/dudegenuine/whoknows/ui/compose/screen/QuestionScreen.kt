@@ -17,6 +17,7 @@ import com.dudegenuine.model.Answer
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.QuizActionType
+import com.dudegenuine.model.common.Utility.asBitmap
 import com.dudegenuine.model.common.Utility.strOf
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.MultipleChoiceQuestion
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.SingleChoiceQuestion
@@ -54,7 +55,7 @@ fun QuestionScreen(
                 quiz.images.map { url ->
                     Image(
                         painter = rememberImagePainter(
-                            data = url,
+                            data = if(url.contains("://")) url else asBitmap(url),
                             builder = {
                                 crossfade(true)
                             }

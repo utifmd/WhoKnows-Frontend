@@ -156,4 +156,12 @@ class RoomViewModel
 
         _uiState.value = RoomState.BoardingResult(roomState.room.title, null)
     }
+
+    fun shareResult() {
+        TODO("Not yet implemented")
+    }
+
+    fun closeResult() {
+        _uiState.value = RoomState.CurrentRoom
+    }
 }

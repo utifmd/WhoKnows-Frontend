@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +14,6 @@ import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Answer
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
-import com.dudegenuine.model.common.Utility
 import com.dudegenuine.model.common.Utility.strOf
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -42,37 +42,48 @@ class QuizViewModel
 
     val resourceState: State<ResourceState> = _state
 
-    val question = mutableStateOf("")
+    val currentQuestion = mutableStateOf("")
+    val currentOption = mutableStateOf("")
+
+    val currentAnswer = mutableStateOf<Answer?>(null)
+    val selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
+
     val images = mutableStateListOf<Bitmap>()
-
     val options = mutableStateListOf<String>()
-    val mOption = mutableStateOf("")
 
-    private val selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
-    private val multipleAnswer = mutableSetOf<String>()
-    val mAnswer = mutableStateOf<Answer?>(null)
+    private val setOfAnswers = mutableSetOf<String>()
 
-    // init { getQuestions(0, 10) }
+    val isValid: MutableState<Boolean>
+        get() = mutableStateOf(
+            selectedAnswer.value != null &&
+                    currentQuestion.value.isNotBlank() &&
+                    images.isNotEmpty() &&
+                    options.isNotEmpty()
+        ) // init { getQuestions(0, 10) }
 
     val onResultImage: (Context, Uri?) -> Unit = { context, result ->
         result?.let { uri ->
             val item = context.contentResolver.openInputStream(uri)
             val bitmap = BitmapFactory.decodeStream(item)
+
             if(!images.contains(bitmap)) images.add(bitmap)
+
             item?.close()
         }
     }
 
-    val onPushedOption: () -> Unit = {
-        options.add(mOption.value).apply {
-            mOption.value = ""
-        }
-    }
-
     val onOptionKeyEvent: (KeyEvent) -> Boolean = {
-        if (it.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_ENTER && mOption.value.isNotBlank())
+        if (it.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_ENTER)
             onPushedOption()
         false
+    }
+
+    val onPushedOption: () -> Unit = {
+        if (currentOption.value.isNotBlank()){
+            options.add(currentOption.value).apply {
+                currentOption.value = ""
+            }
+        }
     }
 
     val onAnsweredSingle: (String) -> Unit = { newAnswer ->
@@ -80,18 +91,18 @@ class QuizViewModel
     }
 
     val onAnsweredMultiple: (String, Boolean) -> Unit = { newAnswer, selected ->
-        if (selected) multipleAnswer.add(newAnswer)
-        else multipleAnswer.remove(newAnswer)
+        if (selected) setOfAnswers.add(newAnswer)
+        else setOfAnswers.remove(newAnswer)
 
-        selectedAnswer.value = PossibleAnswer.MultipleChoice(multipleAnswer)
+        selectedAnswer.value = PossibleAnswer.MultipleChoice(setOfAnswers)
     }
 
-    val onPostPressed: () -> Unit = {
+    fun onPostPressed () {
         val model = Quiz(
             "QIZ-${UUID.randomUUID()}",
             "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
-            images = images.map { Utility.asBase64(it) },
-            question = question.value,
+            images = emptyList(), //images.map { asBase64(it) },
+            question = currentQuestion.value,
             options = options.toList(),
             answer = selectedAnswer.value,
             createdBy = "Diyanti Ratna Puspita Sari",
@@ -100,8 +111,7 @@ class QuizViewModel
         )
 
         Log.d(TAG, model.toString())
-
-        // postQuiz(model)
+        postQuiz(model)
     }
 
     override fun postQuiz(quiz: Quiz) {

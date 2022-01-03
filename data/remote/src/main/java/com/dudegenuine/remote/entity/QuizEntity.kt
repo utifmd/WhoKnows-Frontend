@@ -10,8 +10,11 @@ import java.util.*
  **/
 data class QuizEntity(
 
-    @SerializedName("id") // @SerializedName("quizId")
+    @SerializedName("id")
     val id: String,
+
+//    @SerializedName("quizId")
+//    val quizId: String,
 
     @SerializedName("roomId")
     val roomId: String,

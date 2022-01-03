@@ -1,6 +1,5 @@
 package com.dudegenuine.repository
 
-import android.util.Log
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.Utility.strOf
 import com.dudegenuine.model.validation.HttpFailureException
@@ -21,9 +20,7 @@ class QuizRepository
     private val TAG: String = strOf<QuizRepository>()
 
     override suspend fun create(quiz: Quiz): Quiz = try {
-        Log.d(TAG, "create: triggered")
-        mapper.asQuiz(
-        service.create(mapper.asEntity(quiz)))
+        mapper.asQuiz(service.create(mapper.asEntity(quiz)))
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }

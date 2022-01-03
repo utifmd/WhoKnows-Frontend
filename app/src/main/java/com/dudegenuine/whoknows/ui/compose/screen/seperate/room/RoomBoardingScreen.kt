@@ -128,7 +128,7 @@ fun RoomBoardingScreen(
                         }
                     }
                 ) {
-                    Text(text = "Select a different one?")
+                    Text(text = "Room detail description")
                 }
             }
         }

@@ -3,12 +3,12 @@ package com.dudegenuine.whoknows.ui.compose.screen
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomBoardingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomResultScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 
@@ -27,7 +27,7 @@ fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
     uiState?.let { roomState ->
         when(roomState){
             is RoomState.CurrentRoom -> {
-                // TODO: listing users room's
+                // QuizzesScreen()
             }
             is RoomState.CreateQuizzes -> {
                 QuizCreatorScreen()
@@ -36,9 +36,7 @@ fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
                 RoomBoardingScreen(
                     // resourceState = resourceState,
                     state = roomState,
-                    onAction = { id, _ ->
-                        Log.d(TAG, "RoomScreen: onAction $id")
-                    },
+                    onAction = { id, _ -> Log.d(TAG, "RoomScreen: onAction $id") },
                     // onBackPressed = {  },
                     onPrevPressed = { roomState.currentQuestionIdx -=1 },
                     onNextPressed = { roomState.currentQuestionIdx +=1 },
@@ -46,8 +44,14 @@ fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
                 )
             }
             is RoomState.BoardingResult -> {
-                Log.d(TAG, "RoomScreen: BoardingQuiz")
-                Text(text = "Room Result Screen")
+                RoomResultScreen(
+                    state = roomState,
+                    // onBackPressed = {  },
+                    // onSharePressed = { viewModel.shareResult() },
+                    onDonePressed = {
+                        viewModel.closeResult()
+                    }
+                )
             }
         }
     }
