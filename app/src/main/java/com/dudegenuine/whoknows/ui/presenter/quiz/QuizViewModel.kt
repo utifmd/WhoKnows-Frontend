@@ -1,8 +1,6 @@
 package com.dudegenuine.whoknows.ui.presenter.quiz
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -11,10 +9,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.lifecycle.viewModelScope
-import com.dudegenuine.model.Answer
-import com.dudegenuine.model.PossibleAnswer
-import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.*
 import com.dudegenuine.model.common.Utility.strOf
+import com.dudegenuine.usecase.file.UploadFile
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
@@ -33,6 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class QuizViewModel
     @Inject constructor(
+    private val uploadFileUseCase: UploadFile,
     private val postQuizUseCase: PostQuiz,
     private val getQuizUseCase: GetQuiz,
     private val patchQuizUseCase: PatchQuiz,
@@ -48,7 +46,7 @@ class QuizViewModel
     val currentAnswer = mutableStateOf<Answer?>(null)
     val selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
 
-    val images = mutableStateListOf<Bitmap>()
+    val images = mutableStateListOf<Uri>()
     val options = mutableStateListOf<String>()
 
     private val setOfAnswers = mutableSetOf<String>()
@@ -63,12 +61,12 @@ class QuizViewModel
 
     val onResultImage: (Context, Uri?) -> Unit = { context, result ->
         result?.let { uri ->
-            val item = context.contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeStream(item)
+            // val item = context.contentResolver.openInputStream(uri)
+            // val bitmap = BitmapFactory.decodeStream(item)
 
-            if(!images.contains(bitmap)) images.add(bitmap)
+            if(!images.contains(uri)) images.add(uri)
 
-            item?.close()
+            // item?.close()
         }
     }
 
@@ -98,10 +96,12 @@ class QuizViewModel
     }
 
     fun onPostPressed () {
+        if (images.isEmpty()) return
+
         val model = Quiz(
             "QIZ-${UUID.randomUUID()}",
             "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
-            images = emptyList(), //images.map { asBase64(it) },
+            images = emptyList(), //.map { asBase64(it) },
             question = currentQuestion.value,
             options = options.toList(),
             answer = selectedAnswer.value,
@@ -109,9 +109,40 @@ class QuizViewModel
             createdAt = Date(),
             updatedAt = null
         )
+        _state.value = ResourceState(quiz = model)
 
-        Log.d(TAG, model.toString())
-        postQuiz(model)
+        uploadFile(images[0]) //images.map { }
+    }
+
+    override fun uploadFile(uri: Uri?) {
+        if (uri == null) return
+
+        uploadFileUseCase(uri)
+            .onEach(this::onFileUploaded).launchIn(viewModelScope)
+    }
+
+    private fun onFileUploaded(resource: Resource<File>) {
+        val model = _state.value.quiz
+
+        when(resource){
+            is Resource.Success -> {
+                val downloadedUrl = resource.data?.url ?: ""
+
+                model?.apply {
+                    images = listOf(downloadedUrl)
+
+                    Log.d(TAG, "onFileUploaded: $downloadedUrl")
+
+                    postQuiz(this)
+                }
+
+                Log.d(TAG, model.toString())
+            }
+            is Resource.Error -> _state.value = ResourceState(
+                error = resource.message ?: "An unexpected error occurred.")
+            is Resource.Loading -> _state.value = ResourceState(
+                loading = true)
+        }
     }
 
     override fun postQuiz(quiz: Quiz) {

@@ -14,4 +14,5 @@ interface IRepositoryModule {
     fun provideQuizRepository(service: IQuizService, mapper: IQuizDataMapper): IQuizRepository
     fun provideParticipantRepository(service: IParticipantService, mapper: IParticipantDataMapper): IParticipantRepository
     fun provideResultRepository(service: IResultService, mapper: IResultDataMapper): IResultRepository
+    fun provideFileRepository(service: IFileService, mapper: IFileDataMapper): IFileRepository
 }

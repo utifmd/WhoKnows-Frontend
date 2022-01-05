@@ -47,4 +47,10 @@ object DataMapperModule: IDataMapperModule {
     override fun provideResultDataMapper(): IResultDataMapper {
         return ResultDataMapper()
     }
+
+    @Provides
+    @Singleton
+    override fun provideFileDataMapper(): IFileDataMapper {
+        return FileDataMapper()
+    }
 }

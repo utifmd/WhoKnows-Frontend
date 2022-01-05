@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.User
 import com.dudegenuine.model.request.LoginRequest
+import com.dudegenuine.usecase.file.UploadFile
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class UserViewModel
 
     @Inject constructor(
+    private val uploadFileUseCase: UploadFile,
     private val postUserUseCase: PostUser,
     private val getUserUseCase: GetUser,
     private val patchUserUseCase: PatchUser,

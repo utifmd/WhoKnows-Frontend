@@ -24,7 +24,10 @@ data class ResourceState(
     val results: List<Result>? = null,
 
     val participant: Participant? = null,
-    val participants: List<Participant>? = null){
+    val participants: List<Participant>? = null,
+
+    val file: File? = null,
+    val files: List<File>? = null,){
 
     sealed class Error {
         object BadRequest: Error()

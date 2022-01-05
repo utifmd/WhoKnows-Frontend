@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
+import com.dudegenuine.usecase.file.UploadFile
 import com.dudegenuine.usecase.participant.*
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.usecase.result.*
@@ -33,15 +34,16 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideUserViewModel(
+        uploadFile: UploadFile,
         postUser: PostUser,
         getUser: GetUser,
         patchUser: PatchUser,
         deleteUser: DeleteUser,
         getUsers: GetUsers,
-        signInUser: SignInUser //savedStateHandle: SavedStateHandle
+        signInUser: SignInUser
     ): IUserViewModel {
 
-        return UserViewModel(postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
+        return UserViewModel(uploadFile, postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
     }
 
     @Provides
@@ -59,13 +61,14 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideQuizViewModel(
+        uploadFile: UploadFile,
         postQuiz: PostQuiz,
         getQuiz: GetQuiz,
         patchQuiz: PatchQuiz,
         deleteQuiz: DeleteQuiz,
         getQuestions: GetQuestions
     ): IQuizViewModel {
-        return QuizViewModel(postQuiz, getQuiz, patchQuiz, deleteQuiz, getQuestions)
+        return QuizViewModel(uploadFile, postQuiz, getQuiz, patchQuiz, deleteQuiz, getQuestions)
     }
 
     @Provides

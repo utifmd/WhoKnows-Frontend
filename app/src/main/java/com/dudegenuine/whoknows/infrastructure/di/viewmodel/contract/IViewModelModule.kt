@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
+import com.dudegenuine.usecase.file.UploadFile
 import com.dudegenuine.usecase.participant.*
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.usecase.result.*
@@ -17,6 +18,7 @@ import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
  **/
 interface IViewModelModule {
     fun provideUserViewModel(
+        uploadFile: UploadFile,
         postUser: PostUser,
         getUser: GetUser,
         patchUser: PatchUser,
@@ -34,6 +36,7 @@ interface IViewModelModule {
     ): IRoomViewModel
 
     fun provideQuizViewModel(
+        uploadFile: UploadFile,
         postQuiz: PostQuiz,
         getQuiz: GetQuiz,
         patchQuiz: PatchQuiz,

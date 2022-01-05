@@ -1,6 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
-import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -23,12 +23,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberImagePainter
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.common.Utility.strOf
 import com.dudegenuine.whoknows.R
@@ -43,7 +43,6 @@ import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 @ExperimentalFoundationApi
 fun QuizCreatorScreen(
     viewModel: QuizViewModel = hiltViewModel()) {
-    val TAG = "QuizCreatorScreen"
     val context = LocalContext.current
 
     val selectedType = remember {
@@ -169,17 +168,17 @@ fun QuizCreatorScreen(
 
 @Composable
 fun ImageRows(
-    images: List<Bitmap>,
+    images: List<Uri>,
     onAddPressed: () -> Unit,
     onRemovePressed: (Int) -> Unit) {
     LazyRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)){
-        itemsIndexed(images) { idx, bitmap ->
+        itemsIndexed(images) { idx, uri ->
             Box(
                 contentAlignment = Alignment.TopEnd) {
                 Image(
-                    bitmap = bitmap.asImageBitmap(),
+                    painter = rememberImagePainter(data = uri),
                     contentDescription = "uri $idx",
                     modifier = Modifier.size(128.dp))
                 Icon(

@@ -58,4 +58,12 @@ object RepositoryModule: IRepositoryModule {
         mapper: IResultDataMapper): IResultRepository {
         return ResultRepository(service, mapper)
     }
+
+    @Provides
+    @Singleton
+    override fun provideFileRepository(
+        service: IFileService,
+        mapper: IFileDataMapper): IFileRepository {
+        return FileRepository(service, mapper)
+    }
 }

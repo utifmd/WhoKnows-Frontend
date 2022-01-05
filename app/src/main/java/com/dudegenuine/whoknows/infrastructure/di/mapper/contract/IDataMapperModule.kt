@@ -13,4 +13,5 @@ interface IDataMapperModule {
     fun provideQuizDataMapper(gson: Gson): IQuizDataMapper
     fun provideParticipantDataMapper(): IParticipantDataMapper
     fun provideResultDataMapper(): IResultDataMapper
+    fun provideFileDataMapper(): IFileDataMapper
 }

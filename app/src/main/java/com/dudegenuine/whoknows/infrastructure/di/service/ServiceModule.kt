@@ -47,4 +47,10 @@ object ServiceModule: IServiceModule {
     override fun provideResultService(network: Retrofit.Builder): IResultService {
         return network.build().create(ResultService::class.java)
     }
+
+    @Provides
+    @Singleton
+    override fun provideFileService(network: Retrofit.Builder): IFileService {
+        return network.build().create(FileService::class.java)
+    }
 }

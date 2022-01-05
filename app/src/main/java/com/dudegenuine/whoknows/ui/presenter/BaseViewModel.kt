@@ -29,6 +29,7 @@ abstract class BaseViewModel: ViewModel() {
                     is Quiz -> ResourceState(quiz = result.data as Quiz)
                     is Participant -> ResourceState(participant = result.data as Participant)
                     is Result -> ResourceState(result = result.data as Result)
+                    is File -> ResourceState(file = result.data as File)
                     else -> ResourceState()
                 }
 
