@@ -7,10 +7,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.*
-import com.dudegenuine.model.common.Utility.strOf
+import com.dudegenuine.model.common.ImageUtil.adjustImage
+import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.usecase.file.UploadFile
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -36,18 +38,27 @@ class QuizViewModel
     private val patchQuizUseCase: PatchQuiz,
     private val deleteQuizUseCase: DeleteQuiz,
     private val getQuestionsUseCase: GetQuestions): BaseViewModel(), IQuizViewModel {
+
     private val TAG: String = strOf<QuizViewModel>()
+    private val resourceState: State<ResourceState> = _state
 
-    val resourceState: State<ResourceState> = _state
+    private val _currentQuestion = mutableStateOf("")
+    val currentQuestion: State<String> get() = _currentQuestion
 
-    val currentQuestion = mutableStateOf("")
-    val currentOption = mutableStateOf("")
+    private val _currentOption = mutableStateOf("")
+    val currentOption: State<String> get() = _currentOption
 
-    val currentAnswer = mutableStateOf<Answer?>(null)
-    val selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
+    private val _currentAnswer = mutableStateOf<Answer?>(null)
+    val currentAnswer: State<Answer?> get() = _currentAnswer
 
-    val images = mutableStateListOf<Uri>()
-    val options = mutableStateListOf<String>()
+    private val _selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
+    private val selectedAnswer: State<PossibleAnswer?> get() = _selectedAnswer
+
+    private val _options = mutableStateListOf<String>()
+    val options: SnapshotStateList<String> get() = _options
+
+    private val _images = mutableStateListOf<ByteArray>()
+    val images: SnapshotStateList<ByteArray> get() = _images
 
     private val setOfAnswers = mutableSetOf<String>()
 
@@ -57,16 +68,13 @@ class QuizViewModel
                     currentQuestion.value.isNotBlank() &&
                     images.isNotEmpty() &&
                     options.isNotEmpty()
-        ) // init { getQuestions(0, 10) }
+        )
 
     val onResultImage: (Context, Uri?) -> Unit = { context, result ->
         result?.let { uri ->
-            // val item = context.contentResolver.openInputStream(uri)
-            // val bitmap = BitmapFactory.decodeStream(item)
+            val scaledImage = adjustImage(context, uri)
 
-            if(!images.contains(uri)) images.add(uri)
-
-            // item?.close()
+            if(!images.contains(scaledImage)) images.add(scaledImage)
         }
     }
 
@@ -78,31 +86,41 @@ class QuizViewModel
 
     val onPushedOption: () -> Unit = {
         if (currentOption.value.isNotBlank()){
-            options.add(currentOption.value).apply {
-                currentOption.value = ""
+            options.add(currentOption.value.trim()).also {
+                _currentOption.value = ""
             }
         }
     }
 
+    val onQuestionValueChange: (String) -> Unit = {
+        _currentQuestion.value = it
+    }
+
+    val onOptionValueChange: (String) -> Unit = {
+        _currentOption.value = it
+    }
+
+    val onSelectedAnswerValue: (PossibleAnswer?) -> Unit = {
+        _selectedAnswer.value = it
+    }
+
     val onAnsweredSingle: (String) -> Unit = { newAnswer ->
-        selectedAnswer.value = PossibleAnswer.SingleChoice(newAnswer)
+        onSelectedAnswerValue(PossibleAnswer.SingleChoice(newAnswer))
     }
 
     val onAnsweredMultiple: (String, Boolean) -> Unit = { newAnswer, selected ->
         if (selected) setOfAnswers.add(newAnswer)
         else setOfAnswers.remove(newAnswer)
 
-        selectedAnswer.value = PossibleAnswer.MultipleChoice(setOfAnswers)
+        onSelectedAnswerValue(PossibleAnswer.MultipleChoice(setOfAnswers))
     }
 
     fun onPostPressed () {
-        if (images.isEmpty()) return
-
         val model = Quiz(
             "QIZ-${UUID.randomUUID()}",
             "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
-            images = emptyList(), //.map { asBase64(it) },
-            question = currentQuestion.value,
+            images = emptyList(),
+            question = currentQuestion.value.trim(),
             options = options.toList(),
             answer = selectedAnswer.value,
             createdBy = "Diyanti Ratna Puspita Sari",
@@ -111,37 +129,46 @@ class QuizViewModel
         )
         _state.value = ResourceState(quiz = model)
 
-        uploadFile(images[0]) //images.map { }
+        if (isValid.value && resourceState.value.quiz != null)
+            uploadFile(images[0])
+        else
+            _state.value = ResourceState(error = DONT_EMPTY)
     }
 
-    override fun uploadFile(uri: Uri?) {
-        if (uri == null) return
+    override fun uploadFile(byteArray: ByteArray) {
+        if (byteArray.isEmpty()) return
 
-        uploadFileUseCase(uri)
+        uploadFileUseCase(byteArray)
             .onEach(this::onFileUploaded).launchIn(viewModelScope)
     }
 
-    private fun onFileUploaded(resource: Resource<File>) {
-        val model = _state.value.quiz
+    override fun onFileUploaded(resource: Resource<File>) {
+        val model = resourceState.value.quiz ?: return
 
+        Log.d(TAG, "onFileUploaded: $model")
         when(resource){
             is Resource.Success -> {
-                val downloadedUrl = resource.data?.url ?: ""
+                Log.d(TAG, "Resource.Success: ${resource.data}")
+                val downloadedUrl = resource.data?.url ?: return
 
-                model?.apply {
-                    images = listOf(downloadedUrl)
+                model.apply { images = listOf(downloadedUrl) }
 
-                    Log.d(TAG, "onFileUploaded: $downloadedUrl")
-
-                    postQuiz(this)
-                }
-
-                Log.d(TAG, model.toString())
+                Log.d(TAG, "onFileUploaded: $model")
+                postQuiz(model)
             }
-            is Resource.Error -> _state.value = ResourceState(
-                error = resource.message ?: "An unexpected error occurred.")
-            is Resource.Loading -> _state.value = ResourceState(
-                loading = true)
+
+            is Resource.Error -> {
+                Log.d(TAG, "Resource.Error: ${resource.message}")
+                _state.value = ResourceState(
+                    error = resource.message ?: "An unexpected error occurred."
+                )
+            }
+            is Resource.Loading -> {
+                Log.d(TAG, "Resource.Loading..")
+                _state.value = ResourceState(
+                    loading = true
+                )
+            }
         }
     }
 
@@ -152,7 +179,7 @@ class QuizViewModel
         }
 
         postQuizUseCase(quiz)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getQuiz(id: String) {
@@ -162,7 +189,7 @@ class QuizViewModel
         }
 
         getQuizUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun patchQuiz(id: String, current: Quiz) {
@@ -174,7 +201,7 @@ class QuizViewModel
         current.apply { updatedAt = Date() }
 
         patchQuizUseCase(id, current)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun deleteQuiz(id: String) {
@@ -184,7 +211,7 @@ class QuizViewModel
         }
 
         deleteQuizUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getQuestions(page: Int, size: Int) {
@@ -194,6 +221,6 @@ class QuizViewModel
         }
 
         getQuestionsUseCase(page, size)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

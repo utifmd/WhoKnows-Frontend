@@ -1,6 +1,6 @@
 package com.dudegenuine.usecase.file
 
-import android.net.Uri
+import android.content.Context
 import com.dudegenuine.model.File
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.validation.HttpFailureException
@@ -17,21 +17,38 @@ import javax.inject.Inject
  **/
 class UploadFile
     @Inject constructor(
+    val context: Context,
     val repository: IFileRepository) {
 
-    operator fun invoke(uri: Uri): Flow<Resource<File>> = flow {
+    operator fun invoke(byteArray: ByteArray): Flow<Resource<File>> = flow {
         try {
             emit(Resource.Loading())
 
-            val uploaded = repository.upload(uri)
+            /*uri.path?.let { path ->
+                val actualImageFile = java.io.File(path)
+
+                val file = Compressor.compress(context, actualImageFile) {
+                    resolution(1280, 720)
+                    quality(80)
+                    format(Bitmap.CompressFormat.PNG)
+                    size(597_152) //size(2_097_152) // 500KB
+                }
+            }
+
+
+            val mUri = Uri.fromFile(file)*/
+
+            val uploaded = repository.upload(byteArray)
 
             emit(Resource.Success(uploaded))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: IOException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.IO_EXCEPTION))
         } catch (e: HttpException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
-        } catch (e: IOException){
-            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
         }
     }
 }

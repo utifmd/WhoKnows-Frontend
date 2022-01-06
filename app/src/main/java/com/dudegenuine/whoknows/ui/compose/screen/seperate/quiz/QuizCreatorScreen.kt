@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -23,14 +22,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberImagePainter
 import com.dudegenuine.model.PossibleAnswer
-import com.dudegenuine.model.common.Utility.strOf
+import com.dudegenuine.model.common.ImageUtil.asBitmap
+import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.ButtonGroup
 import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
@@ -86,19 +86,19 @@ fun QuizCreatorScreen(
                 stickyHeader {
                     TextField(
                         value = viewModel.currentQuestion.value,
-                        onValueChange = {
-                            viewModel.currentQuestion.value = it
+                        onValueChange = viewModel.onQuestionValueChange,
+                        label = {
+                            Text(
+                                text = "Enter a question"
+                            )
                         },
-                        label = { Text(
-                            text = "Enter a question"
-                        )},
                         trailingIcon = {
                            if (viewModel.currentQuestion.value.isNotBlank()){
                                Icon(
                                    imageVector = Icons.Default.Close,
                                    contentDescription = "deleteQuestionText",
                                    modifier = Modifier.clickable {
-                                       viewModel.currentQuestion.value = ""
+                                       viewModel.onQuestionValueChange("")
                                    }
                                )
                            }
@@ -114,7 +114,7 @@ fun QuizCreatorScreen(
                 item {
                     TextField(
                         value = viewModel.currentOption.value,
-                        onValueChange = { viewModel.currentOption.value = it },
+                        onValueChange = viewModel.onOptionValueChange,
                         singleLine = true,
                         label = { Text(
                             text = "Push some option"
@@ -141,7 +141,7 @@ fun QuizCreatorScreen(
                         value = selectedType.value,
                         onValueChange = {
                             selectedType.value = it
-                            viewModel.selectedAnswer.value = null
+                            viewModel.onSelectedAnswerValue(null)
                         }
                     )
                 }
@@ -168,19 +168,22 @@ fun QuizCreatorScreen(
 
 @Composable
 fun ImageRows(
-    images: List<Uri>,
+    images: List<ByteArray>,
     onAddPressed: () -> Unit,
     onRemovePressed: (Int) -> Unit) {
     LazyRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)){
-        itemsIndexed(images) { idx, uri ->
+        itemsIndexed(images) { idx, byteArray ->
             Box(
                 contentAlignment = Alignment.TopEnd) {
-                Image(
-                    painter = rememberImagePainter(data = uri),
+
+                Image( //painter = rememberImagePainter(data = uri),
+                    bitmap = asBitmap(byteArray).asImageBitmap(),
                     contentDescription = "uri $idx",
-                    modifier = Modifier.size(128.dp))
+                    modifier = Modifier.size(128.dp)
+                )
+
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "iconClose",

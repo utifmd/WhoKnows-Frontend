@@ -29,6 +29,8 @@ class GetRooms
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
         } catch (e: IOException){
             emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
         }
     }
 }

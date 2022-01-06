@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.mapper
 
+import android.content.Context
 import com.dudegenuine.remote.mapper.*
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.mapper.contract.IDataMapperModule
@@ -7,6 +8,7 @@ import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -50,7 +52,9 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideFileDataMapper(): IFileDataMapper {
-        return FileDataMapper()
+    override fun provideFileDataMapper(
+        @ApplicationContext context: Context): IFileDataMapper {
+
+        return FileDataMapper(context)
     }
 }

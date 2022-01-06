@@ -40,7 +40,7 @@ class ParticipantViewModel
         participant.apply { createdAt = Date() }
 
         postParticipantUseCase(participant)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getParticipant(id: String) {
@@ -50,7 +50,7 @@ class ParticipantViewModel
         }
 
         getParticipantUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun patchParticipant(id: String, current: Participant) {
@@ -62,7 +62,7 @@ class ParticipantViewModel
         current.apply { updatedAt = Date() }
 
         patchParticipantUseCase(id, current)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun deleteParticipant(id: String) {
@@ -72,7 +72,7 @@ class ParticipantViewModel
         }
 
         deleteParticipantUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getParticipants(page: Int, size: Int) {
@@ -82,6 +82,6 @@ class ParticipantViewModel
         }
 
         getParticipantsUseCase(page, size)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

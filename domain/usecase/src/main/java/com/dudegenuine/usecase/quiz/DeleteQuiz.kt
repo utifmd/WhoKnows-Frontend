@@ -1,6 +1,5 @@
 package com.dudegenuine.usecase.quiz
 
-import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IQuizRepository
@@ -29,6 +28,8 @@ class DeleteQuiz
                 emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
             } catch (e: IOException){
                 emit(Resource.Error(Resource.IO_EXCEPTION))
+            } catch (e: Exception){
+                emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
             }
         }
 }

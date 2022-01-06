@@ -1,6 +1,6 @@
 package com.dudegenuine.model
 
-import com.dudegenuine.model.common.Utility.strOf
+import com.dudegenuine.model.common.ImageUtil.strOf
 import java.util.*
 
 /**

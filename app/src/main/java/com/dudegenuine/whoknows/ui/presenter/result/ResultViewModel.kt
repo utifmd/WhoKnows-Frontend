@@ -36,7 +36,7 @@ class ResultViewModel
         result.apply { createdAt = Date() }
 
         postResultUseCase(result)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getResult(id: String) {
@@ -46,7 +46,7 @@ class ResultViewModel
         }
 
         getResultUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun patchResult(id: String, current: Result) {
@@ -58,7 +58,7 @@ class ResultViewModel
         current.apply { updatedAt = Date() }
 
         patchResultUseCase(id, current)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun deleteResult(id: String) {
@@ -68,7 +68,7 @@ class ResultViewModel
         }
 
         deleteResultUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getResults(page: Int, size: Int) {
@@ -78,6 +78,6 @@ class ResultViewModel
         }
 
         getResultsUseCase(page, size)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

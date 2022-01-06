@@ -43,7 +43,7 @@ class UserViewModel
         }
 
         signInUsersUseCase(loginRequest)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun postUser(user: User) {
@@ -55,7 +55,7 @@ class UserViewModel
         user.apply { createdAt = Date() }
 
         postUserUseCase(user)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getUser(id: String) {
@@ -65,7 +65,7 @@ class UserViewModel
         }
 
         getUserUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun patchUser(id: String, current: User) {
@@ -77,7 +77,7 @@ class UserViewModel
         current.apply { updatedAt = Date() }
 
         patchUserUseCase(id, current)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun deleteUser(id: String) {
@@ -87,7 +87,7 @@ class UserViewModel
         }
 
         deleteUserUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getUsers(page: Int, size: Int) {
@@ -97,6 +97,6 @@ class UserViewModel
         }
 
         getUsersUseCase(page, size)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

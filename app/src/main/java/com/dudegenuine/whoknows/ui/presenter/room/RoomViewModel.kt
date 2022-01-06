@@ -66,7 +66,7 @@ class RoomViewModel
         room.apply { createdAt = Date() }
 
         postRoomUseCase(room)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getRoom(id: String) {
@@ -76,7 +76,7 @@ class RoomViewModel
         }
 
         getRoomUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun patchRoom(id: String, current: Room) {
@@ -87,7 +87,7 @@ class RoomViewModel
         current.apply { updatedAt = Date() }
 
         patchRoomUseCase(id, current)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun deleteRoom(id: String) {
@@ -97,7 +97,7 @@ class RoomViewModel
         }
 
         deleteRoomUseCase(id)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getRooms(page: Int, size: Int) {
@@ -106,7 +106,7 @@ class RoomViewModel
         }
 
         getRoomsUseCase(page, size)
-            .onEach(this::resourcing).launchIn(viewModelScope)
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun onBoarding(id: String){

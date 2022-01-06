@@ -17,8 +17,8 @@ import com.dudegenuine.model.Answer
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.QuizActionType
-import com.dudegenuine.model.common.Utility.asBitmap
-import com.dudegenuine.model.common.Utility.strOf
+import com.dudegenuine.model.common.ImageUtil.asBitmap
+import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.MultipleChoiceQuestion
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.SingleChoiceQuestion
 

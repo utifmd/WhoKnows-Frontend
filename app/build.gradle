@@ -46,4 +46,5 @@ dependencies {
 
     // Image
     implementation "io.coil-kt:coil-compose:$coil_version"
+    implementation "id.zelory:compressor:$compressor_version"
 }

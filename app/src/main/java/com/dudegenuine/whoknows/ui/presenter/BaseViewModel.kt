@@ -13,7 +13,7 @@ abstract class BaseViewModel: ViewModel() {
     protected val _state = mutableStateOf(ResourceState())
     private val TAG: String = javaClass.simpleName
 
-    protected fun<T> resourcing(result: Resource<T>){
+    protected fun<T> onResource(result: Resource<T>){
         when(result){
             is Resource.Success -> {
                 if (result.data is List<*>) {

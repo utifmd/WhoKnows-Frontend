@@ -10,3 +10,8 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class WhoKnows: Application()
+
+// TODO:
+//  - multiple upload
+//  - separate viewModel resource state
+//  - trim useCases hilt module
