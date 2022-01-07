@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import com.dudegenuine.repository.UserRepository
 import com.dudegenuine.usecase.user.*
-import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,34 +14,35 @@ import dagger.hilt.android.scopes.ViewModelScoped
  **/
 @Module
 @InstallIn(ViewModelComponent::class)
-object UserUseCaseModule: IUserUseCaseModule {
+object UserUseCaseModule{ //: IUserUseCaseModule {
+
     @Provides
     @ViewModelScoped
-    override fun providePostUserModule(userRepository: UserRepository): PostUser =
+    fun providePostUserModule(userRepository: UserRepository): PostUser =
         PostUser(userRepository)
 
     @Provides
     @ViewModelScoped
-    override fun provideGetUserModule(userRepository: UserRepository): GetUser =
+    fun provideGetUserModule(userRepository: UserRepository): GetUser =
         GetUser(userRepository)
 
     @Provides
     @ViewModelScoped
-    override fun providePatchUserModule(userRepository: UserRepository): PatchUser =
+    fun providePatchUserModule(userRepository: UserRepository): PatchUser =
         PatchUser(userRepository)
 
     @Provides
     @ViewModelScoped
-    override fun provideDeleteUserModule(userRepository: UserRepository): DeleteUser =
+    fun provideDeleteUserModule(userRepository: UserRepository): DeleteUser =
         DeleteUser(userRepository)
 
     @Provides
     @ViewModelScoped
-    override fun provideGetUsersModule(userRepository: UserRepository): GetUsers =
+    fun provideGetUsersModule(userRepository: UserRepository): GetUsers =
         GetUsers(userRepository)
 
     @Provides
     @ViewModelScoped
-    override fun provideSignInUsersModule(userRepository: UserRepository): SignInUser =
+    fun provideSignInUsersModule(userRepository: UserRepository): SignInUser =
         SignInUser(userRepository)
 }

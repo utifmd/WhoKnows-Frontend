@@ -33,7 +33,7 @@ abstract class BaseViewModel: ViewModel() {
                     else -> ResourceState()
                 }
 
-                Log.d(TAG, "Resource.Success")
+                Log.d(TAG, "Resource.Success ${result.data}")
             }
             is Resource.Error -> {
                 _state.value = ResourceState(

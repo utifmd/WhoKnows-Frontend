@@ -5,7 +5,7 @@ import com.dudegenuine.usecase.participant.*
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.usecase.result.*
 import com.dudegenuine.usecase.room.*
-import com.dudegenuine.usecase.user.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
 import com.dudegenuine.whoknows.ui.presenter.participant.ParticipantViewModel
 import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
@@ -33,17 +33,11 @@ object ViewModelModule: IViewModelModule {
 
     @Provides
     @ViewModelScoped
-    override fun provideUserViewModel(
-        uploadFile: UploadFile,
-        postUser: PostUser,
-        getUser: GetUser,
-        patchUser: PatchUser,
-        deleteUser: DeleteUser,
-        getUsers: GetUsers,
-        signInUser: SignInUser
-    ): IUserViewModel {
+    override fun provideUserViewModel( //uploadFile: UploadFile, postUser: PostUser, getUser: GetUser, patchUser: PatchUser, deleteUser: DeleteUser, getUsers: GetUsers, signInUser: SignInUser
+        userUseCase: IUserUseCaseModule): IUserViewModel {
 
-        return UserViewModel(uploadFile, postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
+        return UserViewModel(userUseCase)
+        //return UserViewModel(uploadFile, postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
     }
 
     @Provides

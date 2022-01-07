@@ -13,7 +13,7 @@ import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.DISCOVER
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SETTING
 import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SUMMARY
-import com.dudegenuine.whoknows.ui.compose.screen.RoomScreen
+import com.dudegenuine.whoknows.ui.compose.screen.LoginScreen
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,7 +25,8 @@ class MainActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WhoKnowsTheme {
-                RoomScreen()
+                LoginScreen()
+                //RoomScreen()
 
                 /*val navController = rememberNavController()
 
@@ -68,42 +69,6 @@ class MainActivity: ComponentActivity() {
         )
     }
 }
-
-//@Composable
-//fun LoginScreen(
-//    viewModel: RoomViewModel = hiltViewModel()){
-//    // val state = viewModel.state.value
-//
-//    Column {
-//        GeneralTextField(
-//            viewState = viewModel.state,
-//            onValueChange = viewModel::fillInput
-//        )
-//        Button(
-//            onClick = viewModel::onContinueClick,
-//            enabled = viewModel.state.value.participant?.isPropsNotBlank ?: false) {
-//            Text(text = "Continue")
-//        }
-//    }
-//}
-//
-//@Composable
-//fun GeneralTextField(
-//    viewState: State<ViewState>,
-//    onValueChange: (text: String) -> Unit
-//){
-//    val field = viewState.value
-//    Column {
-//        TextField(
-//            value = if(field.participant != null) field.participant.id else "",
-//            onValueChange = { onValueChange(it) },
-//            isError = field.error.isNotBlank()
-//        )
-//        if (field.error.isNotBlank()) {
-//            Text(field.error) // error message
-//        }
-//    }
-//}
 
 //@Composable
 //fun ProfileScreen(

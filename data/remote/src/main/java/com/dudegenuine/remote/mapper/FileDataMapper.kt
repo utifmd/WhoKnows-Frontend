@@ -57,9 +57,11 @@ class FileDataMapper
         byteArrays.map { asMultipart(it) }
 
     override fun asMultipart(byteArray: ByteArray): MultipartBody.Part {
-        val contentPart = byteArray.toRequestBody("image/*".toMediaTypeOrNull(), 0, byteArray.size)
+        val contentPart = byteArray
+            .toRequestBody("image/jpeg".toMediaTypeOrNull(), 0, byteArray.size)
 
-        return MultipartBody.Part.createFormData("file", "file-${Date().time}", contentPart)
+        return MultipartBody.Part
+            .createFormData("file", "file-${Date().time}", contentPart)
     }
 
     /*val resolver: ContentResolver = context.contentResolver

@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
-import com.dudegenuine.repository.UserRepository
 import com.dudegenuine.usecase.user.*
 
 /**
@@ -8,10 +7,10 @@ import com.dudegenuine.usecase.user.*
  * WhoKnows by utifmd
  **/
 interface IUserUseCaseModule {
-    fun providePostUserModule(userRepository: UserRepository): PostUser
-    fun provideGetUserModule(userRepository: UserRepository): GetUser
-    fun providePatchUserModule(userRepository: UserRepository): PatchUser
-    fun provideDeleteUserModule(userRepository: UserRepository): DeleteUser
-    fun provideGetUsersModule(userRepository: UserRepository): GetUsers
-    fun provideSignInUsersModule(userRepository: UserRepository): SignInUser
+    fun postUser(): PostUser
+    fun getUser(): GetUser
+    fun patchUser(): PatchUser
+    fun deleteUser(): DeleteUser
+    fun getUsers(): GetUsers
+    val signInUser: SignInUser
 }

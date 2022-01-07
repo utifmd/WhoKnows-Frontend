@@ -1,11 +1,12 @@
 package com.dudegenuine.whoknows.ui.presenter.user
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.User
 import com.dudegenuine.model.request.LoginRequest
-import com.dudegenuine.usecase.file.UploadFile
-import com.dudegenuine.usecase.user.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
+import com.dudegenuine.whoknows.ui.compose.state.UserState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
@@ -25,25 +26,25 @@ import javax.inject.Inject
 class UserViewModel
 
     @Inject constructor(
-    private val uploadFileUseCase: UploadFile,
-    private val postUserUseCase: PostUser,
-    private val getUserUseCase: GetUser,
-    private val patchUserUseCase: PatchUser,
-    private val deleteUserUseCase: DeleteUser,
-    private val getUsersUseCase: GetUsers, //, savedStateHandle: SavedStateHandle
-    private val signInUsersUseCase: SignInUser): BaseViewModel(), IUserViewModel {
+        private val case: IUserUseCaseModule //,private val savedStateHandle: SavedStateHandle
+        ): BaseViewModel(), IUserViewModel {
 
     val state: State<ResourceState> = _state // init { getUsers(0, 10); getUser("USR00002") }
 
-    override fun signInUser(loginRequest: LoginRequest) {
-        if (loginRequest.email.isBlank() ||
-            loginRequest.password.isBlank()){
+    val userState = mutableStateOf(UserState())
+    private val userFields = userState.value
+
+    override fun signInUser() {
+        if (!userFields.isValid.value){
             _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
-        signInUsersUseCase(loginRequest)
-            .onEach(this::onResource).launchIn(viewModelScope)
+        case.signInUser(LoginRequest(
+            userFields.username.value,
+            userFields.password.value
+        )).onEach(this::onResource)
+            .launchIn(viewModelScope)
     }
 
     override fun postUser(user: User) {
@@ -54,7 +55,7 @@ class UserViewModel
 
         user.apply { createdAt = Date() }
 
-        postUserUseCase(user)
+        case.postUser()(user)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -64,7 +65,7 @@ class UserViewModel
             return
         }
 
-        getUserUseCase(id)
+        case.getUser()(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -76,7 +77,7 @@ class UserViewModel
 
         current.apply { updatedAt = Date() }
 
-        patchUserUseCase(id, current)
+        case.patchUser() (id, current)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -86,7 +87,7 @@ class UserViewModel
             return
         }
 
-        deleteUserUseCase(id)
+        case.deleteUser() (id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -96,7 +97,7 @@ class UserViewModel
             return
         }
 
-        getUsersUseCase(page, size)
+        case.getUsers() (page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

@@ -1,14 +1,14 @@
 package com.dudegenuine.whoknows.ui.presenter.user.contract
 
 import com.dudegenuine.model.User
-import com.dudegenuine.model.request.LoginRequest
 
 /**
  * Sat, 04 Dec 2021
  * WhoKnows by utifmd
  **/
 interface IUserViewModel { //: IFilePresenter {
-    fun signInUser(loginRequest: LoginRequest)
+    //fun signInUser(loginRequest: LoginRequest)
+    fun signInUser()
     fun postUser(user: User)
     fun getUser(id: String)
     fun patchUser(id: String, current: User)

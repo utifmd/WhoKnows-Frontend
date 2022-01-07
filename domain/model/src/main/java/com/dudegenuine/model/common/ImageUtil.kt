@@ -39,7 +39,7 @@ object ImageUtil {
         val nh = (bitmap.height * (512.0 / bitmap.width)).toInt()
         val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 512, nh, true)
         val stream = ByteArrayOutputStream().apply {
-            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 75, this)
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 75, this)
         }
 
         stream.toByteArray()

@@ -5,7 +5,7 @@ import com.dudegenuine.usecase.participant.*
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.usecase.result.*
 import com.dudegenuine.usecase.room.*
-import com.dudegenuine.usecase.user.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
 import com.dudegenuine.whoknows.ui.presenter.quiz.contract.IQuizViewModel
 import com.dudegenuine.whoknows.ui.presenter.result.contract.IResultViewModel
@@ -17,14 +17,8 @@ import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
  * WhoKnows by utifmd
  **/
 interface IViewModelModule {
-    fun provideUserViewModel(
-        uploadFile: UploadFile,
-        postUser: PostUser,
-        getUser: GetUser,
-        patchUser: PatchUser,
-        deleteUser: DeleteUser,
-        getUsers: GetUsers,
-        signInUser: SignInUser
+    fun provideUserViewModel(// uploadFile: UploadFile, postUser: PostUser, getUser: GetUser, patchUser: PatchUser, deleteUser: DeleteUser, getUsers: GetUsers, signInUser: SignInUser
+        userUseCase: IUserUseCaseModule
     ): IUserViewModel
 
     fun provideRoomViewModel(
