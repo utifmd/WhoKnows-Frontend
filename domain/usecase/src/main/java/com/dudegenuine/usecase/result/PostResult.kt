@@ -2,7 +2,7 @@ package com.dudegenuine.usecase.result
 
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Result
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IResultRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

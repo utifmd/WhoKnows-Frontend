@@ -1,8 +1,9 @@
 package com.dudegenuine.remote.mapper
 
-import android.util.Log
 import com.dudegenuine.model.User
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.User.Companion.EMAIL
+import com.dudegenuine.model.User.Companion.PASSWORD
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
@@ -58,5 +59,14 @@ class UserDataMapper: IUserDataMapper {
         }
 
         return list
+    }
+
+    override fun asLogin(params: Map<String, String>): UserEntity.LoginRequest {
+        val email = params[EMAIL] ?: throw HttpFailureException("incorrect email")
+        val password = params[PASSWORD] ?: throw HttpFailureException("incorrect password")
+
+        return UserEntity.LoginRequest(
+            email, password
+        )
     }
 }

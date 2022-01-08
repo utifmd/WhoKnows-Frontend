@@ -1,50 +1,29 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
-import com.dudegenuine.repository.ResultRepository
+import com.dudegenuine.repository.contract.IResultRepository
 import com.dudegenuine.usecase.result.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IResultUseCaseModule
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 /**
- * Thu, 09 Dec 2021
+ * Sat, 08 Jan 2022
  * WhoKnows by utifmd
  **/
+class ResultUseCaseModule(
+    private val repository: IResultRepository,
 
-@Module
-@InstallIn(ViewModelComponent::class)
-object ResultUseCaseModule: IResultUseCaseModule {
+    override val postResult: PostResult =
+        PostResult(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun providePostResultModule(repos: ResultRepository): PostResult {
-        return PostResult(repos)
-    }
+    override val getResult: GetResult =
+        GetResult(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun provideGetResultModule(repos: ResultRepository): GetResult {
-        return GetResult(repos)
-    }
+    override val patchResult: PatchResult =
+        PatchResult(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun providePatchResultModule(repos: ResultRepository): PatchResult {
-        return PatchResult(repos)
-    }
+    override val deleteResult: DeleteResult =
+        DeleteResult(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun provideDeleteResultModule(repos: ResultRepository): DeleteResult {
-        return DeleteResult(repos)
-    }
+    override val getResults: GetResults =
+        GetResults(repository)
 
-    @Provides
-    @ViewModelScoped
-    override fun provideGetResultsModule(repos: ResultRepository): GetResults {
-        return GetResults(repos)
-    }
-}
+) : IResultUseCaseModule

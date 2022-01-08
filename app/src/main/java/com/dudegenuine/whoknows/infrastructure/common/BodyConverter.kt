@@ -1,7 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.common
 
 import android.util.Log
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

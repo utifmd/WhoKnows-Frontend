@@ -1,14 +1,12 @@
 package com.dudegenuine.whoknows.infrastructure.common
 
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import okhttp3.Interceptor
 import okhttp3.Response
-import java.io.IOException
 import java.lang.Exception
 import java.nio.charset.Charset
-import kotlin.jvm.Throws
 
 /**
  * Wed, 08 Dec 2021

@@ -1,7 +1,7 @@
 package com.dudegenuine.usecase.user
 
 import com.dudegenuine.model.Resource
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IUserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

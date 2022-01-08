@@ -7,10 +7,10 @@ import com.dudegenuine.usecase.user.*
  * WhoKnows by utifmd
  **/
 interface IUserUseCaseModule {
-    fun postUser(): PostUser
-    fun getUser(): GetUser
-    fun patchUser(): PatchUser
-    fun deleteUser(): DeleteUser
-    fun getUsers(): GetUsers
     val signInUser: SignInUser
+    val postUser: PostUser
+    val getUser: GetUser
+    val patchUser: PatchUser
+    val deleteUser: DeleteUser
+    val getUsers: GetUsers
 }

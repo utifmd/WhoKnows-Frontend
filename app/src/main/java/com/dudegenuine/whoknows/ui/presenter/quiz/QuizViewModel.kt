@@ -9,12 +9,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.*
 import com.dudegenuine.model.common.ImageUtil.adjustImage
 import com.dudegenuine.model.common.ImageUtil.strOf
-import com.dudegenuine.usecase.file.UploadFile
-import com.dudegenuine.usecase.quiz.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IQuizUseCaseModule
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
@@ -32,12 +33,9 @@ import javax.inject.Inject
 @HiltViewModel
 class QuizViewModel
     @Inject constructor(
-    private val uploadFileUseCase: UploadFile,
-    private val postQuizUseCase: PostQuiz,
-    private val getQuizUseCase: GetQuiz,
-    private val patchQuizUseCase: PatchQuiz,
-    private val deleteQuizUseCase: DeleteQuiz,
-    private val getQuestionsUseCase: GetQuestions): BaseViewModel(), IQuizViewModel {
+    private val caseQuiz: IQuizUseCaseModule,
+    private val caseFile: IFileUseCaseModule,
+    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IQuizViewModel {
 
     private val TAG: String = strOf<QuizViewModel>()
     private val resourceState: State<ResourceState> = _state
@@ -138,7 +136,7 @@ class QuizViewModel
     override fun uploadFile(byteArray: ByteArray) {
         if (byteArray.isEmpty()) return
 
-        uploadFileUseCase(byteArray)
+        caseFile.uploadFile(byteArray)
             .onEach(this::onFileUploaded).launchIn(viewModelScope)
     }
 
@@ -178,7 +176,7 @@ class QuizViewModel
             return
         }
 
-        postQuizUseCase(quiz)
+        caseQuiz.postQuiz(quiz)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -188,7 +186,7 @@ class QuizViewModel
             return
         }
 
-        getQuizUseCase(id)
+        caseQuiz.getQuiz(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -200,7 +198,7 @@ class QuizViewModel
 
         current.apply { updatedAt = Date() }
 
-        patchQuizUseCase(id, current)
+        caseQuiz.patchQuiz(id, current)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -210,7 +208,7 @@ class QuizViewModel
             return
         }
 
-        deleteQuizUseCase(id)
+        caseQuiz.deleteQuiz(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -220,7 +218,7 @@ class QuizViewModel
             return
         }
 
-        getQuestionsUseCase(page, size)
+        caseQuiz.getQuestions(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

@@ -1,8 +1,9 @@
 package com.dudegenuine.whoknows.ui.presenter.result
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Result
-import com.dudegenuine.usecase.result.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IResultUseCaseModule
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
@@ -20,12 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ResultViewModel
     @Inject constructor(
-    private val postResultUseCase: PostResult,
-    private val getResultUseCase: GetResult,
-    private val patchResultUseCase: PatchResult,
-    private val deleteResultUseCase: DeleteResult,
-    private val getResultsUseCase: GetResults
-): BaseViewModel(), IResultViewModel {
+    private val case: IResultUseCaseModule,
+    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IResultViewModel {
 
     override fun postResult(result: Result) {
         if (result.isPropsBlank){
@@ -35,7 +32,7 @@ class ResultViewModel
 
         result.apply { createdAt = Date() }
 
-        postResultUseCase(result)
+        case.postResult(result)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -45,7 +42,7 @@ class ResultViewModel
             return
         }
 
-        getResultUseCase(id)
+        case.getResult(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -57,7 +54,7 @@ class ResultViewModel
 
         current.apply { updatedAt = Date() }
 
-        patchResultUseCase(id, current)
+        case.patchResult(id, current)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -67,7 +64,7 @@ class ResultViewModel
             return
         }
 
-        deleteResultUseCase(id)
+        case.deleteResult(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -77,7 +74,7 @@ class ResultViewModel
             return
         }
 
-        getResultsUseCase(page, size)
+        case.getResults(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

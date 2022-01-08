@@ -13,6 +13,7 @@ class WhoKnows: Application()
 
 // TODO:
 //  - multiple upload
-//  - compress not decreased
-//  - separate viewModel resource state
-//  - trim useCases hilt module
+//  - room business logic
+
+// TODO: Backend
+//  - signIn response bad req to not found

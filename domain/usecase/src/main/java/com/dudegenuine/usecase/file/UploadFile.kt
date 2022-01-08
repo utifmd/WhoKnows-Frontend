@@ -3,7 +3,7 @@ package com.dudegenuine.usecase.file
 import android.content.Context
 import com.dudegenuine.model.File
 import com.dudegenuine.model.Resource
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IFileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

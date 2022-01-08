@@ -1,8 +1,7 @@
 package com.dudegenuine.repository
 
 import com.dudegenuine.model.User
-import com.dudegenuine.model.request.LoginRequest
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.dudegenuine.remote.service.contract.IUserService
 import com.dudegenuine.repository.contract.IUserRepository
@@ -46,8 +45,8 @@ class UserRepository
         service.list(page, size)
     )
 
-    override suspend fun signIn(loginRequest: LoginRequest): User = try {
-        mapper.asUser(service.signIn(loginRequest))
+    override suspend fun signIn(params: Map<String, String>): User = try {
+        mapper.asUser(service.signIn(mapper.asLogin(params)))
     } catch (e: Exception) {
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }

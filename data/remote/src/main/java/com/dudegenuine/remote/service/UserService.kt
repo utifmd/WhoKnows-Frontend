@@ -1,6 +1,5 @@
 package com.dudegenuine.remote.service
 
-import com.dudegenuine.model.request.LoginRequest
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.service.contract.IUserService
@@ -43,8 +42,8 @@ interface UserService: IUserService {
         @Query("page") page: Int,
         @Query("size") size: Int): Response<List<UserEntity>>
 
-    @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
     @POST("/api/auth/sign-in")
+    @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
     override suspend fun signIn(
-        @Body loginRequest: LoginRequest): Response<UserEntity>
+        @Body loginRequest: UserEntity.LoginRequest): Response<UserEntity>
 }

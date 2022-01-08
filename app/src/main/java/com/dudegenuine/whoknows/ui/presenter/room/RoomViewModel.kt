@@ -4,10 +4,11 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
-import com.dudegenuine.usecase.room.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -27,11 +28,9 @@ import javax.inject.Inject
 @HiltViewModel
 class RoomViewModel
     @Inject constructor(
-    private val postRoomUseCase: PostRoom,
-    private val getRoomUseCase: GetRoom,
-    private val patchRoomUseCase: PatchRoom,
-    private val deleteRoomUseCase: DeleteRoom,
-    private val getRoomsUseCase: GetRooms): BaseViewModel(), IRoomViewModel {
+    private val case: IRoomUseCaseModule,
+    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
+
     private val TAG: String = javaClass.simpleName
 
     val resourceState: State<ResourceState>
@@ -65,7 +64,7 @@ class RoomViewModel
 
         room.apply { createdAt = Date() }
 
-        postRoomUseCase(room)
+        case.postRoom(room)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -75,7 +74,7 @@ class RoomViewModel
             return
         }
 
-        getRoomUseCase(id)
+        case.getRoom(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -86,7 +85,7 @@ class RoomViewModel
 
         current.apply { updatedAt = Date() }
 
-        patchRoomUseCase(id, current)
+        case.patchRoom(id, current)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -96,7 +95,7 @@ class RoomViewModel
             return
         }
 
-        deleteRoomUseCase(id)
+        case.deleteRoom(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -105,12 +104,12 @@ class RoomViewModel
             _state.value = ResourceState(error = DONT_EMPTY)
         }
 
-        getRoomsUseCase(page, size)
+        case.getRooms(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun onBoarding(id: String){
-        getRoomUseCase(id).onEach { resource ->
+        case.getRoom(id).onEach { resource ->
             when(resource){
                 is Resource.Success -> {
                     resource.data?.let { room ->

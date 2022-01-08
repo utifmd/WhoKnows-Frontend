@@ -22,7 +22,7 @@ fun LoginScreen(
 
     Column {
         GeneralTextField(
-            value = formState.username.value,
+            value = formState.email.value,
             errorMessage = state.error,
             onValueChange = formState.onUsernameChange
         )

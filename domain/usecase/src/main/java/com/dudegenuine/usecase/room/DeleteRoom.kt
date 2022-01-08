@@ -1,7 +1,7 @@
 package com.dudegenuine.usecase.room
 
 import com.dudegenuine.model.Resource
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IRoomRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

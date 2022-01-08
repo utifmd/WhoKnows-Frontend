@@ -1,11 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
-import com.dudegenuine.usecase.file.UploadFile
-import com.dudegenuine.usecase.participant.*
-import com.dudegenuine.usecase.quiz.*
-import com.dudegenuine.usecase.result.*
-import com.dudegenuine.usecase.room.*
-import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
+import androidx.lifecycle.SavedStateHandle
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
 import com.dudegenuine.whoknows.ui.presenter.participant.ParticipantViewModel
 import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
@@ -33,59 +29,43 @@ object ViewModelModule: IViewModelModule {
 
     @Provides
     @ViewModelScoped
-    override fun provideUserViewModel( //uploadFile: UploadFile, postUser: PostUser, getUser: GetUser, patchUser: PatchUser, deleteUser: DeleteUser, getUsers: GetUsers, signInUser: SignInUser
-        userUseCase: IUserUseCaseModule): IUserViewModel {
-
-        return UserViewModel(userUseCase)
-        //return UserViewModel(uploadFile, postUser, getUser, patchUser, deleteUser, getUsers, signInUser)
-    }
+    override fun provideUserViewModel(userUseCase: IUserUseCaseModule,savedStateHandle: SavedStateHandle): IUserViewModel =
+        UserViewModel(userUseCase, savedStateHandle)
 
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
-        postRoom: PostRoom,
-        getRoom: GetRoom,
-        patchRoom: PatchRoom,
-        deleteRoom: DeleteRoom,
-        getRooms: GetRooms
-    ): IRoomViewModel {
-        return RoomViewModel(postRoom, getRoom, patchRoom, deleteRoom, getRooms)
+        roomUseCaseModule: IRoomUseCaseModule,
+        savedStateHandle: SavedStateHandle): IRoomViewModel {
+
+        return RoomViewModel(roomUseCaseModule, savedStateHandle)
     }
 
     @Provides
     @ViewModelScoped
     override fun provideQuizViewModel(
-        uploadFile: UploadFile,
-        postQuiz: PostQuiz,
-        getQuiz: GetQuiz,
-        patchQuiz: PatchQuiz,
-        deleteQuiz: DeleteQuiz,
-        getQuestions: GetQuestions
-    ): IQuizViewModel {
-        return QuizViewModel(uploadFile, postQuiz, getQuiz, patchQuiz, deleteQuiz, getQuestions)
+        quizUseCaseModule: IQuizUseCaseModule,
+        fileUseCaseModule: IFileUseCaseModule,
+        savedStateHandle: SavedStateHandle): IQuizViewModel {
+
+        return QuizViewModel(quizUseCaseModule, fileUseCaseModule, savedStateHandle)
     }
 
     @Provides
     @ViewModelScoped
     override fun provideResultViewModel(
-        postResult: PostResult,
-        getResult: GetResult,
-        patchResult: PatchResult,
-        deleteResult: DeleteResult,
-        getResults: GetResults
-    ): IResultViewModel {
-        return ResultViewModel(postResult, getResult, patchResult, deleteResult, getResults)
+        resultUseCaseModule: IResultUseCaseModule,
+        savedStateHandle: SavedStateHandle): IResultViewModel {
+
+        return ResultViewModel(resultUseCaseModule, savedStateHandle)
     }
 
     @Provides
     @ViewModelScoped
     override fun provideParticipantViewModel(
-        postParticipant: PostParticipant,
-        getParticipant: GetParticipant,
-        patchParticipant: PatchParticipant,
-        deleteParticipant: DeleteParticipant,
-        getParticipants: GetParticipants
-    ): IParticipantViewModel {
-        return ParticipantViewModel(postParticipant, getParticipant, patchParticipant, deleteParticipant, getParticipants)
+        participantUseCaseModule: IParticipantUseCaseModule,
+        savedStateHandle: SavedStateHandle): IParticipantViewModel {
+
+        return ParticipantViewModel(participantUseCaseModule, savedStateHandle)
     }
 }

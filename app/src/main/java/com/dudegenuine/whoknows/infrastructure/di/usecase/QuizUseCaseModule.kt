@@ -1,49 +1,29 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
-import com.dudegenuine.repository.QuizRepository
+import com.dudegenuine.repository.contract.IQuizRepository
 import com.dudegenuine.usecase.quiz.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IQuizUseCaseModule
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
 
 /**
- * Thu, 09 Dec 2021
+ * Sat, 08 Jan 2022
  * WhoKnows by utifmd
  **/
-@Module
-@InstallIn(ViewModelComponent::class)
-object QuizUseCaseModule: IQuizUseCaseModule {
+class QuizUseCaseModule(
+    private val repository: IQuizRepository,
 
-    @Provides
-    @ViewModelScoped
-    override fun providePostQuizModule(repos: QuizRepository): PostQuiz {
-        return PostQuiz(repos)
-    }
+    override val postQuiz: PostQuiz =
+        PostQuiz(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun provideGetQuizModule(repos: QuizRepository): GetQuiz {
-        return GetQuiz(repos)
-    }
+    override val getQuiz: GetQuiz =
+        GetQuiz(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun providePatchQuizModule(repos: QuizRepository): PatchQuiz {
-        return PatchQuiz(repos)
-    }
+    override val patchQuiz: PatchQuiz =
+        PatchQuiz(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun provideDeleteQuizModule(repos: QuizRepository): DeleteQuiz {
-        return DeleteQuiz(repos)
-    }
+    override val deleteQuiz: DeleteQuiz =
+        DeleteQuiz(repository),
 
-    @Provides
-    @ViewModelScoped
-    override fun provideGetQuestionsModule(repos: QuizRepository): GetQuestions {
-        return GetQuestions(repos)
-    }
-}
+    override val getQuestions: GetQuestions =
+        GetQuestions(repository)
+
+): IQuizUseCaseModule

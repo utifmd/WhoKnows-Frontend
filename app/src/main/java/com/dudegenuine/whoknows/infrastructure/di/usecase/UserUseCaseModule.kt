@@ -1,48 +1,32 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
-import com.dudegenuine.repository.UserRepository
+import com.dudegenuine.repository.contract.IUserRepository
 import com.dudegenuine.usecase.user.*
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 
 /**
- * Thu, 02 Dec 2021
+ * Fri, 07 Jan 2022
  * WhoKnows by utifmd
  **/
-@Module
-@InstallIn(ViewModelComponent::class)
-object UserUseCaseModule{ //: IUserUseCaseModule {
+class UserUseCaseModule(
+    private val repository: IUserRepository,
 
-    @Provides
-    @ViewModelScoped
-    fun providePostUserModule(userRepository: UserRepository): PostUser =
-        PostUser(userRepository)
+    override val signInUser:
+        SignInUser = SignInUser(repository),
 
-    @Provides
-    @ViewModelScoped
-    fun provideGetUserModule(userRepository: UserRepository): GetUser =
-        GetUser(userRepository)
+    override val postUser:
+        PostUser = PostUser(repository),
 
-    @Provides
-    @ViewModelScoped
-    fun providePatchUserModule(userRepository: UserRepository): PatchUser =
-        PatchUser(userRepository)
+    override val getUser:
+        GetUser = GetUser(repository),
 
-    @Provides
-    @ViewModelScoped
-    fun provideDeleteUserModule(userRepository: UserRepository): DeleteUser =
-        DeleteUser(userRepository)
+    override val patchUser:
+        PatchUser = PatchUser(repository),
 
-    @Provides
-    @ViewModelScoped
-    fun provideGetUsersModule(userRepository: UserRepository): GetUsers =
-        GetUsers(userRepository)
+    override val deleteUser:
+        DeleteUser = DeleteUser(repository),
 
-    @Provides
-    @ViewModelScoped
-    fun provideSignInUsersModule(userRepository: UserRepository): SignInUser =
-        SignInUser(userRepository)
-}
+    override val getUsers:
+        GetUsers = GetUsers(repository)
+
+): IUserUseCaseModule

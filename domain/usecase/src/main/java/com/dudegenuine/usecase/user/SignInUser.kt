@@ -2,8 +2,7 @@ package com.dudegenuine.usecase.user
 
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
-import com.dudegenuine.model.request.LoginRequest
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IUserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,10 +17,10 @@ import javax.inject.Inject
 class SignInUser
     @Inject constructor(
         private val repository: IUserRepository) {
-        operator fun invoke(loginRequest: LoginRequest): Flow<Resource<User>> = flow {
+        operator fun invoke(params: Map<String, String>): Flow<Resource<User>> = flow {
             try {
                 emit(Resource.Loading())
-                val signedInUser = repository.signIn(loginRequest)
+                val signedInUser = repository.signIn(params)
                 emit(Resource.Success(signedInUser))
 
             } catch (e: HttpFailureException){

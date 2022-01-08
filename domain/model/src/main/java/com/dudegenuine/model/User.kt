@@ -20,4 +20,9 @@ data class User (
     val isPropsBlank: Boolean =
         fullName.isBlank() || email.isBlank() || phone.isBlank() ||
                 username.isBlank() || password.isBlank()
+
+    companion object {
+        const val EMAIL = "email"
+        const val PASSWORD = "password"
+    }
 }

@@ -1,7 +1,7 @@
 package com.dudegenuine.repository
 
 import com.dudegenuine.model.Participant
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
 import com.dudegenuine.remote.service.contract.IParticipantService
 import com.dudegenuine.repository.contract.IParticipantRepository

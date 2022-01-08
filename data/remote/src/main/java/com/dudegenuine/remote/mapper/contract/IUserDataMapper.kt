@@ -13,4 +13,5 @@ interface IUserDataMapper {
     fun asUser(entity: UserEntity): User
     fun asUser(response: Response<UserEntity>): User
     fun asUsers(response: Response<List<UserEntity>>): List<User>
+    fun asLogin(params: Map<String, String>): UserEntity.LoginRequest
 }

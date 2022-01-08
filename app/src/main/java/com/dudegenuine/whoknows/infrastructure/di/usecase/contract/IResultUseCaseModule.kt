@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
-import com.dudegenuine.repository.ResultRepository
 import com.dudegenuine.usecase.result.*
 
 /**
@@ -8,9 +7,9 @@ import com.dudegenuine.usecase.result.*
  * WhoKnows by utifmd
  **/
 interface IResultUseCaseModule {
-    fun providePostResultModule(repos: ResultRepository): PostResult
-    fun provideGetResultModule(repos: ResultRepository): GetResult
-    fun providePatchResultModule(repos: ResultRepository): PatchResult
-    fun provideDeleteResultModule(repos: ResultRepository): DeleteResult
-    fun provideGetResultsModule(repos: ResultRepository): GetResults
+    val postResult: PostResult
+    val getResult: GetResult
+    val patchResult: PatchResult
+    val deleteResult: DeleteResult
+    val getResults: GetResults
 }

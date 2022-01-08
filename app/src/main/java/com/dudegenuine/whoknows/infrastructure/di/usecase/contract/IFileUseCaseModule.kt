@@ -1,7 +1,5 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
-import android.content.Context
-import com.dudegenuine.repository.contract.IFileRepository
 import com.dudegenuine.usecase.file.UploadFile
 
 /**
@@ -9,5 +7,5 @@ import com.dudegenuine.usecase.file.UploadFile
  * WhoKnows by utifmd
  **/
 interface IFileUseCaseModule {
-    fun provideUploadFile(context: Context, repos: IFileRepository): UploadFile
+    val uploadFile: UploadFile
 }

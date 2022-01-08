@@ -2,9 +2,11 @@ package com.dudegenuine.whoknows.ui.presenter.user
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.User
-import com.dudegenuine.model.request.LoginRequest
+import com.dudegenuine.model.User.Companion.EMAIL
+import com.dudegenuine.model.User.Companion.PASSWORD
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.UserState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -26,8 +28,8 @@ import javax.inject.Inject
 class UserViewModel
 
     @Inject constructor(
-        private val case: IUserUseCaseModule //,private val savedStateHandle: SavedStateHandle
-        ): BaseViewModel(), IUserViewModel {
+    private val case: IUserUseCaseModule,
+    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
 
     val state: State<ResourceState> = _state // init { getUsers(0, 10); getUser("USR00002") }
 
@@ -40,11 +42,11 @@ class UserViewModel
             return
         }
 
-        case.signInUser(LoginRequest(
-            userFields.username.value,
-            userFields.password.value
-        )).onEach(this::onResource)
-            .launchIn(viewModelScope)
+        case.signInUser(
+            mapOf(
+                EMAIL to userFields.email.value,
+                PASSWORD to userFields.password.value))
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun postUser(user: User) {
@@ -55,7 +57,7 @@ class UserViewModel
 
         user.apply { createdAt = Date() }
 
-        case.postUser()(user)
+        case.postUser(user)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -65,7 +67,7 @@ class UserViewModel
             return
         }
 
-        case.getUser()(id)
+        case.getUser(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -77,7 +79,7 @@ class UserViewModel
 
         current.apply { updatedAt = Date() }
 
-        case.patchUser() (id, current)
+        case.patchUser(id, current)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -87,7 +89,7 @@ class UserViewModel
             return
         }
 
-        case.deleteUser() (id)
+        case.deleteUser(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -97,7 +99,7 @@ class UserViewModel
             return
         }
 
-        case.getUsers() (page, size)
+        case.getUsers(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

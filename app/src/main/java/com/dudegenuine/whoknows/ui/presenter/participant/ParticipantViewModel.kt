@@ -1,8 +1,9 @@
 package com.dudegenuine.whoknows.ui.presenter.participant
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Participant
-import com.dudegenuine.usecase.participant.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IParticipantUseCaseModule
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
@@ -21,11 +22,8 @@ import javax.inject.Inject
 class ParticipantViewModel
 
     @Inject constructor(
-    private val postParticipantUseCase: PostParticipant,
-    private val getParticipantUseCase: GetParticipant,
-    private val patchParticipantUseCase: PatchParticipant,
-    private val deleteParticipantUseCase: DeleteParticipant,
-    private val getParticipantsUseCase: GetParticipants): BaseViewModel(), IParticipantViewModel {
+    private val case: IParticipantUseCaseModule,
+    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IParticipantViewModel {
 
     override fun initParticipant(participant: Participant) {
         _state.value = ResourceState(participant = participant)
@@ -39,7 +37,7 @@ class ParticipantViewModel
 
         participant.apply { createdAt = Date() }
 
-        postParticipantUseCase(participant)
+        case.postParticipant(participant)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -49,7 +47,7 @@ class ParticipantViewModel
             return
         }
 
-        getParticipantUseCase(id)
+        case.getParticipant(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -61,7 +59,7 @@ class ParticipantViewModel
 
         current.apply { updatedAt = Date() }
 
-        patchParticipantUseCase(id, current)
+        case.patchParticipant(id, current)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -71,7 +69,7 @@ class ParticipantViewModel
             return
         }
 
-        deleteParticipantUseCase(id)
+        case.deleteParticipant(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -81,7 +79,7 @@ class ParticipantViewModel
             return
         }
 
-        getParticipantsUseCase(page, size)
+        case.getParticipants(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 }

@@ -2,7 +2,7 @@ package com.dudegenuine.repository
 
 import android.util.Log
 import com.dudegenuine.model.Room
-import com.dudegenuine.model.validation.HttpFailureException
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import com.dudegenuine.remote.service.contract.IRoomService
 import com.dudegenuine.repository.contract.IRoomRepository
