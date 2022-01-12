@@ -14,14 +14,6 @@ interface IFileDataMapper {
     fun asFile(entity: FileEntity): File
     fun asFile(response: Response<FileEntity>): File
     fun asFiles(response: Response<List<FileEntity>>): List<File>
-    fun asMultipart(byteArray: ByteArray): MultipartBody.Part
+    fun asMultipart(paramName: String, byteArray: ByteArray): MultipartBody.Part
     fun asMultiParts(byteArrays: List<ByteArray>): List<MultipartBody.Part>
-
-//    fun asFile(response: Response<FileEntity>): File
-//    fun asFiles(response: Response<List<FileEntity>>): List<File>
-
-    /*fun asEntity(room: Room): RoomEntity
-    fun asRoom(entity: RoomEntity): Room
-    fun asRoom(response: Response<RoomEntity>): Room
-    fun asRooms(response: Response<List<RoomEntity>>): List<Room>*/
 }

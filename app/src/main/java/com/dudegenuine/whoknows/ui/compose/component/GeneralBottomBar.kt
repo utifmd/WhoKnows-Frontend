@@ -18,7 +18,7 @@ import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem
  * WhoKnows by utifmd
  **/
 @Composable
-fun BtmNavBar(items: List<BtmNavItem>, controller: NavController, modifier: Modifier = Modifier, onItemClick: (BtmNavItem) -> Unit) {
+fun GeneralBottomBar(items: List<BtmNavItem>, controller: NavController, modifier: Modifier = Modifier, onItemClick: (BtmNavItem) -> Unit) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(

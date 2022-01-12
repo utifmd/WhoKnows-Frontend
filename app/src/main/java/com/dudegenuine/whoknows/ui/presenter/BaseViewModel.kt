@@ -49,4 +49,29 @@ abstract class BaseViewModel: ViewModel() {
             }
         }
     }
+
+    protected fun<T> onUploaded(resources: Resource<T>, onSuccess: (T) -> Unit){
+        Log.d(TAG, "onFileUploaded: triggered.")
+        when(resources){
+            is Resource.Success -> resources.data?.let { onSuccess(it) } ?: also {
+                Log.d(TAG, "Resource.Error: ${resources.message}")
+                _state.value = ResourceState(
+                    error = resources.message ?: "Resource data is null."
+                )
+            }
+
+            is Resource.Error -> {
+                Log.d(TAG, "Resource.Error: ${resources.message}")
+                _state.value = ResourceState(
+                    error = resources.message ?: "An unexpected error occurred."
+                )
+            }
+            is Resource.Loading -> {
+                Log.d(TAG, "Resource.Loading..")
+                _state.value = ResourceState(
+                    loading = true
+                )
+            }
+        }
+    }
 }

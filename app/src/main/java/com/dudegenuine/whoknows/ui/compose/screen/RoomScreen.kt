@@ -6,8 +6,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomBoardingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomCreatorScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomHomeScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomResultScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
@@ -27,10 +28,10 @@ fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
     uiState?.let { roomState ->
         when(roomState){
             is RoomState.CurrentRoom -> {
-                // QuizzesScreen()
+                RoomHomeScreen()
             }
-            is RoomState.CreateQuizzes -> {
-                QuizCreatorScreen()
+            is RoomState.CreateRoom -> {
+                RoomCreatorScreen(viewModel, roomState)
             }
             is RoomState.BoardingQuiz -> {
                 RoomBoardingScreen(

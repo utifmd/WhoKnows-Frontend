@@ -35,7 +35,7 @@ class BodyConverter<T>(
             val elem = JsonParser.parseString(json)
 
             if (elem is JsonObject && elem.has("data"))
-                if (elem.get("status").asString != "OK")
+                if (elem.get("status").asString.lowercase() != "ok")
                     throw HttpFailureException(elem.get("data").asString)
 
             gson.fromJson<T>(body.string(), type)

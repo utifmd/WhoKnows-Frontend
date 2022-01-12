@@ -25,14 +25,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.common.ImageUtil.asBitmap
 import com.dudegenuine.model.common.ImageUtil.strOf
-import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.ui.compose.component.ButtonGroup
+import com.dudegenuine.whoknows.ui.compose.component.GeneralButtonGroup
+import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 
 /**
@@ -44,6 +43,7 @@ import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 fun QuizCreatorScreen(
     viewModel: QuizViewModel = hiltViewModel()) {
     val context = LocalContext.current
+    val formState = viewModel.formState.value
 
     val selectedType = remember {
         mutableStateOf(strOf<PossibleAnswer.SingleChoice>())
@@ -52,15 +52,17 @@ fun QuizCreatorScreen(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
-            viewModel.onResultImage(context, it)
+            formState.onResultImage(context, it)
         }
     )
 
     Scaffold(
         topBar = {
-            TopBar(
-                enabled = viewModel.isValid.value,
-                onPostPressed = viewModel::onPostPressed
+            GeneralTopBar(
+                title = "Question",
+                submission = "Post",
+                isSubmit = formState.isValid.value,
+                onSubmitPressed = viewModel::onPostPressed
             )
         },
         content = {
@@ -74,31 +76,31 @@ fun QuizCreatorScreen(
             ) {
                 item {
                     ImageRows(
-                        images = viewModel.images,
+                        images = formState.images,
                         onAddPressed = {
                             launcher.launch("image/*")
                         },
                         onRemovePressed = {
-                            viewModel.images.removeAt(it)
+                            formState.images.removeAt(it)
                         }
                     )
                 }
                 stickyHeader {
                     TextField(
-                        value = viewModel.currentQuestion.value,
-                        onValueChange = viewModel.onQuestionValueChange,
+                        value = formState.currentQuestion.value,
+                        onValueChange = formState.onQuestionValueChange,
                         label = {
                             Text(
                                 text = "Enter a question"
                             )
                         },
                         trailingIcon = {
-                           if (viewModel.currentQuestion.value.isNotBlank()){
+                           if (formState.currentQuestion.value.isNotBlank()){
                                Icon(
                                    imageVector = Icons.Default.Close,
                                    contentDescription = "deleteQuestionText",
                                    modifier = Modifier.clickable {
-                                       viewModel.onQuestionValueChange("")
+                                       formState.onQuestionValueChange("")
                                    }
                                )
                            }
@@ -113,8 +115,8 @@ fun QuizCreatorScreen(
                 }
                 item {
                     TextField(
-                        value = viewModel.currentOption.value,
-                        onValueChange = viewModel.onOptionValueChange,
+                        value = formState.currentOption.value,
+                        onValueChange = formState.onOptionValueChange,
                         singleLine = true,
                         label = { Text(
                             text = "Push some option"
@@ -123,17 +125,17 @@ fun QuizCreatorScreen(
                             imageVector = Icons.Default.AddCircle,
                             contentDescription = "AddOption",
                             modifier = Modifier.clickable(
-                                onClick = viewModel.onPushedOption
+                                onClick = formState.onPushedOption
                             )
                         )},
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onKeyEvent(viewModel.onOptionKeyEvent)
+                            .onKeyEvent(formState.onOptionKeyEvent)
                     )
                 }
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
-                    ButtonGroup(
+                    GeneralButtonGroup(
                         buttons = setOf(
                             strOf<PossibleAnswer.SingleChoice>(),
                             strOf<PossibleAnswer.MultipleChoice>()
@@ -141,23 +143,23 @@ fun QuizCreatorScreen(
                         value = selectedType.value,
                         onValueChange = {
                             selectedType.value = it
-                            viewModel.onSelectedAnswerValue(null)
+                            formState.onSelectedAnswerValue(null)
                         }
                     )
                 }
                 when(selectedType.value){
                     strOf<PossibleAnswer.SingleChoice>() -> item {
                         SingleChoiceQuestion(
-                            options = viewModel.options,
-                            answer = viewModel.currentAnswer.value,
-                            onAnswerSelected = viewModel.onAnsweredSingle
+                            options = formState.options,
+                            answer = formState.currentAnswer.value,
+                            onAnswerSelected = formState.onAnsweredSingle
                         )
                     }
                     strOf<PossibleAnswer.MultipleChoice>() -> item {
                         MultipleChoiceQuestion(
-                            options = viewModel.options,
-                            answer = viewModel.currentAnswer.value,
-                            onAnswerSelected = viewModel.onAnsweredMultiple
+                            options = formState.options,
+                            answer = formState.currentAnswer.value,
+                            onAnswerSelected = formState.onAnsweredMultiple
                         )
                     }
                 }
@@ -205,37 +207,11 @@ fun ImageRows(
                 modifier = Modifier
                     .size(35.dp)
                     .padding(5.dp)
-                    .clickable {
-                        onAddPressed()
-                    }
+                    .clickable(
+                        enabled = images.size < 4,
+                        onClick = onAddPressed
+                    )
             )
-        }
-    }
-}
-
-@Composable
-fun TopBar(enabled: Boolean, onPostPressed: () -> Unit){
-    TopAppBar {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.app_name),
-                modifier = Modifier.padding(
-                    horizontal = 8.dp
-                )
-            )
-
-            TextButton(
-                enabled = enabled,
-                onClick = onPostPressed) {
-                Text(
-                    text = "Post",
-                    color = if (enabled) MaterialTheme.colors.surface
-                        else MaterialTheme.colors.onPrimary
-                )
-            }
         }
     }
 }

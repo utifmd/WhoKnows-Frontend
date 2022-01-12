@@ -43,7 +43,8 @@ class RoomViewModel
     private lateinit var roomInitialState: RoomState
 
     init {
-        _uiState.value = RoomState.CreateQuizzes
+        roomInitialState = RoomState.CreateRoom()
+        _uiState.value = roomInitialState
 
         /*
         * Current Room Begin
@@ -54,6 +55,11 @@ class RoomViewModel
         * Boarding begin
         * */
         // onBoarding("ROM-xxx-xxx")
+    }
+
+    fun onCreatePressed () {
+        Log.d(TAG, "onCreatePressed: triggered")
+        Log.d(TAG, (roomInitialState as RoomState.CreateRoom).model.toString())
     }
 
     override fun postRoom(room: Room) {

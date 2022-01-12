@@ -12,5 +12,9 @@ data class File(
     val data: String,
     val size: Long){
 
+    companion object {
+        const val FILES = "files"
+        const val FILE = "file"
+    }
     //var isPropsEmpty: Boolean = name.isBlank() && url.isBlank() && type.isBlank() && fileDb.i
 }

@@ -1,21 +1,17 @@
 package com.dudegenuine.whoknows.ui.presenter.quiz
 
-import android.content.Context
-import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.dudegenuine.model.*
-import com.dudegenuine.model.common.ImageUtil.adjustImage
+import com.dudegenuine.model.File
+import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IQuizUseCaseModule
+import com.dudegenuine.whoknows.ui.compose.state.QuizState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
@@ -32,141 +28,50 @@ import javax.inject.Inject
  **/
 @HiltViewModel
 class QuizViewModel
+
     @Inject constructor(
     private val caseQuiz: IQuizUseCaseModule,
     private val caseFile: IFileUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IQuizViewModel {
-
     private val TAG: String = strOf<QuizViewModel>()
-    private val resourceState: State<ResourceState> = _state
 
-    private val _currentQuestion = mutableStateOf("")
-    val currentQuestion: State<String> get() = _currentQuestion
+    private val resourceState: State<ResourceState>
+        get() = _state
 
-    private val _currentOption = mutableStateOf("")
-    val currentOption: State<String> get() = _currentOption
-
-    private val _currentAnswer = mutableStateOf<Answer?>(null)
-    val currentAnswer: State<Answer?> get() = _currentAnswer
-
-    private val _selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
-    private val selectedAnswer: State<PossibleAnswer?> get() = _selectedAnswer
-
-    private val _options = mutableStateListOf<String>()
-    val options: SnapshotStateList<String> get() = _options
-
-    private val _images = mutableStateListOf<ByteArray>()
-    val images: SnapshotStateList<ByteArray> get() = _images
-
-    private val setOfAnswers = mutableSetOf<String>()
-
-    val isValid: MutableState<Boolean>
-        get() = mutableStateOf(
-            selectedAnswer.value != null &&
-                    currentQuestion.value.isNotBlank() &&
-                    images.isNotEmpty() &&
-                    options.isNotEmpty()
-        )
-
-    val onResultImage: (Context, Uri?) -> Unit = { context, result ->
-        result?.let { uri ->
-            val scaledImage = adjustImage(context, uri)
-
-            if(!images.contains(scaledImage)) images.add(scaledImage)
-        }
-    }
-
-    val onOptionKeyEvent: (KeyEvent) -> Boolean = {
-        if (it.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_ENTER)
-            onPushedOption()
-        false
-    }
-
-    val onPushedOption: () -> Unit = {
-        if (currentOption.value.isNotBlank()){
-            options.add(currentOption.value.trim()).also {
-                _currentOption.value = ""
-            }
-        }
-    }
-
-    val onQuestionValueChange: (String) -> Unit = {
-        _currentQuestion.value = it
-    }
-
-    val onOptionValueChange: (String) -> Unit = {
-        _currentOption.value = it
-    }
-
-    val onSelectedAnswerValue: (PossibleAnswer?) -> Unit = {
-        _selectedAnswer.value = it
-    }
-
-    val onAnsweredSingle: (String) -> Unit = { newAnswer ->
-        onSelectedAnswerValue(PossibleAnswer.SingleChoice(newAnswer))
-    }
-
-    val onAnsweredMultiple: (String, Boolean) -> Unit = { newAnswer, selected ->
-        if (selected) setOfAnswers.add(newAnswer)
-        else setOfAnswers.remove(newAnswer)
-
-        onSelectedAnswerValue(PossibleAnswer.MultipleChoice(setOfAnswers))
-    }
+    private val _formState = mutableStateOf(QuizState())
+    val formState: State<QuizState>
+        get() = _formState
 
     fun onPostPressed () {
-        val model = Quiz(
-            "QIZ-${UUID.randomUUID()}",
-            "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
-            images = emptyList(),
-            question = currentQuestion.value.trim(),
-            options = options.toList(),
-            answer = selectedAnswer.value,
-            createdBy = "Diyanti Ratna Puspita Sari",
-            createdAt = Date(),
-            updatedAt = null
-        )
+        val model = formState.value.model.value
+
         _state.value = ResourceState(quiz = model)
 
-        if (isValid.value && resourceState.value.quiz != null)
-            uploadFile(images[0])
+        if (formState.value.isValid.value && resourceState.value.quiz != null)
+            multiUpload(formState.value.images)
         else
             _state.value = ResourceState(error = DONT_EMPTY)
     }
 
-    override fun uploadFile(byteArray: ByteArray) {
-        if (byteArray.isEmpty()) return
+    override fun multiUpload(byteArrays: List<ByteArray>) {
+        if (byteArrays.isEmpty()) return
 
-        caseFile.uploadFile(byteArray)
-            .onEach(this::onFileUploaded).launchIn(viewModelScope)
+        caseFile.uploadFiles(byteArrays)
+            .onEach(this::onMultiUploaded).launchIn(viewModelScope)
     }
 
-    override fun onFileUploaded(resource: Resource<File>) {
-        val model = resourceState.value.quiz ?: return
-
+    override fun onMultiUploaded(resources: Resource<List<File>>) {
+        val model = resourceState.value.quiz ?: formState.value.model.value
         Log.d(TAG, "onFileUploaded: $model")
-        when(resource){
-            is Resource.Success -> {
-                Log.d(TAG, "Resource.Success: ${resource.data}")
-                val downloadedUrl = resource.data?.url ?: return
 
-                model.apply { images = listOf(downloadedUrl) }
+        onUploaded(resources) { data ->
+            val downloadedUrls = data.map { it.url }
+            Log.d(TAG, "Resource.Success $downloadedUrls")
 
-                Log.d(TAG, "onFileUploaded: $model")
-                postQuiz(model)
-            }
+            model.apply { images = downloadedUrls }
 
-            is Resource.Error -> {
-                Log.d(TAG, "Resource.Error: ${resource.message}")
-                _state.value = ResourceState(
-                    error = resource.message ?: "An unexpected error occurred."
-                )
-            }
-            is Resource.Loading -> {
-                Log.d(TAG, "Resource.Loading..")
-                _state.value = ResourceState(
-                    loading = true
-                )
-            }
+            postQuiz(model)
+            Log.d(TAG, "onFileUploaded: $model")
         }
     }
 
@@ -221,4 +126,31 @@ class QuizViewModel
         caseQuiz.getQuestions(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
+
+    /*override fun singleUpload(byteArray: ByteArray) {
+        if (byteArray.isEmpty()) return
+
+        caseFile.uploadFile(byteArray)
+            .onEach(this::onSingleUploaded).launchIn(viewModelScope)
+    }
+    override fun onSingleUploaded(resource: Resource<File>) {
+        val model = formState.value.model.value
+
+        Log.d(TAG, "onFileUploaded: $model")
+        onUploaded(resource){
+            Log.d(TAG, "Resource.Success: ${resource.data}") // val downloadedUrl = resource.data?.url ?: return
+
+            if(resource.data?.url == null) {
+                Log.d(TAG, "onFileUploaded: url null")
+                _state.value = ResourceState(error = NULL_STATE)
+            }
+
+            val uploadedUrl = resource.data?.url ?: return@onUploaded
+
+            model.apply { images = listOf(uploadedUrl) }
+
+            Log.d(TAG, "onFileUploaded: $model")
+            postQuiz(model)
+        }
+    }*/
 }

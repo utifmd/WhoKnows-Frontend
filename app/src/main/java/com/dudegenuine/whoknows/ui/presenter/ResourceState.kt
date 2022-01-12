@@ -36,5 +36,6 @@ data class ResourceState(
 
     companion object {
         const val DONT_EMPTY = "Fields must not be blank."
+        const val NULL_STATE = "State is null."
     }
 }

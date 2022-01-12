@@ -11,6 +11,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.*
 import javax.inject.Inject
 
+
 /**
  * Wed, 05 Jan 2022
  * WhoKnows by utifmd
@@ -54,14 +55,14 @@ class FileDataMapper
     }
 
     override fun asMultiParts(byteArrays: List<ByteArray>): List<MultipartBody.Part> =
-        byteArrays.map { asMultipart(it) }
+        byteArrays.map { asMultipart(File.FILES, it) }
 
-    override fun asMultipart(byteArray: ByteArray): MultipartBody.Part {
-        val contentPart = byteArray
+    override fun asMultipart(paramName: String, byteArray: ByteArray): MultipartBody.Part {
+        val fileBody = byteArray
             .toRequestBody("image/jpeg".toMediaTypeOrNull(), 0, byteArray.size)
 
         return MultipartBody.Part
-            .createFormData("file", "file-${Date().time}", contentPart)
+            .createFormData(paramName, "file-${Date().time}", fileBody)
     }
 
     /*val resolver: ContentResolver = context.contentResolver

@@ -21,7 +21,7 @@ class FileRepository
 
     override suspend fun upload(byteArray: ByteArray): File = try {
         mapper.asFile(
-            service.uploadFile(mapper.asMultipart(byteArray))
+            service.uploadFile(mapper.asMultipart(File.FILE, byteArray))
         )
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)

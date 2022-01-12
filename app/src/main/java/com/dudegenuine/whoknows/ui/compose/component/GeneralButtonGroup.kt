@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ButtonGroup(
+fun GeneralButtonGroup(
     buttons: Set<String>,
     value: String,
     onValueChange: (String) -> Unit) {

@@ -12,8 +12,4 @@ import dagger.hilt.android.HiltAndroidApp
 class WhoKnows: Application()
 
 // TODO:
-//  - multiple upload
 //  - room business logic
-
-// TODO: Backend
-//  - signIn response bad req to not found

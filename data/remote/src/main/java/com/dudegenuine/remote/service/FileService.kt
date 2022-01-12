@@ -27,6 +27,12 @@ interface FileService: IFileService {
     override suspend fun uploadFiles(
         @Part files: List<MultipartBody.Part>): Response<List<FileEntity>>
 
+    /*fun uploadSurvey(
+        @Part surveyImage: Array<Part?>?,
+        @Part propertyImage: Part?,
+        @Part("DRA") dra: RequestBody?
+    ): Call<UploadSurveyResponseModel?>?*/
+
     @DELETE("/files/{id}")
     @Headers(API_KEY, ACCEPT)
     override suspend fun deleteFile(id: String)

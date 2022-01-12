@@ -8,6 +8,9 @@ import com.dudegenuine.model.Resource
  * WhoKnows by utifmd
  **/
 interface IFilePresenter {
-    fun uploadFile(byteArray: ByteArray)
-    fun onFileUploaded(resource: Resource<File>)
+    fun singleUpload(byteArray: ByteArray){ }
+    fun multiUpload(byteArrays: List<ByteArray>){ }
+
+    fun onSingleUploaded(resource: Resource<File>){ }
+    fun onMultiUploaded(resources: Resource<List<File>>){ }
 }
