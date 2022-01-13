@@ -28,6 +28,7 @@ apply from: '../dependency.gradle'
 dependencies {
     implementation project(':domain:model')
     implementation project(':domain:usecase')
+    implementation project(':data:local')
     implementation project(':data:remote')
     implementation project(':data:repository')
 
@@ -42,6 +43,8 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.activity:activity-compose:$activity_version"
     implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
     implementation "com.google.accompanist:accompanist-flowlayout:$flowlayout_version"
 
     // Image

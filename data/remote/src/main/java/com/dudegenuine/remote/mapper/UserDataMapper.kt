@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper
 
+import com.dudegenuine.local.entity.CurrentUser
 import com.dudegenuine.model.User
 import com.dudegenuine.model.User.Companion.EMAIL
 import com.dudegenuine.model.User.Companion.PASSWORD
@@ -7,6 +8,7 @@ import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
+import java.util.*
 
 /**
  * Wed, 01 Dec 2021
@@ -67,6 +69,34 @@ class UserDataMapper: IUserDataMapper {
 
         return UserEntity.LoginRequest(
             email, password
+        )
+    }
+
+    override fun asUser(currentUser: CurrentUser?): User? {
+        currentUser?.let { User(
+            id = it.userId,
+            fullName = it.fullName,
+            email = it.email,
+            phone = it.phone,
+            username = it.username,
+            password = it.password,
+            createdAt = it.createdAt,
+            updatedAt = it.updatedAt
+        )}
+
+        return null
+    }
+
+    override fun asCurrentUser(user: User): CurrentUser {
+        return CurrentUser(
+            userId = user.id,
+            fullName = user.fullName,
+            email = user.email,
+            phone = user.phone,
+            username = user.username,
+            password = user.password,
+            createdAt = user.createdAt,
+            updatedAt = user.updatedAt ?: Date()
         )
     }
 }

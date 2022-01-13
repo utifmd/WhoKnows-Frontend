@@ -13,6 +13,7 @@ interface IRoomService {
     suspend fun update(id: String, entity: RoomEntity): Response<RoomEntity>
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): Response<List<RoomEntity>>
+    suspend fun list(userId: String): Response<List<RoomEntity>>
 
     companion object {
         const val API_KEY = "X-Api-Key: utif.pages.dev"

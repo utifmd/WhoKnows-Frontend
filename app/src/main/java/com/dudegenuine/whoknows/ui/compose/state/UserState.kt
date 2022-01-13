@@ -2,26 +2,40 @@ package com.dudegenuine.whoknows.ui.compose.state
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.input.TextFieldValue
+import com.dudegenuine.model.User
 
 /**
  * Fri, 07 Jan 2022
  * WhoKnows by utifmd
  **/
-data class UserState(
-    val email: MutableState<String> = mutableStateOf(""),
-    val password: MutableState<String> = mutableStateOf("")){
-    private val TAG: String = javaClass.simpleName
+sealed class UserState {
 
-    val isValid: MutableState<Boolean>
-        get() = mutableStateOf(
-            email.value.isNotBlank() &&
-                    password.value.isNotBlank())
+    class CreateState {
+        private val _email = mutableStateOf(TextFieldValue(""))
+        val email: TextFieldValue
+            get() = _email.value
 
-    val onUsernameChange: (text: String) -> Unit = {
-        email.value = it
-    }
+        private val _password = mutableStateOf(TextFieldValue(""))
+        val password: TextFieldValue
+            get() = _password.value
 
-    val onPasswordChange: (text: String) -> Unit = {
-        password.value = it
+        val isValid: MutableState<Boolean>
+            get() = mutableStateOf(
+                email.text.isNotBlank() &&
+                        password.text.isNotBlank())
+
+        val model: Map<String, String> = mapOf(
+            User.EMAIL to email.text,
+            User.PASSWORD to password.text
+        )
+
+        val onUsernameChange: (text: String) -> Unit = {
+            _email.value = TextFieldValue(it)
+        }
+
+        val onPasswordChange: (text: String) -> Unit = {
+            _password.value = TextFieldValue(it)
+        }
     }
 }

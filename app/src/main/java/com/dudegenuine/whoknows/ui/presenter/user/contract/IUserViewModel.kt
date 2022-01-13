@@ -10,6 +10,7 @@ interface IUserViewModel { //: IFilePresenter {
     //fun signInUser(loginRequest: LoginRequest)
     fun signInUser()
     fun postUser(user: User)
+    fun getUser()
     fun getUser(id: String)
     fun patchUser(id: String, current: User)
     fun deleteUser(id: String)

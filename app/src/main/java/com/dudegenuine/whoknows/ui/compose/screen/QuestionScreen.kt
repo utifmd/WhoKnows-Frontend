@@ -28,30 +28,28 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.SingleChoiceQues
  **/
 @Composable
 fun QuestionScreen(
+    modifier: Modifier = Modifier,
     quiz: Quiz,
     answer: Answer?,
     onAnswer: (Answer) -> Unit,
     onAction: (Int, QuizActionType) -> Unit) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(), //.padding(innerPadding),
+        modifier = modifier.fillMaxSize(), //.padding(innerPadding),
         contentPadding = PaddingValues(
             start = 20.dp,
             end = 20.dp
-        )
-    ) {
+        )) {
         item {
             Spacer(
-                modifier = Modifier
-                    .height(44.dp)
+                modifier = modifier.height(44.dp)
             )
             val backgroundColor = MaterialTheme.colors.onSurface.copy(
                 alpha = if(MaterialTheme.colors.isLight) 0.04f else 0.06f
             )
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ){
+                modifier = modifier.fillMaxWidth()){
+
                 quiz.images.map { url ->
                     Image(
                         painter = rememberImagePainter(
@@ -61,40 +59,31 @@ fun QuestionScreen(
                             }
                         ),
                         contentDescription = url.split("://")[1],
-                        modifier = Modifier.size(128.dp)
+                        modifier = modifier.size(128.dp)
                     )
                 }
             }
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
+            Spacer(modifier = modifier.height(8.dp))
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
+                modifier = modifier.fillMaxWidth().background(
                         color = backgroundColor,
                         shape = MaterialTheme.shapes.small
-                    )
-            ) {
+                    )) {
                 Text(
                     text = quiz.question,
                     style = MaterialTheme.typography.subtitle1,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            vertical = 24.dp,
-                            horizontal = 16.dp
-                        )
+                    modifier = modifier.fillMaxWidth().padding(
+                        vertical = 24.dp,
+                        horizontal = 16.dp
+                    )
                 )
             }
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
+            Spacer(modifier = modifier.height(24.dp))
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                 Text(
                     text = "Created at ${quiz.createdAt} by ${quiz.createdBy}",
                     style = MaterialTheme.typography.caption,
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxWidth()
                         .padding(
                             bottom = 24.dp,

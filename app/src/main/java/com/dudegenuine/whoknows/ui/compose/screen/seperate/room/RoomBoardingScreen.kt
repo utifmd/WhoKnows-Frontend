@@ -82,9 +82,6 @@ fun RoomBoardingScreen(
                 Text(text = state.room.description, fontSize = 16.sp)
                 Text(text = "Total ${state.room.minute} minutes", fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(24.dp))
-//                Row {
-//
-//                }
             }
        },
 
@@ -100,6 +97,7 @@ fun RoomBoardingScreen(
                     backgroundColor = Color.LightGray)
                 QuestionScreen(
                     quiz = boardingState.quiz,
+                    onAction = onAction,
                     answer = boardingState.answer,
                     onAnswer = { chosenAnswer ->
                         boardingState.apply {
@@ -119,15 +117,12 @@ fun RoomBoardingScreen(
                                 else -> return@apply
                             }
                         }
-                    },
-                    onAction) // selectedMenu.value
+                    })
                 TextButton(
                     onClick = {
                         scope.launch {
                             scaffoldState.reveal()
-                        }
-                    }
-                ) {
+                        }}) {
                     Text(text = "Room detail description")
                 }
             }

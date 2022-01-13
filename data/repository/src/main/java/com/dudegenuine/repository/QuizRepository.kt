@@ -3,10 +3,10 @@ package com.dudegenuine.repository
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.model.common.validation.HttpFailureException
-import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
 import com.dudegenuine.remote.service.contract.IQuizService
 import com.dudegenuine.repository.contract.IQuizRepository
 import com.dudegenuine.repository.contract.IQuizRepository.Companion.NOT_FOUND
+import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
 import javax.inject.Inject
 
 /**
@@ -16,7 +16,8 @@ import javax.inject.Inject
 class QuizRepository
     @Inject constructor(
     private val service: IQuizService,
-    private val mapper: IQuizDataMapper): IQuizRepository {
+    private val mapper: IQuizDataMapper
+    ): IQuizRepository {
     private val TAG: String = strOf<QuizRepository>()
 
     override suspend fun create(quiz: Quiz): Quiz = try {

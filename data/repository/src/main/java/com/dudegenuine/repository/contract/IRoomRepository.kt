@@ -13,6 +13,7 @@ interface IRoomRepository {
     suspend fun update(id: String, room: Room): Room
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Room>
+    suspend fun list(userId: String): List<Room>
 
     companion object {
         const val NOT_FOUND = "Room not found."

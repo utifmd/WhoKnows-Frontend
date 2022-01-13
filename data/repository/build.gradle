@@ -14,6 +14,7 @@ apply from: '../../android.gradle'
 apply from: '../../dependency.gradle'
 
 dependencies {
-     implementation project(':domain:model')
-     implementation project(':data:remote')
+    implementation project(':domain:model')
+    implementation project(':data:remote')
+    implementation project(':data:local')
 }

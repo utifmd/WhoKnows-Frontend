@@ -1,5 +1,9 @@
 package com.dudegenuine.repository
 
+import com.dudegenuine.local.database.contract.IPreferenceManager
+import com.dudegenuine.local.database.contract.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
@@ -16,15 +20,24 @@ class UserRepository
     @Inject constructor(
 
     private val service: IUserService,
-    private val mapper: IUserDataMapper ): IUserRepository {
-    // private val TAG: String = javaClass.simpleName
+    private val dao: ICurrentUserDao,
+    private val prefs: IPreferenceManager,
+    private val mapper: IUserDataMapper): IUserRepository {
 
-    override suspend fun create(user: User): User = mapper.asUser (
-        service.create(mapper.asEntity(user))
-    )
+    override suspend fun create(user: User): User = try {
+        val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
 
-    override suspend fun read(id: String): User = try { mapper.asUser(
-        service.read(id))
+        remoteUser.also { save(mapper.asCurrentUser(it)) }
+    } catch (e: Exception){
+
+        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    }
+
+    override suspend fun read(id: String): User = try {
+        val remoteUser = mapper.asUser(service.read(id))
+        val localUser = load(id) ?: remoteUser
+
+        localUser
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
@@ -35,19 +48,42 @@ class UserRepository
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
 
-    override suspend fun delete(id: String) {
-        try { service.delete(id) } catch (e: Exception){
-            throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-        }
-    }
+    override suspend fun delete(id: String) { try {
+        service.delete(id)
+
+        unload(id)
+    } catch (e: Exception){
+        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    }}
 
     override suspend fun list(page: Int, size: Int): List<User> = mapper.asUsers(
         service.list(page, size)
     )
 
     override suspend fun signIn(params: Map<String, String>): User = try {
-        mapper.asUser(service.signIn(mapper.asLogin(params)))
+        val remoteUser = mapper.asUser(service.signIn(mapper.asLogin(params)))
+
+        remoteUser.also { save(mapper.asCurrentUser(it)) }
     } catch (e: Exception) {
+
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    }
+
+    override suspend fun save(currentUser: CurrentUser) =
+        dao.create(currentUser).also { prefs.setString(CURRENT_USER_ID, currentUser.userId) }
+
+    override suspend fun load(userId: String?): User? {
+        val finalId = userId ?: prefs.getString(CURRENT_USER_ID)
+
+        return mapper.asUser(dao.read(finalId))
+    }
+
+    override suspend fun unload(userId: String) {
+        val currentUser = dao.read(userId) //?: throw HttpFailureException(NOT_FOUND)
+
+        currentUser?.let {
+            dao.delete(it)
+            prefs.setString(CURRENT_USER_ID, "")
+        }
     }
 }

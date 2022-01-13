@@ -15,7 +15,8 @@ import javax.inject.Inject
 class ResultRepository
     @Inject constructor(
     private val service: IResultService,
-    private val mapper: IResultDataMapper): IResultRepository {
+    private val mapper: IResultDataMapper
+    ): IResultRepository {
 
     override suspend fun create(user: Result): Result = try { mapper.asResult(
         service.create(mapper.asEntity(user)))

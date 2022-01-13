@@ -31,7 +31,7 @@ fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
                 RoomHomeScreen()
             }
             is RoomState.CreateRoom -> {
-                RoomCreatorScreen(viewModel, roomState)
+                RoomCreatorScreen(viewModel)
             }
             is RoomState.BoardingQuiz -> {
                 RoomBoardingScreen(

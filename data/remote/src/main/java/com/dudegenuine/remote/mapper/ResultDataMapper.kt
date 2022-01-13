@@ -4,7 +4,6 @@ import com.dudegenuine.model.Result
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.ResultEntity
 import com.dudegenuine.remote.mapper.contract.IResultDataMapper
-import javax.inject.Inject
 
 /**
  * Thu, 09 Dec 2021

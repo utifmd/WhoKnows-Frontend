@@ -1,7 +1,6 @@
 package com.dudegenuine.whoknows.ui.presenter.quiz
 
 import android.util.Log
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -35,20 +34,20 @@ class QuizViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IQuizViewModel {
     private val TAG: String = strOf<QuizViewModel>()
 
-    private val resourceState: State<ResourceState>
-        get() = _state
+    private val resourceState: ResourceState
+        get() = _state.value
 
-    private val _formState = mutableStateOf(QuizState())
-    val formState: State<QuizState>
-        get() = _formState
+    private val _createState = mutableStateOf(QuizState.CreateQuiz())
+    val createState: QuizState.CreateQuiz
+        get() = _createState.value
 
     fun onPostPressed () {
-        val model = formState.value.model.value
+        val model = createState.model.value
 
         _state.value = ResourceState(quiz = model)
 
-        if (formState.value.isValid.value && resourceState.value.quiz != null)
-            multiUpload(formState.value.images)
+        if (createState.isValid.value && resourceState.quiz != null)
+            multiUpload(createState.images)
         else
             _state.value = ResourceState(error = DONT_EMPTY)
     }
@@ -61,7 +60,7 @@ class QuizViewModel
     }
 
     override fun onMultiUploaded(resources: Resource<List<File>>) {
-        val model = resourceState.value.quiz ?: formState.value.model.value
+        val model = resourceState.quiz ?: createState.model.value
         Log.d(TAG, "onFileUploaded: $model")
 
         onUploaded(resources) { data ->

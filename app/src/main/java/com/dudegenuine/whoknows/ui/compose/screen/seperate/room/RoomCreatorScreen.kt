@@ -1,7 +1,9 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -12,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
+import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 
 /**
@@ -20,8 +23,10 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
  **/
 @Composable
 fun RoomCreatorScreen(
-    viewModel: RoomViewModel,
-    formState: RoomState.CreateRoom){
+    viewModel: RoomViewModel){
+
+    val resourceState = viewModel.resourceState.value
+    val formState = viewModel.createState
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -29,13 +34,15 @@ fun RoomCreatorScreen(
             GeneralTopBar(
                 title = "New class",
                 submission = "Create",
-                isSubmit = formState.isValid.value,
+                isSubmit = formState.isValid.value && !resourceState.loading,
+                isProgress = resourceState.loading,
                 onSubmitPressed = viewModel::onCreatePressed
             )
         },
         content = {
             Body(
-                formState = formState
+                resourceState = resourceState,
+                formState = formState,
             )
         }
     )
@@ -43,7 +50,9 @@ fun RoomCreatorScreen(
 
 @Composable
 private fun Body(
-    formState: RoomState.CreateRoom){
+    resourceState: ResourceState,
+    formState: RoomState.CreateRoom,
+    modifier: Modifier = Modifier){
 
     val isExpand = remember { mutableStateOf(false) }
 
@@ -72,7 +81,7 @@ private fun Body(
             modifier = Modifier.height(8.dp))
 
         GeneralTextField(
-            label = "Enter minute",
+            label = "Select class duration",
             value = formState.minute.text,
             onValueChange = formState::onMinuteChange,
             tails = if (formState.minute.text.isNotBlank()) "minute\'s" else "minute",
@@ -89,5 +98,10 @@ private fun Body(
             },
             readOnly = true
         )
+
+        if (resourceState.error.isNotBlank()){
+            Spacer(modifier = modifier.height(16.dp))
+            Text(text = resourceState.error, color = MaterialTheme.colors.error)
+        }
     }
 }

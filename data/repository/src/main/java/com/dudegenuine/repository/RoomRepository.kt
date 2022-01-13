@@ -3,10 +3,10 @@ package com.dudegenuine.repository
 import android.util.Log
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
-import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import com.dudegenuine.remote.service.contract.IRoomService
 import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.repository.contract.IRoomRepository.Companion.NOT_FOUND
+import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import javax.inject.Inject
 
 /**
@@ -16,7 +16,8 @@ import javax.inject.Inject
 class RoomRepository
     @Inject constructor(
     private val service: IRoomService,
-    private val mapper: IRoomDataMapper): IRoomRepository {
+    private val mapper: IRoomDataMapper
+    ): IRoomRepository {
     private val TAG: String = javaClass.simpleName
 
     override suspend fun create(room: Room): Room = try { mapper.asRoom(
@@ -46,6 +47,12 @@ class RoomRepository
 
     override suspend fun list(page: Int, size: Int): List<Room> = try { mapper.asRooms(
         service.list(page, size))
+    } catch (e: Exception){
+        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    }
+
+    override suspend fun list(userId: String): List<Room> = try { mapper.asRooms(
+        service.list(userId))
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }

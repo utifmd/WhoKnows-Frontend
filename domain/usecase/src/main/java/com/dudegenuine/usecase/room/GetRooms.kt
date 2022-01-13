@@ -22,6 +22,24 @@ class GetRooms
         try {
             emit(Resource.Loading())
             val rooms = repository.list(page, size)
+
+            emit(Resource.Success(rooms))
+        } catch (e: HttpFailureException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: HttpException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        } catch (e: IOException){
+            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        }
+    }
+
+    operator fun invoke(userId: String): Flow<Resource<List<Room>>> = flow {
+        try {
+            emit(Resource.Loading())
+            val rooms = repository.list(userId)
+
             emit(Resource.Success(rooms))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

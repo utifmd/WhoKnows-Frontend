@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.User
-import com.dudegenuine.model.User.Companion.EMAIL
-import com.dudegenuine.model.User.Companion.PASSWORD
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.UserState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -33,19 +31,21 @@ class UserViewModel
 
     val state: State<ResourceState> = _state // init { getUsers(0, 10); getUser("USR00002") }
 
-    val userState = mutableStateOf(UserState())
-    private val userFields = userState.value
+    private val _createState = mutableStateOf(UserState.CreateState())
+    val createState: UserState.CreateState
+        get() = _createState.value
+
+    init {
+        getUser()
+    }
 
     override fun signInUser() {
-        if (!userFields.isValid.value){
+        if (!createState.isValid.value){
             _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
-        case.signInUser(
-            mapOf(
-                EMAIL to userFields.email.value,
-                PASSWORD to userFields.password.value))
+        case.signInUser(createState.model)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -59,6 +59,10 @@ class UserViewModel
 
         case.postUser(user)
             .onEach(this::onResource).launchIn(viewModelScope)
+    }
+
+    override fun getUser() {
+        case.getUser().onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getUser(id: String) {

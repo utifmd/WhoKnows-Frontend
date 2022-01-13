@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.ui.presenter.room
 
 import android.util.Log
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -40,26 +41,29 @@ class RoomViewModel
     val uiState: LiveData<RoomState>
         get() = _uiState
 
-    private lateinit var roomInitialState: RoomState
+    private val _createState = mutableStateOf(RoomState.CreateRoom())
+    val createState: RoomState.CreateRoom
+        get() = _createState.value
 
     init {
-        roomInitialState = RoomState.CreateRoom()
-        _uiState.value = roomInitialState
+        //_uiState.value = RoomState.CreateRoom()
 
-        /*
-        * Current Room Begin
-        * */
-        // getRoom("ROM-f80365e5-0e65-4674-9e7b-bee666b62bda")
+        _uiState.value = RoomState.CurrentRoom
 
-        /*
-        * Boarding begin
-        * */
-        // onBoarding("ROM-xxx-xxx")
+        getRooms("USR-0001")
     }
 
     fun onCreatePressed () {
-        Log.d(TAG, "onCreatePressed: triggered")
-        Log.d(TAG, (roomInitialState as RoomState.CreateRoom).model.toString())
+        Log.d(TAG, "onCreatePressed: triggered") //Log.d(TAG, createState.model.toString())
+        val model = createState.model.value
+
+        if (!createState.isValid.value) {
+            _state.value = ResourceState(error = DONT_EMPTY)
+
+            return
+        }
+
+        postRoom(room = model)
     }
 
     override fun postRoom(room: Room) {
@@ -114,6 +118,14 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
+    override fun getRooms(userId: String) {
+        if (userId.isBlank())
+            _state.value = ResourceState(error = DONT_EMPTY)
+
+        case.getRooms(userId)
+            .onEach(this::onResource).launchIn(viewModelScope)
+    }
+
     override fun onBoarding(id: String){
         case.getRoom(id).onEach { resource ->
             when(resource){
@@ -131,8 +143,7 @@ class RoomViewModel
 
                         if (quizzes.isEmpty()) return@let
 
-                        roomInitialState = RoomState.BoardingQuiz(room, quizzes)
-                        _uiState.value = roomInitialState
+                        _uiState.value = RoomState.BoardingQuiz(room, quizzes)
                     }
                 }
                 is Resource.Error -> _state.value = ResourceState(

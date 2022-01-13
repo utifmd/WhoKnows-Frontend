@@ -20,7 +20,7 @@ data class RoomEntity(
     @SerializedName("title")
     val title: String,
 
-    @SerializedName("desc")
+    @SerializedName("description")
     val description: String,
 
     @SerializedName("expired")

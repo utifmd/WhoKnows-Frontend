@@ -15,8 +15,9 @@ import javax.inject.Inject
 class RoomDataMapper
 
     @Inject constructor(
-    private val mapperQuiz: IQuizDataMapper,
-    private val mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
+        private val mapperQuiz: IQuizDataMapper,
+        private val mapperParticipant: IParticipantDataMapper
+    ): IRoomDataMapper {
     private val TAG: String = javaClass.simpleName
 
     override fun asEntity(room: Room): RoomEntity {

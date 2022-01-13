@@ -15,6 +15,7 @@ apply from: '../../dependency.gradle'
 
 dependencies {
     implementation project(':domain:model')
+    implementation project(':data:local')
 
     // Network
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"

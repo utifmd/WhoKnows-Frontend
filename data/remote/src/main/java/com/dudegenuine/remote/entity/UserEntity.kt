@@ -32,7 +32,7 @@ data class UserEntity (
     val createdAt: Date,
 
     @SerializedName("updatedAt")
-    val updatedAt: Date?
-){
+    val updatedAt: Date?){
+
     data class LoginRequest(val email: String, val password: String)
 }

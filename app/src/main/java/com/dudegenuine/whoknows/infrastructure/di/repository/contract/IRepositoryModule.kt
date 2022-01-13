@@ -1,5 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.repository.contract
 
+import com.dudegenuine.local.database.contract.IPreferenceManager
+import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.remote.service.contract.*
 import com.dudegenuine.repository.contract.*
@@ -9,7 +11,11 @@ import com.dudegenuine.repository.contract.*
  * WhoKnows by utifmd
  **/
 interface IRepositoryModule {
-    fun provideUserRepository(service: IUserService, mapper: IUserDataMapper): IUserRepository
+    fun provideUserRepository(
+        service: IUserService,
+        dao: ICurrentUserDao,
+        pref: IPreferenceManager,
+        mapper: IUserDataMapper): IUserRepository
     fun provideRoomRepository(service: IRoomService, mapper: IRoomDataMapper): IRoomRepository
     fun provideQuizRepository(service: IQuizService, mapper: IQuizDataMapper): IQuizRepository
     fun provideParticipantRepository(service: IParticipantService, mapper: IParticipantDataMapper): IParticipantRepository

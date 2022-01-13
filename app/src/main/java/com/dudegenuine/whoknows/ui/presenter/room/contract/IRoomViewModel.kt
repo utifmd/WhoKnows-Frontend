@@ -13,6 +13,7 @@ interface IRoomViewModel {
     fun patchRoom(id: String, current: Room)
     fun deleteRoom(id: String)
     fun getRooms(page: Int, size: Int)
+    fun getRooms(userId: String)
 
     fun onBoarding(id: String)
     fun computeResult(roomState: RoomState.BoardingQuiz)

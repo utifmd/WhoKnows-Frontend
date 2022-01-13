@@ -12,4 +12,8 @@ import dagger.hilt.android.HiltAndroidApp
 class WhoKnows: Application()
 
 // TODO:
-//  - room business logic
+//  - user business logic
+
+// TODO: Backend
+//  - getRooms(userId)
+//  - auto create postgre uuid all creators

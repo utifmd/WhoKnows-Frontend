@@ -3,35 +3,28 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.PossibleAnswer
-import com.dudegenuine.model.common.ImageUtil.asBitmap
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.ui.compose.component.GeneralButtonGroup
+import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
+import com.dudegenuine.whoknows.ui.compose.component.ImagesPreUpload
 import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 
 /**
@@ -43,7 +36,7 @@ import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 fun QuizCreatorScreen(
     viewModel: QuizViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    val formState = viewModel.formState.value
+    val formState = viewModel.createState
 
     val selectedType = remember {
         mutableStateOf(strOf<PossibleAnswer.SingleChoice>())
@@ -59,7 +52,7 @@ fun QuizCreatorScreen(
     Scaffold(
         topBar = {
             GeneralTopBar(
-                title = "Question",
+                title = "New question",
                 submission = "Post",
                 isSubmit = formState.isValid.value,
                 onSubmitPressed = viewModel::onPostPressed
@@ -72,65 +65,37 @@ fun QuizCreatorScreen(
                     vertical = 8.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
+                modifier = Modifier.fillMaxSize()) {
                 item {
-                    ImageRows(
+                    ImagesPreUpload(
                         images = formState.images,
-                        onAddPressed = {
-                            launcher.launch("image/*")
-                        },
-                        onRemovePressed = {
-                            formState.images.removeAt(it)
-                        }
+                        onAddPressed = { launcher.launch("image/*") },
+                        onRemovePressed = formState::onImagesRemoveAt
                     )
                 }
                 stickyHeader {
-                    TextField(
-                        value = formState.currentQuestion.value,
-                        onValueChange = formState.onQuestionValueChange,
-                        label = {
-                            Text(
-                                text = "Enter a question"
-                            )
-                        },
-                        trailingIcon = {
-                           if (formState.currentQuestion.value.isNotBlank()){
-                               Icon(
-                                   imageVector = Icons.Default.Close,
-                                   contentDescription = "deleteQuestionText",
-                                   modifier = Modifier.clickable {
-                                       formState.onQuestionValueChange("")
-                                   }
-                               )
-                           }
-                        },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = MaterialTheme.colors.surface
-                            )
+                    GeneralTextField(
+                        label = "Enter a question",
+                        value = formState.currentQuestion.text,
+                        onValueChange = formState::onQuestionValueChange,
+                        tails = if (formState.currentQuestion.text.isNotBlank())
+                                Icons.Default.Close else null,
+                        onTailPressed = { formState.onQuestionValueChange("") },
+                        modifier = Modifier.background(
+                            color = MaterialTheme.colors.surface
+                        )
                     )
                 }
                 item {
-                    TextField(
-                        value = formState.currentOption.value,
-                        onValueChange = formState.onOptionValueChange,
-                        singleLine = true,
-                        label = { Text(
-                            text = "Push some option"
-                        )},
-                        trailingIcon = { Icon(
-                            imageVector = Icons.Default.AddCircle,
-                            contentDescription = "AddOption",
-                            modifier = Modifier.clickable(
-                                onClick = formState.onPushedOption
-                            )
-                        )},
+                    GeneralTextField(
+                        label = "Push some options",
+                        value = formState.currentOption.text,
+                        onValueChange = formState::onOptionValueChange,
+                        tails = if (formState.currentOption.text.isNotBlank())
+                            Icons.Default.AddCircleOutline else null,
+                        onTailPressed = formState::onPushedOption,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .onKeyEvent(formState.onOptionKeyEvent)
+                            .onKeyEvent(formState::onOptionKeyEvent)
                     )
                 }
                 item {
@@ -151,67 +116,19 @@ fun QuizCreatorScreen(
                     strOf<PossibleAnswer.SingleChoice>() -> item {
                         SingleChoiceQuestion(
                             options = formState.options,
-                            answer = formState.currentAnswer.value,
-                            onAnswerSelected = formState.onAnsweredSingle
+                            answer = formState.currentAnswer,
+                            onAnswerSelected = formState::onAnsweredSingle
                         )
                     }
                     strOf<PossibleAnswer.MultipleChoice>() -> item {
                         MultipleChoiceQuestion(
                             options = formState.options,
-                            answer = formState.currentAnswer.value,
-                            onAnswerSelected = formState.onAnsweredMultiple
+                            answer = formState.currentAnswer,
+                            onAnswerSelected = formState::onAnsweredMultiple
                         )
                     }
                 }
             }
         }
     )
-}
-
-@Composable
-fun ImageRows(
-    images: List<ByteArray>,
-    onAddPressed: () -> Unit,
-    onRemovePressed: (Int) -> Unit) {
-    LazyRow(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)){
-        itemsIndexed(images) { idx, byteArray ->
-            Box(
-                contentAlignment = Alignment.TopEnd) {
-
-                Image( //painter = rememberImagePainter(data = uri),
-                    bitmap = asBitmap(byteArray).asImageBitmap(),
-                    contentDescription = "uri $idx",
-                    modifier = Modifier.size(128.dp)
-                )
-
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "iconClose",
-                    tint = MaterialTheme.colors.surface,
-                    modifier = Modifier
-                        .clip(shape = CircleShape)
-                        .padding(4.dp)
-                        .background(MaterialTheme.colors.primary)
-                        .size(24.dp)
-                        .clickable { onRemovePressed(idx) }
-                )
-            }
-        }
-        item {
-            Icon(
-                imageVector = Icons.Default.AddCircleOutline,
-                tint = MaterialTheme.colors.primary,
-                contentDescription = "landscape",
-                modifier = Modifier
-                    .size(35.dp)
-                    .padding(5.dp)
-                    .clickable(
-                        enabled = images.size < 4,
-                        onClick = onAddPressed
-                    )
-            )
-        }
-    }
 }

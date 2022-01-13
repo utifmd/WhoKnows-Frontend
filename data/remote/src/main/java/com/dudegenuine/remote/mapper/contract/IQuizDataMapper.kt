@@ -1,8 +1,8 @@
 package com.dudegenuine.remote.mapper.contract
 
 import com.dudegenuine.model.Quiz
-import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.QuizEntity
+import com.dudegenuine.remote.entity.Response
 
 /**
  * Wed, 08 Dec 2021

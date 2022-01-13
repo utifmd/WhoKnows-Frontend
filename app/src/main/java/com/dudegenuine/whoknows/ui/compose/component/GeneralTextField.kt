@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun GeneralTextField(
+    modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     readOnly: Boolean = false,
     label: String,
@@ -54,8 +55,8 @@ fun GeneralTextField(
             }},
         singleLine = singleLine,
         readOnly = readOnly,
-        modifier = Modifier.fillMaxWidth()
-    ) /*.background( color = MaterialTheme.colors.surface )*/
+        modifier = modifier.fillMaxWidth()
+    )
 
     DropdownMenu(
         expanded = isExpand,

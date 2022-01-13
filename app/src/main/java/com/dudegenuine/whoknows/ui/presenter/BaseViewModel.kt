@@ -21,9 +21,13 @@ abstract class BaseViewModel: ViewModel() {
 
                     _state.value = ResourceState(
                         users = payload.filterIsInstance<User>(),
-                        questions = payload.filterIsInstance<Quiz>()
+                        rooms = payload.filterIsInstance<Room>(),
+                        questions = payload.filterIsInstance<Quiz>(),
+                        results = payload.filterIsInstance<Result>(),
+                        participants = payload.filterIsInstance<Participant>(),
+                        files = payload.filterIsInstance<File>(),
                     )
-                } else _state.value = when(result.data){
+                } else _state.value = when(result.data) {
                     is User -> ResourceState(user = result.data as User)
                     is Room -> ResourceState(room = result.data as Room)
                     is Quiz -> ResourceState(quiz = result.data as Quiz)

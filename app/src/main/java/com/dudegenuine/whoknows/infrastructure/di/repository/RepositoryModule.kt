@@ -1,5 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.repository
 
+import com.dudegenuine.local.database.contract.IPreferenceManager
+import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.remote.service.contract.*
 import com.dudegenuine.repository.*
@@ -23,15 +25,19 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideUserRepository(
         service: IUserService,
-        mapper: IUserDataMapper): IUserRepository {
-        return UserRepository(service, mapper)
+        dao: ICurrentUserDao,
+        pref: IPreferenceManager,
+        mapper: IUserDataMapper
+    ): IUserRepository {
+        return UserRepository(service, dao, pref, mapper)
     }
 
     @Provides
     @Singleton
     override fun provideRoomRepository(
         service: IRoomService,
-        mapper: IRoomDataMapper): IRoomRepository {
+        mapper: IRoomDataMapper
+    ): IRoomRepository {
         return RoomRepository(service, mapper)
     }
 
@@ -39,7 +45,8 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideQuizRepository(
         service: IQuizService,
-        mapper: IQuizDataMapper): IQuizRepository {
+        mapper: IQuizDataMapper
+    ): IQuizRepository {
         return QuizRepository(service, mapper)
     }
 
@@ -47,7 +54,8 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideParticipantRepository(
         service: IParticipantService,
-        mapper: IParticipantDataMapper): IParticipantRepository {
+        mapper: IParticipantDataMapper
+    ): IParticipantRepository {
         return ParticipantRepository(service, mapper)
     }
 
@@ -55,7 +63,8 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideResultRepository(
         service: IResultService,
-        mapper: IResultDataMapper): IResultRepository {
+        mapper: IResultDataMapper
+    ): IResultRepository {
         return ResultRepository(service, mapper)
     }
 
@@ -63,7 +72,8 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideFileRepository(
         service: IFileService,
-        mapper: IFileDataMapper): IFileRepository {
+        mapper: IFileDataMapper
+    ): IFileRepository {
         return FileRepository(service, mapper)
     }
 }
