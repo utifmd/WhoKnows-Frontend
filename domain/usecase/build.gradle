@@ -18,6 +18,7 @@ android {
 }
 
 apply from: '../../android.gradle'
+apply plugin: 'kotlin-android'
 apply from: '../../dependency.gradle'
 
 dependencies {
@@ -27,3 +28,6 @@ dependencies {
     // Network
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
 }
+/*repositories {
+    mavenCentral()
+}*/

@@ -25,9 +25,11 @@ object AndroidModule: IAndroidModule {
     @Provides
     @Singleton
     override fun provideLocalDatabase(
-        @ApplicationContext context: Context): WhoKnowsDatabase =
+        @ApplicationContext context: Context): WhoKnowsDatabase {
 
-        Room.databaseBuilder(context, WhoKnowsDatabase::class.java, DATABASE_NAME).build()
+        return Room.databaseBuilder(context,
+            WhoKnowsDatabase::class.java, DATABASE_NAME).build()
+    }
 
     @Provides
     @Singleton

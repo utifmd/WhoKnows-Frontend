@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.presenter.user
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -28,8 +27,7 @@ class UserViewModel
     @Inject constructor(
     private val case: IUserUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
-
-    val state: State<ResourceState> = _state // init { getUsers(0, 10); getUser("USR00002") }
+    // init { getUsers(0, 10); getUser("USR00002") }
 
     private val _createState = mutableStateOf(UserState.CreateState())
     val createState: UserState.CreateState

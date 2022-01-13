@@ -15,6 +15,7 @@ fun GeneralTextField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
+    leads: ImageVector? = null,
     tails: Any? = null,
     isExpand: Boolean = false,
     onTailPressed: (() -> Unit)? = null,
@@ -39,11 +40,20 @@ fun GeneralTextField(
         label = {
             Text(
                 text = label)},
+        leadingIcon = {
+            if (leads != null){
+                Icon(
+                    imageVector = leads,
+                    contentDescription = "leads-$label",
+                    modifier = Modifier.clickable(
+                        onClick = onTailClicked))
+            }
+        },
         trailingIcon = {
             when (tails){
                 is ImageVector -> Icon(
                     imageVector = tails,
-                    contentDescription = "tailCon${tails.name}",
+                    contentDescription = "tails-$label",
                     modifier = Modifier.clickable(
                         onClick = onTailClicked))
                 is String -> TextButton(

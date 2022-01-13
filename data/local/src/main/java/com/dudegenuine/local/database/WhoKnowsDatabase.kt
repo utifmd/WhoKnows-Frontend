@@ -2,7 +2,6 @@ package com.dudegenuine.local.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.dudegenuine.local.database.contract.IWhoKnowsDatabase
 import com.dudegenuine.local.entity.CurrentUser
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 
@@ -12,6 +11,6 @@ import com.dudegenuine.local.service.contract.ICurrentUserDao
  **/
 
 @Database(entities = [CurrentUser::class], version = 1)
-abstract class WhoKnowsDatabase: RoomDatabase(), IWhoKnowsDatabase {
-    abstract override fun currentUserDao(): ICurrentUserDao
+abstract class WhoKnowsDatabase: RoomDatabase() { //, IWhoKnowsDatabase {
+    abstract fun currentUserDao(): ICurrentUserDao
 }

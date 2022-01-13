@@ -80,8 +80,8 @@ class UserDataMapper: IUserDataMapper {
             phone = it.phone,
             username = it.username,
             password = it.password,
-            createdAt = it.createdAt,
-            updatedAt = it.updatedAt
+            createdAt = Date(it.createdAt),
+            updatedAt = it.updatedAt?.let { date -> Date(date) }
         )}
 
         return null
@@ -95,8 +95,8 @@ class UserDataMapper: IUserDataMapper {
             phone = user.phone,
             username = user.username,
             password = user.password,
-            createdAt = user.createdAt,
-            updatedAt = user.updatedAt ?: Date()
+            createdAt = user.createdAt.time,
+            updatedAt = user.updatedAt?.time
         )
     }
 }

@@ -10,8 +10,11 @@ import com.dudegenuine.model.*
  * WhoKnows by utifmd
  **/
 abstract class BaseViewModel: ViewModel() {
-    protected val _state = mutableStateOf(ResourceState())
     private val TAG: String = javaClass.simpleName
+
+    protected val _state = mutableStateOf(ResourceState())
+    val state: ResourceState
+        get() = _state.value
 
     protected fun<T> onResource(result: Resource<T>){
         when(result){

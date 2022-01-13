@@ -3,7 +3,6 @@ package com.dudegenuine.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
 
 /**
  * Thu, 13 Jan 2022
@@ -33,8 +32,8 @@ data class CurrentUser(
     val password: String,
 
     @ColumnInfo(name = "createdAt")
-    val createdAt: Date,
+    val createdAt: Long,
 
     @ColumnInfo(name = "updatedAt")
-    val updatedAt: Date,
+    val updatedAt: Long?,
 )
