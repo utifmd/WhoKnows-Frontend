@@ -39,13 +39,8 @@ class GetUser
     operator fun invoke(): Flow<Resource<User>> = flow {
         try {
             emit(Resource.Loading())
-
             val localUser = repository.load()
 
-            if (localUser == null) {
-                emit(Resource.Error("Current user does not exist."))
-                return@flow
-            }
             emit(Resource.Success(localUser))
 
         }  catch (e: HttpFailureException){

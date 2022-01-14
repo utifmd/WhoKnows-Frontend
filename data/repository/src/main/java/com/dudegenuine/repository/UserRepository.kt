@@ -9,6 +9,7 @@ import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.dudegenuine.remote.service.contract.IUserService
 import com.dudegenuine.repository.contract.IUserRepository
+import com.dudegenuine.repository.contract.IUserRepository.Companion.CURRENT_USER_NOT_FOUND
 import com.dudegenuine.repository.contract.IUserRepository.Companion.NOT_FOUND
 import javax.inject.Inject
 
@@ -23,6 +24,7 @@ class UserRepository
     private val dao: ICurrentUserDao,
     private val prefs: IPreferenceManager,
     private val mapper: IUserDataMapper): IUserRepository {
+    private val TAG = javaClass.simpleName
 
     override suspend fun create(user: User): User = try {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
@@ -72,10 +74,14 @@ class UserRepository
     override suspend fun save(currentUser: CurrentUser) =
         dao.create(currentUser).also { prefs.setString(CURRENT_USER_ID, currentUser.userId) }
 
-    override suspend fun load(userId: String?): User? {
+    override suspend fun load(userId: String?): User {
         val finalId = userId ?: prefs.getString(CURRENT_USER_ID)
+        val currentUser = dao.read(finalId)
 
-        return mapper.asUser(dao.read(finalId))
+        if (currentUser != null)
+            return mapper.asUser(currentUser)
+        else
+            throw HttpFailureException(CURRENT_USER_NOT_FOUND)
     }
 
     override suspend fun unload(userId: String) {

@@ -6,11 +6,14 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
 fun GeneralTextField(
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    asPassword: Boolean = false,
     readOnly: Boolean = false,
     label: String,
     value: String,
@@ -65,6 +68,8 @@ fun GeneralTextField(
             }},
         singleLine = singleLine,
         readOnly = readOnly,
+        visualTransformation = if (asPassword) PasswordVisualTransformation()
+            else VisualTransformation.None,
         modifier = modifier.fillMaxWidth()
     )
 

@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.state
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dudegenuine.model.User
@@ -20,15 +21,16 @@ sealed class UserState {
         val password: TextFieldValue
             get() = _password.value
 
-        val isValid: MutableState<Boolean>
+        val isValid: State<Boolean>
             get() = mutableStateOf(
                 email.text.isNotBlank() &&
                         password.text.isNotBlank())
 
-        val model: Map<String, String> = mapOf(
-            User.EMAIL to email.text,
-            User.PASSWORD to password.text
-        )
+        val model: Map<String, String>
+            get() = mutableStateMapOf(
+                User.EMAIL to email.text,
+                User.PASSWORD to password.text
+            )
 
         val onUsernameChange: (text: String) -> Unit = {
             _email.value = TextFieldValue(it)

@@ -45,6 +45,8 @@ class UserViewModel
 
         case.signInUser(createState.model)
             .onEach(this::onResource).launchIn(viewModelScope)
+
+        _createState.value = UserState.CreateState()
     }
 
     override fun postUser(user: User) {
@@ -60,7 +62,8 @@ class UserViewModel
     }
 
     override fun getUser() {
-        case.getUser().onEach(this::onResource).launchIn(viewModelScope)
+        case.getUser()
+            .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getUser(id: String) {

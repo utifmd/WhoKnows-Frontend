@@ -72,8 +72,8 @@ class UserDataMapper: IUserDataMapper {
         )
     }
 
-    override fun asUser(currentUser: CurrentUser?): User? {
-        currentUser?.let { User(
+    override fun asUser(currentUser: CurrentUser): User {
+        return currentUser.let { User(
             id = it.userId,
             fullName = it.fullName,
             email = it.email,
@@ -84,7 +84,7 @@ class UserDataMapper: IUserDataMapper {
             updatedAt = it.updatedAt?.let { date -> Date(date) }
         )}
 
-        return null
+        /*return null*/
     }
 
     override fun asCurrentUser(user: User): CurrentUser {

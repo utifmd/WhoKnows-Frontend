@@ -15,6 +15,9 @@ interface ICurrentUserDao {
     @Query("SELECT * FROM currentUser WHERE userId = :userId")
     suspend fun read(userId: String): CurrentUser?
 
+    @Query("SELECT * FROM currentUser")
+    suspend fun list(): List<CurrentUser>
+
     @Delete
     suspend fun delete(currentUser: CurrentUser)
 }

@@ -50,9 +50,10 @@ fun LoginScreen(
         GeneralTextField(
             label = "Enter password",
             value = formState.password.text,
+            asPassword = true,
             leads = Icons.Default.Password,
             onValueChange = formState.onPasswordChange,
-            tails = if (formState.email.text.isNotBlank())
+            tails = if (formState.password.text.isNotBlank())
                 Icons.Default.Close else null,
             onTailPressed = { formState.onPasswordChange("") }
         )

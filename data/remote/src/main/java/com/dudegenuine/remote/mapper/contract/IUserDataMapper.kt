@@ -18,5 +18,5 @@ interface IUserDataMapper {
 
     /*fun asUserOrNull(currentUser: CurrentUser?): User?*/
     fun asCurrentUser(user: User): CurrentUser
-    fun asUser(currentUser: CurrentUser?): User?
+    fun asUser(currentUser: CurrentUser): User
 }

@@ -15,11 +15,12 @@ interface IUserRepository {
     suspend fun list(page: Int, size: Int): List<User>
     suspend fun signIn(params: Map<String, String>): User
 
-    suspend fun load(userId: String? = null): User?
+    suspend fun load(userId: String? = null): User
     suspend fun save(currentUser: CurrentUser)
     suspend fun unload(userId: String)
 
     companion object {
         const val NOT_FOUND = "User not found."
+        const val CURRENT_USER_NOT_FOUND = "Current user not found, please sign in first."
     }
 }
