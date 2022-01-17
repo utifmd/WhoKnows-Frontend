@@ -24,7 +24,6 @@ import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.ui.compose.component.GeneralButtonGroup
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
-import com.dudegenuine.whoknows.ui.compose.component.ImagesPreUpload
 import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 
 /**
@@ -36,7 +35,7 @@ import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 fun QuizCreatorScreen(
     viewModel: QuizViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    val formState = viewModel.createState
+    val formState = viewModel.formState
 
     val selectedType = remember {
         mutableStateOf(strOf<PossibleAnswer.SingleChoice>())

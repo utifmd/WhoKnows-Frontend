@@ -26,6 +26,10 @@ sealed class RoomState {
         val data: Result?): RoomState()
 
     class CreateRoom: RoomState(){
+        private val _userId = mutableStateOf("")
+        val userId: String
+            get() = _userId.value
+
         private val _title = mutableStateOf(TextFieldValue(text = ""))
         val title: TextFieldValue
             get() = _title.value
@@ -40,12 +44,14 @@ sealed class RoomState {
 
         val isValid: MutableState<Boolean>
             get() = mutableStateOf(
-                title.text.isNotBlank() && desc.text.isNotBlank() && minute.text.isNotBlank())
+                title.text.isNotBlank() && userId.isNotBlank() &&
+                desc.text.isNotBlank() && minute.text.isNotBlank()
+            )
 
         val model: MutableState<Room>
             get() = mutableStateOf(Room(
                 id = "ROM-${UUID.randomUUID()}",
-                userId = "USR-0001",
+                userId = userId,
                 minute = minute.text.toInt(),
                 title = title.text,
                 description = desc.text,
@@ -66,6 +72,10 @@ sealed class RoomState {
 
         fun onMinuteChange (it: String){
             _minute.value = TextFieldValue(text = it)
+        }
+
+        fun onUserIdChange(id: String) {
+            _userId.value = id
         }
     }
 }

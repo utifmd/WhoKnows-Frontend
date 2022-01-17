@@ -37,17 +37,17 @@ class QuizViewModel
     private val resourceState: ResourceState
         get() = _state.value
 
-    private val _createState = mutableStateOf(QuizState.CreateQuiz())
-    val createState: QuizState.CreateQuiz
-        get() = _createState.value
+    private val _formState = mutableStateOf(QuizState.FormState())
+    val formState: QuizState.FormState
+        get() = _formState.value
 
     fun onPostPressed () {
-        val model = createState.model.value
+        val model = formState.postModel.value
 
         _state.value = ResourceState(quiz = model)
 
-        if (createState.isValid.value && resourceState.quiz != null)
-            multiUpload(createState.images)
+        if (formState.isValid.value && resourceState.quiz != null)
+            multiUpload(formState.images)
         else
             _state.value = ResourceState(error = DONT_EMPTY)
     }
@@ -60,10 +60,10 @@ class QuizViewModel
     }
 
     override fun onMultiUploaded(resources: Resource<List<File>>) {
-        val model = resourceState.quiz ?: createState.model.value
+        val model = resourceState.quiz ?: formState.postModel.value
         Log.d(TAG, "onFileUploaded: $model")
 
-        onUploaded(resources) { data ->
+        onResourceSucceed(resources) { data ->
             val downloadedUrls = data.map { it.url }
             Log.d(TAG, "Resource.Success $downloadedUrls")
 

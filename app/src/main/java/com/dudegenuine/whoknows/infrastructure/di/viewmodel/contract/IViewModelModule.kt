@@ -18,6 +18,7 @@ interface IViewModelModule {
         savedStateHandle: SavedStateHandle): IUserViewModel
 
     fun provideRoomViewModel(
+        userUseCaseModule: IUserUseCaseModule,
         roomUseCaseModule: IRoomUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel
 
@@ -27,6 +28,7 @@ interface IViewModelModule {
         savedStateHandle: SavedStateHandle): IQuizViewModel
 
     fun provideResultViewModel(
+        userUseCaseModule: IUserUseCaseModule,
         resultUseCaseModule: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle): IResultViewModel
 

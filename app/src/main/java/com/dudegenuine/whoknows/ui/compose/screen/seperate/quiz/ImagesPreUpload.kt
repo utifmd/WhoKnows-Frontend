@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.compose.component
+package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

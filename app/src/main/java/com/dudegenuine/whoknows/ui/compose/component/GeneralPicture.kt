@@ -1,0 +1,82 @@
+package com.dudegenuine.whoknows.ui.compose.component
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Photo
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
+
+@Composable
+@ExperimentalCoilApi
+fun GeneralPicture(
+    modifier: Modifier = Modifier,
+    data: Any,
+    onChangePressed:(() -> Unit)? = null,
+    onCheckPressed:(() -> Unit)? = null){
+
+    val toggle = remember { mutableStateOf(false) }
+
+    val onChangeClicked: () -> Unit = {
+        if (onChangePressed != null) onChangePressed()
+    }
+    val onCheckClicked: () -> Unit = {
+        if (onCheckPressed != null) onCheckPressed()
+    }
+
+    Surface(
+        modifier = modifier.size(120.dp),
+        shape = CircleShape,
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)) {
+
+        Box(
+            modifier = modifier.fillMaxSize().clickable { toggle.value = !toggle.value }) {
+            GeneralImage(
+                modifier = modifier.fillMaxSize(),
+                painter = rememberImagePainter(data = data),
+                placeholder = {
+                    Image(
+                        modifier = modifier.fillMaxSize().padding(12.dp),
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null
+                    )
+                }
+            )
+
+            if(toggle.value){
+                Column(
+                    modifier = modifier.fillMaxSize().background(MaterialTheme.colors.secondaryVariant),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly) {
+
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        modifier = modifier.clickable(
+                            onClick = onCheckClicked
+                        ),
+                        contentDescription = null,
+                    )
+                    Icon(
+                        imageVector = Icons.Default.Photo,
+                        contentDescription = null,
+                        modifier = modifier.clickable(
+                            onClick = onChangeClicked
+                        )
+                    )
+                }
+            }
+        }
+    }
+}

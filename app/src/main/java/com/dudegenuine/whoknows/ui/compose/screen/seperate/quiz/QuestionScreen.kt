@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.ui.compose.screen
+package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,8 +19,6 @@ import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.QuizActionType
 import com.dudegenuine.model.common.ImageUtil.asBitmap
 import com.dudegenuine.model.common.ImageUtil.strOf
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.MultipleChoiceQuestion
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.SingleChoiceQuestion
 
 /**
  * Fri, 24 Dec 2021

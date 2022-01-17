@@ -24,7 +24,7 @@ class UserRepository
     private val dao: ICurrentUserDao,
     private val prefs: IPreferenceManager,
     private val mapper: IUserDataMapper): IUserRepository {
-    private val TAG = javaClass.simpleName
+    /*private val TAG = javaClass.simpleName*/
 
     override suspend fun create(user: User): User = try {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
@@ -36,10 +36,9 @@ class UserRepository
     }
 
     override suspend fun read(id: String): User = try {
-        val remoteUser = mapper.asUser(service.read(id))
-        val localUser = load(id) ?: remoteUser
+        val remoteUser = mapper.asUser(service.read(id)) /*val localUser = load(id)*/
 
-        localUser
+        remoteUser
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }

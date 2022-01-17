@@ -19,7 +19,11 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 sealed class QuizState {
-    class CreateQuiz: QuizState() {
+    class FormState: QuizState() {
+        private val _roomId = mutableStateOf("")
+        val roomId: String
+            get() = _roomId.value
+
         private val _currentQuestion = mutableStateOf(TextFieldValue(""))
         val currentQuestion: TextFieldValue
             get() = _currentQuestion.value
@@ -84,6 +88,10 @@ sealed class QuizState {
             _currentOption.value = TextFieldValue(it)
         }
 
+        fun onUserIdValueChange (it: String){
+            _roomId.value = it
+        }
+
         fun onSelectedAnswerValue (it: PossibleAnswer?) {
             _selectedAnswer.value = it
         }
@@ -103,11 +111,11 @@ sealed class QuizState {
             _images.removeAt(it)
         }
 
-        val model: State<Quiz>
+        val postModel: State<Quiz>
             get() = mutableStateOf(
                 Quiz(
                     "QIZ-${UUID.randomUUID()}",
-                    "B00001",// "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
+                    roomId,// "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
                     images = emptyList(),
                     question = currentQuestion.text.trim(),
                     options = options,

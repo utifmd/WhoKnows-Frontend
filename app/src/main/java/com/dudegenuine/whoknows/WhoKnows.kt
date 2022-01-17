@@ -12,8 +12,7 @@ import dagger.hilt.android.HiltAndroidApp
 class WhoKnows: Application()
 
 // TODO:
-//  - user business logic
-
-// TODO: Backend
-//  - getRooms(userId)
-//  - auto create postgre uuid all creators
+//  - finder screen dynamically
+//  - loading screen dynamically
+//  - summary screen with feeds
+//  - fixes all warning build

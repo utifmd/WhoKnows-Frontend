@@ -7,9 +7,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -30,8 +30,8 @@ import javax.inject.Inject
 class RoomViewModel
     @Inject constructor(
     private val case: IRoomUseCaseModule,
+    private val userCase: IUserUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
-
     private val TAG: String = javaClass.simpleName
 
     val resourceState: State<ResourceState>
@@ -46,11 +46,9 @@ class RoomViewModel
         get() = _createState.value
 
     init {
-        //_uiState.value = RoomState.CreateRoom()
+        getUser() //_uiState.value = RoomState.CreateRoom()
 
         _uiState.value = RoomState.CurrentRoom
-
-        getRooms("USR-0001")
     }
 
     fun onCreatePressed () {
@@ -64,6 +62,17 @@ class RoomViewModel
         }
 
         postRoom(room = model)
+    }
+
+    private fun getUser() {
+        userCase.getUser()
+            .onEach { res -> onResourceSucceed(res) { usr ->
+                val userId: String = usr.id
+                createState.onUserIdChange(userId)
+
+                getRooms(userId)
+            }}
+            .launchIn(viewModelScope)
     }
 
     override fun postRoom(room: Room) {
@@ -127,29 +136,24 @@ class RoomViewModel
     }
 
     override fun onBoarding(id: String){
+        if (id.isBlank())
+            _state.value = ResourceState(error = DONT_EMPTY)
+
         case.getRoom(id).onEach { resource ->
-            when(resource){
-                is Resource.Success -> {
-                    resource.data?.let { room ->
-                        val quizzes = room.questions.mapIndexed { index, quiz ->
-                            OnBoardingState(
-                                quiz = quiz,
-                                questionIndex = index +1,
-                                totalQuestionsCount = room.questions.size,
-                                showPrevious = index > 0,
-                                showDone = index == room.questions.size -1
-                            )
-                        }
-
-                        if (quizzes.isEmpty()) return@let
-
-                        _uiState.value = RoomState.BoardingQuiz(room, quizzes)
-                    }
+            onResourceSucceed(resource){ room ->
+                val quizzes = room.questions.mapIndexed { index, quiz ->
+                    OnBoardingState(
+                        quiz = quiz,
+                        questionIndex = index +1,
+                        totalQuestionsCount = room.questions.size,
+                        showPrevious = index > 0,
+                        showDone = index == room.questions.size -1
+                    )
                 }
-                is Resource.Error -> _state.value = ResourceState(
-                    error = resource.message ?: "An unexpected error occurred.")
-                is Resource.Loading -> _state.value = ResourceState(
-                    loading = true)
+
+                if (quizzes.isEmpty()) return@onResourceSucceed
+
+                _uiState.value = RoomState.BoardingQuiz(room, quizzes)
             }
         }.launchIn(viewModelScope)
     }
@@ -158,17 +162,17 @@ class RoomViewModel
 //        val bothId = UUID.randomUUID()
         Log.d(TAG, "computeResult: ${roomState.list.map { it.isCorrect }}")
 
-//        val result = Result(
-//            id = "RSL-$bothId",
-//            roomId = roomState.room.id,
-//            participantId = "null",
-//            userId = "null",
-//            correctQuiz = roomState.list,
-//            wrongQuiz = "",
-//            score = "",
-//            createdAt = "",
-//            updatedAt = "",
-//        )
+        /*val result = Result(
+            id = "RSL-$bothId",
+            roomId = roomState.room.id,
+            participantId = "null",
+            userId = "null",
+            correctQuiz = roomState.list,
+            wrongQuiz = "",
+            score = "",
+            createdAt = "",
+            updatedAt = "",
+        )*/
 
         _uiState.value = RoomState.BoardingResult(roomState.room.title, null)
     }

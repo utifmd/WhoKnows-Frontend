@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.QuizActionType
-import com.dudegenuine.whoknows.ui.compose.screen.QuestionScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import kotlinx.coroutines.launch
 

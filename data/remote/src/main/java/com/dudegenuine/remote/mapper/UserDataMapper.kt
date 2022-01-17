@@ -25,6 +25,7 @@ class UserDataMapper: IUserDataMapper {
             phone = user.phone,
             email = user.email,
             password = user.password,
+            profileUrl = user.profileUrl,
             createdAt = user.createdAt,
             updatedAt = user.updatedAt
         )
@@ -38,6 +39,7 @@ class UserDataMapper: IUserDataMapper {
             phone = entity.phone,
             email = entity.email,
             password = entity.password,
+            profileUrl = entity.profileUrl,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt
         )
@@ -80,6 +82,7 @@ class UserDataMapper: IUserDataMapper {
             phone = it.phone,
             username = it.username,
             password = it.password,
+            profileUrl = it.profileUrl,
             createdAt = Date(it.createdAt),
             updatedAt = it.updatedAt?.let { date -> Date(date) }
         )}
@@ -95,6 +98,7 @@ class UserDataMapper: IUserDataMapper {
             phone = user.phone,
             username = user.username,
             password = user.password,
+            profileUrl = user.profileUrl,
             createdAt = user.createdAt.time,
             updatedAt = user.updatedAt?.time
         )

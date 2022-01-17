@@ -28,6 +28,9 @@ data class UserEntity (
     @SerializedName("password")
     val password: String,
 
+    @SerializedName("profileUrl")
+    val profileUrl: String,
+
     @SerializedName("createdAt")
     val createdAt: Date,
 

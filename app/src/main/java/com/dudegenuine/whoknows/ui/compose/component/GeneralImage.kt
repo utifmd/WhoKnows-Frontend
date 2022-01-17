@@ -15,15 +15,14 @@ import coil.compose.ImagePainter
 @ExperimentalCoilApi
 @Composable
 fun GeneralImage(
+    modifier: Modifier = Modifier,
     painter: ImagePainter,
     placeholder: @Composable () -> Unit,
-    contentDescription: String?,
-    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
-) {
+    colorFilter: ColorFilter? = null, ) {
     Box(modifier) {
         Image(
             painter = painter,
@@ -32,7 +31,7 @@ fun GeneralImage(
             contentScale = contentScale,
             alpha = alpha,
             colorFilter = colorFilter,
-            modifier = Modifier.matchParentSize()
+            modifier = modifier.matchParentSize()
         )
 
         AnimatedVisibility(

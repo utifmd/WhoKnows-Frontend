@@ -3,135 +3,50 @@ package com.dudegenuine.whoknows
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Explore
-import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem
-import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.DISCOVER
-import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SETTING
-import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem.Companion.SUMMARY
+import androidx.navigation.compose.rememberNavController
+import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoginScreen
+import com.dudegenuine.whoknows.ui.compose.screen.MainScreen
+import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
+@ExperimentalCoilApi
 class MainActivity: ComponentActivity() {
+    private val userViewModel: UserViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             WhoKnowsTheme {
-                LoginScreen()
-                //QuizCreatorScreen()
-                //RoomScreen()
-                //LoginScreen()
+                val controller = rememberNavController()
+                val state = userViewModel.state
 
-                /*val navController = rememberNavController()
+                if(state.loading){
+                    LoadingScreen()
+                }
 
-                Scaffold(
-                    bottomBar = {
-                        BtmNavBar(
-                            items = bottomBarItems(),
-                            controller = navController,
-                            onItemClick = { navController.navigate(it.route) })
-                    }
-                    -pa
-                ) {
-                    Navigation(
-                        controller = navController
+                state.user?.let {
+                    MainScreen(
+                        navController = controller
                     )
-                }*/
+                }
+
+                if (state.error.isNotBlank()){
+                    LoginScreen(
+                        navHostController = controller
+                    )
+                }
+                /*ProfileScreen() RegisterScreen() QuizCreatorScreen() RoomScreen()*/
             }
         }
     }
-
-    private fun bottomBarItems(): List<BtmNavItem> {
-        return listOf(
-            BtmNavItem(
-                name = SUMMARY,
-                route = SUMMARY.lowercase(),
-                icon = Icons.Default.Block
-            ),
-
-            BtmNavItem(
-                name = DISCOVER,
-                route = DISCOVER.lowercase(),
-                icon = Icons.Default.Explore //, badge = 2
-            ),
-
-            BtmNavItem(
-                name = SETTING,
-                route = SETTING.lowercase(),
-                icon = Icons.Default.Edit
-            )
-        )
-    }
 }
-
-//@Composable
-//fun ProfileScreen(
-//    viewModel: RoomViewModel = hiltViewModel()) {
-//    val state = viewModel.state.value
-//    Box(modifier = Modifier.fillMaxSize()) {
-//        state.room?.let { room ->
-//            LazyColumn(
-//                modifier = Modifier.fillMaxSize(),
-//                contentPadding = PaddingValues(20.dp)) {
-//                item {
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.SpaceBetween
-//                    ) {
-//                        Text(
-//                            text = "${room.title} (${room.id})",
-//                            style = MaterialTheme.typography.h2,
-//                            modifier = Modifier.weight(8f)
-//                        )
-//                    }
-//                    Spacer(modifier = Modifier.height(15.dp))
-//
-//                    Spacer(modifier = Modifier.height(15.dp))
-//                    Text(
-//                        text = "Tags",
-//                        style = MaterialTheme.typography.h3
-//                    )
-//                }
-//            }
-//        }
-////        Box(modifier = Modifier.fillMaxSize()){
-////            state.users?.let {
-////                it.map { user ->
-////                    Text(text = user.fullName)
-////                }
-////            }
-////        }
-//        if(state.error.isNotBlank()) {
-//            Text(
-//                text = state.error,
-//                color = MaterialTheme.colors.error,
-//                textAlign = TextAlign.Center,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 20.dp)
-//                    .align(Alignment.Center)
-//            )
-//        }
-//        if(state.loading) {
-//            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-//        }
-//    }
-//}
-
-/*
-* @Preview(showBackground = true)
-* @Composable
-* fun DefaultPreview() {
-*   WhoKnowsTheme {
-*       ProfileScreen()
-*   }
-* }
-* */

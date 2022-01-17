@@ -14,11 +14,11 @@ data class User (
     var phone: String,
     var username: String,
     var password: String,
+    var profileUrl: String,
     var createdAt: Date,
-    var updatedAt: Date?
-){
+    var updatedAt: Date?){
     val isPropsBlank: Boolean =
-        fullName.isBlank() || email.isBlank() || phone.isBlank() ||
+        /*fullName.isBlank() ||*/ email.isBlank() || /*phone.isBlank() ||*/
                 username.isBlank() || password.isBlank()
 
     companion object {

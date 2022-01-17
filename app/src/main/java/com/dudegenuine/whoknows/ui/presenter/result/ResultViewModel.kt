@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Result
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IResultUseCaseModule
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ResultViewModel
     @Inject constructor(
+    private val userCase: IUserUseCaseModule,
     private val case: IResultUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IResultViewModel {
 

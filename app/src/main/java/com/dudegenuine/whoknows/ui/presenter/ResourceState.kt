@@ -8,6 +8,7 @@ import com.dudegenuine.model.*
  **/
 
 data class ResourceState(
+    val currentUserId: String = "",
     val loading: Boolean = false,
     val error: String = "", //Error? = null,
 
@@ -29,10 +30,10 @@ data class ResourceState(
     val file: File? = null,
     val files: List<File>? = null,){
 
-    sealed class Error {
-        object BadRequest: Error()
-        object NetworkError: Error()
-    }
+    /*sealed class Error {
+        object Popping: Error()
+        object Static: Error()
+    }*/
 
     companion object {
         const val DONT_EMPTY = "Fields must not be blank."

@@ -1,13 +1,21 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun GeneralTextField(
@@ -24,6 +32,8 @@ fun GeneralTextField(
     onTailPressed: (() -> Unit)? = null,
     onExpanderSelected: ((Int) -> Unit)? = null,
     onExpanderDismiss: (() -> Unit)? = null){
+
+    val isPassVisible = remember { mutableStateOf(true) }
 
     val onExpanderClicked: (Int) -> Unit = { i ->
         onExpanderSelected?.let { onExpanderSelected(i) }
@@ -48,28 +58,48 @@ fun GeneralTextField(
                 Icon(
                     imageVector = leads,
                     contentDescription = "leads-$label",
-                    modifier = Modifier.clickable(
+                    modifier = modifier.clickable(
                         onClick = onTailClicked))
             }
         },
         trailingIcon = {
-            when (tails){
-                is ImageVector -> Icon(
-                    imageVector = tails,
-                    contentDescription = "tails-$label",
-                    modifier = Modifier.clickable(
-                        onClick = onTailClicked))
-                is String -> TextButton(
-                    onClick = onTailClicked) {
-                    Text(
-                        text = tails
+            Row {
+                when (tails){
+                    is ImageVector -> Icon(
+                        imageVector = tails,
+                        contentDescription = "tails-$label",
+                        modifier = modifier.clickable(
+                            onClick = onTailClicked))
+                    is String -> TextButton(
+                        onClick = onTailClicked) {
+                        Text(
+                            text = tails
+                        )
+                    }
+                }
+                if(asPassword){
+                    Icon(
+                        imageVector = if(!isPassVisible.value) Icons.Default.Visibility
+                            else Icons.Default.VisibilityOff,
+                        contentDescription = "tails-$label",
+                        modifier = modifier
+                            .padding(
+                                end = 12.dp,
+                                start = 8.dp
+                            )
+                            .clickable(
+                                onClick = { isPassVisible.value = !isPassVisible.value }
+                            )
                     )
                 }
-            }},
+            }
+        },
         singleLine = singleLine,
         readOnly = readOnly,
-        visualTransformation = if (asPassword) PasswordVisualTransformation()
-            else VisualTransformation.None,
+        visualTransformation = if (asPassword) {
+            if(isPassVisible.value) PasswordVisualTransformation()
+            else VisualTransformation.None
+        } else VisualTransformation.None,
         modifier = modifier.fillMaxWidth()
     )
 

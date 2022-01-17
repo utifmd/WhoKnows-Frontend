@@ -1,15 +1,11 @@
-package com.dudegenuine.whoknows.ui.compose.screen
+package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomBoardingScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomCreatorScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomHomeScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomResultScreen
+import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 
@@ -20,24 +16,17 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 @Composable
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
-fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
-    val TAG = "RoomScreen"
-    // val resourceState = viewModel.resourceState.value
+fun RoomScreen(
+    viewModel: RoomViewModel = hiltViewModel(), router: NavHostController) { /*val resourceState = viewModel.resourceState.value*/
     val uiState = viewModel.uiState.observeAsState().value
 
     uiState?.let { roomState ->
         when(roomState){
-            is RoomState.CurrentRoom -> {
-                RoomHomeScreen()
-            }
-            is RoomState.CreateRoom -> {
-                RoomCreatorScreen(viewModel)
-            }
             is RoomState.BoardingQuiz -> {
                 RoomBoardingScreen(
                     // resourceState = resourceState,
                     state = roomState,
-                    onAction = { id, _ -> Log.d(TAG, "RoomScreen: onAction $id") },
+                    onAction = { id, _ ->  },
                     // onBackPressed = {  },
                     onPrevPressed = { roomState.currentQuestionIdx -=1 },
                     onNextPressed = { roomState.currentQuestionIdx +=1 },
@@ -54,6 +43,7 @@ fun RoomScreen(viewModel: RoomViewModel = hiltViewModel()) {
                     }
                 )
             }
+            else -> RoomHomeScreen(router = router)
         }
     }
 }

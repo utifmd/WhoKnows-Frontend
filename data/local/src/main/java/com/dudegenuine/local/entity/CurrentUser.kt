@@ -31,6 +31,9 @@ data class CurrentUser(
     @ColumnInfo(name = "password")
     val password: String,
 
+    @ColumnInfo(name = "profileUrl")
+    val profileUrl: String,
+
     @ColumnInfo(name = "createdAt")
     val createdAt: Long,
 

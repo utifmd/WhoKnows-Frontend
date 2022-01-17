@@ -35,10 +35,11 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
+        userUseCaseModule: IUserUseCaseModule,
         roomUseCaseModule: IRoomUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel {
 
-        return RoomViewModel(roomUseCaseModule, savedStateHandle)
+        return RoomViewModel(roomUseCaseModule, userUseCaseModule, savedStateHandle)
     }
 
     @Provides
@@ -54,11 +55,11 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideResultViewModel(
+        userUseCaseModule: IUserUseCaseModule,
         resultUseCaseModule: IResultUseCaseModule,
-        savedStateHandle: SavedStateHandle): IResultViewModel {
+        savedStateHandle: SavedStateHandle
 
-        return ResultViewModel(resultUseCaseModule, savedStateHandle)
-    }
+    ): IResultViewModel = ResultViewModel(userUseCaseModule, resultUseCaseModule, savedStateHandle)
 
     @Provides
     @ViewModelScoped

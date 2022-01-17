@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.presenter.user
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -27,26 +28,35 @@ class UserViewModel
     @Inject constructor(
     private val case: IUserUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
-    // init { getUsers(0, 10); getUser("USR00002") }
+    private val TAG: String = javaClass.simpleName
 
-    private val _createState = mutableStateOf(UserState.CreateState())
-    val createState: UserState.CreateState
-        get() = _createState.value
+    private val _formState = mutableStateOf(UserState.FormState())
+    val formState: UserState.FormState
+        get() = _formState.value
 
-    init {
-        getUser()
-    }
+    init { getUser() }
 
     override fun signInUser() {
-        if (!createState.isValid.value){
+        val model = formState.loginModel
+        if (!formState.isLoginValid.value){
             _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
-        case.signInUser(createState.model)
+        case.signInUser(model)
             .onEach(this::onResource).launchIn(viewModelScope)
 
-        _createState.value = UserState.CreateState()
+        _formState.value = UserState.FormState()
+    }
+
+    fun signUpUser(){
+        val model = formState.regisModel
+
+        postUser(model)
+    }
+
+    fun singOutUser(){
+        Log.d(TAG, "singOutUser: done")
     }
 
     override fun postUser(user: User) {
@@ -54,8 +64,6 @@ class UserViewModel
             _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
-
-        user.apply { createdAt = Date() }
 
         case.postUser(user)
             .onEach(this::onResource).launchIn(viewModelScope)

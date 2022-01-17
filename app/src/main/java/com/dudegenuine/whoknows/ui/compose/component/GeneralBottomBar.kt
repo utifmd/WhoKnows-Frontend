@@ -11,14 +11,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.dudegenuine.whoknows.ui.compose.model.BtmNavItem
+import com.dudegenuine.whoknows.ui.compose.model.BottomItem
 
 /**
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
 @Composable
-fun GeneralBottomBar(items: List<BtmNavItem>, controller: NavController, modifier: Modifier = Modifier, onItemClick: (BtmNavItem) -> Unit) {
+fun GeneralBottomBar(items: List<BottomItem>, controller: NavController, modifier: Modifier = Modifier, onItemClick: (BottomItem) -> Unit) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(
@@ -31,8 +31,8 @@ fun GeneralBottomBar(items: List<BtmNavItem>, controller: NavController, modifie
 
             BottomNavigationItem(
                 selected = isSelected,
-                selectedContentColor = Color.Gray,
-                unselectedContentColor = Color.DarkGray,
+                selectedContentColor = MaterialTheme.colors.primary,
+                unselectedContentColor = MaterialTheme.colors.onBackground,
                 onClick = { onItemClick(item) },
                 icon = {
                     Column(horizontalAlignment = CenterHorizontally) {

@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 
@@ -24,11 +25,12 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
  **/
 @Composable
 fun LoginScreen(
+    navHostController: NavHostController,
     modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel()){
 
     val state = viewModel.state
-    val formState = viewModel.createState
+    val formState = viewModel.formState
 
     Column(modifier = modifier.padding(16.dp)) {
         if (state.user != null){
@@ -60,15 +62,12 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         if (state.error.isNotBlank()) {
-            Text(
-                color = MaterialTheme.colors.error,
-                text = state.error
-            )
+            ErrorScreen(message = state.error, isSnack = true)
         }
-        Spacer(modifier = Modifier.height(8.dp))
 
+        Spacer(modifier = Modifier.height(8.dp))
         Button(
-            enabled = formState.isValid.value,
+            enabled = formState.isLoginValid.value && !state.loading,
             onClick = viewModel::signInUser) {
             Text(text = "Sign In")
         }

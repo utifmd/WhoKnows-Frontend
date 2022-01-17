@@ -2,22 +2,21 @@ package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Text
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 
 /**
- * Thu, 16 Dec 2021
+ * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
 @Composable
-fun SummaryScreen(router: NavHostController) {
+fun LoadingScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Summary screen")
+        contentAlignment = Alignment.Center) {
+
+        CircularProgressIndicator()
     }
 }

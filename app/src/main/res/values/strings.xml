@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">WhoKnows</string>
     <string name="done">Selesai</string>
+    <string name="not_set">Not set</string>
+    <string name="profile_detail">Profile details</string>
+    <string name="full_name">Full name</string>
+    <string name="phone_number">Phone number</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_out">Sign out</string>
+    <string name="sign_up">Sign up</string>
 </resources>

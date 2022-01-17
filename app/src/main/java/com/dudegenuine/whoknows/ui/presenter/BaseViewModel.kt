@@ -22,14 +22,15 @@ abstract class BaseViewModel: ViewModel() {
                 if (result.data is List<*>) {
                     val payload = result.data as List<*>
 
-                    _state.value = ResourceState(
-                        users = payload.filterIsInstance<User>(),
-                        rooms = payload.filterIsInstance<Room>(),
-                        questions = payload.filterIsInstance<Quiz>(),
-                        results = payload.filterIsInstance<Result>(),
-                        participants = payload.filterIsInstance<Participant>(),
-                        files = payload.filterIsInstance<File>(),
-                    )
+                    _state.value = if (payload.isEmpty()) ResourceState(error = "No result")
+                        else ResourceState(
+                            users = payload.filterIsInstance<User>(),
+                            rooms = payload.filterIsInstance<Room>(),
+                            questions = payload.filterIsInstance<Quiz>(),
+                            results = payload.filterIsInstance<Result>(),
+                            participants = payload.filterIsInstance<Participant>(),
+                            files = payload.filterIsInstance<File>(),
+                        )
                 } else _state.value = when(result.data) {
                     is User -> ResourceState(user = result.data as User)
                     is Room -> ResourceState(room = result.data as Room)
@@ -57,7 +58,7 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    protected fun<T> onUploaded(resources: Resource<T>, onSuccess: (T) -> Unit){
+    protected fun<T> onResourceSucceed(resources: Resource<T>, onSuccess: (T) -> Unit){
         Log.d(TAG, "onFileUploaded: triggered.")
         when(resources){
             is Resource.Success -> resources.data?.let { onSuccess(it) } ?: also {
