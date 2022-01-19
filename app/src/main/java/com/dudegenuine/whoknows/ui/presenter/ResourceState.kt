@@ -8,7 +8,6 @@ import com.dudegenuine.model.*
  **/
 
 data class ResourceState(
-    val currentUserId: String = "",
     val loading: Boolean = false,
     val error: String = "", //Error? = null,
 

@@ -10,15 +10,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.dudegenuine.whoknows.ui.compose.model.BottomItem
+import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
 
 /**
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
 @Composable
-fun GeneralBottomBar(items: List<BottomItem>, controller: NavController, modifier: Modifier = Modifier, onItemClick: (BottomItem) -> Unit) {
+fun GeneralBottomBar(
+    modifier: Modifier = Modifier,
+    items: List<BottomDomain>,
+    controller: NavController) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(
@@ -26,36 +31,51 @@ fun GeneralBottomBar(items: List<BottomItem>, controller: NavController, modifie
         backgroundColor = Color.White,
         elevation = 3.dp) {
 
-        items.forEach { item ->
-            val isSelected = item.route == backStackEntry.value?.destination?.route
+        items.forEach { screen ->
+            val currentDestination = backStackEntry.value?.destination
+            val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true /*screen.route == backStackEntry.value?.destination?.route*/
 
             BottomNavigationItem(
                 selected = isSelected,
                 selectedContentColor = MaterialTheme.colors.primary,
                 unselectedContentColor = MaterialTheme.colors.onBackground,
-                onClick = { onItemClick(item) },
+                onClick = {
+                    controller.navigate(screen.route) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        popUpTo(controller.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same screen
+                        launchSingleTop = true
+                        // Restore state when reselecting a previously selected screen
+                        restoreState = true
+                    }
+                },
                 icon = {
                     Column(horizontalAlignment = CenterHorizontally) {
-                        if (item.badge > 0) {
+                        if (screen.badge > 0) {
                             BadgedBox(
                                 badge = {
-                                    Text(text = item.badge.toString())
+                                    Text(text = screen.badge.toString())
                                 }
                             ) {
                                 Icon(
-                                    imageVector = item.icon,
-                                    contentDescription = item.name
+                                    imageVector = screen.icon,
+                                    contentDescription = screen.name
                                 )
                             }
                         } else {
                             Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.name
+                                imageVector = screen.icon,
+                                contentDescription = screen.name
                             )
                         }
 
                         Text(
-                            text = item.name,
+                            text = screen.name,
                             textAlign = TextAlign.Center,
                             fontSize = 10.sp
                         ) // if (isSelected)

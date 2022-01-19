@@ -1,11 +1,12 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
@@ -39,7 +40,7 @@ fun GeneralPicture(
     Surface(
         modifier = modifier.size(120.dp),
         shape = CircleShape,
-        color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)) {
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)) {
 
         Box(
             modifier = modifier.fillMaxSize().clickable { toggle.value = !toggle.value }) {
@@ -47,9 +48,9 @@ fun GeneralPicture(
                 modifier = modifier.fillMaxSize(),
                 painter = rememberImagePainter(data = data),
                 placeholder = {
-                    Image(
+                    Icon(
                         modifier = modifier.fillMaxSize().padding(12.dp),
-                        imageVector = Icons.Default.Person,
+                        imageVector = Icons.Default.Person, tint = MaterialTheme.colors.primary,
                         contentDescription = null
                     )
                 }
@@ -63,6 +64,7 @@ fun GeneralPicture(
 
                     Icon(
                         imageVector = Icons.Default.Check,
+                        tint = MaterialTheme.colors.onPrimary,
                         modifier = modifier.clickable(
                             onClick = onCheckClicked
                         ),
@@ -70,10 +72,11 @@ fun GeneralPicture(
                     )
                     Icon(
                         imageVector = Icons.Default.Photo,
-                        contentDescription = null,
+                        tint = MaterialTheme.colors.onPrimary,
                         modifier = modifier.clickable(
                             onClick = onChangeClicked
-                        )
+                        ),
+                        contentDescription = null,
                     )
                 }
             }

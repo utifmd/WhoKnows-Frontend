@@ -1,32 +1,37 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun GeneralButtonGroup(
+    modifier: Modifier = Modifier,
     buttons: Set<String>,
     value: String,
     onValueChange: (String) -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         buttons.forEach { text ->
-            Row {
-                Text(
+            Row(
+                modifier = modifier
+                    .fillMaxWidth().padding(16.dp)) {
+                Button(
+                    modifier = modifier.weight(1f),
+                    enabled = text != value,
+                    onClick = { onValueChange(text) }) {
+                    Text(text = text)
+                }
+
+                /*Text(
                     text = text,
                     style = MaterialTheme.typography.body1.merge(),
                     color = Color.White,
@@ -50,7 +55,7 @@ fun GeneralButtonGroup(
                             vertical = 8.dp,
                             horizontal = 16.dp,
                         )
-                )
+                )*/
             }
         }
     }

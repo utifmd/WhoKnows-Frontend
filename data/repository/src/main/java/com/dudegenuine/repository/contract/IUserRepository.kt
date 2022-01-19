@@ -14,6 +14,7 @@ interface IUserRepository {
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<User>
     suspend fun signIn(params: Map<String, String>): User
+    suspend fun signOut(): String
 
     suspend fun load(userId: String? = null): User
     suspend fun save(currentUser: CurrentUser)

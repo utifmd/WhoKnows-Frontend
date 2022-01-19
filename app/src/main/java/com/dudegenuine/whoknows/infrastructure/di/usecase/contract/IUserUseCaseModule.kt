@@ -8,6 +8,7 @@ import com.dudegenuine.usecase.user.*
  **/
 interface IUserUseCaseModule {
     val signInUser: SignInUser
+    val signOutUser: SignOutUser
     val postUser: PostUser
     val getUser: GetUser
     val patchUser: PatchUser

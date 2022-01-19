@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
@@ -11,8 +12,12 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
  **/
 @Composable
 @ExperimentalCoilApi
-fun SettingScreen(router: NavHostController) {
-    ProfileScreen()
+fun SettingScreen(
+    modifier: Modifier = Modifier, router: NavHostController) {
+    ProfileScreen(
+        modifier = modifier,
+        router = router
+    )
 
     /*Box(
         modifier = Modifier.fillMaxSize(),

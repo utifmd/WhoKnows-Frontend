@@ -1,7 +1,6 @@
 package com.dudegenuine.whoknows.ui.presenter.room
 
 import android.util.Log
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,28 +33,22 @@ class RoomViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
     private val TAG: String = javaClass.simpleName
 
-    val resourceState: State<ResourceState>
-        get() = _state
-
     private val _uiState = MutableLiveData<RoomState>()
     val uiState: LiveData<RoomState>
         get() = _uiState
 
-    private val _createState = mutableStateOf(RoomState.CreateRoom())
-    val createState: RoomState.CreateRoom
-        get() = _createState.value
+    private val _formState = mutableStateOf(RoomState.FormState())
+    val formState: RoomState.FormState
+        get() = _formState.value
 
     init {
-        getUser() //_uiState.value = RoomState.CreateRoom()
-
         _uiState.value = RoomState.CurrentRoom
     }
 
     fun onCreatePressed () {
-        Log.d(TAG, "onCreatePressed: triggered") //Log.d(TAG, createState.model.toString())
-        val model = createState.model.value
+        val model = formState.postModel.value
 
-        if (!createState.isValid.value) {
+        if (!formState.isPostValid) {
             _state.value = ResourceState(error = DONT_EMPTY)
 
             return
@@ -64,15 +57,24 @@ class RoomViewModel
         postRoom(room = model)
     }
 
-    private fun getUser() {
+    fun getUser() {
         userCase.getUser()
             .onEach { res -> onResourceSucceed(res) { usr ->
                 val userId: String = usr.id
-                createState.onUserIdChange(userId)
+                formState.onUserIdChange(userId)
 
                 getRooms(userId)
             }}
             .launchIn(viewModelScope)
+    }
+
+    fun findRoom(){
+        val model = formState.roomId
+
+        if (!formState.isGetValid)
+            _state.value = ResourceState(error = DONT_EMPTY)
+
+        getRoom(model)
     }
 
     override fun postRoom(room: Room) {

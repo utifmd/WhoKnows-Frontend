@@ -27,6 +27,9 @@ class UserUseCaseModule(
         DeleteUser = DeleteUser(repository),
 
     override val getUsers:
-        GetUsers = GetUsers(repository)
+        GetUsers = GetUsers(repository),
+
+    override val signOutUser:
+        SignOutUser = SignOutUser(repository)
 
 ): IUserUseCaseModule

@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dudegenuine.model.User
+import com.dudegenuine.model.User.Companion.KeyChanger.EMAIL
+import com.dudegenuine.model.User.Companion.KeyChanger.NAME
+import com.dudegenuine.model.User.Companion.KeyChanger.PHONE
 import java.util.*
 
 /**
@@ -13,6 +16,57 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 sealed class UserState {
+    data class CurrentState(val freshUser: User): UserState()
+    data class ChangerState(val currentUser: User? = null, val fieldKey: String? = null): UserState(){
+        /*private val _fullName = mutableStateOf(TextFieldValue(""))
+        val fullName: TextFieldValue
+            get() = _fullName.value
+
+        private val _phone = mutableStateOf(TextFieldValue(""))
+        val phone: TextFieldValue
+            get() = _phone.value
+
+        private val _email = mutableStateOf(TextFieldValue(""))
+        val email: TextFieldValue
+            get() = _email.value
+
+        private val _profileUrl = mutableStateOf("")
+        val profileUrl: String
+            get() = _profileUrl.value*/
+
+        val selectedFieldValue = when(fieldKey) {
+            NAME -> currentUser?.fullName
+            PHONE -> currentUser?.phone
+            EMAIL -> currentUser?.email
+            else -> "No value"
+        }
+
+        val model: User get() = mutableStateOf(
+            currentUser?.copy() ?: User(
+                "USR-${UUID.randomUUID()}","", "", "", "", "", "", Date(), Date()
+            )
+        ).value
+
+        /*val onFullNameChange: (text: String) -> Unit = {
+            _fullName.value = TextFieldValue(it)
+        }
+
+        val onPhoneChange: (text: String) -> Unit = {
+            _phone.value = TextFieldValue(it)
+        }
+
+        val onProfileUrlChange: (text: String) -> Unit = {
+            _profileUrl.value = it
+        }
+
+        private val _profileImage = mutableStateOf(byteArrayOf())
+        val profileImage: ByteArray
+            get() = _profileImage.value
+
+        val onEmailChange: (text: String) -> Unit = {
+            _email.value = TextFieldValue(it)
+        }*/
+    }
 
     class FormState: UserState() {
         private val _email = mutableStateOf(TextFieldValue(""))
@@ -23,25 +77,9 @@ sealed class UserState {
         val password: TextFieldValue
             get() = _password.value
 
-        private val _fullName = mutableStateOf(TextFieldValue(""))
-        val fullName: TextFieldValue
-            get() = _fullName.value
-
-        private val _phone = mutableStateOf(TextFieldValue(""))
-        val phone: TextFieldValue
-            get() = _phone.value
-
         private val _rePassword = mutableStateOf(TextFieldValue(""))
         val rePassword: TextFieldValue
             get() = _rePassword.value
-
-        private val _profileImage = mutableStateOf(byteArrayOf())
-        val profileImage: ByteArray
-            get() = _profileImage.value
-
-        private val _profileUrl = mutableStateOf("")
-        val profileUrl: String
-            get() = _profileUrl.value
 
         val isLoginValid: State<Boolean>
             get() = mutableStateOf(
@@ -68,12 +106,12 @@ sealed class UserState {
         val regisModel: User get() = mutableStateOf(
             User(
                 "USR-${UUID.randomUUID()}",
-                fullName.text,
+                "",
                 email.text,
-                phone.text,
+                "",
                 email.text.substringBefore("@"),
                 password.text,
-                profileUrl,
+                "",
                 Date(),
                 null
             )
@@ -87,16 +125,24 @@ sealed class UserState {
             _password.value = TextFieldValue(it)
         }
 
-        /*val onFullNameChange: (text: String) -> Unit = {
-            _fullName.value = TextFieldValue(it)
-        }*/
-
-        /*val onPhoneChange: (text: String) -> Unit = {
-            _phone.value = TextFieldValue(it)
-        }*/
-
         val onRePasswordChange: (text: String) -> Unit = {
             _rePassword.value = TextFieldValue(it)
         }
+
+        /*class Navigator {
+            private val _sharedFlow =
+              MutableSharedFlow<NavTarget>(extraBufferCapacity = 1)
+            val sharedFlow = _sharedFlow.asSharedFlow()
+
+            fun navigateTo(navTarget: NavTarget) {
+                _sharedFlow.tryEmit(navTarget)
+            }
+
+            enum class NavTarget(val label: String) {
+
+                Home("home"),
+                Detail("detail")
+            }
+        }*/
     }
 }

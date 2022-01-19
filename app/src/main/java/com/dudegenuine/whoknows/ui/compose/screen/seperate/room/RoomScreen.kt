@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
@@ -17,6 +18,7 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 fun RoomScreen(
+    modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(), router: NavHostController) { /*val resourceState = viewModel.resourceState.value*/
     val uiState = viewModel.uiState.observeAsState().value
 
@@ -43,7 +45,11 @@ fun RoomScreen(
                     }
                 )
             }
-            else -> RoomHomeScreen(router = router)
+            else -> {
+                viewModel.getUser()
+
+                RoomHomeScreen(router = router)
+            }
         }
     }
 }

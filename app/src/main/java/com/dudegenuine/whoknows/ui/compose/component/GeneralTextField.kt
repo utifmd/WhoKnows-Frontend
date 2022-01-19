@@ -59,7 +59,9 @@ fun GeneralTextField(
                     imageVector = leads,
                     contentDescription = "leads-$label",
                     modifier = modifier.clickable(
-                        onClick = onTailClicked))
+                        onClick = onTailClicked
+                    )
+                )
             }
         },
         trailingIcon = {

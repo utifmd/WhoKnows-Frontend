@@ -13,9 +13,9 @@ import androidx.navigation.NavHostController
  * WhoKnows by utifmd
  **/
 @Composable
-fun SummaryScreen(router: NavHostController) {
+fun SummaryScreen(modifier: Modifier = Modifier, router: NavHostController) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(text = "Summary screen")

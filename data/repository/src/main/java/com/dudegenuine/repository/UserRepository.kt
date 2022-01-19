@@ -70,6 +70,14 @@ class UserRepository
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
 
+    override suspend fun signOut(): String {
+        val finalId = prefs.getString(CURRENT_USER_ID)
+
+        unload(finalId)
+
+        return finalId
+    }
+
     override suspend fun save(currentUser: CurrentUser) =
         dao.create(currentUser).also { prefs.setString(CURRENT_USER_ID, currentUser.userId) }
 

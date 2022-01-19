@@ -11,9 +11,9 @@ import androidx.compose.ui.unit.dp
 fun GeneralTopBar(
     modifier: Modifier = Modifier,
     title: String,
-    isSubmit: Boolean = false,
-    isProgress: Boolean = false,
-    submission: String? = null,
+    submitEnable: Boolean = false,
+    submitLoading: Boolean = false,
+    submitLabel: String? = null,
     onSubmitPressed: (() -> Unit)? = null){
 
     val onSubmitClick: () -> Unit = {
@@ -34,12 +34,12 @@ fun GeneralTopBar(
                 color = MaterialTheme.colors.primaryVariant, //fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.h6)
 
-            submission?.let {
+            submitLabel?.let {
                 TextButton(
-                    enabled = isSubmit,
+                    enabled = submitEnable,
                     onClick = onSubmitClick) {
 
-                    if (isProgress){
+                    if (submitLoading){
                         CircularProgressIndicator(
                             modifier = modifier.size(16.dp),
                             color = MaterialTheme.colors.error,
@@ -50,7 +50,7 @@ fun GeneralTopBar(
 
                     Text(
                         text = it,
-                        color = if(isSubmit)
+                        color = if(submitEnable)
                             MaterialTheme.colors.primary
                         else
                             MaterialTheme.colors.error)

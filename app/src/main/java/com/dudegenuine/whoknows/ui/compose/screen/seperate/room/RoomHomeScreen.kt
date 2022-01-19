@@ -2,12 +2,17 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.route.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
@@ -21,18 +26,20 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
  **/
 @Composable
 fun RoomHomeScreen(
+    modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(), router: NavHostController) {
-    val resourceState = viewModel.resourceState.value
+    val state = viewModel.state
 
     val onNewClassPressed: () -> Unit = {
-        router.navigate(Screen.DiscoverScreen.RoomCreatorScreen.route)
+        router.navigate(Screen.MainScreen.DiscoverScreen.RoomCreatorScreen.route)
     }
 
     val onJoinWithACodePressed: () -> Unit = {
-        router.navigate(Screen.DiscoverScreen.RoomFinderScreen.route)
-    } /*router.navigate(Screen.CoinDetailScreen.route + "/${coin.id}")*/
+        router.navigate(Screen.MainScreen.DiscoverScreen.RoomFinderScreen.route)
+    }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             GeneralTopBar(
                 title = "Recently class", //"Recently class\'s",
@@ -44,7 +51,8 @@ fun RoomHomeScreen(
                     onNewClassPressed = onNewClassPressed,
                     onJoinWithACodePressed = onJoinWithACodePressed,
                 )
-                Body(resourceState)
+
+                Body(state)
             }
         }
     )
@@ -52,35 +60,20 @@ fun RoomHomeScreen(
 
 @Composable
 private fun Body(
-    resourceState: ResourceState,
+    state: ResourceState,
     modifier: Modifier = Modifier){
 
-    if (resourceState.loading){
+    if (state.loading){
         LoadingScreen()
     }
-    if(resourceState.error.isNotBlank()){
-        ErrorScreen(modifier = modifier, message = resourceState.error, isDanger = false)
+    if(state.error.isNotBlank()){
+        ErrorScreen(modifier = modifier, message = state.error, isDanger = false)
 
     } else{
         LazyColumn(
             modifier = modifier.fillMaxWidth()) {
-            resourceState.rooms?.forEach {
-                item {
-                    Column(
-                        modifier = modifier.padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp)) {
-
-                        Text(
-                            text = it.description,
-                            style = MaterialTheme.typography.h6
-                        )
-                        Text(
-                            text = it.description,
-                            style = MaterialTheme.typography.caption
-                        )
-                    }
-                }
+            state.rooms?.forEach {
+                item { RoomItem(modifier = modifier, state = it) }
             }
         }
     }
@@ -96,18 +89,18 @@ private fun Header(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)) {
+
         Button(
             modifier = modifier.weight(1f),
             onClick = onNewClassPressed) {
-            Text(
-                text = "New class"
-            )}
-        Spacer(modifier = modifier.width(16.dp))
+            Text(text = stringResource(R.string.new_class))
+        }
 
+        Spacer(modifier = modifier.width(16.dp))
         OutlinedButton(
             modifier = modifier.weight(1f),
             onClick = onJoinWithACodePressed) {
-            Text(text = "Join with a code")
+            Text(text = stringResource(R.string.join_with_a_code))
         }
     }
 }

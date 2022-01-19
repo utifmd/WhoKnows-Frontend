@@ -9,4 +9,8 @@
     <string name="password">Password</string>
     <string name="sign_out">Sign out</string>
     <string name="sign_up">Sign up</string>
+    <string name="join_with_a_code">Join with a code</string>
+    <string name="new_class">New class</string>
+    <string name="sign_in">Sign In</string>
+    <string name="have_no_account_yet">Have no account? register here</string>
 </resources>

@@ -1,7 +1,8 @@
 package com.dudegenuine.whoknows.ui.presenter.user
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.User
@@ -30,13 +31,32 @@ class UserViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
     private val TAG: String = javaClass.simpleName
 
+    private val _uiState = MutableLiveData<UserState>()
+    val uiState: LiveData<UserState>
+        get() = _uiState
+
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
         get() = _formState.value
 
-    init { getUser() }
+    private val _changerState = mutableStateOf(UserState.ChangerState())
+    val changerState: UserState.ChangerState
+        get() = _changerState.value
 
-    override fun signInUser() {
+    /*init { savedStateHandle.get<String>("field_edit")?.let { fieldId -> formState.onEditFieldIdChange(fieldId) } }*/
+
+    fun onUiStateChange(uiState: UserState){
+        if (uiState is UserState.ChangerState) uiState.let {
+            _changerState.value = it
+        }
+        if (uiState is UserState.CurrentState) uiState.let {
+            _state.value = state.copy(user = it.freshUser)
+        }
+
+        _uiState.value = uiState
+    }
+
+    override fun signInUser(onSucceed: (User) -> Unit) {
         val model = formState.loginModel
         if (!formState.isLoginValid.value){
             _state.value = ResourceState(error = DONT_EMPTY)
@@ -44,19 +64,26 @@ class UserViewModel
         }
 
         case.signInUser(model)
-            .onEach(this::onResource).launchIn(viewModelScope)
-
-        _formState.value = UserState.FormState()
+            .onEach { res -> onResourceSucceed(res) { onSucceed(it) }}
+            .launchIn(viewModelScope) /*_formState.value = UserState.FormState()*/
     }
 
-    fun signUpUser(){
+    override fun signUpUser(onSucceed: (User) -> Unit) {
         val model = formState.regisModel
+        if (!formState.isRegisValid.value){
+            _state.value = ResourceState(error = DONT_EMPTY)
+            return
+        }
 
-        postUser(model)
+        case.postUser(model)
+            .onEach { res -> onResourceSucceed(res) { onSucceed(it) }}
+            .launchIn(viewModelScope)
     }
 
-    fun singOutUser(){
-        Log.d(TAG, "singOutUser: done")
+    override fun signOutUser(onSucceed: (String) -> Unit) {
+        case.signOutUser()
+            .onEach { res -> onResourceSucceed(res) { onSucceed(it) }}
+            .launchIn(viewModelScope)
     }
 
     override fun postUser(user: User) {

@@ -52,8 +52,8 @@ fun QuizCreatorScreen(
         topBar = {
             GeneralTopBar(
                 title = "New question",
-                submission = "Post",
-                isSubmit = formState.isValid.value,
+                submitLabel = "Post",
+                submitEnable = formState.isValid.value,
                 onSubmitPressed = viewModel::onPostPressed
             )
         },

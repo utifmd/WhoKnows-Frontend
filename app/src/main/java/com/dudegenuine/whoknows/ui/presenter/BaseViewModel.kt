@@ -22,15 +22,19 @@ abstract class BaseViewModel: ViewModel() {
                 if (result.data is List<*>) {
                     val payload = result.data as List<*>
 
-                    _state.value = if (payload.isEmpty()) ResourceState(error = "No result")
-                        else ResourceState(
-                            users = payload.filterIsInstance<User>(),
-                            rooms = payload.filterIsInstance<Room>(),
-                            questions = payload.filterIsInstance<Quiz>(),
-                            results = payload.filterIsInstance<Result>(),
-                            participants = payload.filterIsInstance<Participant>(),
-                            files = payload.filterIsInstance<File>(),
-                        )
+                    val initialState = ResourceState(
+                        users = payload.filterIsInstance<User>(),
+                        rooms = payload.filterIsInstance<Room>(),
+                        questions = payload.filterIsInstance<Quiz>(),
+                        results = payload.filterIsInstance<Result>(),
+                        participants = payload.filterIsInstance<Participant>(),
+                        files = payload.filterIsInstance<File>(),
+                    )
+
+                    _state.value = if(payload.isEmpty())
+                        initialState.copy(error = "No result.")
+                    else initialState
+
                 } else _state.value = when(result.data) {
                     is User -> ResourceState(user = result.data as User)
                     is Room -> ResourceState(room = result.data as Room)
@@ -41,7 +45,7 @@ abstract class BaseViewModel: ViewModel() {
                     else -> ResourceState()
                 }
 
-                Log.d(TAG, "Resource.Success ${result.data}")
+                Log.d(TAG, "Resource.Success")
             }
             is Resource.Error -> {
                 _state.value = ResourceState(

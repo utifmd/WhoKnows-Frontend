@@ -1,29 +1,35 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.User
+import com.dudegenuine.model.User.Companion.KeyChanger.EMAIL
+import com.dudegenuine.model.User.Companion.KeyChanger.NAME
+import com.dudegenuine.model.User.Companion.KeyChanger.PHONE
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
+import com.dudegenuine.whoknows.ui.compose.route.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
+import com.dudegenuine.whoknows.ui.compose.state.UserState
 import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 
 /**
@@ -33,29 +39,41 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @Composable
 @ExperimentalCoilApi
 fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    router: NavHostController,
     viewModel: UserViewModel = hiltViewModel()){
-    val uiState = viewModel.state
+    val state = viewModel.state
+    val uiState = viewModel.uiState.observeAsState()
+
+    LaunchedEffect("currentUser"){
+        viewModel.getUser()
+    }
 
     Scaffold(
+        modifier = modifier.fillMaxSize(),
         topBar = {
             GeneralTopBar(
-                title = uiState.user?.username ?: stringResource(R.string.profile_detail)
+                title = state.user?.username
+                    ?: stringResource(R.string.profile_detail)
             )
         },
         content = {
-            if (uiState.loading){
+            if (state.loading){
                 LoadingScreen()
             }
 
-            uiState.user?.let {
-                Body(
-                    uiState = it,
-                    onLogoutPressed = viewModel::singOutUser
+            when(uiState.value){
+                is UserState.ChangerState -> ProfileEditScreen(
+                    router = router
+                )
+                else -> Body(
+                    router = router,
+                    viewModel = viewModel,
                 )
             }
 
-            if (uiState.error.isNotBlank()){
-                ErrorScreen(message = uiState.error)
+            if (state.error.isNotBlank()){
+                ErrorScreen(message = state.error)
             }
         }
     )
@@ -65,57 +83,87 @@ fun ProfileScreen(
 @ExperimentalCoilApi
 private fun Body(
     modifier: Modifier = Modifier,
-    uiState: User,
-    onLogoutPressed: () -> Unit){
+    viewModel: UserViewModel,
+    router: NavHostController){
+    val user: User = viewModel.state.user ?: return
+
     val scrollState = rememberScrollState()
 
+    val onSignOutPressed: () -> Unit = {
+        viewModel.signOutUser {
+            router.navigate(Screen.AuthScreen.LoginScreen.route)
+        }
+    }
+
     Column(
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .scrollable(orientation = Orientation.Vertical, state = scrollState)
-            .fillMaxSize()
-            .padding(8.dp)) {
+            .fillMaxWidth()
+            .padding(12.dp)
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally){
 
         GeneralPicture(
             modifier = modifier,
-            data = uiState.profileUrl)
+            data = user.profileUrl
+        )
+        Spacer(modifier = Modifier.height(12.dp))
 
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(12.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.LightGray)) {
+                .clip(RoundedCornerShape(6.dp))
+                .background(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
 
             FieldTag(
                 key = stringResource(R.string.full_name),
-                value = uiState.fullName
+                value = user.fullName
                     .ifBlank { stringResource(R.string.not_set) },
-                modifier = modifier)
+                modifier = modifier,
+                onEditPressed = {
+                    viewModel.onUiStateChange(UserState.ChangerState(user, NAME))
+
+                    /*changerState.onFullNameChange(user.fullName)*/
+                }/*{
+                    router.navigate(Screen.MainScreen.SettingScreen.FieldEditScreen
+                        .withArgs(NAME, user.fullName))
+                }*/
+            )
 
             FieldTag(
                 key = stringResource(R.string.phone_number),
-                value = uiState.phone
+                value = user.phone
                     .ifBlank { stringResource(R.string.not_set) },
-                modifier = modifier)
+                modifier = modifier,
+                onEditPressed = {
+                    viewModel.onUiStateChange(UserState.ChangerState(user, PHONE)) }/*{
+                    router.navigate(Screen.MainScreen.SettingScreen.FieldEditScreen
+                        .withArgs(PHONE, user.phone))
+                }*/
+            )
 
             FieldTag(
                 key = stringResource(R.string.email),
-                value = uiState.email,
-                modifier = modifier
+                value = user.email,
+                modifier = modifier,
+                onEditPressed = {
+                    viewModel.onUiStateChange(UserState.ChangerState(user, EMAIL)) }/*{
+                    router.navigate(Screen.MainScreen.SettingScreen.FieldEditScreen
+                        .withArgs(EMAIL, user.email))
+                }*/
             )
 
-            FieldTag(
-                key = stringResource(R.string.password),
-                value = uiState.password,
-                modifier = modifier,
-                editable = false
-            )
+            repeat(10){
+                FieldTag(
+                    key = stringResource(R.string.password),
+                    value = user.password,
+                    modifier = modifier,
+                    editable = false
+                )
+            }
         }
 
         TextButton(
-            onClick = onLogoutPressed) {
+            onClick = onSignOutPressed) {
             Text(text = stringResource(R.string.sign_out), color = MaterialTheme.colors.error)
         }
     }
@@ -134,9 +182,7 @@ private fun FieldTag(
     }
 
     Row(
-        modifier = modifier
-            .padding(6.dp)
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween) {
 

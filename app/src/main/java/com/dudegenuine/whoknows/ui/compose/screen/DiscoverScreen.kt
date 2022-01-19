@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.ui.compose.screen
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomScreen
 
@@ -11,8 +12,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomScreen
  * WhoKnows by utifmd
  **/
 @Composable
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-fun DiscoverScreen(router: NavHostController) {
-    RoomScreen(router = router)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+fun DiscoverScreen(modifier: Modifier = Modifier, router: NavHostController) {
+    RoomScreen(modifier = modifier, router = router)
 }
