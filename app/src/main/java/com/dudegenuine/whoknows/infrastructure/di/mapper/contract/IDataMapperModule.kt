@@ -9,10 +9,10 @@ import com.google.gson.Gson
  * WhoKnows by utifmd
  **/
 interface IDataMapperModule {
-    fun provideUserDataMapper(): IUserDataMapper
-    fun provideRoomDataMapper(mapperQuiz: IQuizDataMapper, mapperParticipant: IParticipantDataMapper): IRoomDataMapper
+    fun provideUserDataMapper(gson: Gson): IUserDataMapper
+    fun provideRoomDataMapper(gson: Gson, mapperQuiz: IQuizDataMapper, mapperParticipant: IParticipantDataMapper): IRoomDataMapper
     fun provideQuizDataMapper(gson: Gson): IQuizDataMapper
-    fun provideParticipantDataMapper(): IParticipantDataMapper
-    fun provideResultDataMapper(): IResultDataMapper
+    fun provideParticipantDataMapper(gson: Gson): IParticipantDataMapper
+    fun provideResultDataMapper(gson: Gson): IResultDataMapper
     fun provideFileDataMapper(context: Context): IFileDataMapper
 }

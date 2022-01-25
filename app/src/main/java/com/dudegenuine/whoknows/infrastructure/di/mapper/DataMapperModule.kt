@@ -22,14 +22,18 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideUserDataMapper(): IUserDataMapper {
-        return UserDataMapper()
+    override fun provideUserDataMapper(gson: Gson): IUserDataMapper {
+        return UserDataMapper(gson)
     }
 
     @Provides
     @Singleton
-    override fun provideRoomDataMapper(mapperQuiz: IQuizDataMapper, mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
-        return RoomDataMapper(mapperQuiz, mapperParticipant)
+    override fun provideRoomDataMapper(
+        gson: Gson,
+        mapperQuiz: IQuizDataMapper,
+        mapperParticipant: IParticipantDataMapper
+    ): IRoomDataMapper {
+        return RoomDataMapper(gson, mapperQuiz, mapperParticipant)
     }
 
     @Provides
@@ -40,13 +44,13 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideParticipantDataMapper(): IParticipantDataMapper {
+    override fun provideParticipantDataMapper(gson: Gson): IParticipantDataMapper {
         return ParticipantDataMapper()
     }
 
     @Provides
     @Singleton
-    override fun provideResultDataMapper(): IResultDataMapper {
+    override fun provideResultDataMapper(gson: Gson): IResultDataMapper {
         return ResultDataMapper()
     }
 

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.dudegenuine.model.*
+import com.dudegenuine.whoknows.ui.compose.state.UserState
 
 /**
  * Wed, 08 Dec 2021
@@ -16,54 +17,43 @@ abstract class BaseViewModel: ViewModel() {
     val state: ResourceState
         get() = _state.value
 
-    protected fun<T> onResource(result: Resource<T>){
-        when(result){
-            is Resource.Success -> {
-                if (result.data is List<*>) {
-                    val payload = result.data as List<*>
+    protected val _authState = mutableStateOf(UserState.Auth())
+    val authState: UserState.Auth
+        get() = _authState.value
 
-                    val initialState = ResourceState(
-                        users = payload.filterIsInstance<User>(),
-                        rooms = payload.filterIsInstance<Room>(),
-                        questions = payload.filterIsInstance<Quiz>(),
-                        results = payload.filterIsInstance<Result>(),
-                        participants = payload.filterIsInstance<Participant>(),
-                        files = payload.filterIsInstance<File>(),
-                    )
+    protected fun<T> onResource(resource: Resource<T>){
+        onResourceSucceed(resource){ data ->
+            if (data is List<*>) {
+                val payload = data as List<*>
 
-                    _state.value = if(payload.isEmpty())
-                        initialState.copy(error = "No result.")
-                    else initialState
-
-                } else _state.value = when(result.data) {
-                    is User -> ResourceState(user = result.data as User)
-                    is Room -> ResourceState(room = result.data as Room)
-                    is Quiz -> ResourceState(quiz = result.data as Quiz)
-                    is Participant -> ResourceState(participant = result.data as Participant)
-                    is Result -> ResourceState(result = result.data as Result)
-                    is File -> ResourceState(file = result.data as File)
-                    else -> ResourceState()
-                }
-
-                Log.d(TAG, "Resource.Success")
-            }
-            is Resource.Error -> {
-                _state.value = ResourceState(
-                    error = result.message ?: "An expected error occurred."
+                val initialState = ResourceState(
+                    users = payload.filterIsInstance<User>(),
+                    rooms = payload.filterIsInstance<Room>(),
+                    questions = payload.filterIsInstance<Quiz>(),
+                    results = payload.filterIsInstance<Result>(),
+                    participants = payload.filterIsInstance<Participant>(),
+                    files = payload.filterIsInstance<File>(),
                 )
-                Log.d(TAG, "Resource.ERROR: ${result.message}")
+
+                _state.value = if(payload.isEmpty())
+                    initialState.copy(error = "No result.")
+                else initialState
+
+            } else _state.value = when(data) {
+                is User -> ResourceState(user = data as User)
+                is Room -> ResourceState(room = data as Room)
+                is Quiz -> ResourceState(quiz = data as Quiz)
+                is Participant -> ResourceState(participant = data as Participant)
+                is Result -> ResourceState(result = data as Result)
+                is File -> ResourceState(file = data as File)
+                else -> ResourceState()
             }
-            is Resource.Loading -> {
-                _state.value = ResourceState(
-                    loading = true
-                )
-                Log.d(TAG, "Resource.LOADING..")
-            }
+
+            Log.d(TAG, "Resource.Success")
         }
     }
 
     protected fun<T> onResourceSucceed(resources: Resource<T>, onSuccess: (T) -> Unit){
-        Log.d(TAG, "onFileUploaded: triggered.")
         when(resources){
             is Resource.Success -> resources.data?.let { onSuccess(it) } ?: also {
                 Log.d(TAG, "Resource.Error: ${resources.message}")
@@ -81,6 +71,38 @@ abstract class BaseViewModel: ViewModel() {
             is Resource.Loading -> {
                 Log.d(TAG, "Resource.Loading..")
                 _state.value = ResourceState(
+                    loading = true
+                )
+            }
+        }
+    }
+
+    protected fun<T> onAuth(resources: Resource<T>){
+        when(resources){
+            is Resource.Success -> { /*_authState.value = when(resources.data) { is User -> UserState.Auth( currentUser = resources.data as User ) else -> UserState.Auth() }*/
+
+                _state.value = when(resources.data) {
+                    is User -> ResourceState(
+                        user = resources.data as User
+                    )
+                    is String -> ResourceState( // user signed out
+                        loading = false,
+                        user = null,
+                        error = resources.message ?: "An unexpected error occurred."
+                    )
+                    else -> ResourceState()
+                }
+            }
+
+            is Resource.Error -> {
+                Log.d(TAG, "Auth.Error: ${resources.message}")
+                _authState.value = UserState.Auth(
+                    error = resources.message ?: "An unexpected error occurred."
+                )
+            }
+            is Resource.Loading -> {
+                Log.d(TAG, "Auth.Loading..")
+                _authState.value = UserState.Auth(
                     loading = true
                 )
             }

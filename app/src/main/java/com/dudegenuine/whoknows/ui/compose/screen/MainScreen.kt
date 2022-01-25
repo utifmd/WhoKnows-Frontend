@@ -1,43 +1,56 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
+import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.whoknows.ui.compose.component.GeneralBottomBar
-import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
+import com.dudegenuine.whoknows.ui.compose.navigation.MainNavigation
+import com.dudegenuine.whoknows.ui.compose.navigation.Screen
+import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
+import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 
 /**
- * Sat, 15 Jan 2022
+ * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
-
-@Composable
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
-fun MainScreen(
-    router: NavHostController){
-
-    Scaffold(
-        content = {
-            MainNavigation(
-                router = router
-            )
-        },
-        bottomBar = {
-            GeneralBottomBar (
-                items = BottomDomain.list,
-                controller = router,
-                /*onItemClick = { router.navigate(it.route) }*/
-            )
-        }
-    )
-}
-
 @Composable
-fun MainNavigation(router: NavHostController) {
-    TODO("Not yet implemented")
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    viewModel: UserViewModel = hiltViewModel()) {
+
+    val router = rememberNavController()
+    val state = viewModel.state
+
+    WhoKnowsTheme {
+        HomeScreen(
+            router = router,
+            enabled = state.user != null,
+            content = { padding ->
+                if (state.loading) {
+                    LoadingScreen()
+                }
+
+                if (state.user != null) {
+                    MainNavigation(
+                        modifier = modifier.padding(padding),
+                        controller = router,
+                        destination = Screen.Home.route)
+                }
+
+                if (state.error.isNotBlank()) {
+                    MainNavigation(
+                        viewModel = viewModel,
+                        controller = router,
+                        destination = Screen.Auth.route)
+                }
+            }
+        )
+    }
 }

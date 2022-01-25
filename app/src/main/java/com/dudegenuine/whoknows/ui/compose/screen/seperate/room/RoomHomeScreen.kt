@@ -11,10 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
-import com.dudegenuine.whoknows.ui.compose.route.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
@@ -27,16 +25,10 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 @Composable
 fun RoomHomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel(), router: NavHostController) {
+    viewModel: RoomViewModel = hiltViewModel(),
+    onNewClassPressed: () -> Unit,
+    onJoinWithACodePressed: () -> Unit) {
     val state = viewModel.state
-
-    val onNewClassPressed: () -> Unit = {
-        router.navigate(Screen.MainScreen.DiscoverScreen.RoomCreatorScreen.route)
-    }
-
-    val onJoinWithACodePressed: () -> Unit = {
-        router.navigate(Screen.MainScreen.DiscoverScreen.RoomFinderScreen.route)
-    }
 
     Scaffold(
         modifier = modifier,
@@ -45,14 +37,16 @@ fun RoomHomeScreen(
                 title = "Recently class", //"Recently class\'s",
             )
         },
-        content = {
+        content = { padding ->
             Column {
                 Header(
                     onNewClassPressed = onNewClassPressed,
                     onJoinWithACodePressed = onJoinWithACodePressed,
                 )
 
-                Body(state)
+                Body(
+                    state = state, modifier = modifier.padding(padding)
+                )
             }
         }
     )
@@ -66,16 +60,19 @@ private fun Body(
     if (state.loading){
         LoadingScreen()
     }
-    if(state.error.isNotBlank()){
-        ErrorScreen(modifier = modifier, message = state.error, isDanger = false)
 
-    } else{
+    state.rooms?.let { rooms ->
         LazyColumn(
             modifier = modifier.fillMaxWidth()) {
-            state.rooms?.forEach {
+            rooms.forEach {
                 item { RoomItem(modifier = modifier, state = it) }
             }
         }
+    }
+
+    if(state.error.isNotBlank()){
+        ErrorScreen(modifier = modifier, message = state.error, isDanger = false)
+
     }
 }
 
@@ -96,7 +93,8 @@ private fun Header(
             Text(text = stringResource(R.string.new_class))
         }
 
-        Spacer(modifier = modifier.width(16.dp))
+        Spacer(
+            modifier = modifier.width(16.dp))
         OutlinedButton(
             modifier = modifier.weight(1f),
             onClick = onJoinWithACodePressed) {

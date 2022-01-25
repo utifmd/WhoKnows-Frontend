@@ -5,7 +5,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Summarize
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.dudegenuine.whoknows.ui.compose.route.Screen
+import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 
 /**
  * Thu, 16 Dec 2021
@@ -18,26 +18,26 @@ data class BottomDomain (
     val badge: Int = 0){
 
     companion object {
-        const val SUMMARY = "Summary"
-        const val DISCOVER = "Discover"
-        const val SETTING = "Settings"
+        private const val SUMMARY = "Summary"
+        private const val DISCOVER = "Discover"
+        private const val SETTING = "Settings"
 
         val list: List<BottomDomain> get() = listOf(
             BottomDomain(
                 name = SUMMARY,
-                route = Screen.MainScreen.SummaryScreen.route,
+                route = Screen.Home.Summary.route,
                 icon = Icons.Default.Summarize
             ),
 
             BottomDomain(
                 name = DISCOVER,
-                route = Screen.MainScreen.DiscoverScreen.route,
+                route = Screen.Home.Discover.route,
                 icon = Icons.Default.Explore //, badge = 2
             ),
 
             BottomDomain(
                 name = SETTING,
-                route = Screen.MainScreen.SettingScreen.route,
+                route = Screen.Home.Setting.route,
                 icon = Icons.Default.Settings
             )
         )

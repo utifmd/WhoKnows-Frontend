@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 
@@ -13,16 +12,11 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 @Composable
 @ExperimentalCoilApi
 fun SettingScreen(
-    modifier: Modifier = Modifier, router: NavHostController) {
+    modifier: Modifier = Modifier,
+    onSignOutPressed: () -> Unit) {
+
     ProfileScreen(
         modifier = modifier,
-        router = router
+        onSignOutPressed = onSignOutPressed
     )
-
-    /*Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Settings screen")
-    }*/
 }

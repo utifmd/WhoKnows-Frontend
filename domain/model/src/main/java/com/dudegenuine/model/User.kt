@@ -1,5 +1,6 @@
 package com.dudegenuine.model
 
+import java.io.Serializable
 import java.util.*
 
 /**
@@ -16,7 +17,7 @@ data class User (
     var password: String,
     var profileUrl: String,
     var createdAt: Date,
-    var updatedAt: Date?){
+    var updatedAt: Date?): Serializable {
     val isPropsBlank: Boolean =
         /*fullName.isBlank() ||*/ email.isBlank() || /*phone.isBlank() ||*/
                 username.isBlank() || password.isBlank()

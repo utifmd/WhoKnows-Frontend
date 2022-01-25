@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dudegenuine.model.User
 import com.dudegenuine.model.User.Companion.KeyChanger.EMAIL
 import com.dudegenuine.model.User.Companion.KeyChanger.NAME
@@ -28,12 +27,8 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @Composable
 fun ProfileEditScreen(
     modifier: Modifier = Modifier,
-    viewModel: UserViewModel = hiltViewModel(),
-    router: NavHostController) {
-    val TAG = "ProfileEditScreen"
-
+    viewModel: UserViewModel = hiltViewModel()) {
     val changerState = viewModel.changerState
-
     val field = remember { mutableStateOf( changerState.selectedFieldValue ?: "" ) }
 
     Column(

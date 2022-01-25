@@ -10,7 +10,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
@@ -23,7 +22,7 @@ import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
 fun GeneralBottomBar(
     modifier: Modifier = Modifier,
     items: List<BottomDomain>,
-    controller: NavController) {
+    controller: NavController/*, onItemPressed: (BottomDomain) -> Unit*/) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(
@@ -32,14 +31,14 @@ fun GeneralBottomBar(
         elevation = 3.dp) {
 
         items.forEach { screen ->
-            val currentDestination = backStackEntry.value?.destination
-            val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true /*screen.route == backStackEntry.value?.destination?.route*/
+            //val currentDestination = backStackEntry.value?.destination
+            val isSelected = screen.route == backStackEntry.value?.destination?.route /*currentDestination?.hierarchy?.any { it.route == screen.route } == true*/
 
             BottomNavigationItem(
                 selected = isSelected,
                 selectedContentColor = MaterialTheme.colors.primary,
                 unselectedContentColor = MaterialTheme.colors.onBackground,
-                onClick = {
+                onClick = /*{ onItemPressed(screen) }*/ {
                     controller.navigate(screen.route) {
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations

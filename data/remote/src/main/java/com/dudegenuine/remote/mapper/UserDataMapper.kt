@@ -8,14 +8,16 @@ import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
+import com.google.gson.Gson
 import java.util.*
+import javax.inject.Inject
 
 /**
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
-class UserDataMapper: IUserDataMapper {
-    // private val TAG = javaClass.simpleName
+class UserDataMapper
+    @Inject constructor(val gson: Gson): IUserDataMapper {
 
     override fun asEntity(user: User): UserEntity {
         return UserEntity(
@@ -50,6 +52,13 @@ class UserDataMapper: IUserDataMapper {
             is UserEntity -> asUser(response.data)
             else -> throw HttpFailureException(response.data.toString())
         }
+    }
+
+    override fun asUser(json: String): User {
+
+        val adapter = gson.getAdapter(User::class.java)
+
+        return adapter.fromJson(json)
     }
 
     override fun asUsers(response: Response<List<UserEntity>>): List<User> {

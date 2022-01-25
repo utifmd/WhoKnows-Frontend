@@ -16,24 +16,12 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 sealed class UserState {
+    data class Auth(
+        val loading: Boolean = false,
+        val error: String = ""): UserState()
+
     data class CurrentState(val freshUser: User): UserState()
     data class ChangerState(val currentUser: User? = null, val fieldKey: String? = null): UserState(){
-        /*private val _fullName = mutableStateOf(TextFieldValue(""))
-        val fullName: TextFieldValue
-            get() = _fullName.value
-
-        private val _phone = mutableStateOf(TextFieldValue(""))
-        val phone: TextFieldValue
-            get() = _phone.value
-
-        private val _email = mutableStateOf(TextFieldValue(""))
-        val email: TextFieldValue
-            get() = _email.value
-
-        private val _profileUrl = mutableStateOf("")
-        val profileUrl: String
-            get() = _profileUrl.value*/
-
         val selectedFieldValue = when(fieldKey) {
             NAME -> currentUser?.fullName
             PHONE -> currentUser?.phone
@@ -46,26 +34,6 @@ sealed class UserState {
                 "USR-${UUID.randomUUID()}","", "", "", "", "", "", Date(), Date()
             )
         ).value
-
-        /*val onFullNameChange: (text: String) -> Unit = {
-            _fullName.value = TextFieldValue(it)
-        }
-
-        val onPhoneChange: (text: String) -> Unit = {
-            _phone.value = TextFieldValue(it)
-        }
-
-        val onProfileUrlChange: (text: String) -> Unit = {
-            _profileUrl.value = it
-        }
-
-        private val _profileImage = mutableStateOf(byteArrayOf())
-        val profileImage: ByteArray
-            get() = _profileImage.value
-
-        val onEmailChange: (text: String) -> Unit = {
-            _email.value = TextFieldValue(it)
-        }*/
     }
 
     class FormState: UserState() {
@@ -143,6 +111,42 @@ sealed class UserState {
                 Home("home"),
                 Detail("detail")
             }
+        }*/
+
+        /*private val _fullName = mutableStateOf(TextFieldValue(""))
+        val fullName: TextFieldValue
+            get() = _fullName.value
+
+        private val _phone = mutableStateOf(TextFieldValue(""))
+        val phone: TextFieldValue
+            get() = _phone.value
+
+        private val _email = mutableStateOf(TextFieldValue(""))
+        val email: TextFieldValue
+            get() = _email.value
+
+        private val _profileUrl = mutableStateOf("")
+        val profileUrl: String
+            get() = _profileUrl.value
+
+        val onFullNameChange: (text: String) -> Unit = {
+            _fullName.value = TextFieldValue(it)
+        }
+
+        val onPhoneChange: (text: String) -> Unit = {
+            _phone.value = TextFieldValue(it)
+        }
+
+        val onProfileUrlChange: (text: String) -> Unit = {
+            _profileUrl.value = it
+        }
+
+        private val _profileImage = mutableStateOf(byteArrayOf())
+        val profileImage: ByteArray
+            get() = _profileImage.value
+
+        val onEmailChange: (text: String) -> Unit = {
+            _email.value = TextFieldValue(it)
         }*/
     }
 }

@@ -16,11 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralButton
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
-import com.dudegenuine.whoknows.ui.compose.route.Screen
 import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 
 /**
@@ -31,21 +29,10 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel(),
-    router: NavHostController){
-    val TAG = "LoginScreen"
-
-    val state = viewModel.state
+    onRegisterPressed: () -> Unit
+) {
+    val authState = viewModel.authState
     val formState = viewModel.formState
-
-    val onRegisterPressed: () -> Unit = {
-        router.navigate(Screen.AuthScreen.RegisScreen.route)
-    }
-
-    val onSignInPressed: () -> Unit = {
-        viewModel.signInUser {
-            router.navigate(Screen.MainScreen.SummaryScreen.route)
-        }
-    }
 
     Column(
         modifier = modifier.padding(16.dp)) {
@@ -73,20 +60,24 @@ fun LoginScreen(
             onTailPressed = { formState.onPasswordChange("") }
         )
 
-        if (state.error.isNotBlank()) {
-            ErrorScreen(message = state.error, isSnack = true)
+        if (authState.error.isNotBlank()) {
+            ErrorScreen(message = authState.error, isSnack = true)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
         GeneralButton(
             label = stringResource(R.string.sign_in),
-            enabled = formState.isLoginValid.value && !state.loading,
-            isLoading = state.loading,
-            onClick = onSignInPressed
+            enabled = formState.isLoginValid.value && !authState.loading,
+            isLoading = authState.loading,
+            onClick = viewModel::signInUser
         )
 
-        TextButton(onClick = onRegisterPressed) {
-            Text(text = stringResource(R.string.have_no_account_yet), color = MaterialTheme.colors.primary)
+        TextButton(
+            onClick = onRegisterPressed) {
+            Text(
+                text = stringResource(R.string.have_no_account_yet),
+                color = MaterialTheme.colors.primary
+            )
         }
     }
 }

@@ -29,7 +29,7 @@ import javax.inject.Inject
 class RoomViewModel
     @Inject constructor(
     private val case: IRoomUseCaseModule,
-    private val userCase: IUserUseCaseModule,
+    private val caseUser: IUserUseCaseModule, /*private val mapper: IUserDataMapper,*/
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
     private val TAG: String = javaClass.simpleName
 
@@ -42,10 +42,16 @@ class RoomViewModel
         get() = _formState.value
 
     init {
-        _uiState.value = RoomState.CurrentRoom
+        _uiState.value = RoomState.CurrentRoom // soon being removed
     }
 
-    fun onCreatePressed () {
+    fun getOwnerRoom() {
+        caseUser.getUser().onEach { res ->
+            onResourceSucceed(res){ getRooms(it.id) }
+        }.launchIn(viewModelScope) /*savedStateHandle.get<String>("user")?.let { val user = mapper.asUser(it) Log.d(TAG, "getOwnerRoom: triggered ${user.email}") formState.onUserIdChange(user.id) getRooms(user.id) *//*_state.value = ResourceState(user = user)*//* }*/
+    }
+
+    fun onCreatePressed() {
         val model = formState.postModel.value
 
         if (!formState.isPostValid) {
@@ -55,17 +61,6 @@ class RoomViewModel
         }
 
         postRoom(room = model)
-    }
-
-    fun getUser() {
-        userCase.getUser()
-            .onEach { res -> onResourceSucceed(res) { usr ->
-                val userId: String = usr.id
-                formState.onUserIdChange(userId)
-
-                getRooms(userId)
-            }}
-            .launchIn(viewModelScope)
     }
 
     fun findRoom(){

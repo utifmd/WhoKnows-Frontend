@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
+import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
 import com.dudegenuine.whoknows.ui.presenter.participant.ParticipantViewModel
@@ -29,15 +30,20 @@ object ViewModelModule: IViewModelModule {
 
     @Provides
     @ViewModelScoped
-    override fun provideUserViewModel(userUseCase: IUserUseCaseModule,savedStateHandle: SavedStateHandle): IUserViewModel =
-        UserViewModel(userUseCase, savedStateHandle)
+    override fun provideUserViewModel(
+        mapper: IUserDataMapper,
+        userUseCase: IUserUseCaseModule,
+        savedStateHandle: SavedStateHandle
+    ): IUserViewModel =
+        UserViewModel(userUseCase, mapper, savedStateHandle)
 
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
-        userUseCaseModule: IUserUseCaseModule,
         roomUseCaseModule: IRoomUseCaseModule,
-        savedStateHandle: SavedStateHandle): IRoomViewModel {
+        userUseCaseModule: IUserUseCaseModule,
+        savedStateHandle: SavedStateHandle
+    ): IRoomViewModel {
 
         return RoomViewModel(roomUseCaseModule, userUseCaseModule, savedStateHandle)
     }

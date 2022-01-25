@@ -8,9 +8,9 @@ import com.dudegenuine.model.User
  **/
 interface IUserViewModel { //: IFilePresenter {
     //fun signInUser(loginRequest: LoginRequest)
-    fun signInUser(onSucceed: (User) -> Unit)
-    fun signUpUser(onSucceed: (User) -> Unit)
-    fun signOutUser(onSucceed: (String) -> Unit)
+    fun signInUser()
+    fun signUpUser()
+    fun signOutUser()
     fun postUser(user: User)
     fun getUser()
     fun getUser(id: String)

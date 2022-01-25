@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
@@ -28,7 +27,7 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 @Composable
 fun RoomCreatorScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel(), router: NavHostController){
+    viewModel: RoomViewModel = hiltViewModel()){
 
     val state = viewModel.state
     val formState = viewModel.formState

@@ -11,6 +11,7 @@ import com.dudegenuine.remote.entity.RoomEntity
 interface IRoomDataMapper {
     fun asEntity(room: Room): RoomEntity
     fun asRoom(entity: RoomEntity): Room
+    fun asRoom(json: String): Room
     fun asRoom(response: Response<RoomEntity>): Room
     fun asRooms(response: Response<List<RoomEntity>>): List<Room>
 }

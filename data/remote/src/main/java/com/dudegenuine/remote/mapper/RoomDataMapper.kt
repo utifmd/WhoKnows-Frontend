@@ -6,6 +6,7 @@ import com.dudegenuine.remote.entity.RoomEntity
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
 import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
+import com.google.gson.Gson
 import javax.inject.Inject
 
 /**
@@ -15,9 +16,9 @@ import javax.inject.Inject
 class RoomDataMapper
 
     @Inject constructor(
+        private val gson: Gson,
         private val mapperQuiz: IQuizDataMapper,
-        private val mapperParticipant: IParticipantDataMapper
-    ): IRoomDataMapper {
+        private val mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
     private val TAG: String = javaClass.simpleName
 
     override fun asEntity(room: Room): RoomEntity {
@@ -53,6 +54,8 @@ class RoomDataMapper
                 .map { mapperParticipant.asParticipant(it) }
         )
     }
+
+    override fun asRoom(json: String): Room = gson.fromJson(json, Room::class.java)
 
     override fun asRoom(response: Response<RoomEntity>): Room {
         return when(response.data){

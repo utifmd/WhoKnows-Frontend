@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
@@ -24,7 +23,7 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 @Composable
 fun RoomFinderScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel(), router: NavHostController) {
+    viewModel: RoomViewModel = hiltViewModel()) {
     val formState = viewModel.formState
 
     Scaffold(
@@ -40,9 +39,9 @@ fun RoomFinderScreen(
                 onSubmitPressed = viewModel::findRoom
             )
         },
-        content = { padding ->
+        content = {
             Column(
-                modifier = modifier.padding(padding)) {
+                modifier = modifier.padding(16.dp)) {
 
                 GeneralTextField(
                     label = "Enter an invitation code",

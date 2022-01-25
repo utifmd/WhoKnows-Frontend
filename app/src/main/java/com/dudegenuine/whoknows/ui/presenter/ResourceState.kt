@@ -29,6 +29,8 @@ data class ResourceState(
     val file: File? = null,
     val files: List<File>? = null,){
 
+    /*val userJson: String? get() = user?.let { Gson().toJson(user) }*/
+
     /*sealed class Error {
         object Popping: Error()
         object Static: Error()
