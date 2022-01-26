@@ -37,7 +37,9 @@ fun LoginScreen(
     Column(
         modifier = modifier.padding(16.dp)) {
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp))
+
         GeneralTextField(
             label = "Enter email",
             value = formState.email.text,
@@ -48,7 +50,9 @@ fun LoginScreen(
             onTailPressed = { formState.onUsernameChange("") }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp))
+
         GeneralTextField(
             label = "Enter password",
             value = formState.password.text,
@@ -57,14 +61,15 @@ fun LoginScreen(
             onValueChange = formState.onPasswordChange,
             tails = if (formState.password.text.isNotBlank())
                 Icons.Default.Close else null,
-            onTailPressed = { formState.onPasswordChange("") }
-        )
+            onTailPressed = { formState.onPasswordChange("") })
 
         if (authState.error.isNotBlank()) {
             ErrorScreen(message = authState.error, isSnack = true)
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp))
+
         GeneralButton(
             label = stringResource(R.string.sign_in),
             enabled = formState.isLoginValid.value && !authState.loading,

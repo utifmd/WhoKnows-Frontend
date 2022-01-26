@@ -1,12 +1,10 @@
 package com.dudegenuine.whoknows.ui.compose.component.misc
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-
 /**
  * Tue, 18 Jan 2022
  * WhoKnows by utifmd
  **/
+/*
 @Composable
 fun FieldSubmission(
     modifier: Modifier = Modifier,
@@ -20,15 +18,24 @@ fun FieldSubmission(
     onTailPressed: () -> Unit,
     onSubmitPressed: () -> Unit) {
 
-    /*Scaffold(
+    */
+/*Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             GeneralTopBar(
                 title = fieldName,
                 submitLabel = submitLabel,
-                submitEnable = submitEnable*//*formState.isGetValid*//*,
+                submitEnable = submitEnable*//*
+*/
+/*formState.isGetValid*//*
+*/
+/*,
                 submitLoading = isLoading,
-                onSubmitPressed = onSubmitPressed*//*viewModel::findRoom*//*
+                onSubmitPressed = onSubmitPressed*//*
+*/
+/*viewModel::findRoom*//*
+*/
+/*
             )
         },
         content = { padding ->
@@ -37,11 +44,23 @@ fun FieldSubmission(
 
                 GeneralTextField(
                     label = "Enter an invitation code",
-                    value = fieldValue*//*formState.roomId*//*,
+                    value = fieldValue*//*
+*/
+/*formState.roomId*//*
+*/
+/*,
                     leads = Icons.Default.Security,
                     tails = if(fieldValue.isNotBlank()) Icons.Default.Close else null,
-                    onTailPressed = onTailPressed*//*{ formState.onRoomIdChange("") }*//*,
-                    onValueChange = onFieldValueChange*//*formState::onRoomIdChange*//*
+                    onTailPressed = onTailPressed*//*
+*/
+/*{ formState.onRoomIdChange("") }*//*
+*/
+/*,
+                    onValueChange = onFieldValueChange*//*
+*/
+/*formState::onRoomIdChange*//*
+*/
+/*
                 )
 
                 if (error.isNotBlank()){
@@ -51,5 +70,6 @@ fun FieldSubmission(
                 }
             }
         }
-    )*/
-}
+    )*//*
+
+}*/

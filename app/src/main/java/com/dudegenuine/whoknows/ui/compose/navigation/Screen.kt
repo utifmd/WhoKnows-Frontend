@@ -36,7 +36,7 @@ sealed class Screen(val route: String){
         }
 
         object Setting: Screen(strOf<Setting>()){
-            object Profile: Screen(strOf<Profile>())
+            /*object Profile: Screen(strOf<Profile>())*/
             object ProfileEditor: Screen(strOf<ProfileEditor>())
         }
     }

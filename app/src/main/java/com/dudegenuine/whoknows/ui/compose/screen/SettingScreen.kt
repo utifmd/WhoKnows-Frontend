@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.ui.compose.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.IProfileEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 
 /**
@@ -13,10 +14,10 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 @ExperimentalCoilApi
 fun SettingScreen(
     modifier: Modifier = Modifier,
-    onSignOutPressed: () -> Unit) {
+    event: IProfileEvent) {
 
     ProfileScreen(
         modifier = modifier,
-        onSignOutPressed = onSignOutPressed
+        event = event
     )
 }

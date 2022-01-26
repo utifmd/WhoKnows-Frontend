@@ -6,9 +6,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dudegenuine.model.User
-import com.dudegenuine.model.User.Companion.KeyChanger.EMAIL
-import com.dudegenuine.model.User.Companion.KeyChanger.NAME
-import com.dudegenuine.model.User.Companion.KeyChanger.PHONE
 import java.util.*
 
 /**
@@ -16,11 +13,7 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 sealed class UserState {
-    data class Auth(
-        val loading: Boolean = false,
-        val error: String = ""): UserState()
-
-    data class CurrentState(val freshUser: User): UserState()
+    /*data class CurrentState(val freshUser: User): UserState()
     data class ChangerState(val currentUser: User? = null, val fieldKey: String? = null): UserState(){
         val selectedFieldValue = when(fieldKey) {
             NAME -> currentUser?.fullName
@@ -35,6 +28,10 @@ sealed class UserState {
             )
         ).value
     }
+    data class Auth(
+        val loading: Boolean = false,
+        val error: String = ""): UserState()*/
+
 
     class FormState: UserState() {
         private val _email = mutableStateOf(TextFieldValue(""))

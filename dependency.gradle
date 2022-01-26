@@ -45,9 +45,3 @@ dependencies {
     testImplementation "org.robolectric:robolectric:$robolectric_version"
     kaptTest "com.google.dagger:hilt-compiler:$hilt_dagger_version"
 }
-
-/* /Users/utifmd/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.5.31/ff5d99aecd328872494e8921b72bf6e3af97af3e/kotlin-stdlib-jdk8-1.5.31.jar (version 1.5)
-    /Users/utifmd/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.5.31/77e0f2568912e45d26c31fd417a332458508acdf/kotlin-stdlib-jdk7-1.5.31.jar (version 1.5)
-    /Users/utifmd/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.6.10/b8af3fe6f1ca88526914929add63cf5e7c5049af/kotlin-stdlib-1.6.10.jar (version 1.6)
-    /Users/utifmd/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.6.10/c118700e3a33c8a0d9adc920e9dec0831171925/kotlin-stdlib-common-1.6.10.jar (version 1.6)
-*/

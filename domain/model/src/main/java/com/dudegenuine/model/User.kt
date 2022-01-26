@@ -25,11 +25,5 @@ data class User (
     companion object {
         const val EMAIL = "email"
         const val PASSWORD = "password"
-
-        object KeyChanger {
-            const val NAME = "Full Name"
-            const val PHONE = "Phone Number"
-            const val EMAIL = "Email Address"
-        }
     }
 }

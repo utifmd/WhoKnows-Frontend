@@ -10,9 +10,7 @@ import androidx.room.PrimaryKey
  **/
 @Entity
 data class CurrentUser(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int? = null,
-
+    @PrimaryKey
     @ColumnInfo(name = "userId")
     val userId: String,
 

@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.dudegenuine.model.*
-import com.dudegenuine.whoknows.ui.compose.state.UserState
 
 /**
  * Wed, 08 Dec 2021
@@ -17,8 +16,8 @@ abstract class BaseViewModel: ViewModel() {
     val state: ResourceState
         get() = _state.value
 
-    protected val _authState = mutableStateOf(UserState.Auth())
-    val authState: UserState.Auth
+    protected val _authState = mutableStateOf(ResourceState.Auth())
+    val authState: ResourceState.Auth
         get() = _authState.value
 
     protected fun<T> onResource(resource: Resource<T>){
@@ -79,30 +78,30 @@ abstract class BaseViewModel: ViewModel() {
 
     protected fun<T> onAuth(resources: Resource<T>){
         when(resources){
-            is Resource.Success -> { /*_authState.value = when(resources.data) { is User -> UserState.Auth( currentUser = resources.data as User ) else -> UserState.Auth() }*/
+            is Resource.Success -> { /*_authState.value = when(resources.data) { is User -> _root_ide_package_.com.dudegenuine.whoknows.ui.presenter.ResourceState.Auth( currentUser = resources.data as User ) else -> _root_ide_package_.com.dudegenuine.whoknows.ui.presenter.ResourceState.Auth() }*/
 
                 _state.value = when(resources.data) {
                     is User -> ResourceState(
-                        user = resources.data as User
-                    )
+                        user = resources.data as User)
+
                     is String -> ResourceState( // user signed out
-                        loading = false,
                         user = null,
-                        error = resources.message ?: "An unexpected error occurred."
-                    )
+                        error = resources.message ?: "An unexpected error occurred.").also {
+
+                        _authState.value = ResourceState.Auth() }
                     else -> ResourceState()
                 }
             }
 
             is Resource.Error -> {
                 Log.d(TAG, "Auth.Error: ${resources.message}")
-                _authState.value = UserState.Auth(
+                _authState.value = ResourceState.Auth(
                     error = resources.message ?: "An unexpected error occurred."
                 )
             }
             is Resource.Loading -> {
                 Log.d(TAG, "Auth.Loading..")
-                _authState.value = UserState.Auth(
+                _authState.value = ResourceState.Auth(
                     loading = true
                 )
             }

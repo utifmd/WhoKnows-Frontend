@@ -1,5 +1,6 @@
 package com.dudegenuine.usecase.user
 
+import android.util.Log
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -16,8 +17,9 @@ import javax.inject.Inject
  **/
 class GetUser
     @Inject constructor(
-
     private val repository: IUserRepository) {
+    private val TAG: String = javaClass.simpleName
+
     operator fun invoke(id: String): Flow<Resource<User>> = flow {
         try {
             emit(Resource.Loading())
@@ -40,6 +42,8 @@ class GetUser
         try {
             emit(Resource.Loading())
             val localUser = repository.load()
+
+            Log.d(TAG, localUser.toString())
 
             emit(Resource.Success(localUser))
 

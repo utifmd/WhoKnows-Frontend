@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.authNavGraph
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.homeNavGraph
+import com.dudegenuine.whoknows.ui.compose.navigation.graph.settingGraph
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.summaryGraph
 import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 
@@ -46,6 +47,11 @@ fun MainNavigation(
         summaryGraph(
             modifier = modifier,
             router = controller,
+        )
+
+        settingGraph(
+            modifier = modifier,
+            router = controller
         )
     }
 }

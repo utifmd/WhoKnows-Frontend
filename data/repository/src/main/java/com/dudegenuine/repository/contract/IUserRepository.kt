@@ -18,6 +18,7 @@ interface IUserRepository {
 
     suspend fun load(userId: String? = null): User
     suspend fun save(currentUser: CurrentUser)
+    suspend fun replace(currentUser: CurrentUser)
     suspend fun unload(userId: String)
 
     companion object {

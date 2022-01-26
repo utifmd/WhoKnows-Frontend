@@ -14,7 +14,8 @@ interface IUserViewModel { //: IFilePresenter {
     fun postUser(user: User)
     fun getUser()
     fun getUser(id: String)
-    fun patchUser(id: String, current: User)
+    fun patchUser(id: String, freshUser: User)
+    fun patchUser(freshUser: User, onSucceed: (User) -> Unit)
     fun deleteUser(id: String)
     fun getUsers(page: Int, size: Int)
 }

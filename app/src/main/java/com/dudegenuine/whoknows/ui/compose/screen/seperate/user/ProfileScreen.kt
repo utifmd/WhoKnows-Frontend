@@ -35,8 +35,8 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel(),
-    onSignOutPressed: () -> Unit){
-    val state = viewModel.state /*val uiState = viewModel.uiState.observeAsState()*/
+    event: IProfileEvent){
+    val state = viewModel.state
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -54,7 +54,7 @@ fun ProfileScreen(
             Body(
                 modifier = modifier.padding(padding),
                 viewModel = viewModel,
-                onSignOutPressed = onSignOutPressed
+                event = event
             )
 
             if (state.error.isNotBlank()){
@@ -62,13 +62,6 @@ fun ProfileScreen(
                     message = state.error, modifier = modifier.padding(padding)
                 )
             }
-
-            /*when(uiState.value){
-                is UserState.ChangerState -> ProfileEditScreen(
-                    modifier = modifier.padding(padding)
-                )
-                else ->
-            }*/
         }
     )
 }
@@ -78,10 +71,15 @@ fun ProfileScreen(
 private fun Body(
     modifier: Modifier = Modifier,
     viewModel: UserViewModel,
-    onSignOutPressed: () -> Unit){
+    event: IProfileEvent){
     val user: User = viewModel.state.user ?: return
-
     val scrollState = rememberScrollState()
+
+    val fullName = user.fullName
+        .ifBlank { stringResource(R.string.not_set) }
+
+    val phone = user.phone
+        .ifBlank { stringResource(R.string.not_set) }
 
     Column(
         modifier = modifier
@@ -89,58 +87,67 @@ private fun Body(
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally){
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(
+            modifier = Modifier.height(46.dp))
+
         GeneralPicture(
             modifier = modifier,
             data = user.profileUrl
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(
+            modifier = Modifier.height(46.dp))
+
         Column(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
+                .background(
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
+                )) {
 
             FieldTag(
                 key = stringResource(R.string.full_name),
-                value = user.fullName
-                    .ifBlank { stringResource(R.string.not_set) },
-                modifier = modifier
+                value = fullName,
+                onValuePressed = { event.onFullNamePressed(fullName) }
             )
 
             FieldTag(
                 key = stringResource(R.string.phone_number),
-                value = user.phone
-                    .ifBlank { stringResource(R.string.not_set) },
-                modifier = modifier
+                value = phone,
+                onValuePressed = { event.onPhonePressed(phone) }
             )
 
             FieldTag(
                 key = stringResource(R.string.username),
                 value = user.username,
-                modifier = modifier
+                onValuePressed = { event.onUsernamePressed(user.username) }
             )
 
             FieldTag(
                 key = stringResource(R.string.email),
                 value = user.email,
-                modifier = modifier,
-                editable = false
+                editable = false,
+                onValuePressed = { event.onEmailPressed(user.email) }
             )
 
             FieldTag(
                 key = stringResource(R.string.password),
                 value = user.password,
-                modifier = modifier,
-                editable = false
+                editable = false,
+                onValuePressed = { event.onPasswordPressed(user.password) }
             )
         }
 
         TextButton(
-            onClick = onSignOutPressed) {
-            Text(text = stringResource(R.string.sign_out), color = MaterialTheme.colors.error)
+            onClick = { event.onSignOutPressed() }) {
+            Text(
+                text = stringResource(R.string.sign_out), color = MaterialTheme.colors.error
+            )
         }
+
+        Spacer(
+            modifier = Modifier.height(46.dp))
     }
 }

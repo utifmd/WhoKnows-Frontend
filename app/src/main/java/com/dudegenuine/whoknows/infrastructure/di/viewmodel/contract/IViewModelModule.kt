@@ -1,7 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
 import androidx.lifecycle.SavedStateHandle
-import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
 import com.dudegenuine.whoknows.ui.presenter.quiz.contract.IQuizViewModel
@@ -14,8 +13,7 @@ import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
  * WhoKnows by utifmd
  **/
 interface IViewModelModule {
-    fun provideUserViewModel(
-        mapper: IUserDataMapper,
+    fun provideUserViewModel( /*mapper: IUserDataMapper,*/
         userUseCase: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): IUserViewModel
 

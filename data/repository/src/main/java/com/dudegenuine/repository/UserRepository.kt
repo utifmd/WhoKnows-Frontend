@@ -1,5 +1,6 @@
 package com.dudegenuine.repository
 
+import android.util.Log
 import com.dudegenuine.local.database.contract.IPreferenceManager
 import com.dudegenuine.local.database.contract.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.local.entity.CurrentUser
@@ -24,7 +25,7 @@ class UserRepository
     private val dao: ICurrentUserDao,
     private val prefs: IPreferenceManager,
     private val mapper: IUserDataMapper): IUserRepository {
-    /*private val TAG = javaClass.simpleName*/
+    private val TAG = javaClass.simpleName
 
     override suspend fun create(user: User): User = try {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
@@ -43,8 +44,10 @@ class UserRepository
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
 
-    override suspend fun update(id: String, user: User): User = try { mapper.asUser(
-        service.update(id, mapper.asEntity(user)))
+    override suspend fun update(id: String, user: User): User = try {
+        val remoteUser = mapper.asUser(service.update(id, mapper.asEntity(user)))
+
+        remoteUser.also { replace(mapper.asCurrentUser(it)) }
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
@@ -79,7 +82,15 @@ class UserRepository
     }
 
     override suspend fun save(currentUser: CurrentUser) =
-        dao.create(currentUser).also { prefs.setString(CURRENT_USER_ID, currentUser.userId) }
+        dao.create(currentUser).also {
+            prefs.setString(CURRENT_USER_ID, currentUser.userId)
+        }
+
+    override suspend fun replace(currentUser: CurrentUser) {
+        dao.update(currentUser)
+
+        Log.d(TAG, "replace: triggered")
+    }
 
     override suspend fun load(userId: String?): User {
         val finalId = userId ?: prefs.getString(CURRENT_USER_ID)

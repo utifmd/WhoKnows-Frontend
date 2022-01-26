@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -34,7 +33,13 @@ fun GeneralImage(
             modifier = modifier.matchParentSize()
         )
 
-        AnimatedVisibility(
+        when (painter.state) { /*is ImagePainter.State.Empty, is ImagePainter.State.Success, -> {}*/
+            is ImagePainter.State.Loading,
+            is ImagePainter.State.Error -> placeholder()
+            else -> { }
+        }
+
+        /*AnimatedVisibility(
             visible = when (painter.state) {
                 is ImagePainter.State.Empty,
                 is ImagePainter.State.Success,
@@ -45,6 +50,6 @@ fun GeneralImage(
             }
         ) {
             placeholder()
-        }
+        }*/
     }
 }
