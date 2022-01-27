@@ -1,5 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,17 +15,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.User
+import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
 import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 
 /**
@@ -33,9 +38,9 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @Composable
 @ExperimentalCoilApi
 fun ProfileScreen(
-    modifier: Modifier = Modifier,
-    viewModel: UserViewModel = hiltViewModel(),
-    event: IProfileEvent){
+    modifier: Modifier,
+    event: IProfileEvent,
+    viewModel: UserViewModel = hiltViewModel()){
     val state = viewModel.state
 
     Scaffold(
@@ -46,20 +51,20 @@ fun ProfileScreen(
                     ?: stringResource(R.string.profile_detail)
             )
         },
-        content = { padding ->
+        content = {
             if (state.loading){
-                LoadingScreen(modifier = modifier.padding(padding))
+                LoadingScreen()
             }
 
             Body(
-                modifier = modifier.padding(padding),
+                modifier = modifier,
                 viewModel = viewModel,
                 event = event
             )
 
             if (state.error.isNotBlank()){
                 ErrorScreen(
-                    message = state.error, modifier = modifier.padding(padding)
+                    message = state.error
                 )
             }
         }
@@ -69,11 +74,20 @@ fun ProfileScreen(
 @Composable
 @ExperimentalCoilApi
 private fun Body(
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     viewModel: UserViewModel,
     event: IProfileEvent){
+
+    val context = LocalContext.current
     val user: User = viewModel.state.user ?: return
+    val byteArray = viewModel.formState.profileImage
+
     val scrollState = rememberScrollState()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { viewModel.formState.onImageValueChange(it, context) }
+    )
 
     val fullName = user.fullName
         .ifBlank { stringResource(R.string.not_set) }
@@ -82,26 +96,24 @@ private fun Body(
         .ifBlank { stringResource(R.string.not_set) }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
+        modifier = modifier.fillMaxSize()
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally){
 
         Spacer(
-            modifier = Modifier.height(46.dp))
+            modifier = Modifier.height(16.dp))
 
         GeneralPicture(
-            modifier = modifier,
-            data = user.profileUrl
-        )
+            data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray) else user.profileUrl,
+            onChangePressed = { launcher.launch("image/*") },
+            onCheckPressed = viewModel::onUploadProfile)
 
         Spacer(
-            modifier = Modifier.height(46.dp))
+            modifier = Modifier.height(16.dp))
 
         Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+            modifier = modifier.fillMaxWidth()
+                .padding(horizontal = 18.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(
                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
@@ -133,9 +145,17 @@ private fun Body(
             )
 
             FieldTag(
+                key = stringResource(R.string.user_id),
+                value = user.id,
+                editable = false,
+                onValuePressed = { event.onPasswordPressed(user.password) }
+            )
+
+            FieldTag(
                 key = stringResource(R.string.password),
                 value = user.password,
                 editable = false,
+                censored = true,
                 onValuePressed = { event.onPasswordPressed(user.password) }
             )
         }
@@ -148,6 +168,6 @@ private fun Body(
         }
 
         Spacer(
-            modifier = Modifier.height(46.dp))
+            modifier = Modifier.height(16.dp))
     }
 }

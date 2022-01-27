@@ -10,7 +10,7 @@ import com.dudegenuine.local.service.contract.ICurrentUserDao
  * WhoKnows by utifmd
  **/
 
-@Database(entities = [CurrentUser::class], version = 1)
+@Database(entities = [CurrentUser::class], version = 1, exportSchema = false)
 abstract class WhoKnowsDatabase: RoomDatabase() { //, IWhoKnowsDatabase {
     abstract fun currentUserDao(): ICurrentUserDao
 }

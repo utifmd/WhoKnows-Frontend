@@ -1,12 +1,14 @@
 package com.dudegenuine.repository
 
 import android.util.Log
+import com.dudegenuine.local.database.contract.IPreferenceManager
+import com.dudegenuine.local.database.contract.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
+import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import com.dudegenuine.remote.service.contract.IRoomService
 import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.repository.contract.IRoomRepository.Companion.NOT_FOUND
-import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import javax.inject.Inject
 
 /**
@@ -16,8 +18,12 @@ import javax.inject.Inject
 class RoomRepository
     @Inject constructor(
     private val service: IRoomService,
-    private val mapper: IRoomDataMapper
-    ): IRoomRepository {
+    private val mapper: IRoomDataMapper,
+    private val prefs: IPreferenceManager,
+
+    override val currentUserId: String =
+        prefs.getString(CURRENT_USER_ID)): IRoomRepository {
+
     private val TAG: String = javaClass.simpleName
 
     override suspend fun create(room: Room): Room = try { mapper.asRoom(

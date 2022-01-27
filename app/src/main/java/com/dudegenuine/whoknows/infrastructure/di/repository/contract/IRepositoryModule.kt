@@ -16,9 +16,9 @@ interface IRepositoryModule {
         dao: ICurrentUserDao,
         pref: IPreferenceManager,
         mapper: IUserDataMapper): IUserRepository
-    fun provideRoomRepository(service: IRoomService, mapper: IRoomDataMapper): IRoomRepository
-    fun provideQuizRepository(service: IQuizService, mapper: IQuizDataMapper): IQuizRepository
-    fun provideParticipantRepository(service: IParticipantService, mapper: IParticipantDataMapper): IParticipantRepository
-    fun provideResultRepository(service: IResultService, mapper: IResultDataMapper): IResultRepository
-    fun provideFileRepository(service: IFileService, mapper: IFileDataMapper): IFileRepository
+    fun provideRoomRepository(service: IRoomService, mapper: IRoomDataMapper, pref: IPreferenceManager): IRoomRepository
+    fun provideQuizRepository(service: IQuizService, mapper: IQuizDataMapper, pref: IPreferenceManager): IQuizRepository
+    fun provideParticipantRepository(service: IParticipantService, mapper: IParticipantDataMapper, pref: IPreferenceManager): IParticipantRepository
+    fun provideResultRepository(service: IResultService, mapper: IResultDataMapper, pref: IPreferenceManager): IResultRepository
+    fun provideFileRepository(service: IFileService, mapper: IFileDataMapper, pref: IPreferenceManager): IFileRepository
 }

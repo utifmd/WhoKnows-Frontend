@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Room
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
-import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -29,7 +29,7 @@ import javax.inject.Inject
 class RoomViewModel
     @Inject constructor(
     private val case: IRoomUseCaseModule,
-    private val caseUser: IUserUseCaseModule, /*private val mapper: IUserDataMapper,*/
+    private val caseFile: IFileUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
     private val TAG: String = javaClass.simpleName
 
@@ -41,26 +41,22 @@ class RoomViewModel
     val formState: RoomState.FormState
         get() = _formState.value
 
-    init {
-        _uiState.value = RoomState.CurrentRoom // soon being removed
-    }
+    init { _uiState.value = RoomState.CurrentRoom } // soon being removed Log.d(TAG, "case.currentUserId: ${case.currentUserId}")
 
-    fun getOwnerRoom() {
-        caseUser.getUser().onEach { res ->
-            onResourceSucceed(res){ getRooms(it.id) }
-        }.launchIn(viewModelScope) /*savedStateHandle.get<String>("user")?.let { val user = mapper.asUser(it) Log.d(TAG, "getOwnerRoom: triggered ${user.email}") formState.onUserIdChange(user.id) getRooms(user.id) *//*_state.value = ResourceState(user = user)*//* }*/
-    }
+    fun getOwnerRoom() { getRooms(case.currentUserId) }
 
-    fun onCreatePressed() {
-        val model = formState.postModel.value
+    fun onCreatePressed(onSucceed: (Room) -> Unit) {
+        val model = formState.model.copy(userId = case.currentUserId)
 
-        if (!formState.isPostValid) {
+        if (!formState.isPostValid || case.currentUserId.isBlank()) {
             _state.value = ResourceState(error = DONT_EMPTY)
 
             return
         }
 
-        postRoom(room = model)
+        case.postRoom(model)
+            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .launchIn(viewModelScope)
     }
 
     fun findRoom(){

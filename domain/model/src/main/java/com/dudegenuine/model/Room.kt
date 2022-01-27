@@ -19,6 +19,5 @@ data class Room(
     var participants: List<Participant>
 ){
     val isPropsBlank: Boolean =
-        minute == 0 || title.isBlank() ||
-                description.isBlank()
+        minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
 }

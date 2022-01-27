@@ -12,7 +12,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileEditScree
  * WhoKnows by utifmd
  **/
 fun NavGraphBuilder.settingGraph(
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     router: NavHostController){
 
     composable(
@@ -24,9 +24,7 @@ fun NavGraphBuilder.settingGraph(
             fieldValue = entry.arguments?.getString("fieldValue")){ _ ->
 
             router.navigate(Screen.Home.Setting.route){
-                popUpTo(Screen.Home.Setting.route){
-                    inclusive = true
-                }
+                popUpTo(Screen.Home.Setting.route){ inclusive = true }
             }
         }
     }

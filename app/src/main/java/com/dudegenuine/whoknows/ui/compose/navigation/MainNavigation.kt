@@ -23,9 +23,9 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @ExperimentalCoilApi
 @Composable
 fun MainNavigation(
+    modifier: Modifier,
     controller: NavHostController,
     destination: String,
-    modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel()) {
 
     NavHost(

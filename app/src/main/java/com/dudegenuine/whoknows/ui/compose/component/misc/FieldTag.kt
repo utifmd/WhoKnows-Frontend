@@ -20,6 +20,7 @@ fun FieldTag(
     key: String,
     value: String,
     editable: Boolean = true,
+    censored: Boolean = false,
     onValuePressed: (() -> Unit)? = null){
 
     val onEditClick: () -> Unit = {
@@ -43,7 +44,9 @@ fun FieldTag(
                 enabled = editable,
                 onClick = onEditClick) {
 
-                Text(text = value)
+                Text( /*value.map { "*" }.fold("") { a, _ -> "$a*" }*/
+                    text = if (censored) "*".repeat(value.length) else value)
+
                 if(editable){
                     Icon(
                         imageVector = Icons.Default.ChevronRight,

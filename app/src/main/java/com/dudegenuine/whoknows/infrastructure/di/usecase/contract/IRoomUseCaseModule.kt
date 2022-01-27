@@ -7,6 +7,7 @@ import com.dudegenuine.usecase.room.*
  * WhoKnows by utifmd
  **/
 interface IRoomUseCaseModule {
+    val currentUserId: String
     val postRoom: PostRoom
     val getRoom: GetRoom
     val patchRoom: PatchRoom

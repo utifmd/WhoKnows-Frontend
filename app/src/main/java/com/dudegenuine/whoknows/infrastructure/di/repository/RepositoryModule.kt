@@ -36,16 +36,18 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideRoomRepository(
         service: IRoomService,
-        mapper: IRoomDataMapper
+        mapper: IRoomDataMapper,
+        pref: IPreferenceManager
     ): IRoomRepository {
-        return RoomRepository(service, mapper)
+        return RoomRepository(service, mapper, pref)
     }
 
     @Provides
     @Singleton
     override fun provideQuizRepository(
         service: IQuizService,
-        mapper: IQuizDataMapper
+        mapper: IQuizDataMapper,
+        pref: IPreferenceManager
     ): IQuizRepository {
         return QuizRepository(service, mapper)
     }
@@ -54,7 +56,8 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideParticipantRepository(
         service: IParticipantService,
-        mapper: IParticipantDataMapper
+        mapper: IParticipantDataMapper,
+        pref: IPreferenceManager
     ): IParticipantRepository {
         return ParticipantRepository(service, mapper)
     }
@@ -63,7 +66,8 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideResultRepository(
         service: IResultService,
-        mapper: IResultDataMapper
+        mapper: IResultDataMapper,
+        pref: IPreferenceManager
     ): IResultRepository {
         return ResultRepository(service, mapper)
     }
@@ -72,7 +76,8 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideFileRepository(
         service: IFileService,
-        mapper: IFileDataMapper
+        mapper: IFileDataMapper,
+        pref: IPreferenceManager
     ): IFileRepository {
         return FileRepository(service, mapper)
     }

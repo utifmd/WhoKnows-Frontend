@@ -1,6 +1,9 @@
 package com.dudegenuine.whoknows.ui.compose.state
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dudegenuine.model.Answer
 import com.dudegenuine.model.Quiz
@@ -25,14 +28,10 @@ sealed class RoomState {
         val title: String,
         val data: Result?): RoomState()
 
-    class FormState: RoomState(){
+    class FormState: RoomState() {
         private val _roomId = mutableStateOf("")
         val roomId: String
             get() = _roomId.value
-
-        private val _userId = mutableStateOf("")
-        val userId: String
-            get() = _userId.value
 
         private val _title = mutableStateOf(TextFieldValue(text = ""))
         val title: TextFieldValue
@@ -48,26 +47,28 @@ sealed class RoomState {
 
         val isPostValid: Boolean
             get() = mutableStateOf(
-                title.text.isNotBlank() && userId.isNotBlank() &&
+                title.text.isNotBlank() &&
                 desc.text.isNotBlank() && minute.text.isNotBlank()
+            ).value
+
+        val model: Room
+            get() = mutableStateOf(
+                Room(
+                    id = "ROM-${UUID.randomUUID()}",
+                    userId = "",
+                    minute = if(minute.text.isBlank()) 0 else minute.text.toInt(),
+                    title = title.text,
+                    description = desc.text,
+                    expired = false,
+                    questions = emptyList(),
+                    participants = emptyList(),
+                    createdAt = Date(),
+                    updatedAt = null
+                )
             ).value
 
         val isGetValid: Boolean
             get() = mutableStateOf(roomId.isNotBlank()).value
-
-        val postModel: MutableState<Room>
-            get() = mutableStateOf(Room(
-                id = "ROM-${UUID.randomUUID()}",
-                userId = userId,
-                minute = minute.text.toInt(),
-                title = title.text,
-                description = desc.text,
-                expired = false,
-                createdAt = Date(),
-                updatedAt = null,
-                questions = emptyList(),
-                participants = emptyList(),
-            ))
 
         fun onTitleChange (it: String){
             _title.value = TextFieldValue(text = it)
@@ -79,10 +80,6 @@ sealed class RoomState {
 
         fun onMinuteChange (it: String){
             _minute.value = TextFieldValue(text = it)
-        }
-
-        fun onUserIdChange(id: String) {
-            _userId.value = id
         }
 
         fun onRoomIdChange(id: String) {

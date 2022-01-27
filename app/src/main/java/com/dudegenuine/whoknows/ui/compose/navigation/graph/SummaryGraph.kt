@@ -19,7 +19,12 @@ fun NavGraphBuilder.summaryGraph(
     composable(
         route = Screen.Home.Summary.RoomCreator.route){
         RoomCreatorScreen(
-            modifier = modifier
+            modifier = modifier,
+            onSucceed = {
+                router.navigate(Screen.Home.Summary.route){
+                    popUpTo(Screen.Home.Summary.route){ inclusive = true }
+                }
+            }
         )
     }
 

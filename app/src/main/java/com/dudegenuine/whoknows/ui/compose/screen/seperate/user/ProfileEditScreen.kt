@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,11 +16,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.IProfileEvent.Companion.EMAIL
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.IProfileEvent.Companion.NAME
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.IProfileEvent.Companion.PASSWORD
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.IProfileEvent.Companion.PHONE
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.IProfileEvent.Companion.USERNAME
 import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 
 /**
@@ -41,24 +35,7 @@ fun ProfileEditScreen(
     }
 
     val onSubmitPressed: () -> Unit = {
-        viewModel.state.user?.let { model ->
-            val data = when(fieldKey) {
-                NAME -> model.copy(
-                    fullName = field.value)
-                EMAIL -> model.copy(
-                    email = field.value)
-                PHONE -> model.copy(
-                    phone = field.value)
-                USERNAME -> model.copy(
-                    username = field.value)
-                PASSWORD -> model.copy(
-                    password = field.value)
-                else -> model
-            }
-
-            Log.d("ProfileEditScreen: ", "triggered")
-            viewModel.patchUser(data, onSucceed)
-        }
+        viewModel.onUpdateUser(fieldKey, field.value, onSucceed)
     }
 
     Scaffold(

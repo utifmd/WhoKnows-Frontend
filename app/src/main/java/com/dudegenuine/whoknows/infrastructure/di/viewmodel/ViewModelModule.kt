@@ -31,19 +31,20 @@ object ViewModelModule: IViewModelModule {
     @ViewModelScoped
     override fun provideUserViewModel(
         userUseCase: IUserUseCaseModule,
-        savedStateHandle: SavedStateHandle
-    ): IUserViewModel =
-        UserViewModel(userUseCase, savedStateHandle)
+        fileCase: IFileUseCaseModule,
+        savedStateHandle: SavedStateHandle): IUserViewModel =
+
+        UserViewModel(userUseCase, fileCase, savedStateHandle)
 
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
         roomUseCaseModule: IRoomUseCaseModule,
-        userUseCaseModule: IUserUseCaseModule,
+        fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IRoomViewModel {
 
-        return RoomViewModel(roomUseCaseModule, userUseCaseModule, savedStateHandle)
+        return RoomViewModel(roomUseCaseModule, fileCase, savedStateHandle)
     }
 
     @Provides
@@ -69,7 +70,8 @@ object ViewModelModule: IViewModelModule {
     @ViewModelScoped
     override fun provideParticipantViewModel(
         participantUseCaseModule: IParticipantUseCaseModule,
-        savedStateHandle: SavedStateHandle): IParticipantViewModel {
+        savedStateHandle: SavedStateHandle
+    ): IParticipantViewModel {
 
         return ParticipantViewModel(participantUseCaseModule, savedStateHandle)
     }

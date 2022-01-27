@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 import kotlinx.coroutines.Dispatchers
@@ -20,9 +21,8 @@ import kotlinx.coroutines.Dispatchers
 @Composable
 fun RoomScreen(
     modifier: Modifier = Modifier,
-    onNewClassPressed: () -> Unit,
-    onJoinWithACodePressed: () -> Unit,
-    viewModel: RoomViewModel = hiltViewModel()) {
+    viewModel: RoomViewModel = hiltViewModel(),
+    event: IRoomEvent) {
     val uiState = viewModel.uiState.observeAsState().value
 
     LaunchedEffect(Dispatchers.IO) { viewModel.getOwnerRoom() }
@@ -44,8 +44,8 @@ fun RoomScreen(
                 onDonePressed = { viewModel.closeResult() })
             else -> RoomHomeScreen(
                 modifier = modifier,
-                onNewClassPressed = onNewClassPressed,
-                onJoinWithACodePressed = onJoinWithACodePressed
+                onNewClassPressed = event::onNewClassPressed,
+                onJoinWithACodePressed = event::onJoinWithACodePressed
             )
         }
     }

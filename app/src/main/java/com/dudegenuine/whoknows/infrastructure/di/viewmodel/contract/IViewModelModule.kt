@@ -15,11 +15,12 @@ import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
 interface IViewModelModule {
     fun provideUserViewModel( /*mapper: IUserDataMapper,*/
         userUseCase: IUserUseCaseModule,
+        fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle): IUserViewModel
 
     fun provideRoomViewModel(
         roomUseCaseModule: IRoomUseCaseModule,
-        userUseCaseModule: IUserUseCaseModule, /*mapper: IUserDataMapper,*/
+        fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel
 
     fun provideQuizViewModel(

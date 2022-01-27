@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
 
 @Composable
 @ExperimentalCoilApi
@@ -31,7 +31,11 @@ fun GeneralPicture(
     val toggle = remember { mutableStateOf(false) }
 
     val onChangeClicked: () -> Unit = {
-        if (onChangePressed != null) onChangePressed()
+        onChangePressed?.let {
+            onChangePressed().also {
+                toggle.value = !toggle.value
+            }
+        }
     }
     val onCheckClicked: () -> Unit = {
         if (onCheckPressed != null) onCheckPressed()
@@ -43,13 +47,17 @@ fun GeneralPicture(
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)) {
 
         Box(
-            modifier = modifier.fillMaxSize().clickable { toggle.value = !toggle.value }) {
+            modifier = modifier
+                .fillMaxSize()
+                .clickable { toggle.value = !toggle.value }) {
             GeneralImage(
                 modifier = modifier.fillMaxSize(),
-                painter = rememberImagePainter(data = data),
+                data = data,
                 placeholder = {
                     Icon(
-                        modifier = modifier.fillMaxSize().padding(12.dp),
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
                         imageVector = Icons.Default.Person, tint = MaterialTheme.colors.primary,
                         contentDescription = null
                     )
@@ -58,18 +66,23 @@ fun GeneralPicture(
 
             if(toggle.value){
                 Column(
-                    modifier = modifier.fillMaxSize().background(MaterialTheme.colors.secondaryVariant),
+                    modifier = modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colors.secondaryVariant),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly) {
 
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        tint = MaterialTheme.colors.onPrimary,
-                        modifier = modifier.clickable(
-                            onClick = onCheckClicked
-                        ),
-                        contentDescription = null,
-                    )
+                    if (data is Bitmap){
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            tint = MaterialTheme.colors.onPrimary,
+                            modifier = modifier.clickable(
+                                onClick = onCheckClicked
+                            ),
+                            contentDescription = null,
+                        )
+                    }
+
                     Icon(
                         imageVector = Icons.Default.Photo,
                         tint = MaterialTheme.colors.onPrimary,

@@ -5,6 +5,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 
 /**
  * Thu, 16 Dec 2021
@@ -14,12 +15,10 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomScreen
 @ExperimentalFoundationApi @ExperimentalMaterialApi
 fun SummaryScreen(
     modifier: Modifier = Modifier,
-    onNewClassPressed: () -> Unit,
-    onJoinWithACodePressed: () -> Unit) {
+    event: IRoomEvent) {
 
     RoomScreen(
         modifier = modifier,
-        onNewClassPressed = onNewClassPressed,
-        onJoinWithACodePressed = onJoinWithACodePressed,
+        event = event
     )
 }

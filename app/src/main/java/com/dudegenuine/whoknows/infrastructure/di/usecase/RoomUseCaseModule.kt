@@ -24,6 +24,8 @@ class RoomUseCaseModule(
         DeleteRoom(repository),
 
     override val getRooms: GetRooms =
-        GetRooms(repository)
+        GetRooms(repository),
+
+    override val currentUserId: String = repository.currentUserId
 
 ): IRoomUseCaseModule

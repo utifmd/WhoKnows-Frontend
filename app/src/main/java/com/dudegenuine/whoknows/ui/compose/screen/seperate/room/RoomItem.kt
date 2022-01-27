@@ -5,14 +5,17 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.People
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.dudegenuine.model.Room
+import com.dudegenuine.model.common.ViewUtil
 
 /**
  * Mon, 17 Jan 2022
@@ -22,6 +25,11 @@ import com.dudegenuine.model.Room
 fun RoomItem(
     modifier: Modifier = Modifier, state: Room) {
 
+    val length = 20
+    val trimmed: String = state.description.replace("\n", "").trim()
+    val list: List<String> = trimmed.split(" ")
+    val desc: String = list.subList(0, list.size).joinToString(" ").plus("..")
+
     Column(
         modifier = modifier.padding(
             horizontal = 16.dp,
@@ -29,35 +37,60 @@ fun RoomItem(
 
         Text(
             text = state.title,
-            style = MaterialTheme.typography.h6
-        )
+            style = MaterialTheme.typography.h6)
+
         Text(
-            text = state.description,
-            style = MaterialTheme.typography.caption
-        )
+            text = if (list.size > length) desc else trimmed,
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+            style = MaterialTheme.typography.body2)
+
         Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = modifier.fillMaxWidth()) {
-            Text(
-                text = if (state.expired) "Expired" else "Ongoing",
-                color = if (state.expired) MaterialTheme.colors.error else MaterialTheme.colors.secondary,
-                fontWeight = FontWeight.SemiBold
+            verticalAlignment = Alignment.CenterVertically) {
+
+            Footer(
+                icon = Icons.Default.AccessTime,
+                text = if (!state.expired) "Ongoing since ${ViewUtil.timeAgo(state.createdAt)}"
+                    else "Ended ${
+                        state.updatedAt?.let {
+                            ViewUtil.timeAgo(it)
+                        }
+                    }"
             )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = Icons.Default.People, contentDescription = null)
-                Text(
-                    text = state.questions.size.toString(),
-                    style = MaterialTheme.typography.overline
-                )
+            Row {
+                Footer(
+                    icon = Icons.Default.Assignment, text = state.questions.size.toString())
 
-                Icon(imageVector = Icons.Default.Assignment, contentDescription = null)
-                Text(
-                    text = state.participants.size.toString(),
-                    style = MaterialTheme.typography.overline
-                )
+                Spacer(
+                    modifier = Modifier.width(16.dp))
+
+                Footer(
+                    icon = Icons.Default.People, text = state.participants.size.toString())
             }
         }
+    }
+}
+
+@Composable
+private fun Footer(icon: ImageVector, text: String, color: Color? = null){
+    Row(
+        verticalAlignment = Alignment.CenterVertically) {
+
+        Icon(
+            tint = color ?: MaterialTheme.colors.onSurface,
+            imageVector = icon, contentDescription = null)
+
+        Spacer(
+            modifier = Modifier.width(8.dp))
+
+        Text(
+            text = text,
+            color = color ?: MaterialTheme.colors.onSurface,
+            style = MaterialTheme.typography.caption
+        )
     }
 }

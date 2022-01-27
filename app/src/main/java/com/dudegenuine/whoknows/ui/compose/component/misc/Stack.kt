@@ -1,21 +1,10 @@
-package com.dudegenuine.whoknows.ui.compose.component
-
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
-import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+package com.dudegenuine.whoknows.ui.compose.component.misc
 
 /**
  * Fri, 17 Dec 2021
  * WhoKnows by utifmd
  **/
+/*
 @Composable
 fun ForegroundTopStack(content: @Composable () -> Unit){
     Surface(
@@ -51,4 +40,4 @@ fun BackgroundStack(content: @Composable () -> Unit){
         modifier = Modifier.fillMaxSize()) {
         content()
     }
-}
+}*/

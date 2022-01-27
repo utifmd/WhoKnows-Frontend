@@ -1,11 +1,14 @@
 package com.dudegenuine.whoknows.ui.compose.state
 
+import android.content.Context
+import android.net.Uri
 import android.util.Patterns
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dudegenuine.model.User
+import com.dudegenuine.model.common.ImageUtil
 import java.util.*
 
 /**
@@ -34,6 +37,7 @@ sealed class UserState {
 
 
     class FormState: UserState() {
+
         private val _email = mutableStateOf(TextFieldValue(""))
         val email: TextFieldValue
             get() = _email.value
@@ -45,6 +49,10 @@ sealed class UserState {
         private val _rePassword = mutableStateOf(TextFieldValue(""))
         val rePassword: TextFieldValue
             get() = _rePassword.value
+
+        private val _profileImage = mutableStateOf(byteArrayOf())
+        val profileImage: ByteArray
+            get() = _profileImage.value
 
         val isLoginValid: State<Boolean>
             get() = mutableStateOf(
@@ -94,6 +102,14 @@ sealed class UserState {
             _rePassword.value = TextFieldValue(it)
         }
 
+        fun onImageValueChange(uri: Uri?, context: Context) {
+            uri?.let {
+                val scaledImage = ImageUtil.adjustImage(context, uri)
+
+                _profileImage.value = scaledImage
+            }
+        }
+
         /*class Navigator {
             private val _sharedFlow =
               MutableSharedFlow<NavTarget>(extraBufferCapacity = 1)
@@ -121,10 +137,6 @@ sealed class UserState {
         private val _email = mutableStateOf(TextFieldValue(""))
         val email: TextFieldValue
             get() = _email.value
-
-        private val _profileUrl = mutableStateOf("")
-        val profileUrl: String
-            get() = _profileUrl.value
 
         val onFullNameChange: (text: String) -> Unit = {
             _fullName.value = TextFieldValue(it)

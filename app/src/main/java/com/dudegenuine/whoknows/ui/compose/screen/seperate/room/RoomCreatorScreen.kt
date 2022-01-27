@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
@@ -27,7 +28,8 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 @Composable
 fun RoomCreatorScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel()){
+    viewModel: RoomViewModel = hiltViewModel(),
+    onSucceed: (Room) -> Unit){
 
     val state = viewModel.state
     val formState = viewModel.formState
@@ -40,7 +42,7 @@ fun RoomCreatorScreen(
                 submitLabel = "Create",
                 submitEnable = formState.isPostValid && !state.loading,
                 submitLoading = state.loading,
-                onSubmitPressed = viewModel::onCreatePressed
+                onSubmitPressed = { viewModel.onCreatePressed(onSucceed) }
             )
         },
         content = {

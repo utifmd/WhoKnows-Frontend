@@ -21,15 +21,14 @@ sealed class Screen(val route: String){
         object Summary: Screen(strOf<Summary>()){
             object RoomFinder: Screen(strOf<RoomFinder>())
             object RoomCreator: Screen(strOf<RoomCreator>())
-            object ListOwnerRoom: Screen(strOf<ListOwnerRoom>()) //object RoomCreator: Screen(strOf<RoomCreator>())
-            object DetailOwnerRoom: Screen(strOf<DetailOwnerRoom>()){
+            object DetailRoomOwner: Screen(strOf<DetailRoomOwner>()){
                 object QuizCreator: Screen(strOf<QuizCreator>()) //object RoomHome: Screen(strOf<RoomHome>()){}
             }
         }
 
         object Discover: Screen(strOf<Discover>()){
             object ListPublicRoom: Screen(strOf<ListPublicRoom>())
-            object DetailPublicRoom: Screen(strOf<DetailPublicRoom>())
+            object DetailRoomPublic: Screen(strOf<DetailRoomPublic>())
             object OnBoarding: Screen(strOf<OnBoarding>()){
                 object Result: Screen(strOf<Result>())
             }

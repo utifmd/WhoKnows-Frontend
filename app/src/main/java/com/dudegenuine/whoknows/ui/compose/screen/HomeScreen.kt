@@ -29,6 +29,7 @@ fun HomeScreen(
     scaffoldState: ScaffoldState = rememberScaffoldState()) {
 
     Scaffold(
+        modifier = modifier,
         scaffoldState = scaffoldState,
         content = content,
         bottomBar = {
@@ -40,7 +41,6 @@ fun HomeScreen(
                     router.navigate(it.route)
                 }*/
             }
-        },
-        modifier = modifier
+        }
     )
 }

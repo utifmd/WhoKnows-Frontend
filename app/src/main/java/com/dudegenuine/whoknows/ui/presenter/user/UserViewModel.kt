@@ -1,10 +1,13 @@
 package com.dudegenuine.whoknows.ui.presenter.user
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.User
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
 import com.dudegenuine.whoknows.ui.compose.state.UserState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
@@ -24,8 +27,9 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel
     @Inject constructor(
-    private val case: IUserUseCaseModule, /*private val mapper: IUserDataMapper,*/
-    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
+        private val case: IUserUseCaseModule,
+        private val fileCase: IFileUseCaseModule,
+        private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
 
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
@@ -59,6 +63,66 @@ class UserViewModel
     override fun signOutUser() {
         case.signOutUser() /*.onEach { res -> onResourceSucceed(res) { onSucceed(it) }} .launchIn(viewModelScope)*/
             .onEach(this::onAuth).launchIn(viewModelScope)
+    }
+
+    fun onUpdateUser(fieldKey: String?, fieldValue: String, onSucceed: (User) -> Unit) {
+
+        if (fieldValue.isBlank() || state.user == null){
+            _state.value = ResourceState(error = DONT_EMPTY)
+        }
+
+        state.user?.let { model ->
+            val data = when(fieldKey) {
+
+                IProfileEvent.NAME -> model.copy(
+                    fullName = fieldValue)
+
+                IProfileEvent.EMAIL -> model.copy(
+                    email = fieldValue)
+
+                IProfileEvent.PHONE -> model.copy(
+                    phone = fieldValue)
+
+                IProfileEvent.USERNAME -> model.copy(
+                    username = fieldValue)
+
+                IProfileEvent.PASSWORD -> model.copy(
+                    password = fieldValue)
+
+                IProfileEvent.URL_PROFILE -> model.copy(
+                    profileUrl = fieldValue)
+
+                else -> model
+            }
+
+            Log.d("ProfileEditScreen: ", "triggered")
+            patchUser(data, onSucceed)
+        }
+    }
+
+    fun onUploadProfile(){
+        val model: User? = state.user
+
+        if (formState.profileImage.isEmpty() || model == null){
+            _state.value = ResourceState(error = DONT_EMPTY)
+
+            return
+        }
+
+        model.let { user ->
+            fileCase.uploadFile(formState.profileImage).onEach { res ->
+                onResourceSucceed(res) { file ->
+                    val fresh = user.copy(profileUrl = file.url)
+
+                    Log.d("onUploadProfile", fresh.toString())
+
+                    patchUser(
+                        id = fresh.id,
+                        freshUser = fresh
+                    )
+                }
+            }.launchIn(viewModelScope)
+        }
     }
 
     override fun postUser(user: User) {
