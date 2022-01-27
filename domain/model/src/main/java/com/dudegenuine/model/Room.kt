@@ -12,7 +12,7 @@ data class Room(
     var minute: Int,
     var title: String,
     var description: String,
-    var expired: Boolean,
+    var expired: Boolean, /*var private: Boolean,*/
     var createdAt: Date,
     var updatedAt: Date?,
     var questions: List<Quiz>,
@@ -20,4 +20,5 @@ data class Room(
 ){
     val isPropsBlank: Boolean =
         minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
+
 }

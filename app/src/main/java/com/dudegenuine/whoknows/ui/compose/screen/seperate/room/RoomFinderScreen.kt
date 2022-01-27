@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
@@ -53,9 +54,13 @@ fun RoomFinderScreen(
                 )
 
                 viewModel.state.room?.let {
-
-                    Spacer(modifier = modifier.height(12.dp))
-                    RoomItem(state = it)
+                    RoomItem(
+                        modifier = modifier.clickable(
+                            enabled = !it.expired,
+                            onClick = {}
+                        ),
+                        state = it
+                    )
                 }
 
                 if (viewModel.state.error.isNotBlank()){

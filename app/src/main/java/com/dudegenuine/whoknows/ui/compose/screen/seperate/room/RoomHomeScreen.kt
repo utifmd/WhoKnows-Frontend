@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
@@ -9,12 +10,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 
@@ -22,12 +25,13 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
  * Wed, 29 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalUnitApi
 @Composable
 fun RoomHomeScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),
-    onNewClassPressed: () -> Unit,
-    onJoinWithACodePressed: () -> Unit) {
+    event: IRoomEvent) {
+
     val state = viewModel.state
 
     Scaffold(
@@ -40,22 +44,26 @@ fun RoomHomeScreen(
         content = { padding ->
             Column {
                 Header(
-                    onNewClassPressed = onNewClassPressed,
-                    onJoinWithACodePressed = onJoinWithACodePressed,
+                    onNewClassPressed = event::onNewClassPressed,
+                    onJoinWithACodePressed = event::onJoinWithACodePressed,
                 )
 
                 Body(
-                    state = state, modifier = modifier.padding(padding)
+                    modifier = modifier.padding(padding),
+                    state = state,
+                    onRoomItemSelected = event::onRoomItemSelected
                 )
             }
         }
     )
 }
 
+@ExperimentalUnitApi
 @Composable
 private fun Body(
     state: ResourceState,
-    modifier: Modifier = Modifier){
+    modifier: Modifier = Modifier,
+    onRoomItemSelected: (String) -> Unit){
 
     if (state.loading){
         LoadingScreen()
@@ -65,14 +73,20 @@ private fun Body(
         LazyColumn(
             modifier = modifier.fillMaxWidth()) {
             rooms.forEach {
-                item { RoomItem(modifier = modifier, state = it) }
+                item {
+                    RoomItem(
+                        modifier = modifier.clickable {
+                            onRoomItemSelected(it.id)
+                        },
+                        state = it
+                    )
+                }
             }
         }
     }
 
     if(state.error.isNotBlank()){
         ErrorScreen(modifier = modifier, message = state.error, isDanger = false)
-
     }
 }
 

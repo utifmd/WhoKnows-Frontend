@@ -17,4 +17,8 @@ class RoomEvent(
     override fun onJoinWithACodePressed() {
         router.navigate(Screen.Home.Summary.RoomFinder.route)
     }
+
+    override fun onRoomItemSelected(id: String) {
+        router.navigate(Screen.Home.Summary.DetailRoomOwner.withArgs(id))
+    }
 }

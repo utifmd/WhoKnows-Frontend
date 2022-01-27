@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
@@ -41,7 +42,11 @@ class RoomViewModel
     val formState: RoomState.FormState
         get() = _formState.value
 
-    init { _uiState.value = RoomState.CurrentRoom } // soon being removed Log.d(TAG, "case.currentUserId: ${case.currentUserId}")
+    init {
+        _uiState.value = RoomState.CurrentRoom // soon being removed Log.d(TAG, "case.currentUserId: ${case.currentUserId}")
+
+        savedStateHandle.get<String>(IRoomEvent.SAVED_KEY_ROOM)?.let(formState::onModelValueChange)
+    }
 
     fun getOwnerRoom() { getRooms(case.currentUserId) }
 

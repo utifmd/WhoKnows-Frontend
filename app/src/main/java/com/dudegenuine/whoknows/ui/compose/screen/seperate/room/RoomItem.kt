@@ -39,10 +39,14 @@ fun RoomItem(
             text = state.title,
             style = MaterialTheme.typography.h6)
 
+        Spacer(
+            modifier = Modifier.height(8.dp))
+
         Text(
             text = if (list.size > length) desc else trimmed,
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
-            style = MaterialTheme.typography.body2)
+            style = MaterialTheme.typography.body1
+        )
 
         Row(
             modifier = modifier

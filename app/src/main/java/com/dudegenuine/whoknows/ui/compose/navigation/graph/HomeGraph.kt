@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.ui.compose.navigation.graph
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -23,6 +24,7 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
+@ExperimentalUnitApi
 fun NavGraphBuilder.homeNavGraph(
     modifier: Modifier,
     router: NavHostController,

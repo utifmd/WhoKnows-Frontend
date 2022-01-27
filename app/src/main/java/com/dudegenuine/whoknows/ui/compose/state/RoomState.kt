@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.state
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,21 +52,19 @@ sealed class RoomState {
                 desc.text.isNotBlank() && minute.text.isNotBlank()
             ).value
 
-        val model: Room
-            get() = mutableStateOf(
-                Room(
-                    id = "ROM-${UUID.randomUUID()}",
-                    userId = "",
-                    minute = if(minute.text.isBlank()) 0 else minute.text.toInt(),
-                    title = title.text,
-                    description = desc.text,
-                    expired = false,
-                    questions = emptyList(),
-                    participants = emptyList(),
-                    createdAt = Date(),
-                    updatedAt = null
-                )
-            ).value
+        private val _model = mutableStateOf(
+            Room(
+                id = "ROM-${UUID.randomUUID()}",
+                userId = "",
+                minute = if(minute.text.isBlank()) 0 else minute.text.toInt(),
+                title = title.text,
+                description = desc.text,
+                expired = false,
+                questions = emptyList(),
+                participants = emptyList(),
+                createdAt = Date(),
+                updatedAt = null ))
+        val model: Room get() = _model.value
 
         val isGetValid: Boolean
             get() = mutableStateOf(roomId.isNotBlank()).value
@@ -84,6 +83,15 @@ sealed class RoomState {
 
         fun onRoomIdChange(id: String) {
             _roomId.value = id
+        }
+
+        fun onModelValueChange(roomId: String) {
+            val result = model.copy(id = roomId)
+
+            Log.d("onModelValueChange: ", roomId)
+            Log.d("onModelValueChange: ", result.toString())
+
+            /*_model.value = model.copy()*/
         }
     }
 }
