@@ -6,9 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,12 +18,11 @@ import kotlinx.coroutines.Dispatchers
  **/
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
-@ExperimentalUnitApi
 @Composable
 fun RoomScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),
-    event: IRoomEvent) {
+    event: IRoomEventHome) {
     val uiState = viewModel.uiState.observeAsState().value
 
     LaunchedEffect(Dispatchers.IO) { viewModel.getOwnerRoom() }

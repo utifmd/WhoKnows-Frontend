@@ -30,6 +30,9 @@ class UserUseCaseModule(
         GetUsers = GetUsers(repository),
 
     override val signOutUser:
-        SignOutUser = SignOutUser(repository)
+        SignOutUser = SignOutUser(repository),
+
+    override val currentUserId: () -> String =
+        { repository.currentUserId() }
 
 ): IUserUseCaseModule

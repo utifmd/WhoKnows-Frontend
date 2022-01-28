@@ -1,14 +1,12 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clipToBounds
 
 @Composable
 fun GeneralButtonGroup(
@@ -17,15 +15,12 @@ fun GeneralButtonGroup(
     value: String,
     onValueChange: (String) -> Unit) {
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
+        modifier = modifier.fillMaxWidth()) {
         buttons.forEach { text ->
             Row(
-                modifier = modifier
-                    .fillMaxWidth().padding(16.dp)) {
+                modifier = modifier.fillMaxWidth()) {
                 Button(
-                    modifier = modifier.weight(1f),
+                    modifier = modifier.clipToBounds(),
                     enabled = text != value,
                     onClick = { onValueChange(text) }) {
                     Text(text = text)

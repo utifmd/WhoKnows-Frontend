@@ -21,6 +21,8 @@ interface IUserRepository {
     suspend fun replace(currentUser: CurrentUser)
     suspend fun unload(userId: String)
 
+    val currentUserId: () -> String
+
     companion object {
         const val NOT_FOUND = "User not found."
         const val CURRENT_USER_NOT_FOUND = "Current user not found, please sign in first."

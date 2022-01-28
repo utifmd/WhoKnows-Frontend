@@ -20,12 +20,16 @@ import javax.inject.Inject
  **/
 class UserRepository
     @Inject constructor(
+        private val service: IUserService,
+        private val dao: ICurrentUserDao,
+        private val prefs: IPreferenceManager,
+        private val mapper: IUserDataMapper): IUserRepository {
 
-    private val service: IUserService,
-    private val dao: ICurrentUserDao,
-    private val prefs: IPreferenceManager,
-    private val mapper: IUserDataMapper): IUserRepository {
     private val TAG = javaClass.simpleName
+
+    override val currentUserId: () -> String = {
+        prefs.getString(CURRENT_USER_ID)
+    }
 
     override suspend fun create(user: User): User = try {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
@@ -74,7 +78,7 @@ class UserRepository
     }
 
     override suspend fun signOut(): String {
-        val finalId = prefs.getString(CURRENT_USER_ID)
+        val finalId = currentUserId()
 
         unload(finalId)
 
@@ -93,7 +97,7 @@ class UserRepository
     }
 
     override suspend fun load(userId: String?): User {
-        val finalId = userId ?: prefs.getString(CURRENT_USER_ID)
+        val finalId = userId ?: currentUserId()
         val currentUser = dao.read(finalId)
 
         if (currentUser != null)
@@ -106,8 +110,8 @@ class UserRepository
         val currentUser = dao.read(userId) //?: throw HttpFailureException(NOT_FOUND)
 
         currentUser?.let {
-            dao.delete(it)
             prefs.setString(CURRENT_USER_ID, "")
+            dao.delete(it)
         }
     }
 }

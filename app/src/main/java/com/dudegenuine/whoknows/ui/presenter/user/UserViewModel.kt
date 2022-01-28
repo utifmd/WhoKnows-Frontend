@@ -35,7 +35,11 @@ class UserViewModel
     val formState: UserState.FormState
         get() = _formState.value
 
-    init { getUser() }
+    init {
+        Log.d("Main", "currentId: ${case.currentUserId()}")
+
+        getUser()
+    }
 
     override fun signInUser() {
 

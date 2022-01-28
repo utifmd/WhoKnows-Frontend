@@ -7,14 +7,14 @@ import com.dudegenuine.whoknows.ui.compose.navigation.Screen
  * Wed, 26 Jan 2022
  * WhoKnows by utifmd
  **/
-class RoomEvent(
-    private val router: NavHostController): IRoomEvent {
+class RoomEventHome(
+    private val router: NavHostController): IRoomEventHome {
 
     override fun onNewClassPressed() {
         router.navigate(Screen.Home.Summary.RoomCreator.route)
     }
 
-    override fun onJoinWithACodePressed() {
+    override fun onJoinRoomWithACodePressed() {
         router.navigate(Screen.Home.Summary.RoomFinder.route)
     }
 

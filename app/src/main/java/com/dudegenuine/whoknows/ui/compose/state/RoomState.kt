@@ -1,15 +1,11 @@
 package com.dudegenuine.whoknows.ui.compose.state
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import com.dudegenuine.model.Answer
-import com.dudegenuine.model.Quiz
-import com.dudegenuine.model.Result
-import com.dudegenuine.model.Room
+import com.dudegenuine.model.*
 import java.util.*
 
 /**
@@ -66,6 +62,19 @@ sealed class RoomState {
                 updatedAt = null ))
         val model: Room get() = _model.value
 
+        private val _participantModel = mutableStateOf(Participant(
+                id = "PPN-${UUID.randomUUID()}",
+                roomId = "",
+                userId = "",
+                currentPage = "",
+                timeLeft = null,
+                expired = false,
+                createdAt = Date(),
+                updatedAt = null))
+
+        val participantModel: Participant
+            get() = _participantModel.value
+
         val isGetValid: Boolean
             get() = mutableStateOf(roomId.isNotBlank()).value
 
@@ -83,15 +92,6 @@ sealed class RoomState {
 
         fun onRoomIdChange(id: String) {
             _roomId.value = id
-        }
-
-        fun onModelValueChange(roomId: String) {
-            val result = model.copy(id = roomId)
-
-            Log.d("onModelValueChange: ", roomId)
-            Log.d("onModelValueChange: ", result.toString())
-
-            /*_model.value = model.copy()*/
         }
     }
 }

@@ -5,12 +5,15 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun GeneralTopBar(
     modifier: Modifier = Modifier,
     title: String,
+    leads: Any? = null,
+    light: Boolean = true,
     submitEnable: Boolean = false,
     submitLoading: Boolean = false,
     submitLabel: String? = null,
@@ -22,17 +25,37 @@ fun GeneralTopBar(
 
     TopAppBar(
         elevation = (0.5).dp,
-        backgroundColor = MaterialTheme.colors.surface) {
+        backgroundColor = if (light) MaterialTheme.colors.surface
+            else MaterialTheme.colors.primary) {
+
         Row(
             modifier = modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                modifier = modifier.padding(
-                    horizontal = 16.dp),
-                text = title,
-                color = MaterialTheme.colors.primaryVariant, //fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.h6)
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically){
+
+                when (leads) {
+                    is ImageVector -> {
+                        Icon(
+                            modifier = modifier.padding(start = 16.dp, end = 12.dp),
+                            imageVector = leads, contentDescription = null,
+                            tint = if (light) MaterialTheme.colors.primaryVariant.copy(alpha = 0.8f)
+                                else MaterialTheme.colors.onPrimary
+                        )
+                    }
+                }
+                Text(
+                    modifier = modifier.padding(
+                        horizontal = if (leads != null) 0.dp else 16.dp
+                    ),
+                    text = title,
+                    color = if (light) MaterialTheme.colors.primaryVariant.copy(alpha = 0.8f)
+                        else MaterialTheme.colors.surface,
+                    style = MaterialTheme.typography.h6
+                )
+            }
 
             submitLabel?.let {
                 TextButton(

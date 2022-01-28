@@ -33,6 +33,7 @@ import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
 @Composable
 @ExperimentalFoundationApi
 fun QuizCreatorScreen(
+    modifier: Modifier = Modifier,
     viewModel: QuizViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val formState = viewModel.formState
@@ -64,7 +65,7 @@ fun QuizCreatorScreen(
                     vertical = 8.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize()) {
+                modifier = modifier.fillMaxSize()) {
                 item {
                     ImagesPreUpload(
                         images = formState.images,
@@ -80,7 +81,7 @@ fun QuizCreatorScreen(
                         tails = if (formState.currentQuestion.text.isNotBlank())
                                 Icons.Default.Close else null,
                         onTailPressed = { formState.onQuestionValueChange("") },
-                        modifier = Modifier.background(
+                        modifier = modifier.background(
                             color = MaterialTheme.colors.surface
                         )
                     )
@@ -98,7 +99,7 @@ fun QuizCreatorScreen(
                     )
                 }
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = modifier.height(8.dp))
                     GeneralButtonGroup(
                         buttons = setOf(
                             strOf<PossibleAnswer.SingleChoice>(),

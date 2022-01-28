@@ -1,8 +1,6 @@
 package com.dudegenuine.model.common
 
 import android.text.format.DateUtils
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -23,7 +21,7 @@ object ViewUtil {
         }
     }
 
-    fun pretty(source: String): String {
+    /*fun pretty(source: String): String {
         return try {
             val sdf: (String) -> SimpleDateFormat = { SimpleDateFormat(it).apply {
                 timeZone = TimeZone.getTimeZone("GMT")
@@ -39,6 +37,5 @@ object ViewUtil {
             e.printStackTrace()
             source
         }
-    }
-
+    }*/
 }

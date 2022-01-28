@@ -156,6 +156,7 @@ private fun Body(
                 value = user.password,
                 editable = false,
                 censored = true,
+                isDivide = false,
                 onValuePressed = { event.onPasswordPressed(user.password) }
             )
         }
@@ -166,8 +167,5 @@ private fun Body(
                 text = stringResource(R.string.sign_out), color = MaterialTheme.colors.error
             )
         }
-
-        Spacer(
-            modifier = Modifier.height(16.dp))
     }
 }

@@ -29,11 +29,11 @@ import javax.inject.Inject
 @HiltViewModel
 class RoomViewModel
     @Inject constructor(
-    private val case: IRoomUseCaseModule,
-    private val caseFile: IFileUseCaseModule,
-    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
-    private val TAG: String = javaClass.simpleName
+        private val case: IRoomUseCaseModule,
+        private val caseFile: IFileUseCaseModule,
+        private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
 
+    private val TAG: String = javaClass.simpleName
     private val _uiState = MutableLiveData<RoomState>()
     val uiState: LiveData<RoomState>
         get() = _uiState
@@ -43,17 +43,20 @@ class RoomViewModel
         get() = _formState.value
 
     init {
-        _uiState.value = RoomState.CurrentRoom // soon being removed Log.d(TAG, "case.currentUserId: ${case.currentUserId}")
+        _uiState.value = RoomState.CurrentRoom // soon being removed
 
-        savedStateHandle.get<String>(IRoomEvent.SAVED_KEY_ROOM)?.let(formState::onModelValueChange)
+        Log.d(TAG, "currentUser: ${case.currentUserId}")
+
+        savedStateHandle
+            .get<String>(IRoomEvent.SAVED_KEY_ROOM)?.let(this::getRoom)
     }
 
-    fun getOwnerRoom() { getRooms(case.currentUserId) }
+    fun getOwnerRoom() { getRooms(case.currentUserId()) }
 
     fun onCreatePressed(onSucceed: (Room) -> Unit) {
-        val model = formState.model.copy(userId = case.currentUserId)
+        val model = formState.model.copy(userId = case.currentUserId())
 
-        if (!formState.isPostValid || case.currentUserId.isBlank()) {
+        if (!formState.isPostValid || case.currentUserId().isBlank()) {
             _state.value = ResourceState(error = DONT_EMPTY)
 
             return

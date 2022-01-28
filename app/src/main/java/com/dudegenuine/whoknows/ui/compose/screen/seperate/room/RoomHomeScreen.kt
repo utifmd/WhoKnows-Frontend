@@ -10,14 +10,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 
@@ -25,12 +24,11 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
  * Wed, 29 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalUnitApi
 @Composable
 fun RoomHomeScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),
-    event: IRoomEvent) {
+    event: IRoomEventHome) {
 
     val state = viewModel.state
 
@@ -45,7 +43,7 @@ fun RoomHomeScreen(
             Column {
                 Header(
                     onNewClassPressed = event::onNewClassPressed,
-                    onJoinWithACodePressed = event::onJoinWithACodePressed,
+                    onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
                 )
 
                 Body(
@@ -58,7 +56,6 @@ fun RoomHomeScreen(
     )
 }
 
-@ExperimentalUnitApi
 @Composable
 private fun Body(
     state: ResourceState,
@@ -72,6 +69,7 @@ private fun Body(
     state.rooms?.let { rooms ->
         LazyColumn(
             modifier = modifier.fillMaxWidth()) {
+
             rooms.forEach {
                 item {
                     RoomItem(
@@ -86,7 +84,9 @@ private fun Body(
     }
 
     if(state.error.isNotBlank()){
-        ErrorScreen(modifier = modifier, message = state.error, isDanger = false)
+        ErrorScreen(
+            modifier = modifier, message = state.error, isDanger = false
+        )
     }
 }
 

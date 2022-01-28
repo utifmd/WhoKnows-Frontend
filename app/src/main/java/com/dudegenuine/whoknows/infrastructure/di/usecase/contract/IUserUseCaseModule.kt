@@ -7,6 +7,8 @@ import com.dudegenuine.usecase.user.*
  * WhoKnows by utifmd
  **/
 interface IUserUseCaseModule {
+    val currentUserId: () -> String
+
     val signInUser: SignInUser
     val signOutUser: SignOutUser
     val postUser: PostUser

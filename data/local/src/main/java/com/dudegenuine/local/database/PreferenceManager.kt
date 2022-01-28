@@ -1,6 +1,7 @@
 package com.dudegenuine.local.database
 
-import android.content.SharedPreferences
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import com.dudegenuine.local.database.contract.IPreferenceManager
 
 /**
@@ -8,16 +9,23 @@ import com.dudegenuine.local.database.contract.IPreferenceManager
  * WhoKnows by utifmd
  **/
 class PreferenceManager(
-    private val sharedPreferences: SharedPreferences): IPreferenceManager {
+    context: Context): IPreferenceManager {
+
+    private val prefs = context.getSharedPreferences(IPreferenceManager.PREF_NAME, MODE_PRIVATE)
 
     override fun getString(key: String): String {
-        return sharedPreferences.getString(key, "") ?: ""
+        return prefs.getString(key, "")!!
     }
 
     override fun setString(key: String, value: String) {
-        sharedPreferences.edit().apply {
+        val editor = prefs.edit()
+
+        editor.putString(key, value)
+        editor.apply()
+
+        /*sharedPreferences.edit().apply {
             putString(key, value)
             apply()
-        }
+        }*/
     }
 }
