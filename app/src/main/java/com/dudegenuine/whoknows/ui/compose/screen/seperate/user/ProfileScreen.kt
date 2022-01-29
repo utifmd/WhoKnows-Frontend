@@ -5,7 +5,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
@@ -114,10 +113,9 @@ private fun Body(
         Column(
             modifier = modifier.fillMaxWidth()
                 .padding(horizontal = 18.dp)
-                .clip(RoundedCornerShape(6.dp))
+                .clip(shape = MaterialTheme.shapes.medium)
                 .background(
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
-                )) {
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
 
             FieldTag(
                 key = stringResource(R.string.full_name),

@@ -21,6 +21,7 @@ fun CardFooter(
     color: Color? = null){
 
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically) {
 
         Icon(

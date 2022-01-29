@@ -4,13 +4,11 @@ import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarViewDay
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.QuestionAnswer
-import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -19,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
+import com.dudegenuine.whoknows.ui.compose.component.GeneralCardView
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
@@ -47,16 +46,21 @@ fun RoomDetail(
 
     val state = roomViewModel.state
 
-    val conceal: () -> Unit = {
-        if(scaffoldState.isRevealed)
-            coroutineScope.launch { scaffoldState.conceal() }
+    val toggle: () -> Unit = {
+        coroutineScope.launch {
+            if(scaffoldState.isRevealed)
+                scaffoldState.conceal()
+            else
+                scaffoldState.reveal()
+        }
     }
 
     val event = object: IRoomEventDetail {
-
-        override fun onPublishRoomPressed() { conceal() }
+        override fun onCloseRoomPressed() { toggle() }
 
         override fun onJoinRoomDirectlyPressed(room: Room) {
+            toggle()
+
             val model = roomViewModel.formState.participantModel.copy(
                 roomId = room.id,
                 userId = room.userId,
@@ -70,8 +74,8 @@ fun RoomDetail(
                 .postParticipant(model)*/
         }
 
-        override fun onNewRoomQuizPressed() =
-            roomEventDetail.onNewRoomQuizPressed()
+        override fun onNewRoomQuizPressed(roomId: String, owner: String) =
+            roomEventDetail.onNewRoomQuizPressed(roomId, owner)
 
         override fun onParticipantItemPressed() =
             roomEventDetail.onParticipantItemPressed()
@@ -89,15 +93,16 @@ fun RoomDetail(
 
             appBar = {
                 GeneralTopBar(
+                    light = false,
                     title = "${model.minute} minute\'s duration",
                     leads = Icons.Default.Timer,
-                    light = false
+                    tails = Icons.Default.Menu,
+                    onTailPressed = { toggle() }
                 )
             },
 
             backLayerContent = {
                 BackLayer(
-                    modifier = modifier,
                     model = model,
                     isOwn = isOwn,
                     event = event
@@ -106,8 +111,8 @@ fun RoomDetail(
 
             frontLayerContent = {
                 FrontLayer(
-                    modifier = modifier,
                     model = model,
+                    isOwn = isOwn,
                     onParticipantPressed =
                         event::onParticipantItemPressed
                 )
@@ -124,7 +129,7 @@ fun RoomDetail(
 
 @Composable
 private fun BackLayer(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     model: Room,
     isOwn: Boolean,
     event: IRoomEventDetail) {
@@ -140,21 +145,22 @@ private fun BackLayer(
             TextButton(
                 enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = event::onPublishRoomPressed) {
+                onClick = event::onCloseRoomPressed) {
 
                 Text(
                     color = if (enabled) MaterialTheme.colors.surface
-                        else MaterialTheme.colors.error,
-                    text = "Publish this room"
+                    else MaterialTheme.colors.error,
+                    text = "Close the room"
                 )
             }
         }
+
 
         TextButton(
             enabled = enabled,
             modifier = modifier.fillMaxWidth(),
             onClick = {
-                if (isOwn) event.onNewRoomQuizPressed()
+                if (isOwn) event.onNewRoomQuizPressed(model.id, model.userId)
                 else event.onJoinRoomDirectlyPressed(model) }) {
 
             Text(
@@ -171,9 +177,10 @@ private fun BackLayer(
 @ExperimentalFoundationApi
 @Composable
 private fun FrontLayer(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     model: Room,
-    onParticipantPressed: () -> Unit){
+    isOwn: Boolean,
+    onParticipantPressed: () -> Unit) {
 
     Column(
         modifier = modifier.fillMaxSize()) {
@@ -183,14 +190,16 @@ private fun FrontLayer(
                 .fillMaxWidth()
                 .padding(24.dp)) {
 
-
             Text(
                 text = model.title,
                 style = MaterialTheme.typography.h4)
 
+            Spacer(
+                modifier = Modifier.height(12.dp))
+
             CardFooter(
                 text = model.createdAt.toHttpDateString(),
-                icon = Icons.Default.CalendarViewDay,
+                icon = Icons.Default.CalendarToday,
                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
             )
 
@@ -200,38 +209,56 @@ private fun FrontLayer(
                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
         }
 
-        Row(
-            modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween) {
-
-            CardFooter(
-                text = "${model.participants.size} " +
-                        if (model.participants.size > 1) "Participant\'s" else "Participant",
-                icon = Icons.Default.People,
-            )
-
-            CardFooter(
-                text = "${model.questions.size} " +
-                        if (model.questions.size > 1) "Questions\'s" else "Question",
-                icon = Icons.Default.QuestionAnswer,
-            )
-        }
+        CardFooter(
+            modifier = modifier.padding(horizontal = 24.dp),
+            text = "${model.participants.size} " +
+                    if (model.participants.size > 1) "Participant\'s" else "Participant",
+            icon = Icons.Default.People,
+        )
 
         if (model.participants.isNotEmpty()){
-            Divider()
             LazyRow(
                 modifier = modifier.fillMaxWidth()) {
 
                 model.participants.forEach {
                     item {
                         ProfileCard(
-                            modifier = Modifier.clickable(
+                            modifier = modifier.clickable(
                                 onClick = onParticipantPressed
                             ),
                             name = it.userId.split("-")[0],
                             desc = timeAgo(it.createdAt),
                             url = "http://10.0.2.2:8080/files/785d4c17-cffa-4338-b551-37da6fa5272c"
                         )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        CardFooter(
+            modifier = modifier.padding(horizontal = 24.dp),
+            text = "${model.questions.size} " +
+                    if (model.questions.size > 1) "Questions\'s" else "Question",
+            icon = Icons.Default.QuestionAnswer
+        )
+
+        if (isOwn && model.questions.isNotEmpty()){
+            LazyColumn(
+                modifier = modifier.fillMaxWidth()){
+                repeat(model.questions.size) {
+                    item {
+                        GeneralCardView {
+                            Box(
+                                modifier = modifier.padding(12.dp)){
+
+                                Text(
+                                    text = /*"${it.plus(1)}. " + */model.questions[it].question,
+                                    style = MaterialTheme.typography.subtitle1
+                                )
+                            }
+                        }
                     }
                 }
             }

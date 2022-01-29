@@ -11,7 +11,11 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScree
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_IS_OWN
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_OWNER_SAVED_KEY
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_OWN_IS_FALSE
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_OWN_IS_TRUE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 
 /**
@@ -29,8 +33,10 @@ fun NavGraphBuilder.summaryGraph(
         RoomCreatorScreen(
             modifier = modifier,
             onSucceed = {
-                router.navigate(Screen.Home.Summary.route){
-                    popUpTo(Screen.Home.Summary.route){ inclusive = true }
+                val route = Screen.Home.Summary.route
+
+                router.navigate(route){
+                    popUpTo(route){ inclusive = true }
                 }
             }
         )
@@ -39,24 +45,33 @@ fun NavGraphBuilder.summaryGraph(
     composable(
         route = Screen.Home.Summary.RoomFinder.route){
         RoomFinderScreen(
-            modifier = modifier
-        )
+            modifier = modifier){ roomId ->
+
+            router.navigate(Screen.Home.Summary.DetailRoomOwner.withArgs(roomId, ROOM_OWN_IS_FALSE))
+        }
     }
 
     composable(
-        route = Screen.Home.Summary.DetailRoomOwner.withArgs("{${IRoomEvent.SAVED_KEY_ROOM}}")){
+        route = Screen.Home.Summary.DetailRoomOwner.withArgs(
+            "{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}")){ entry ->
         RoomDetail(
             modifier = modifier,
-            isOwn = true,
+            isOwn = entry.arguments?.getString(ROOM_IS_OWN) == ROOM_OWN_IS_TRUE,
             roomEventDetail = RoomEventDetail(router = router)
         )
     }
 
     composable(
-        route = Screen.Home.Summary.DetailRoomOwner.QuizCreator.route){
+        route = Screen.Home.Summary.DetailRoomOwner.QuizCreator.withArgs(
+            "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")){
 
-        QuizCreatorScreen(
-            modifier = modifier
-        )
+        QuizCreatorScreen { quiz ->
+            val route = Screen.Home.Summary.DetailRoomOwner.withArgs(
+                quiz.roomId, ROOM_OWN_IS_TRUE)
+
+            router.navigate(route){
+                popUpTo(route){ inclusive = true }
+            }
+        }
     }
 }

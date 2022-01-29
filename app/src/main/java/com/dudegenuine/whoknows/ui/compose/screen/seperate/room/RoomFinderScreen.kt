@@ -1,7 +1,9 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -24,7 +26,7 @@ import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 @Composable
 fun RoomFinderScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel()) {
+    viewModel: RoomViewModel = hiltViewModel(), onRoomSelected: (String) -> Unit) {
     val formState = viewModel.formState
 
     Scaffold(
@@ -34,7 +36,7 @@ fun RoomFinderScreen(
                 title = stringResource(
                     id = R.string.join_with_a_code
                 ),
-                submitLabel = "Join",
+                submitLabel = "Search",
                 submitEnable = formState.isGetValid,
                 submitLoading = viewModel.state.loading,
                 onSubmitPressed = viewModel::findRoom
@@ -42,7 +44,7 @@ fun RoomFinderScreen(
         },
         content = {
             Column(
-                modifier = modifier.padding(16.dp)) {
+                modifier = modifier) {
 
                 GeneralTextField(
                     label = "Enter an invitation code",
@@ -55,18 +57,18 @@ fun RoomFinderScreen(
 
                 viewModel.state.room?.let {
                     RoomItem(
-                        modifier = modifier.clickable(
-                            enabled = !it.expired,
-                            onClick = {}
-                        ),
-                        state = it
+                        state = it,
+                        onPressed = { onRoomSelected(it.id) }
                     )
                 }
 
                 if (viewModel.state.error.isNotBlank()){
 
-                    Spacer(modifier = modifier.height(12.dp))
-                    ErrorScreen(message = viewModel.state.error, isSnack = true, isDanger = false)
+                    Spacer(
+                        modifier = modifier.height(12.dp))
+
+                    ErrorScreen(
+                        message = viewModel.state.error, isSnack = true, isDanger = false)
                 }
             }
         }

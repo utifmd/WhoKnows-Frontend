@@ -14,6 +14,8 @@ fun GeneralTopBar(
     title: String,
     leads: Any? = null,
     light: Boolean = true,
+    tails: ImageVector? = null,
+    onTailPressed: (() -> Unit) ? = null,
     submitEnable: Boolean = false,
     submitLoading: Boolean = false,
     submitLabel: String? = null,
@@ -21,6 +23,10 @@ fun GeneralTopBar(
 
     val onSubmitClick: () -> Unit = {
         onSubmitPressed?.let { onSubmitPressed() }
+    }
+
+    val onTailClicked: () -> Unit = {
+        onTailPressed?.let { onTailPressed() }
     }
 
     TopAppBar(
@@ -55,6 +61,18 @@ fun GeneralTopBar(
                         else MaterialTheme.colors.surface,
                     style = MaterialTheme.typography.h6
                 )
+            }
+
+            if(tails != null){
+                IconButton(
+                    onClick = onTailClicked) {
+
+                    Icon(
+                        imageVector = tails,
+                        tint = if (light) MaterialTheme.colors.primaryVariant.copy(alpha = 0.8f)
+                            else MaterialTheme.colors.onPrimary,
+                        contentDescription = null)
+                }
             }
 
             submitLabel?.let {

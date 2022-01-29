@@ -2,8 +2,6 @@ package com.dudegenuine.whoknows.ui.compose.state
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.input.key.KeyEvent
@@ -20,10 +18,6 @@ import java.util.*
  **/
 sealed class QuizState {
     class FormState: QuizState() {
-        private val _roomId = mutableStateOf("")
-        val roomId: String
-            get() = _roomId.value
-
         private val _currentQuestion = mutableStateOf(TextFieldValue(""))
         val currentQuestion: TextFieldValue
             get() = _currentQuestion.value
@@ -31,6 +25,12 @@ sealed class QuizState {
         private val _currentOption = mutableStateOf(TextFieldValue(""))
         val currentOption: TextFieldValue
             get() = _currentOption.value
+
+        private val _roomId = mutableStateOf("")
+        val roomId: String get() = _roomId.value
+
+        private val _userId = mutableStateOf("")
+        val userId: String get() = _userId.value
 
         private val _currentAnswer = mutableStateOf<Answer?>(null)
         val currentAnswer: Answer?
@@ -50,13 +50,13 @@ sealed class QuizState {
 
         private val setOfAnswers = mutableSetOf<String>()
 
-        val isValid: MutableState<Boolean>
+        val isValid: Boolean
             get() = mutableStateOf(
                 selectedAnswer != null &&
                         currentQuestion.text.isNotBlank() &&
-                        images.isNotEmpty() &&
-                        options.isNotEmpty()
-            )
+                        userId.isNotBlank() &&
+                        roomId.isNotBlank() && /*images.isNotEmpty() &&*/
+                        options.isNotEmpty()).value
 
         fun onResultImage (context: Context, result: Uri?) {
             result?.let { uri ->
@@ -88,10 +88,6 @@ sealed class QuizState {
             _currentOption.value = TextFieldValue(it)
         }
 
-        fun onUserIdValueChange (it: String){
-            _roomId.value = it
-        }
-
         fun onSelectedAnswerValue (it: PossibleAnswer?) {
             _selectedAnswer.value = it
         }
@@ -111,19 +107,25 @@ sealed class QuizState {
             _images.removeAt(it)
         }
 
-        val postModel: State<Quiz>
+        fun onRoomIdValueChange(it: String) {
+            _roomId.value = it
+        }
+
+        fun onUserIdValueChange(it: String){
+            _userId.value = it
+        }
+
+        val postModel: Quiz
             get() = mutableStateOf(
                 Quiz(
                     "QIZ-${UUID.randomUUID()}",
-                    roomId,// "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda",
+                    roomId = roomId,
+                    createdBy = userId,
                     images = emptyList(),
                     question = currentQuestion.text.trim(),
                     options = options,
                     answer = selectedAnswer,
-                    createdBy = "Diyanti Ratna Puspita Sari",
                     createdAt = Date(),
-                    updatedAt = null
-                )
-            )
+                    updatedAt = null)).value
     }
 }

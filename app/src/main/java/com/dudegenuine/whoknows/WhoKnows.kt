@@ -12,7 +12,15 @@ import dagger.hilt.android.HiltAndroidApp
 class WhoKnows: Application()
 
 // TODO:
-//  - finder screen dynamically
-//  - loading screen dynamically
-//  - summary screen with feeds
-//  - fixes all warning build
+/* Backend
+* Room +
+* - field private
+*
+* Participant +
+* - related to user by userId (OneToOne)
+*
+*
+* Frontend
+* - Paging
+* - Limitation
+* */

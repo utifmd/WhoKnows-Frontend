@@ -6,7 +6,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.RectangleShape
 
 @Composable
 fun GeneralButtonGroup(
@@ -17,16 +17,18 @@ fun GeneralButtonGroup(
     Row(
         modifier = modifier.fillMaxWidth()) {
         buttons.forEach { text ->
-            Row(
-                modifier = modifier.fillMaxWidth()) {
-                Button(
-                    modifier = modifier.clipToBounds(),
-                    enabled = text != value,
-                    onClick = { onValueChange(text) }) {
-                    Text(text = text)
-                }
+            Button(
+                modifier = modifier.weight(1f),
+                shape = RectangleShape,
+                enabled = text != value,
+                onClick = { onValueChange(text) }) {
+                Text(text = text)
+            }
 
-                /*Text(
+            /*Row(
+                modifier = modifier.fillMaxWidth()) {
+
+                *//*Text(
                     text = text,
                     style = MaterialTheme.typography.body1.merge(),
                     color = Color.White,
@@ -50,8 +52,8 @@ fun GeneralButtonGroup(
                             vertical = 8.dp,
                             horizontal = 16.dp,
                         )
-                )*/
-            }
+                )*//*
+            }*/
         }
     }
 }

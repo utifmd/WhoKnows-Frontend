@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
@@ -39,7 +38,7 @@ fun RoomHomeScreen(
                 title = "Recently class", //"Recently class\'s",
             )
         },
-        content = { padding ->
+        content = {
             Column {
                 Header(
                     onNewClassPressed = event::onNewClassPressed,
@@ -47,7 +46,7 @@ fun RoomHomeScreen(
                 )
 
                 Body(
-                    modifier = modifier.padding(padding),
+                    modifier = modifier,
                     state = state,
                     onRoomItemSelected = event::onRoomItemSelected
                 )
@@ -73,11 +72,10 @@ private fun Body(
             rooms.forEach {
                 item {
                     RoomItem(
-                        modifier = modifier.clickable {
-                            onRoomItemSelected(it.id)
-                        },
-                        state = it
-                    )
+                        state = it){
+
+                        onRoomItemSelected(it.id)
+                    }
                 }
             }
         }
@@ -97,9 +95,7 @@ private fun Header(
     onJoinWithACodePressed: () -> Unit){
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
+        modifier = modifier.fillMaxWidth().padding(16.dp)) {
 
         Button(
             modifier = modifier.weight(1f),
@@ -109,6 +105,7 @@ private fun Header(
 
         Spacer(
             modifier = modifier.width(16.dp))
+
         OutlinedButton(
             modifier = modifier.weight(1f),
             onClick = onJoinWithACodePressed) {

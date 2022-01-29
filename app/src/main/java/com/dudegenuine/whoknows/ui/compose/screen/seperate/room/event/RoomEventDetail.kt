@@ -12,8 +12,8 @@ import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 class RoomEventDetail(
     private val router: NavHostController): IRoomEventDetail {
 
-    override fun onNewRoomQuizPressed() {
-        router.navigate(Screen.Home.Summary.DetailRoomOwner.QuizCreator.route)
+    override fun onNewRoomQuizPressed(roomId: String, owner: String) {
+        router.navigate(Screen.Home.Summary.DetailRoomOwner.QuizCreator.withArgs(roomId, owner))
     }
 
     override fun onParticipantItemPressed() {

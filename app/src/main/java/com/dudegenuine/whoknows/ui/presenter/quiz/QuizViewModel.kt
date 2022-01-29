@@ -10,6 +10,8 @@ import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IQuizUseCaseModule
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_OWNER_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.state.QuizState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
@@ -41,15 +43,33 @@ class QuizViewModel
     val formState: QuizState.FormState
         get() = _formState.value
 
-    fun onPostPressed () {
-        val model = formState.postModel.value
+    init {
+        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)
+            ?.let(formState::onRoomIdValueChange)
 
-        _state.value = ResourceState(quiz = model)
+        savedStateHandle.get<String>(ROOM_OWNER_SAVED_KEY)
+            ?.let(formState::onUserIdValueChange)
+    }
 
-        if (formState.isValid.value && resourceState.quiz != null)
-            multiUpload(formState.images)
-        else
+    fun onPostPressed(onSuccess: (Quiz) -> Unit) {
+        val model = formState.postModel
+
+        Log.d(TAG, model.toString())
+
+        if (formState.isValid) {
+            if (formState.images.isNotEmpty())
+                multiUpload(formState.images)
+            else
+                caseQuiz.postQuiz(model).onEach { res ->
+                    onResourceSucceed(
+                        resources = res,
+                        onSuccess = onSuccess
+                    )
+                }.launchIn(viewModelScope)
+
+        } else {
             _state.value = ResourceState(error = DONT_EMPTY)
+        }
     }
 
     override fun multiUpload(byteArrays: List<ByteArray>) {
@@ -60,7 +80,7 @@ class QuizViewModel
     }
 
     override fun onMultiUploaded(resources: Resource<List<File>>) {
-        val model = resourceState.quiz ?: formState.postModel.value
+        val model = resourceState.quiz ?: formState.postModel
         Log.d(TAG, "onFileUploaded: $model")
 
         onResourceSucceed(resources) { data ->

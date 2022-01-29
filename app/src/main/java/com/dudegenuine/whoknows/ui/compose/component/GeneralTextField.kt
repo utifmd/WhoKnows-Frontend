@@ -54,13 +54,12 @@ fun GeneralTextField(
             Text(
                 text = label)},
         leadingIcon = {
-            if (leads != null){
+            if (leads != null) {
                 Icon(
-                    imageVector = leads,
-                    contentDescription = "leads-$label",
                     modifier = modifier.clickable(
-                        onClick = onTailClicked
-                    )
+                        onClick = onTailClicked),
+                    imageVector = leads,
+                    contentDescription = null
                 )
             }
         },
@@ -68,10 +67,10 @@ fun GeneralTextField(
             Row {
                 when (tails){
                     is ImageVector -> Icon(
-                        imageVector = tails,
-                        contentDescription = "tails-$label",
                         modifier = modifier.clickable(
-                            onClick = onTailClicked))
+                            onClick = onTailClicked),
+                        imageVector = tails,
+                        contentDescription = null,)
                     is String -> TextButton(
                         onClick = onTailClicked) {
                         Text(

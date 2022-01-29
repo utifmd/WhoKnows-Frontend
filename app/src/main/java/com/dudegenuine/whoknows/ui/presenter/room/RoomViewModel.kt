@@ -48,7 +48,7 @@ class RoomViewModel
         Log.d(TAG, "currentUser: ${case.currentUserId}")
 
         savedStateHandle
-            .get<String>(IRoomEvent.SAVED_KEY_ROOM)?.let(this::getRoom)
+            .get<String>(IRoomEvent.ROOM_ID_SAVED_KEY)?.let(this::getRoom)
     }
 
     fun getOwnerRoom() { getRooms(case.currentUserId()) }

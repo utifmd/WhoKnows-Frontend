@@ -25,7 +25,7 @@ fun ErrorScreen(
     isSnack: Boolean = false,
 ) {
     Box(
-        modifier = if(isSnack) modifier.fillMaxWidth().padding(vertical = 16.dp) else modifier.fillMaxSize(),
+        modifier = if(isSnack) Modifier.fillMaxWidth().padding(vertical = 12.dp) else modifier.fillMaxSize(),
         contentAlignment = Alignment.Center) {
 
         Text(
