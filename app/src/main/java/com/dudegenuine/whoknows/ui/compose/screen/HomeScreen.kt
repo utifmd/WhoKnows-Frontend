@@ -1,7 +1,9 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
@@ -25,21 +27,27 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     router: NavHostController,
     enabled: Boolean = false,
-    content: @Composable (PaddingValues) -> Unit,
+    content: @Composable () -> Unit,
     scaffoldState: ScaffoldState = rememberScaffoldState()) {
 
     Scaffold(
         modifier = modifier,
         scaffoldState = scaffoldState,
-        content = content,
+        content = { padding ->
+            Box(
+                modifier = modifier
+                    .padding(padding)
+                    .fillMaxSize()){
+
+                content()
+            }
+        },
         bottomBar = {
             if (enabled) {
                 GeneralBottomBar(
                     items = BottomDomain.list,
-                    controller = router) /*{
-
-                    router.navigate(it.route)
-                }*/
+                    controller = router
+                )
             }
         }
     )

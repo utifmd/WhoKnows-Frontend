@@ -1,9 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -44,7 +41,8 @@ fun RoomFinderScreen(
         },
         content = {
             Column(
-                modifier = modifier) {
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = modifier.padding(12.dp)) {
 
                 GeneralTextField(
                     label = "Enter an invitation code",

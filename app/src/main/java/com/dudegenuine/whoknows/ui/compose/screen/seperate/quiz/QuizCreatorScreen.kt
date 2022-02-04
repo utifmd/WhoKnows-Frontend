@@ -18,11 +18,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil.strOf
+import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralButtonGroup
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
@@ -57,7 +59,7 @@ fun QuizCreatorScreen(
         modifier = modifier,
         topBar = {
             GeneralTopBar(
-                title = "New question",
+                title = stringResource(R.string.new_question),
                 submitLabel = "Add",
                 submitEnable = formState.isValid,
                 submitLoading = state.loading,
@@ -68,20 +70,18 @@ fun QuizCreatorScreen(
         content = {
 
             Box(
-                modifier = modifier.fillMaxSize()
-                    .padding(bottom = 30.dp).verticalScroll(scrollState)) {
+                modifier = modifier.verticalScroll(scrollState)) {
 
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(12.dp)) { /*contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),*/
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = modifier.fillMaxSize()
+                        .padding(12.dp)) {
 
                     ImagesPreUpload(
                         images = formState.images,
                         onAddPressed = { launcher.launch("image/*") },
                         onRemovePressed = formState::onImagesRemoveAt
                     )
-
-                    Spacer(
-                        modifier = Modifier.height(8.dp))
 
                     GeneralTextField(
                         label = "Enter a question",
@@ -94,9 +94,6 @@ fun QuizCreatorScreen(
                         modifier = modifier
                     )
 
-                    Spacer(
-                        modifier = Modifier.height(8.dp))
-
                     GeneralTextField(
                         label = "Push some options",
                         value = formState.currentOption.text,
@@ -108,9 +105,6 @@ fun QuizCreatorScreen(
                         modifier = Modifier
                             .onKeyEvent(formState::onOptionKeyEvent)
                     )
-
-                    Spacer(
-                        modifier = modifier.height(8.dp))
 
                     GeneralButtonGroup(
                         buttons = setOf(

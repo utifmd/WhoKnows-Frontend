@@ -15,6 +15,7 @@ data class Participant (
     var expired: Boolean,
     var createdAt: Date,
     var updatedAt: Date?,
+    var user: User?,
     //var results: List<Result>
 ){
     val isPropsBlank: Boolean =

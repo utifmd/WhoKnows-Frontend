@@ -1,9 +1,9 @@
 package com.dudegenuine.repository
 
 import android.util.Log
-import com.dudegenuine.local.database.contract.IPreferenceManager
-import com.dudegenuine.local.database.contract.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.local.manager.contract.IPreferenceManager
+import com.dudegenuine.local.manager.contract.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.validation.HttpFailureException

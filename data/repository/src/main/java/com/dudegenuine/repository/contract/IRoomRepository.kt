@@ -14,7 +14,9 @@ interface IRoomRepository {
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Room>
     suspend fun list(userId: String): List<Room>
+
     val currentUserId: () -> String
+    val saveInClipboard: (String, String) -> Unit
 
     companion object {
         const val NOT_FOUND = "Room not found."

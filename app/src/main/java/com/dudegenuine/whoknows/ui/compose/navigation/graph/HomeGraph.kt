@@ -24,19 +24,18 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 fun NavGraphBuilder.homeNavGraph(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     router: NavHostController,
     viewModel: UserViewModel) {
 
     navigation(
         route = Screen.Home.route,
-        startDestination = Screen.Home.Summary.route) {
+        startDestination = Screen.Home.Setting.route) {
 
         composable(
             route = Screen.Home.Summary.route) {
 
             SummaryScreen(
-                modifier = modifier,
                 event = RoomEventHome(router)
             )
         }
@@ -56,7 +55,8 @@ fun NavGraphBuilder.homeNavGraph(
             SettingScreen(
                 modifier = modifier,
                 event = ProfileEvent(
-                    router = router, onSignOutPressed = viewModel::signOutUser
+                    onSignOutPressed = viewModel::signOutUser,
+                    router = router,
                 )
             )
         }

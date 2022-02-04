@@ -1,5 +1,8 @@
 package com.dudegenuine.whoknows.infrastructure.di.network
 
+import android.content.Context
+import android.content.Intent
+import com.dudegenuine.local.service.contract.ITimerIntentService
 import com.dudegenuine.whoknows.infrastructure.common.BodyFactory
 import com.dudegenuine.whoknows.infrastructure.common.Constants
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule
@@ -11,6 +14,7 @@ import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -54,5 +58,11 @@ object NetworkModule: INetworkModule {
             .addConverterFactory(BodyFactory.create(gson))
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
+    }
+
+    fun provideIntentServiceTimer(
+        @ApplicationContext context: Context): Intent {
+
+        return Intent(context, ITimerIntentService::class.java)
     }
 }

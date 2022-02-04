@@ -40,7 +40,7 @@ class RoomDataMapper
 
     override fun asRoom(entity: RoomEntity): Room {
         return Room(
-            entity.id,
+            entity.roomId,
             entity.userid,
             entity.minute,
             entity.title,

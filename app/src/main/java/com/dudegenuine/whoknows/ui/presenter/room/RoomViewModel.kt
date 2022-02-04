@@ -14,6 +14,7 @@ import com.dudegenuine.whoknows.ui.compose.state.OnBoardingState
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
+import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DESC_TOO_LONG
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.presenter.room.contract.IRoomViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,6 +59,12 @@ class RoomViewModel
 
         if (!formState.isPostValid || case.currentUserId().isBlank()) {
             _state.value = ResourceState(error = DONT_EMPTY)
+
+            return
+        }
+
+        if (formState.desc.text.length > 225){
+            _state.value = ResourceState(error = DESC_TOO_LONG)
 
             return
         }
@@ -109,6 +116,21 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
+    fun expireRoom(current: Room, onSucceed: (Room) -> Unit) {
+        val model = current.copy(expired = true, updatedAt = Date())
+        if (model.id.isBlank() || model.isPropsBlank){
+            _state.value = ResourceState(error = DONT_EMPTY)
+        }
+
+        case.patchRoom(model.id, model)
+            .onEach{ res -> onResourceSucceed(res) {
+                _state.value = ResourceState(room = it)
+
+                onSucceed(it)
+            }}
+            .launchIn(viewModelScope)
+    }
+
     override fun deleteRoom(id: String) {
         if (id.isBlank()){
             _state.value = ResourceState(error = DONT_EMPTY)
@@ -117,6 +139,17 @@ class RoomViewModel
 
         case.deleteRoom(id)
             .onEach(this::onResource).launchIn(viewModelScope)
+    }
+
+    fun deleteRoom(id: String, onSucceed: (String) -> Unit) {
+        if (id.isBlank()){
+            _state.value = ResourceState(error = DONT_EMPTY)
+            return
+        }
+
+        case.deleteRoom(id)
+            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .launchIn(viewModelScope)
     }
 
     override fun getRooms(page: Int, size: Int) {
@@ -136,12 +169,12 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun onBoarding(id: String){
+    override fun onBoarding(id: String) {
         if (id.isBlank())
             _state.value = ResourceState(error = DONT_EMPTY)
 
         case.getRoom(id).onEach { resource ->
-            onResourceSucceed(resource){ room ->
+            onResourceSucceed(resource) { room ->
                 val quizzes = room.questions.mapIndexed { index, quiz ->
                     OnBoardingState(
                         quiz = quiz,
@@ -184,5 +217,10 @@ class RoomViewModel
 
     fun closeResult() {
         _uiState.value = RoomState.CurrentRoom
+    }
+
+    fun onClipboardPressed(roomId: String) {
+        case.saveInClipboard("Room ID", roomId)
+        Log.d(TAG, "onClipboardPressed: triggered")
     }
 }

@@ -1,9 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -29,29 +26,23 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel(),
-    onRegisterPressed: () -> Unit
-) {
+    onRegisterPressed: () -> Unit) {
     val authState = viewModel.authState
     val formState = viewModel.formState
 
     Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.padding(16.dp)) {
 
-        Spacer(
-            modifier = Modifier.height(8.dp))
-
         GeneralTextField(
-            label = "Enter email",
-            value = formState.email.text,
+            label = "Enter email or username",
+            value = formState.payload.text,
             onValueChange = formState.onUsernameChange,
             leads = Icons.Default.Email,
-            tails = if (formState.email.text.isNotBlank())
+            tails = if (formState.payload.text.isNotBlank())
                 Icons.Default.Close else null,
             onTailPressed = { formState.onUsernameChange("") }
         )
-
-        Spacer(
-            modifier = Modifier.height(8.dp))
 
         GeneralTextField(
             label = "Enter password",

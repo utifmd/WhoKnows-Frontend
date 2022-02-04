@@ -8,6 +8,8 @@ import com.dudegenuine.usecase.room.*
  **/
 interface IRoomUseCaseModule {
     val currentUserId: () -> String
+    val saveInClipboard: (String, String) -> Unit
+
     val postRoom: PostRoom
     val getRoom: GetRoom
     val patchRoom: PatchRoom

@@ -25,7 +25,7 @@ interface RoomService: IRoomService {
         @Path("userId") id: String): Response<RoomEntity>
 
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
-    @PATCH("${ENDPOINT}/{userId}")
+    @PUT("${ENDPOINT}/{userId}")
     override suspend fun update(
         @Path("userId") id: String,
         @Body entity: RoomEntity): Response<RoomEntity>

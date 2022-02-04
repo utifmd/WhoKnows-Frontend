@@ -29,7 +29,7 @@ class UploadFiles
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: IOException){
-            emit(Resource.Error(e.localizedMessage ?: Resource.IO_EXCEPTION))
+            emit(Resource.Error(Resource.IO_EXCEPTION))
         } catch (e: HttpException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
         } catch (e: Exception){

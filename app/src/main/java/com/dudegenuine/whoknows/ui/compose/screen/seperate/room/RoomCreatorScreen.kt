@@ -1,6 +1,9 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -63,8 +66,9 @@ private fun Body(
     val isExpand = remember { mutableStateOf(false) }
 
     Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
-            .padding(16.dp)) {
+            .padding(12.dp)) {
 
         GeneralTextField(
             label = "Enter title",
@@ -74,7 +78,6 @@ private fun Body(
             tails = if (formState.title.text.isNotBlank()) Icons.Default.Close else null,
             onTailPressed = { formState.onTitleChange("") }
         )
-        Spacer(modifier = Modifier.height(8.dp))
 
         GeneralTextField(
             label = "Enter description",
@@ -85,8 +88,6 @@ private fun Body(
             tails = if (formState.desc.text.isNotBlank()) Icons.Default.Close else null,
             onTailPressed = { formState.onDescChange("") }
         )
-        Spacer(
-            modifier = Modifier.height(8.dp))
 
         GeneralTextField(
             label = "Select class duration",
@@ -109,7 +110,6 @@ private fun Body(
         )
 
         if (resourceState.error.isNotBlank()){
-            Spacer(modifier = modifier.height(16.dp))
             ErrorScreen(message = resourceState.error, isSnack = true)
         }
     }

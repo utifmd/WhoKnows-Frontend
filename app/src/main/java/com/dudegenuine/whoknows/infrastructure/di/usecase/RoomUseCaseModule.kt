@@ -26,6 +26,11 @@ class RoomUseCaseModule(
     override val getRooms: GetRooms =
         GetRooms(repository),
 
-    override val currentUserId: () -> String = { repository.currentUserId() }
+    override val currentUserId: () -> String =
+        { repository.currentUserId() },
+
+    override val saveInClipboard: (String, String) -> Unit = { k, v ->
+        repository.saveInClipboard(k, v)
+    }
 
 ): IRoomUseCaseModule

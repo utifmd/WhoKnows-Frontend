@@ -44,8 +44,11 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideParticipantDataMapper(gson: Gson): IParticipantDataMapper {
-        return ParticipantDataMapper()
+    override fun provideParticipantDataMapper(
+        gson: Gson,
+        mapperUser: IUserDataMapper): IParticipantDataMapper {
+
+        return ParticipantDataMapper(mapperUser)
     }
 
     @Provides

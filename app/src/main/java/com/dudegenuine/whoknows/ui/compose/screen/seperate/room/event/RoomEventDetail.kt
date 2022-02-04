@@ -13,10 +13,27 @@ class RoomEventDetail(
     private val router: NavHostController): IRoomEventDetail {
 
     override fun onNewRoomQuizPressed(roomId: String, owner: String) {
-        router.navigate(Screen.Home.Summary.DetailRoomOwner.QuizCreator.withArgs(roomId, owner))
+        router.navigate(
+            route = Screen.Home.Summary.DetailRoomOwner.QuizCreator.withArgs(roomId, owner))
     }
 
-    override fun onParticipantItemPressed() {
-        router.navigate(Screen.Home.Setting.route)
+    override fun onParticipantItemPressed(userId: String) {
+        // if (isOwn)
+        /*if (user != null)
+        router.navigate(
+            route = Screen.Home.Setting.route)*/
+    }
+
+    override fun onQuestionItemPressed(quizId: String) {
+        router.navigate(
+            route = Screen.Home.Summary.DetailRoomOwner.DetailQuiz.withArgs(quizId))
+    }
+
+    override fun onDeleteRoomSucceed(roomId: String) {
+        router.navigate(Screen.Home.Summary.route){
+            popUpTo(Screen.Home.Summary.route){
+                inclusive = true
+            }
+        }
     }
 }

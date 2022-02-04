@@ -22,7 +22,8 @@ sealed class Screen(val route: String){
             object RoomFinder: Screen(strOf<RoomFinder>())
             object RoomCreator: Screen(strOf<RoomCreator>())
             object DetailRoomOwner: Screen(strOf<DetailRoomOwner>()){
-                object QuizCreator: Screen(strOf<QuizCreator>()) //object RoomHome: Screen(strOf<RoomHome>()){}
+                object QuizCreator: Screen(strOf<QuizCreator>())
+                object DetailQuiz: Screen(strOf<DetailQuiz>())
             }
         }
 

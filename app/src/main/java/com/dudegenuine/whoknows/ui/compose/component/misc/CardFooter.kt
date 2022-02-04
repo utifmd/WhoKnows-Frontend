@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -34,7 +35,8 @@ fun CardFooter(
         Text(
             text = text,
             color = color ?: MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

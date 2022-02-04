@@ -10,6 +10,7 @@ import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IQuizUseCaseModule
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizState.Companion.QUIZ_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_OWNER_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.state.QuizState
@@ -49,37 +50,35 @@ class QuizViewModel
 
         savedStateHandle.get<String>(ROOM_OWNER_SAVED_KEY)
             ?.let(formState::onUserIdValueChange)
+
+        savedStateHandle.get<String>(QUIZ_ID_SAVED_KEY)
+            ?.let(this::getQuiz)
     }
 
-    fun onPostPressed(onSuccess: (Quiz) -> Unit) {
+    fun onPostPressed(onSucceed: (Quiz) -> Unit) {
         val model = formState.postModel
 
         Log.d(TAG, model.toString())
 
         if (formState.isValid) {
             if (formState.images.isNotEmpty())
-                multiUpload(formState.images)
-            else
-                caseQuiz.postQuiz(model).onEach { res ->
-                    onResourceSucceed(
-                        resources = res,
-                        onSuccess = onSuccess
-                    )
-                }.launchIn(viewModelScope)
+                multiUpload(formState.images, onSucceed)
+            else postQuiz(model, onSucceed)
 
         } else {
             _state.value = ResourceState(error = DONT_EMPTY)
         }
     }
 
-    override fun multiUpload(byteArrays: List<ByteArray>) {
+    override fun <T> multiUpload(byteArrays: List<ByteArray>, onSucceed: (T) -> Unit) {
         if (byteArrays.isEmpty()) return
 
         caseFile.uploadFiles(byteArrays)
-            .onEach(this::onMultiUploaded).launchIn(viewModelScope)
+            .onEach { onMultiUploaded(it, onSucceed) }.launchIn(viewModelScope)
     }
 
-    override fun onMultiUploaded(resources: Resource<List<File>>) {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> onMultiUploaded(resources: Resource<List<File>>, onSucceed: (T) -> Unit) {
         val model = resourceState.quiz ?: formState.postModel
         Log.d(TAG, "onFileUploaded: $model")
 
@@ -89,9 +88,20 @@ class QuizViewModel
 
             model.apply { images = downloadedUrls }
 
-            postQuiz(model)
+            postQuiz(model) { onSucceed(it as T) }
             Log.d(TAG, "onFileUploaded: $model")
         }
+    }
+
+    private fun postQuiz(quiz: Quiz, onSucceed: (Quiz) -> Unit) {
+        if (quiz.roomId.isBlank() || quiz.isPropsBlank){
+            _state.value = ResourceState(error = DONT_EMPTY)
+            return
+        }
+
+        caseQuiz.postQuiz(quiz)
+            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .launchIn(viewModelScope)
     }
 
     override fun postQuiz(quiz: Quiz) {

@@ -29,7 +29,7 @@ class QuizDataMapper
     }
 
     override fun asQuiz(entity: QuizEntity): Quiz {
-        val result = Quiz(entity.id, entity.roomId, entity.images, entity.question, entity.options, null, entity.createdBy, entity.createdAt, entity.updatedAt)
+        val result = Quiz(entity.quizId, entity.roomId, entity.images, entity.question, entity.options, null, entity.createdBy, entity.createdAt, entity.updatedAt)
         val possibility: Answer = gson.fromJson(entity.answer, Answer::class.java)
 
         return when(possibility.type){

@@ -23,7 +23,7 @@ data class User (
                 username.isBlank() || password.isBlank()
 
     companion object {
-        const val EMAIL = "email"
+        const val PAYLOAD = "payload"
         const val PASSWORD = "password"
     }
 }

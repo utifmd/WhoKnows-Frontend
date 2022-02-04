@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ui.compose.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -18,10 +17,7 @@ fun GeneralCardView(
     modifier: Modifier = Modifier, content: @Composable () -> Unit) {
 
     Surface(
-        modifier = modifier.fillMaxWidth().padding(
-            vertical = 8.dp,
-            horizontal = 16.dp),
-
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
         border = BorderStroke(
             width = (0.5).dp,

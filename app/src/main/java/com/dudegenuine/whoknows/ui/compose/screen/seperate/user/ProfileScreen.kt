@@ -6,10 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.model.User
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
@@ -34,136 +32,134 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
  * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
+// TODO: Public able
 @Composable
 @ExperimentalCoilApi
 fun ProfileScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
+    contentModifier: Modifier = Modifier,
+    isOwn: Boolean,
     event: IProfileEvent,
     viewModel: UserViewModel = hiltViewModel()){
-    val state = viewModel.state
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            GeneralTopBar(
-                title = state.user?.username
-                    ?: stringResource(R.string.profile_detail)
-            )
-        },
-        content = {
-            if (state.loading){
-                LoadingScreen()
-            }
-
-            Body(
-                modifier = modifier,
-                viewModel = viewModel,
-                event = event
-            )
-
-            if (state.error.isNotBlank()){
-                ErrorScreen(
-                    message = state.error
-                )
-            }
-        }
-    )
-}
-
-@Composable
-@ExperimentalCoilApi
-private fun Body(
-    modifier: Modifier,
-    viewModel: UserViewModel,
-    event: IProfileEvent){
 
     val context = LocalContext.current
-    val user: User = viewModel.state.user ?: return
+    val state = viewModel.state
     val byteArray = viewModel.formState.profileImage
 
     val scrollState = rememberScrollState()
-
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { viewModel.formState.onImageValueChange(it, context) }
     )
 
-    val fullName = user.fullName
-        .ifBlank { stringResource(R.string.not_set) }
+    if (state.loading) LoadingScreen()
 
-    val phone = user.phone
-        .ifBlank { stringResource(R.string.not_set) }
+    state.user?.let { user ->
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            topBar = {
+                GeneralTopBar(
+                    title = state.user.username
+                )
+            },
 
-    Column(
-        modifier = modifier.fillMaxSize()
-            .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally){
+            content = {
+                Column(
+                    modifier = modifier.verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally){
 
-        Spacer(
-            modifier = Modifier.height(16.dp))
+                    Spacer(
+                        modifier = modifier.size(12.dp))
 
-        GeneralPicture(
-            data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray) else user.profileUrl,
-            onChangePressed = { launcher.launch("image/*") },
-            onCheckPressed = viewModel::onUploadProfile)
+                    if (isOwn) GeneralPicture(
+                        data = if (byteArray.isNotEmpty())
+                            ImageUtil.asBitmap(byteArray) else user.profileUrl,
+                        onChangePressed = { launcher.launch("image/*") },
+                        onCheckPressed = viewModel::onUploadProfile
+                    ) else GeneralPicture(
+                        data = user.profileUrl
+                    )
 
-        Spacer(
-            modifier = Modifier.height(16.dp))
+                    Spacer(
+                        modifier = modifier.size(36.dp))
 
-        Column(
-            modifier = modifier.fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .clip(shape = MaterialTheme.shapes.medium)
-                .background(
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
+                    Column(
+                        modifier = contentModifier
+                            .fillMaxWidth()
+                            .padding(
+                                vertical = 8.dp, horizontal = 12.dp
+                            )
+                            .clip(
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .background(
+                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
+                            )) {
 
-            FieldTag(
-                key = stringResource(R.string.full_name),
-                value = fullName,
-                onValuePressed = { event.onFullNamePressed(fullName) }
-            )
+                        FieldTag(
+                            key = stringResource(R.string.full_name),
+                            editable = isOwn,
+                            value = user.fullName.ifBlank { "Not set" },
+                            onValuePressed = { event.onFullNamePressed(user.fullName.ifBlank { "Not set" }) }
+                        )
 
-            FieldTag(
-                key = stringResource(R.string.phone_number),
-                value = phone,
-                onValuePressed = { event.onPhonePressed(phone) }
-            )
+                        FieldTag(
+                            key = stringResource(R.string.phone_number),
+                            editable = isOwn,
+                            value = user.phone.ifBlank { "Not set" },
+                            onValuePressed = { event.onPhonePressed(user.phone.ifBlank { "Not set" }) }
+                        )
 
-            FieldTag(
-                key = stringResource(R.string.username),
-                value = user.username,
-                onValuePressed = { event.onUsernamePressed(user.username) }
-            )
+                        FieldTag(
+                            key = stringResource(R.string.username),
+                            editable = isOwn,
+                            value = user.username,
+                            onValuePressed = { event.onUsernamePressed(user.username) }
+                        )
 
-            FieldTag(
-                key = stringResource(R.string.email),
-                value = user.email,
-                editable = false,
-                onValuePressed = { event.onEmailPressed(user.email) }
-            )
+                        FieldTag(
+                            key = stringResource(R.string.email),
+                            value = user.email,
+                            editable = false,
+                            onValuePressed = { event.onEmailPressed(user.email) }
+                        )
 
-            FieldTag(
-                key = stringResource(R.string.user_id),
-                value = user.id,
-                editable = false,
-                onValuePressed = { event.onPasswordPressed(user.password) }
-            )
+                        FieldTag(
+                            key = stringResource(R.string.user_id),
+                            value = user.id,
+                            editable = false,
+                            onValuePressed = { event.onPasswordPressed(user.password) }
+                        )
 
-            FieldTag(
-                key = stringResource(R.string.password),
-                value = user.password,
-                editable = false,
-                censored = true,
-                isDivide = false,
-                onValuePressed = { event.onPasswordPressed(user.password) }
-            )
-        }
+                        FieldTag(
+                            key = stringResource(R.string.password),
+                            value = user.password,
+                            editable = false,
+                            censored = true,
+                            isDivide = false,
+                            onValuePressed = { event.onPasswordPressed(user.password) }
+                        )
+                    }
 
-        TextButton(
-            onClick = { event.onSignOutPressed() }) {
-            Text(
-                text = stringResource(R.string.sign_out), color = MaterialTheme.colors.error
-            )
-        }
+                    if (isOwn){
+                        Button(
+                            onClick = { event.onSignOutPressed() }) {
+
+                            Icon(
+                                imageVector = Icons.Default.Logout, contentDescription = null
+                            )
+
+                            Spacer(modifier.size(ButtonDefaults.IconSize))
+                            Text(stringResource(R.string.sign_out))
+                        }
+                    }
+
+                    Spacer(modifier = modifier.size(12.dp))
+                }
+            }
+        )
     }
+
+    if (state.error.isNotBlank()) ErrorScreen(message = state.error)
+
 }

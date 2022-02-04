@@ -13,11 +13,12 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 @Composable
 @ExperimentalCoilApi
 fun SettingScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     event: IProfileEvent) {
 
     ProfileScreen(
         modifier = modifier,
-        event = event
+        event = event,
+        isOwn = true
     )
 }

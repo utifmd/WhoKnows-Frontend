@@ -1,6 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.service.contract
 
-import com.dudegenuine.local.database.WhoKnowsDatabase
+import com.dudegenuine.local.manager.WhoKnowsDatabase
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 
 /**

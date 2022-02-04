@@ -25,7 +25,7 @@ interface QuizService: IQuizService {
         @Path("quizId") id: String): Response<QuizEntity>
 
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
-    @PATCH("${ENDPOINT}/{quizId}")
+    @PUT("${ENDPOINT}/{quizId}")
     override suspend fun update(
         @Path("quizId") id: String,
         @Body entity: QuizEntity): Response<QuizEntity>

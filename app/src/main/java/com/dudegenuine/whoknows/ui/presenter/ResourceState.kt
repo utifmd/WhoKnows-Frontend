@@ -9,6 +9,7 @@ import com.dudegenuine.model.*
 
 data class ResourceState(
     val loading: Boolean = false,
+    val message: String = "", //Error? = null,
     val error: String = "", //Error? = null,
 
     val user: User? = null,
@@ -36,5 +37,7 @@ data class ResourceState(
     companion object {
         const val DONT_EMPTY = "Fields must not be blank."
         const val NULL_STATE = "State is null."
+
+        const val DESC_TOO_LONG = "Description must not more then 225 chars."
     }
 }

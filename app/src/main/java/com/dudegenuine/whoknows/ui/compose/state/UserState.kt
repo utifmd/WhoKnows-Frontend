@@ -38,9 +38,9 @@ sealed class UserState {
 
     class FormState: UserState() {
 
-        private val _email = mutableStateOf(TextFieldValue(""))
-        val email: TextFieldValue
-            get() = _email.value
+        private val _payload = mutableStateOf(TextFieldValue(""))
+        val payload: TextFieldValue
+            get() = _payload.value
 
         private val _password = mutableStateOf(TextFieldValue(""))
         val password: TextFieldValue
@@ -56,15 +56,14 @@ sealed class UserState {
 
         val isLoginValid: State<Boolean>
             get() = mutableStateOf(
-                email.text.isNotBlank() &&
-                Patterns.EMAIL_ADDRESS.matcher(email.text).matches() &&
+                payload.text.isNotBlank() &&
                 password.text.isNotBlank()
             )
 
         val isRegisValid: State<Boolean>
             get() = mutableStateOf( /*fullName.text.isNotBlank() &&*/ /*phone.text.isNotBlank() &&*/
-                email.text.isNotBlank() &&
-                Patterns.EMAIL_ADDRESS.matcher(email.text).matches() &&
+                payload.text.isNotBlank() &&
+                Patterns.EMAIL_ADDRESS.matcher(payload.text).matches() &&
                 password.text.isNotBlank() &&
                 rePassword.text.isNotBlank() &&
                 password.text == rePassword.text
@@ -72,7 +71,7 @@ sealed class UserState {
 
         val loginModel: Map<String, String>
             get() = mutableStateMapOf(
-                User.EMAIL to email.text,
+                User.PAYLOAD to payload.text,
                 User.PASSWORD to password.text
             )
 
@@ -80,9 +79,9 @@ sealed class UserState {
             User(
                 "USR-${UUID.randomUUID()}",
                 "",
-                email.text,
+                payload.text,
                 "",
-                email.text.substringBefore("@"),
+                payload.text.substringBefore("@"),
                 password.text,
                 "",
                 Date(),
@@ -91,7 +90,7 @@ sealed class UserState {
         ).value
 
         val onUsernameChange: (text: String) -> Unit = {
-            _email.value = TextFieldValue(it)
+            _payload.value = TextFieldValue(it)
         }
 
         val onPasswordChange: (text: String) -> Unit = {

@@ -43,7 +43,6 @@ fun RoomScreen(
                 state = roomState,
                 onDonePressed = { viewModel.closeResult() })
             else -> RoomHomeScreen(
-                modifier = modifier,
                 event = event
             )
         }

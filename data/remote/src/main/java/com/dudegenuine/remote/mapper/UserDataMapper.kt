@@ -2,8 +2,8 @@ package com.dudegenuine.remote.mapper
 
 import com.dudegenuine.local.entity.CurrentUser
 import com.dudegenuine.model.User
-import com.dudegenuine.model.User.Companion.EMAIL
 import com.dudegenuine.model.User.Companion.PASSWORD
+import com.dudegenuine.model.User.Companion.PAYLOAD
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.UserEntity
@@ -21,7 +21,7 @@ class UserDataMapper
 
     override fun asEntity(user: User): UserEntity {
         return UserEntity(
-            id = user.id,
+            userId = user.id,
             fullName = user.fullName,
             username = user.username,
             phone = user.phone,
@@ -35,7 +35,7 @@ class UserDataMapper
 
     override fun asUser(entity: UserEntity): User {
         return User(
-            id = entity.id,
+            id = entity.userId,
             fullName = entity.fullName,
             username = entity.username,
             phone = entity.phone,
@@ -75,11 +75,11 @@ class UserDataMapper
     }
 
     override fun asLogin(params: Map<String, String>): UserEntity.LoginRequest {
-        val email = params[EMAIL] ?: throw HttpFailureException("incorrect email")
+        val payload = params[PAYLOAD] ?: throw HttpFailureException("incorrect payload")
         val password = params[PASSWORD] ?: throw HttpFailureException("incorrect password")
 
         return UserEntity.LoginRequest(
-            email, password
+            payload, password
         )
     }
 

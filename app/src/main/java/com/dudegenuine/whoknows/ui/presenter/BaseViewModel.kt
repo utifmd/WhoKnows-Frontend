@@ -45,6 +45,7 @@ abstract class BaseViewModel: ViewModel() {
                 is Participant -> ResourceState(participant = data as Participant)
                 is Result -> ResourceState(result = data as Result)
                 is File -> ResourceState(file = data as File)
+                is String -> ResourceState(message = data)
                 else -> ResourceState()
             }
 

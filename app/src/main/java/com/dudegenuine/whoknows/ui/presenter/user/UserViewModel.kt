@@ -13,6 +13,7 @@ import com.dudegenuine.whoknows.ui.presenter.BaseViewModel
 import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
+import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel.Companion.USER_SAVED_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -36,9 +37,12 @@ class UserViewModel
         get() = _formState.value
 
     init {
-        Log.d("Main", "currentId: ${case.currentUserId()}")
+        val remote = savedStateHandle.get<String>(USER_SAVED_KEY)
 
-        getUser()
+        if (remote != null) remote.let(this::getUser)
+        else getUser()
+
+        Log.d("Main", "pref currentId: ${case.currentUserId()}")
     }
 
     override fun signInUser() {

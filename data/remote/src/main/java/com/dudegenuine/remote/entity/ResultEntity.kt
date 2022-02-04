@@ -9,8 +9,8 @@ import java.util.*
  **/
 data class ResultEntity (
 
-    @SerializedName("resultId")
-    val id: String,
+    @SerializedName("resultId") // @SerializedName("resultId")
+    val resultId: String,
 
     @SerializedName("participantId")
     val participantId: String,

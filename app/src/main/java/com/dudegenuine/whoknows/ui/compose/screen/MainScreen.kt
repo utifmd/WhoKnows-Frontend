@@ -2,11 +2,9 @@ package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
@@ -26,6 +24,7 @@ import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel()) {
+
     val router = rememberNavController()
     val state = viewModel.state
 
@@ -35,20 +34,19 @@ fun MainScreen(
             router = router,
             enabled = state.user != null,
             content = {
+
                 if (state.loading) {
                     LoadingScreen()
                 }
 
                 if (state.user != null) {
                     MainNavigation(
-                        modifier = modifier.padding(bottom = 30.dp),
                         controller = router,
                         destination = Screen.Home.route)
                 }
 
                 if (state.error.isNotBlank()) {
                     MainNavigation(
-                        modifier = modifier,
                         viewModel = viewModel,
                         controller = router,
                         destination = Screen.Auth.route)

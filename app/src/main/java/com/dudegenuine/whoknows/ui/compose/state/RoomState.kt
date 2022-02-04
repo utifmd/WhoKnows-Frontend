@@ -45,11 +45,12 @@ sealed class RoomState {
         val isPostValid: Boolean
             get() = mutableStateOf(
                 title.text.isNotBlank() &&
-                desc.text.isNotBlank() && minute.text.isNotBlank()
+                desc.text.isNotBlank() &&
+                minute.text.isNotBlank()
             ).value
 
-        private val _model = mutableStateOf(
-            Room(
+        val model: Room
+            get() = mutableStateOf(Room(
                 id = "ROM-${UUID.randomUUID()}",
                 userId = "",
                 minute = if(minute.text.isBlank()) 0 else minute.text.toInt(),
@@ -59,10 +60,10 @@ sealed class RoomState {
                 questions = emptyList(),
                 participants = emptyList(),
                 createdAt = Date(),
-                updatedAt = null ))
-        val model: Room get() = _model.value
+                updatedAt = null )).value
 
-        private val _participantModel = mutableStateOf(Participant(
+        private val _participantModel = mutableStateOf(
+            Participant(
                 id = "PPN-${UUID.randomUUID()}",
                 roomId = "",
                 userId = "",
@@ -70,7 +71,10 @@ sealed class RoomState {
                 timeLeft = null,
                 expired = false,
                 createdAt = Date(),
-                updatedAt = null))
+                updatedAt = null,
+                user = null
+            )
+        )
 
         val participantModel: Participant
             get() = _participantModel.value

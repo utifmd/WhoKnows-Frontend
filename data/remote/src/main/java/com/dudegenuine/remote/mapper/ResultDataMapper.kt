@@ -17,7 +17,7 @@ class ResultDataMapper: IResultDataMapper {
     }
 
     override fun asResult(entity: ResultEntity): Result {
-        return Result(entity.id, entity.participantId, entity.roomId, entity.userId,
+        return Result(entity.resultId, entity.participantId, entity.roomId, entity.userId,
             entity.correctQuiz, entity.wrongQuiz, entity.score, entity.createdAt, entity.updatedAt)
     }
 

@@ -3,7 +3,6 @@ package com.dudegenuine.whoknows.ui.compose.navigation
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,7 +22,6 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @ExperimentalCoilApi
 @Composable
 fun MainNavigation(
-    modifier: Modifier,
     controller: NavHostController,
     destination: String,
     viewModel: UserViewModel = hiltViewModel()) {
@@ -39,18 +37,15 @@ fun MainNavigation(
         )
 
         homeNavGraph(
-            modifier = modifier,
             router = controller,
             viewModel = viewModel,
         )
 
         summaryGraph(
-            modifier = modifier,
             router = controller,
         )
 
         settingGraph(
-            modifier = modifier,
             router = controller
         )
     }

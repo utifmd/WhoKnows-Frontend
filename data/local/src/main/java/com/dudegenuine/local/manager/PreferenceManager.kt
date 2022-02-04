@@ -1,17 +1,16 @@
-package com.dudegenuine.local.database
+package com.dudegenuine.local.manager
 
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import com.dudegenuine.local.database.contract.IPreferenceManager
+import android.content.SharedPreferences
+import com.dudegenuine.local.manager.contract.IPreferenceManager
 
 /**
  * Thu, 13 Jan 2022
  * WhoKnows by utifmd
  **/
 class PreferenceManager(
-    context: Context): IPreferenceManager {
+    private val prefs: SharedPreferences): IPreferenceManager {
 
-    private val prefs = context.getSharedPreferences(IPreferenceManager.PREF_NAME, MODE_PRIVATE)
+    /*private val prefs = context.getSharedPreferences(IPreferenceManager.PREF_NAME, MODE_PRIVATE)*/
 
     override fun getString(key: String): String {
         return prefs.getString(key, "")!!

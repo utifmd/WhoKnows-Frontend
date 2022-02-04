@@ -9,11 +9,8 @@ import java.util.*
  **/
 data class ParticipantEntity(
 
-    @SerializedName("id")
-    val id: String,
-
-//    @SerializedName("participantId")
-//    val id: String,
+    @SerializedName("participantId")
+    val participantId: String,
 
     @SerializedName("roomId")
     val roomId: String,
@@ -35,6 +32,9 @@ data class ParticipantEntity(
 
     @SerializedName("updatedAt")
     val updatedAt: Date?,
+
+    @SerializedName("user")
+    val user: UserEntity?,
 
 //    @SerializedName("results")
 //    val results: List<ResultEntity>

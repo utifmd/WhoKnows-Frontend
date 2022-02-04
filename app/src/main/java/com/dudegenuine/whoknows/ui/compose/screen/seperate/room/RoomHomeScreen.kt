@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
@@ -16,76 +17,62 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
-import com.dudegenuine.whoknows.ui.presenter.ResourceState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
 
 /**
  * Wed, 29 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalFoundationApi
 @Composable
 fun RoomHomeScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),
     event: IRoomEventHome) {
-
     val state = viewModel.state
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            GeneralTopBar(
-                title = "Recently class", //"Recently class\'s",
-            )
-        },
-        content = {
-            Column {
-                Header(
-                    onNewClassPressed = event::onNewClassPressed,
-                    onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
-                )
-
-                Body(
-                    modifier = modifier,
-                    state = state,
-                    onRoomItemSelected = event::onRoomItemSelected
-                )
-            }
-        }
-    )
-}
-
-@Composable
-private fun Body(
-    state: ResourceState,
-    modifier: Modifier = Modifier,
-    onRoomItemSelected: (String) -> Unit){
-
-    if (state.loading){
+    if (state.loading)
         LoadingScreen()
-    }
 
     state.rooms?.let { rooms ->
-        LazyColumn(
-            modifier = modifier.fillMaxWidth()) {
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                GeneralTopBar(
+                    title = "Recently class", //"Recently class\'s",
+                )
+            },
+            content = {
+                LazyColumn(
+                    modifier = modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
-            rooms.forEach {
-                item {
-                    RoomItem(
-                        state = it){
+                    stickyHeader {
+                        Header(
+                            modifier = modifier,
+                            onNewClassPressed = event::onNewClassPressed,
+                            onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
+                        )
+                    }
 
-                        onRoomItemSelected(it.id)
+                    rooms.forEach { room ->
+                        item {
+                            RoomItem(
+                                state = room){
+
+                                event.onRoomItemSelected(room.id)
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-
-    if(state.error.isNotBlank()){
-        ErrorScreen(
-            modifier = modifier, message = state.error, isDanger = false
         )
     }
+
+    if(state.error.isNotBlank()) ErrorScreen(
+        modifier = modifier, message = state.error, isDanger = false
+    )
 }
 
 @Composable
@@ -95,16 +82,14 @@ private fun Header(
     onJoinWithACodePressed: () -> Unit){
 
     Row(
-        modifier = modifier.fillMaxWidth().padding(16.dp)) {
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxWidth()) {
 
         Button(
             modifier = modifier.weight(1f),
             onClick = onNewClassPressed) {
             Text(text = stringResource(R.string.new_class))
         }
-
-        Spacer(
-            modifier = modifier.width(16.dp))
 
         OutlinedButton(
             modifier = modifier.weight(1f),

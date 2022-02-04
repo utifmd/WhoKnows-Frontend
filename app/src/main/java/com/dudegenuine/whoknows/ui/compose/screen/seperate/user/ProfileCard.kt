@@ -1,11 +1,12 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -13,16 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
 
 /**
  * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
 
+@ExperimentalCoilApi
 @Composable
 fun ProfileCard(
-    modifier: Modifier = Modifier, name: String, desc: String, url: String) {
+    modifier: Modifier = Modifier, name: String, desc: String, data: String) {
 
     Row(
         modifier
@@ -36,13 +39,24 @@ fun ProfileCard(
             shape = CircleShape,
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)) {
 
-            Image(
+            GeneralImage(
+                modifier = modifier.fillMaxSize(),
+                data = data,
+                placeholder = {
+                    Icon(
+                        modifier = modifier.fillMaxSize().padding(4.dp),
+                        imageVector = Icons.Default.Person,
+                        tint = MaterialTheme.colors.secondaryVariant, contentDescription = null
+                    )
+                }
+            )
+            /*Image(
                 modifier = modifier.fillMaxSize(),
                 painter = rememberImagePainter(
                     data = url
                 ),
                 contentDescription = null
-            )
+            )*/
         }
 
         Column(

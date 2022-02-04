@@ -1,4 +1,4 @@
-package com.dudegenuine.local.database
+package com.dudegenuine.local.manager
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

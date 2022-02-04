@@ -1,7 +1,8 @@
 package com.dudegenuine.repository
 
 import android.util.Log
-import com.dudegenuine.local.database.contract.IPreferenceManager
+import com.dudegenuine.local.manager.contract.IClipboardManager
+import com.dudegenuine.local.manager.contract.IPreferenceManager
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
@@ -18,12 +19,16 @@ class RoomRepository
     @Inject constructor(
         private val service: IRoomService,
         private val mapper: IRoomDataMapper,
-        private val prefs: IPreferenceManager): IRoomRepository {
+        private val prefs: IPreferenceManager,
+        private val clip: IClipboardManager): IRoomRepository {
 
     private val TAG: String = javaClass.simpleName
 
     override val currentUserId: () -> String =
         { prefs.getString(IPreferenceManager.CURRENT_USER_ID) }
+
+    override val saveInClipboard: (String, String) -> Unit =
+        clip::applyPlainText
 
     override suspend fun create(room: Room): Room = try { mapper.asRoom(
         service.create(mapper.asEntity(room)))

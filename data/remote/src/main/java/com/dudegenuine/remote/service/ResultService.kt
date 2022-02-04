@@ -25,7 +25,7 @@ interface ResultService: IResultService {
         @Path("userId") id: String): Response<ResultEntity>
 
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
-    @PATCH("${ENDPOINT}/{userId}")
+    @PUT("${ENDPOINT}/{userId}")
     override suspend fun update(
         @Path("userId") id: String,
         @Body entity: ResultEntity): Response<ResultEntity>

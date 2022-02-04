@@ -16,10 +16,6 @@ class WhoKnows: Application()
 * Room +
 * - field private
 *
-* Participant +
-* - related to user by userId (OneToOne)
-*
-*
 * Frontend
 * - Paging
 * - Limitation

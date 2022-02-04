@@ -10,8 +10,8 @@ import java.util.*
 
 data class UserEntity (
 
-    @SerializedName("userId")
-    val id: String,
+    @SerializedName("userId")// @SerializedName("userId")
+    val userId: String,
 
     @SerializedName("fullName")
     val fullName: String,
@@ -37,5 +37,5 @@ data class UserEntity (
     @SerializedName("updatedAt")
     val updatedAt: Date?){
 
-    data class LoginRequest(val email: String, val password: String)
+    data class LoginRequest(val payload: String, val password: String)
 }

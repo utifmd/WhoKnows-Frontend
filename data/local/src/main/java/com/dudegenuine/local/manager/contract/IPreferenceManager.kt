@@ -1,4 +1,4 @@
-package com.dudegenuine.local.database.contract
+package com.dudegenuine.local.manager.contract
 
 /**
  * Thu, 13 Jan 2022

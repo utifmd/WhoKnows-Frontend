@@ -12,7 +12,7 @@ interface IDataMapperModule {
     fun provideUserDataMapper(gson: Gson): IUserDataMapper
     fun provideRoomDataMapper(gson: Gson, mapperQuiz: IQuizDataMapper, mapperParticipant: IParticipantDataMapper): IRoomDataMapper
     fun provideQuizDataMapper(gson: Gson): IQuizDataMapper
-    fun provideParticipantDataMapper(gson: Gson): IParticipantDataMapper
+    fun provideParticipantDataMapper(gson: Gson, mapperUser: IUserDataMapper): IParticipantDataMapper
     fun provideResultDataMapper(gson: Gson): IResultDataMapper
     fun provideFileDataMapper(context: Context): IFileDataMapper
 }

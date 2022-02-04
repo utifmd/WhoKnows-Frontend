@@ -18,4 +18,9 @@ interface IUserViewModel { //: IFilePresenter {
     fun patchUser(freshUser: User, onSucceed: (User) -> Unit)
     fun deleteUser(id: String)
     fun getUsers(page: Int, size: Int)
+
+    companion object {
+        const val USER_SAVED_KEY = "is_own_saved_user"
+        //const val OWN_USER_TRUE = "true"
+    }
 }

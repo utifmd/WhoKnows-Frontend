@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.QuizActionType
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import kotlinx.coroutines.launch
 
@@ -95,10 +95,10 @@ fun RoomBoardingScreen(
                     modifier = Modifier.requiredWidth(126.dp).padding(16.dp),
                     color = MaterialTheme.colors.primaryVariant,
                     backgroundColor = Color.LightGray)
-                QuestionScreen(
+                QuestionBoardingScreen(
                     quiz = boardingState.quiz,
+                    exactAnswer = boardingState.answer,
                     onAction = onAction,
-                    answer = boardingState.answer,
                     onAnswer = { chosenAnswer ->
                         boardingState.apply {
                             answer = chosenAnswer

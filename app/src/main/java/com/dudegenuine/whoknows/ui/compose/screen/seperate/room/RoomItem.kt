@@ -2,6 +2,8 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -9,11 +11,13 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dudegenuine.model.Room
-import com.dudegenuine.model.common.ViewUtil
+import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.ui.compose.component.GeneralCardView
 import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 
@@ -26,29 +30,34 @@ fun RoomItem(
     modifier: Modifier = Modifier,
     state: Room, onPressed: () -> Unit) {
 
-    val length = 20
-    val trimmed: String = state.description.replace("\n", "").trim()
-    val list: List<String> = trimmed.split(" ")
-    val desc: String = list.subList(0, list.size).joinToString(" ").plus("..")
+    val desc: String = state.description
+        .replace("\n", "").trim()
 
     GeneralCardView(
-        modifier = modifier.clickable(onClick = onPressed)) {
+        modifier = modifier.clickable(
+            onClick = onPressed)) {
 
         Column(
             modifier = modifier.padding(12.dp)) {
 
             Text(
                 text = state.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.h6)
 
             Spacer(
                 modifier = modifier.height(8.dp))
 
-            Text(
-                text = if (list.size > length) desc else trimmed,
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
-                style = MaterialTheme.typography.body2
-            )
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                Text(
+                    text = desc,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.body2
+                )
+            }
+
 
             Row(
                 modifier = modifier.fillMaxWidth()
@@ -58,12 +67,8 @@ fun RoomItem(
 
                 CardFooter(
                     icon = Icons.Default.AccessTime,
-                    text = if (!state.expired) "Ongoing since ${ViewUtil.timeAgo(state.createdAt)}"
-                    else "Ended ${
-                        state.updatedAt?.let {
-                            ViewUtil.timeAgo(it)
-                        }
-                    }"
+                    text = if (!state.expired) "Ongoing ${timeAgo(state.createdAt)}"
+                        else "Ended ${state.updatedAt?.let {timeAgo(it)}}"
                 )
 
                 Row(

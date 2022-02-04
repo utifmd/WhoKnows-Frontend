@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.repository
 
-import com.dudegenuine.local.database.contract.IPreferenceManager
+import com.dudegenuine.local.manager.contract.IClipboardManager
+import com.dudegenuine.local.manager.contract.IPreferenceManager
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.remote.service.contract.*
@@ -37,9 +38,10 @@ object RepositoryModule: IRepositoryModule {
     override fun provideRoomRepository(
         service: IRoomService,
         mapper: IRoomDataMapper,
-        pref: IPreferenceManager
-    ): IRoomRepository {
-        return RoomRepository(service, mapper, pref)
+        pref: IPreferenceManager,
+        clip: IClipboardManager): IRoomRepository {
+
+        return RoomRepository(service, mapper, pref, clip)
     }
 
     @Provides
