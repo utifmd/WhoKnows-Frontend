@@ -3,19 +3,19 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
-import kotlinx.coroutines.Dispatchers
 
 /**
  * Fri, 24 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalCoilApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
@@ -24,19 +24,19 @@ fun RoomScreen(
     viewModel: RoomViewModel = hiltViewModel(),
     event: IRoomEventHome) {
     val uiState = viewModel.uiState.observeAsState().value
-
-    LaunchedEffect(Dispatchers.IO) { viewModel.getOwnerRoom() }
+    /*LaunchedEffect(Dispatchers.IO) { viewModel.getOwnerRoom() }*/
 
     uiState?.let { roomState ->
         when(roomState){
             is RoomState.BoardingQuiz -> RoomBoardingScreen(
                 // resourceState = resourceState,
-                // onBackPressed = {  },
                 state = roomState,
                 onAction = { _, _ ->  },
                 onPrevPressed = { roomState.currentQuestionIdx -=1 },
                 onNextPressed = { roomState.currentQuestionIdx +=1 },
-                onDonePressed = { viewModel.computeResult(roomState) })
+                onDonePressed = { viewModel.computeResult(roomState) },
+                onBackPressed = { }
+            )
             is RoomState.BoardingResult -> RoomResultScreen(
                 // onBackPressed = {  },
                 // onSharePressed = { viewModel.shareResult() },

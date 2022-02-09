@@ -13,6 +13,8 @@ interface IParticipantRepository {
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Participant>
 
+    fun save(participant: Participant)
+
     companion object {
         const val NOT_FOUND = "Participant not found."
     }

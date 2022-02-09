@@ -59,7 +59,8 @@ fun FieldTag(
                         textAlign = TextAlign.End,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        text = if (censored) "*".repeat(value.length) else value
+                        text = if (censored) "*".repeat(value.length) else value,
+                        color = color ?: MaterialTheme.colors.primary,
                     )
 
                     if (editable) {

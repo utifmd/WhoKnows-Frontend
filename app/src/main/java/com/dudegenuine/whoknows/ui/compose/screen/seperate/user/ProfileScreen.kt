@@ -1,7 +1,10 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
+import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,8 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.local.api.INotificationService
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
+import com.dudegenuine.whoknows.infrastructure.di.android.api.NotificationService
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
@@ -33,6 +38,8 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
  * WhoKnows by utifmd
  **/
 // TODO: Public able
+@ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @Composable
 @ExperimentalCoilApi
 fun ProfileScreen(
@@ -51,6 +58,15 @@ fun ProfileScreen(
         contract = ActivityResultContracts.GetContent(),
         onResult = { viewModel.formState.onImageValueChange(it, context) }
     )
+
+    val onStartService: () -> Unit = {
+        Log.d("ProfileScreen: ", "onStartService..")
+        Intent(context, NotificationService::class.java)
+            .putExtra(INotificationService.TIME_KEY, 30.0).apply(
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) this::startForegroundService
+                else*/ context::startService
+            )
+    }
 
     if (state.loading) LoadingScreen()
 
@@ -114,7 +130,7 @@ fun ProfileScreen(
                             key = stringResource(R.string.username),
                             editable = isOwn,
                             value = user.username,
-                            onValuePressed = { event.onUsernamePressed(user.username) }
+                            onValuePressed = onStartService //{ event.onUsernamePressed(user.username) }
                         )
 
                         FieldTag(
@@ -143,7 +159,7 @@ fun ProfileScreen(
 
                     if (isOwn){
                         Button(
-                            onClick = { event.onSignOutPressed() }) {
+                            onClick = event::onSignOutPressed) {
 
                             Icon(
                                 imageVector = Icons.Default.Logout, contentDescription = null

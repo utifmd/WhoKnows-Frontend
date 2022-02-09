@@ -1,11 +1,10 @@
-package com.dudegenuine.whoknows.infrastructure.common
+package com.dudegenuine.whoknows.infrastructure.di.network.factory
 
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import okhttp3.Interceptor
 import okhttp3.Response
-import java.lang.Exception
 import java.nio.charset.Charset
 
 /**

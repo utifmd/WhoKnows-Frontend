@@ -1,11 +1,11 @@
-package com.dudegenuine.local.manager
+package com.dudegenuine.whoknows.infrastructure.di.android.api
 
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import com.dudegenuine.local.manager.contract.IClipboardManager
+import com.dudegenuine.local.api.IClipboardManager
 
 /**
  * Sat, 29 Jan 2022

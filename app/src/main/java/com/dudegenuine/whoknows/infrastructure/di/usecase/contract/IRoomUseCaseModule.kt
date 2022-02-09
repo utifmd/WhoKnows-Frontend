@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
+import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.usecase.room.*
 
 /**
@@ -9,6 +10,9 @@ import com.dudegenuine.usecase.room.*
 interface IRoomUseCaseModule {
     val currentUserId: () -> String
     val saveInClipboard: (String, String) -> Unit
+
+    val getterOnboard: IRoomRepository.IBoarding.Getter
+    val setterOnboard: IRoomRepository.IBoarding.Setter
 
     val postRoom: PostRoom
     val getRoom: GetRoom

@@ -36,7 +36,7 @@ fun RoomFinderScreen(
                 submitLabel = "Search",
                 submitEnable = formState.isGetValid,
                 submitLoading = viewModel.state.loading,
-                onSubmitPressed = viewModel::findRoom
+                onSubmitPressed = { viewModel.getRoom(formState.roomId) }
             )
         },
         content = {

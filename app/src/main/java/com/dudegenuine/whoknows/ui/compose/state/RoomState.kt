@@ -16,6 +16,7 @@ sealed class RoomState {
     object CurrentRoom: RoomState() //{ var currentUserId by mutableStateOf("") }
 
     data class BoardingQuiz(
+        val participantId: String,
         val room: Room,
         val list: List<OnBoardingState>): RoomState(){
             var currentQuestionIdx by mutableStateOf(0)
@@ -67,7 +68,7 @@ sealed class RoomState {
                 id = "PPN-${UUID.randomUUID()}",
                 roomId = "",
                 userId = "",
-                currentPage = "",
+                currentPage = "0",
                 timeLeft = null,
                 expired = false,
                 createdAt = Date(),

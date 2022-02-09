@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.infrastructure.common
+package com.dudegenuine.whoknows.infrastructure.di.network.factory
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

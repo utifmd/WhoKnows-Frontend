@@ -1,8 +1,11 @@
 package com.dudegenuine.repository
 
 import android.util.Log
-import com.dudegenuine.local.manager.contract.IClipboardManager
-import com.dudegenuine.local.manager.contract.IPreferenceManager
+import com.dudegenuine.local.api.IClipboardManager
+import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.local.api.IPreferenceManager.Companion.ONBOARD_PARTICIPANT_ID
+import com.dudegenuine.local.api.IPreferenceManager.Companion.ONBOARD_ROOM_ID
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
@@ -17,18 +20,34 @@ import javax.inject.Inject
  **/
 class RoomRepository
     @Inject constructor(
-        private val service: IRoomService,
-        private val mapper: IRoomDataMapper,
-        private val prefs: IPreferenceManager,
-        private val clip: IClipboardManager): IRoomRepository {
+    private val service: IRoomService,
+    private val mapper: IRoomDataMapper,
+    private val prefs: IPreferenceManager,
+    private val clip: IClipboardManager): IRoomRepository {
 
     private val TAG: String = javaClass.simpleName
 
     override val currentUserId: () -> String =
-        { prefs.getString(IPreferenceManager.CURRENT_USER_ID) }
+        { prefs.getString(CURRENT_USER_ID) }
 
     override val saveInClipboard: (String, String) -> Unit =
         clip::applyPlainText
+
+    override val getterOnboard = object : IRoomRepository.IBoarding.Getter {
+        override val roomId: () -> String =
+            { prefs.getString(ONBOARD_ROOM_ID) }
+
+        override val participantId: () -> String =
+            { prefs.getString(ONBOARD_PARTICIPANT_ID) }
+    }
+
+    override val setterOnboard = object : IRoomRepository.IBoarding.Setter {
+        override fun roomId(id: String) =
+            prefs.setString(ONBOARD_ROOM_ID, id)
+
+        override fun participantId(id: String) =
+            prefs.setString(ONBOARD_PARTICIPANT_ID, id)
+    }
 
     override suspend fun create(room: Room): Room = try { mapper.asRoom(
         service.create(mapper.asEntity(room)))

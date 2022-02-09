@@ -21,8 +21,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.model.Result
 import com.dudegenuine.model.Room
-import com.dudegenuine.model.User
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
@@ -73,17 +73,14 @@ fun RoomDetail(
             viewModel.expireRoom(room) { toggle() }
         }
 
-        override fun onJoinRoomDirectlyPressed(room: Room) {
+        override fun onJoinRoomDirectlyPressed(roomId: String) {
             toggle()
 
-            val model = viewModel.formState.participantModel.copy(
-                roomId = room.id,
-                userId = room.userId,
-                currentPage = "0",
-                timeLeft = room.minute,
-            )
+            Log.d("JoinRoomDirectly", "triggered")
+            // TODO: 1. save roomId and participantId in prefs
+            roomEventDetail.onBoardingRoomPressed(/*model.id, model.*/roomId)
 
-            Log.d("JoinRoomDirectly", model.toString())
+            //viewModel.onBoarding(room, model.id)
 
             /*participantViewModel
                 .postParticipant(model)*/
@@ -99,8 +96,8 @@ fun RoomDetail(
         override fun onNewRoomQuizPressed(roomId: String, owner: String) =
             roomEventDetail.onNewRoomQuizPressed(roomId, owner)
 
-        override fun onParticipantItemPressed(isOwn: Boolean, user: User?) =
-            roomEventDetail.onParticipantItemPressed(isOwn, user)
+        override fun onParticipantItemPressed(userId: String) =
+            roomEventDetail.onParticipantItemPressed(userId)
 
         override fun onQuestionItemPressed(quizId: String) =
             roomEventDetail.onQuestionItemPressed(quizId)
@@ -142,10 +139,11 @@ fun RoomDetail(
                     contentModifier = modifier,
                     model = model,
                     isOwn = isOwn,
-                    onParticipantPressed =
+                    onProfileSelected =
                         event::onParticipantItemPressed,
                     onQuestionPressed =
-                        event::onQuestionItemPressed
+                        event::onQuestionItemPressed,
+                    onResultSelected = event::onResultPressed
                 )
             }
         )
@@ -176,7 +174,7 @@ private fun BackLayer(
             modifier = modifier.fillMaxWidth(),
             onClick = {
                 if (isOwn) event.onNewRoomQuizPressed(model.id, model.userId)
-                else event.onJoinRoomDirectlyPressed(model) }) {
+                else event.onJoinRoomDirectlyPressed(model.id) }) {
 
             Text(
                 color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
@@ -231,7 +229,8 @@ private fun FrontLayer(
     model: Room,
     isOwn: Boolean,
     onQuestionPressed: (String) -> Unit,
-    onParticipantPressed: (Boolean, User?) -> Unit) {
+    onProfileSelected: (String) -> Unit,
+    onResultSelected: (Result) -> Unit) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -266,20 +265,29 @@ private fun FrontLayer(
         CardFooter(
             modifier = modifier.padding(horizontal = 24.dp),
             text = "${model.participants.size} " +
-                    if (model.participants.size > 1) "Participant\'s" else "Participant",
+                    if (model.participants.size > 1)
+                        "Participant\'s" else "Participant",
             icon = Icons.Default.People,
         )
 
         if (model.participants.isNotEmpty()){
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = modifier.fillMaxWidth()) {
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 24.dp
+                    )) {
 
                 model.participants.forEach { participant ->
                     item {
                         ProfileCard(
                             modifier = modifier.clickable(
-                                onClick = { onParticipantPressed(isOwn, participant.user) }),
+                                onClick = {
+                                    /*if (isOwn) onResultSelected(participant.result)
+                                    else*/ onProfileSelected(participant.userId)
+                                }
+                            ),
                             name = participant.user?.fullName ?: "".ifBlank {
                                 stringResource(R.string.unknown) },
                             desc = timeAgo(participant.createdAt),
@@ -304,7 +312,10 @@ private fun FrontLayer(
 
                 repeat(model.questions.size) {
                     Box(
-                        modifier = modifier.clickable{ onQuestionPressed(model.questions[it].id) }){
+                        modifier = modifier.clickable {
+                            onQuestionPressed(model.questions[it].id)
+                        }
+                    ){
                         Divider(
                             thickness = (0.5).dp)
 

@@ -1,7 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.repository
 
-import com.dudegenuine.local.manager.contract.IClipboardManager
-import com.dudegenuine.local.manager.contract.IPreferenceManager
+import com.dudegenuine.local.api.IClipboardManager
+import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.remote.service.contract.*
@@ -39,7 +39,8 @@ object RepositoryModule: IRepositoryModule {
         service: IRoomService,
         mapper: IRoomDataMapper,
         pref: IPreferenceManager,
-        clip: IClipboardManager): IRoomRepository {
+        clip: IClipboardManager
+    ): IRoomRepository {
 
         return RoomRepository(service, mapper, pref, clip)
     }

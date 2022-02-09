@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.infrastructure.common
+package com.dudegenuine.whoknows.infrastructure.di.network.factory
 
 import android.util.Log
 import com.dudegenuine.model.common.validation.HttpFailureException

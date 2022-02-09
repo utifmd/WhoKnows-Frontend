@@ -14,19 +14,23 @@ class RoomEventDetail(
 
     override fun onNewRoomQuizPressed(roomId: String, owner: String) {
         router.navigate(
-            route = Screen.Home.Summary.DetailRoomOwner.QuizCreator.withArgs(roomId, owner))
+            route = Screen.Home.Summary.RoomDetail.QuizCreator.withArgs(roomId, owner))
+    }
+
+    override fun onBoardingRoomPressed(roomId: String) {
+        router.navigate(
+            route = Screen.Home.Summary.OnBoarding.withArgs(/*participantId, */roomId)
+        )
     }
 
     override fun onParticipantItemPressed(userId: String) {
-        // if (isOwn)
-        /*if (user != null)
         router.navigate(
-            route = Screen.Home.Setting.route)*/
+            route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs(userId))
     }
 
     override fun onQuestionItemPressed(quizId: String) {
         router.navigate(
-            route = Screen.Home.Summary.DetailRoomOwner.DetailQuiz.withArgs(quizId))
+            route = Screen.Home.Summary.RoomDetail.QuizDetail.withArgs(quizId))
     }
 
     override fun onDeleteRoomSucceed(roomId: String) {

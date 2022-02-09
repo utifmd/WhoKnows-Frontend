@@ -1,7 +1,7 @@
-package com.dudegenuine.local.manager
+package com.dudegenuine.whoknows.infrastructure.di.android.api
 
 import android.content.SharedPreferences
-import com.dudegenuine.local.manager.contract.IPreferenceManager
+import com.dudegenuine.local.api.IPreferenceManager
 
 /**
  * Thu, 13 Jan 2022

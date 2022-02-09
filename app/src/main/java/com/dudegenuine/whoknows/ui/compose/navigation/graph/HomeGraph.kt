@@ -55,7 +55,7 @@ fun NavGraphBuilder.homeNavGraph(
             SettingScreen(
                 modifier = modifier,
                 event = ProfileEvent(
-                    onSignOutPressed = viewModel::signOutUser,
+                    onSignOutClicked = viewModel::signOutUser,
                     router = router,
                 )
             )

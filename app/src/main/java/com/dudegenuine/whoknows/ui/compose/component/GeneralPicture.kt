@@ -49,7 +49,11 @@ fun GeneralPicture(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .clickable { toggle.value = !toggle.value }) {
+                .clickable(
+                    enabled = onCheckPressed != null,
+                    onClick = { toggle.value = !toggle.value }
+                )
+        ) {
             GeneralImage(
                 modifier = modifier.fillMaxSize(),
                 data = data,

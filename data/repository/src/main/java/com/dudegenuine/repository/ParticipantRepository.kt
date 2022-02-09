@@ -18,8 +18,10 @@ class ParticipantRepository
     private val mapper: IParticipantDataMapper
     ): IParticipantRepository {
 
-    override suspend fun create(participant: Participant): Participant = try { mapper.asParticipant(
-        service.create(mapper.asEntity(participant)))
+    override suspend fun create(participant: Participant): Participant = try {
+        val remote = mapper.asParticipant(service.create(mapper.asEntity(participant)))
+
+        remote
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
@@ -46,5 +48,9 @@ class ParticipantRepository
         service.list(page, size))
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    }
+
+    override fun save(participant: Participant) {
+        TODO("Not yet implemented")
     }
 }

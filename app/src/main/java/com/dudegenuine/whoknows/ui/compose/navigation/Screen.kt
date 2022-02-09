@@ -13,31 +13,31 @@ sealed class Screen(val route: String){
     }
 
     object Auth: Screen(strOf<Auth>()){
-        object Login: Screen(strOf<Login>())
-        object Register: Screen(strOf<Register>())
+        object Login: Screen(strOf<Auth>()+strOf<Login>())
+        object Register: Screen(strOf<Auth>()+strOf<Register>())
     }
 
     object Home: Screen(strOf<Home>()){
-        object Summary: Screen(strOf<Summary>()){
-            object RoomFinder: Screen(strOf<RoomFinder>())
-            object RoomCreator: Screen(strOf<RoomCreator>())
-            object DetailRoomOwner: Screen(strOf<DetailRoomOwner>()){
-                object QuizCreator: Screen(strOf<QuizCreator>())
-                object DetailQuiz: Screen(strOf<DetailQuiz>())
+        object Summary: Screen(strOf<Home>()+strOf<Summary>()){
+            object RoomFinder: Screen(strOf<Summary>()+strOf<RoomFinder>())
+            object RoomCreator: Screen(strOf<Summary>()+strOf<RoomCreator>())
+            object RoomDetail: Screen(strOf<Summary>()+strOf<RoomDetail>()){
+                object QuizCreator: Screen(strOf<RoomDetail>()+strOf<QuizCreator>())
+                object QuizDetail: Screen(strOf<RoomDetail>()+strOf<QuizDetail>())
+                object ProfileDetail: Screen(strOf<RoomDetail>()+strOf<ProfileDetail>())
+            }
+            object OnBoarding: Screen(strOf<Summary>()+strOf<OnBoarding>()){
+                object Result: Screen(strOf<OnBoarding>()+strOf<Result>())
             }
         }
 
-        object Discover: Screen(strOf<Discover>()){
-            object ListPublicRoom: Screen(strOf<ListPublicRoom>())
-            object DetailRoomPublic: Screen(strOf<DetailRoomPublic>())
-            object OnBoarding: Screen(strOf<OnBoarding>()){
-                object Result: Screen(strOf<Result>())
-            }
+        object Discover: Screen(strOf<Home>()+strOf<Discover>()){
+            object RoomDetail: Screen(strOf<Discover>()+strOf<RoomDetail>())
+            object ProfileDetail: Screen(strOf<Discover>()+strOf<ProfileDetail>())
         }
 
-        object Setting: Screen(strOf<Setting>()){
-            /*object Profile: Screen(strOf<Profile>())*/
-            object ProfileEditor: Screen(strOf<ProfileEditor>())
+        object Setting: Screen(strOf<Home>()+strOf<Setting>()){
+            object ProfileEditor: Screen(strOf<Setting>()+strOf<ProfileEditor>())
         }
     }
 

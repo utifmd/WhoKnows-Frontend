@@ -1,5 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event
 
+import com.dudegenuine.model.QuizActionType
+import com.dudegenuine.model.Result
 import com.dudegenuine.model.Room
 
 /**
@@ -14,6 +16,9 @@ interface IRoomEvent {
 
         const val OWN_IS_TRUE = "true"
         const val OWN_IS_FALSE = "false"
+
+        /*const val ONBOARD_PPN_ID_SAVED_KEY = "onboard_room_participant_id"*/
+        const val ONBOARD_ROOM_ID_SAVED_KEY = "onboard_room_id"
     }
 }
 
@@ -30,7 +35,17 @@ interface IRoomEventDetail: IRoomEvent {
     fun onDeleteRoomPressed(roomId: String){}
     fun onDeleteRoomSucceed(roomId: String){}
     fun onNewRoomQuizPressed(roomId: String, owner: String){}
-    fun onJoinRoomDirectlyPressed(room: Room){}
+    fun onJoinRoomDirectlyPressed(roomId: String){}
+    fun onBoardingRoomPressed(roomId: String){}
     fun onParticipantItemPressed(userId: String){}
     fun onQuestionItemPressed(quizId: String){}
+    fun onResultPressed(result: Result){}
+}
+
+interface IRoomEventBoarding: IRoomEvent {
+    fun onAction(index: Int, type: QuizActionType) {}
+    fun onBackPressed() {}
+    fun onPrevPressed() {}
+    fun onNextPressed() {}
+    fun onDonePressed() {}
 }

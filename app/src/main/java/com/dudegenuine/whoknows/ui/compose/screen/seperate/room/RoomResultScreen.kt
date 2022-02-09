@@ -2,15 +2,12 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 
@@ -20,11 +17,11 @@ import com.dudegenuine.whoknows.ui.compose.state.RoomState
  **/
 @Composable
 fun RoomResultScreen(
+    modifier: Modifier = Modifier,
     state: RoomState.BoardingResult,
     // onSharePressed: () -> Unit,
-    onDonePressed: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    onDonePressed: () -> Unit) {
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceAround) {
@@ -38,23 +35,20 @@ fun RoomResultScreen(
                 style = MaterialTheme.typography.h1
             )
             Column {
-                Text(
-                    text = "Wrong quizzes:",
-                    style = MaterialTheme.typography.subtitle1
-                )
-                Column {
+                if (it.wrongQuiz.isNotEmpty()) Column {
+                    Text(
+                        text = "Wrong quizzes:",
+                        style = MaterialTheme.typography.subtitle1)
                     it.wrongQuiz.mapIndexed { idx, it ->
                         Text(
                             text = "${idx +1}. $it",
                             style = MaterialTheme.typography.caption)
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Correct quizzes:",
-                    style = MaterialTheme.typography.subtitle1
-                )
-                Column {
+                if (it.correctQuiz.isNotEmpty()) Column {
+                    Text(
+                        text = "Correct quizzes:",
+                        style = MaterialTheme.typography.subtitle1)
                     it.correctQuiz.mapIndexed { idx, it ->
                         Text(
                             text = "${idx +1}. $it",

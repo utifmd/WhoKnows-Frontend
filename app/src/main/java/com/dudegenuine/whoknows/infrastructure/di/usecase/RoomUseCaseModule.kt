@@ -31,6 +31,12 @@ class RoomUseCaseModule(
 
     override val saveInClipboard: (String, String) -> Unit = { k, v ->
         repository.saveInClipboard(k, v)
-    }
+    },
+
+    override val getterOnboard: IRoomRepository.IBoarding.Getter =
+        repository.getterOnboard,
+
+    override val setterOnboard: IRoomRepository.IBoarding.Setter =
+        repository.setterOnboard
 
 ): IRoomUseCaseModule

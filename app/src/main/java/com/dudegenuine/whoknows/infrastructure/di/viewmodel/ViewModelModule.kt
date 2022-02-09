@@ -40,11 +40,12 @@ object ViewModelModule: IViewModelModule {
     @ViewModelScoped
     override fun provideRoomViewModel(
         roomUseCaseModule: IRoomUseCaseModule,
+        participantUseCaseModule: IParticipantUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IRoomViewModel {
 
-        return RoomViewModel(roomUseCaseModule, fileCase, savedStateHandle)
+        return RoomViewModel(roomUseCaseModule, participantUseCaseModule, fileCase, savedStateHandle)
     }
 
     @Provides

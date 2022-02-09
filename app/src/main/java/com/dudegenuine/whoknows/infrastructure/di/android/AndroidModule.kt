@@ -3,15 +3,13 @@ package com.dudegenuine.whoknows.infrastructure.di.android
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
-import com.dudegenuine.local.manager.BroadcastReceiverManager
-import com.dudegenuine.local.manager.ClipboardManager
-import com.dudegenuine.local.manager.PreferenceManager
+import com.dudegenuine.local.api.IClipboardManager
+import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPreferenceManager.Companion.PREF_NAME
 import com.dudegenuine.local.manager.WhoKnowsDatabase
-import com.dudegenuine.local.manager.contract.IBroadcastReceiverManager
-import com.dudegenuine.local.manager.contract.IClipboardManager
-import com.dudegenuine.local.manager.contract.IPreferenceManager
-import com.dudegenuine.local.manager.contract.IPreferenceManager.Companion.PREF_NAME
 import com.dudegenuine.local.manager.contract.IWhoKnowsDatabase.Companion.DATABASE_NAME
+import com.dudegenuine.whoknows.infrastructure.di.android.api.ClipboardManager
+import com.dudegenuine.whoknows.infrastructure.di.android.api.PreferenceManager
 import com.dudegenuine.whoknows.infrastructure.di.android.contract.IAndroidModule
 import dagger.Module
 import dagger.Provides
@@ -46,14 +44,6 @@ object AndroidModule: IAndroidModule {
 
     @Provides
     @Singleton
-    override fun provideBroadcastReceiverManager(
-        @ApplicationContext context: Context): IBroadcastReceiverManager {
-
-        return BroadcastReceiverManager()
-    }
-
-    @Provides
-    @Singleton
     override fun providePrefManager(
         preferences: SharedPreferences): IPreferenceManager = PreferenceManager(preferences)
 
@@ -64,4 +54,24 @@ object AndroidModule: IAndroidModule {
 
         return ClipboardManager(context)
     }
+
+    /*@Provides
+    @Singleton
+    override fun provideNotificationManager(
+        @ApplicationContext context: Context): NotificationManager {
+        return context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    }
+
+    @Provides
+    @Singleton
+    @RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalMaterialApi::class,
+        ExperimentalFoundationApi::class, ExperimentalCoilApi::class)
+    override fun provideNotificationService(
+        @ApplicationContext context: Context,
+        manager: NotificationManager): INotificationService {
+
+        return NotificationService(context, manager)
+    }*/
+
 }

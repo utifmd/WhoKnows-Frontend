@@ -9,28 +9,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.QuizActionType
+import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
-import kotlinx.coroutines.launch
 
 /**
  * Fri, 17 Dec 2021
  * WhoKnows by utifmd
  **/
 @Composable
+@ExperimentalCoilApi
 @ExperimentalMaterialApi
 fun RoomBoardingScreen(
     // resourceState: ResourceState,
+    modifier: Modifier = Modifier,
     state: RoomState.BoardingQuiz,
     onAction: (Int, QuizActionType) -> Unit,
-    // onBackPressed: () -> Unit,
+    onBackPressed: () -> Unit,
     onPrevPressed: () -> Unit,
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
-    // val TAG = "RoomBoardingScreen"
 
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed) // val selectedMenu = remember { mutableStateOf("") }
@@ -44,30 +45,34 @@ fun RoomBoardingScreen(
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()) { // .padding(16.dp)
+                modifier = modifier.fillMaxWidth()) { // .padding(16.dp)
                 if (boardingState.showPrevious){
                     TextButton( //val question = Quiz("QIZ-${UUID.randomUUID()}", "ROM-f80365e5-0e65-4674-9e7b-bee666b62bda", images = listOf("https://avatars.githubusercontent.com/u/16291551?s=400&u=c0b02c25fef325be78f7a1faca541f44120fb591&v=4"), "Bagaimana ciri fisik pria tersebut?", options = listOf("Ikal", "Sawo matang", "Misterius", "Tinggi", "Kumis tipis", "Kurus kering"), answer = PossibleAnswer.MultipleChoice(setOf("Ikal", "Sawo matang", "Misterius", "Kumis tipis")), createdBy = "Utif Milkedori", createdAt = Date(), null) //                            quizViewModel.postQuiz(question)
                         onClick = onPrevPressed) {
-                        Text(text = "Previous", color = Color.LightGray)
+                        Text(text = "Previous", color = MaterialTheme.colors.onPrimary)
                     }
                 }
                 Text(
-                    text = "Question number ${boardingState.questionIndex} from ${boardingState.totalQuestionsCount}",
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = modifier.padding(
+                        horizontal = 16.dp
+                    ),
+                    text = "${state.room.minute} time left",
+                    color = MaterialTheme.colors.onPrimary,
+                    style = MaterialTheme.typography.h6
                 )
                 Row {
                     if (boardingState.showDone) {
                         TextButton(
                             enabled = boardingState.enableNext,
                             onClick = onDonePressed) {
-                            Text(text = "Done", color = Color.LightGray)
+                            Text(text = "Done", color = MaterialTheme.colors.onPrimary)
                         }
                     } else {
                         TextButton(
                             enabled = boardingState.enableNext,
                             onClick = onNextPressed
                         ) {
-                            Text(text = "Next", color = Color.LightGray)
+                            Text(text = "Next", color = MaterialTheme.colors.onPrimary)
                         }
                     }
                 }
@@ -76,25 +81,32 @@ fun RoomBoardingScreen(
 
         backLayerContent = {
             Column(
-                modifier = Modifier.fillMaxSize(), // verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = modifier.padding(12.dp),
+                verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = state.room.title, fontSize = 24.sp)
-                Text(text = state.room.description, fontSize = 16.sp)
-                Text(text = "Total ${state.room.minute} minutes", fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(24.dp))
+
+                FieldTag(key = "Title", value = state.room.title, color = MaterialTheme.colors.onPrimary)
+                FieldTag(key = "Description", value = state.room.description, color = MaterialTheme.colors.onPrimary)
+                FieldTag(key = "Total duration", value = "${state.room.minute} minute\'s", color = MaterialTheme.colors.onPrimary)
             }
        },
 
         frontLayerContent = {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween) {
+
+                Text("Question number ${boardingState.questionIndex} from ${boardingState.totalQuestionsCount}", style = MaterialTheme.typography.caption, modifier = modifier.padding(top = 24.dp))
+
                 LinearProgressIndicator(
-                    progress = boardingState.questionIndex / boardingState.totalQuestionsCount.toFloat(),
-                    modifier = Modifier.requiredWidth(126.dp).padding(16.dp),
+                    progress = boardingState.questionIndex.toFloat() / boardingState.totalQuestionsCount.toFloat(),
+                    modifier = modifier
+                        .requiredWidth(126.dp)
+                        .padding(12.dp),
                     color = MaterialTheme.colors.primaryVariant,
                     backgroundColor = Color.LightGray)
+
                 QuestionBoardingScreen(
                     quiz = boardingState.quiz,
                     exactAnswer = boardingState.answer,
@@ -117,14 +129,8 @@ fun RoomBoardingScreen(
                                 else -> return@apply
                             }
                         }
-                    })
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            scaffoldState.reveal()
-                        }}) {
-                    Text(text = "Room detail description")
-                }
+                    }
+                )
             }
         }
     )

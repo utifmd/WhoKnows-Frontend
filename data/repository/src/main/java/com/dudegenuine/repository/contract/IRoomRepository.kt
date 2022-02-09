@@ -17,8 +17,23 @@ interface IRoomRepository {
 
     val currentUserId: () -> String
     val saveInClipboard: (String, String) -> Unit
+    val getterOnboard: IBoarding.Getter
+    val setterOnboard: IBoarding.Setter
 
     companion object {
         const val NOT_FOUND = "Room not found."
     }
+
+    sealed interface IBoarding {
+        interface Getter: IBoarding {
+            val roomId: () -> String
+            val participantId: () -> String
+        }
+
+        interface Setter: IBoarding {
+            fun roomId(id: String)
+            fun participantId(id: String)
+        }
+    }
+
 }

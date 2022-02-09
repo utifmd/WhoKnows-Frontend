@@ -1,9 +1,11 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,40 +31,36 @@ fun MultipleChoiceQuestion(
 
                 mutableStateOf(selectedOption ?: false)
             }
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f)
-                ),
-                modifier = Modifier.padding(vertical = 4.dp)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(
-                            onClick = {
-                                checkedState.value = !checkedState.value
-                                onAnswerSelected(option, checkedState.value)
-                            }
-                        )
-                        .padding(vertical = 16.dp, horizontal = 24.dp),
 
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text = option)
-
-                    Checkbox(
-                        checked = checkedState.value,
-                        onCheckedChange = { selected ->
-                            checkedState.value = selected
-
-                            onAnswerSelected(option, selected)
-                        },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = MaterialTheme.colors.primary
-                        ),
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .clickable(
+                        onClick = {
+                            checkedState.value = !checkedState.value
+                            onAnswerSelected(option, checkedState.value)
+                        }
                     )
-                }
+                    .padding(
+                        vertical = 8.dp,
+                        horizontal = 12.dp
+                    ),
+
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+
+                Text(text = option)
+
+                Checkbox(
+                    checked = checkedState.value,
+                    onCheckedChange = { selected ->
+                        checkedState.value = selected
+
+                        onAnswerSelected(option, selected)
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colors.primary
+                    ),
+                )
             }
         }
     }

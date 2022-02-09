@@ -37,6 +37,7 @@ data class ResourceState(
     companion object {
         const val DONT_EMPTY = "Fields must not be blank."
         const val NULL_STATE = "State is null."
+        const val NO_QUESTION = "There is no question for this room."
 
         const val DESC_TOO_LONG = "Description must not more then 225 chars."
     }

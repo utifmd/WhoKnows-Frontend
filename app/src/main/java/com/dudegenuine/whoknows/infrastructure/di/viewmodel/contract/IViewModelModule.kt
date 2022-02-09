@@ -20,6 +20,7 @@ interface IViewModelModule {
 
     fun provideRoomViewModel(
         roomUseCaseModule: IRoomUseCaseModule,
+        participantUseCaseModule: IParticipantUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel
 
