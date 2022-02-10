@@ -29,13 +29,14 @@ interface IRoomEventHome: IRoomEvent {
 }
 
 interface IRoomEventDetail: IRoomEvent {
+    fun launchTimerService(time: Double){}
     fun onPublishRoomPressed(){}
     fun onCloseRoomPressed(room: Room){}
     fun onShareRoomPressed(roomId: String){}
     fun onDeleteRoomPressed(roomId: String){}
     fun onDeleteRoomSucceed(roomId: String){}
     fun onNewRoomQuizPressed(roomId: String, owner: String){}
-    fun onJoinRoomDirectlyPressed(roomId: String){}
+    fun onJoinRoomDirectlyPressed(room: Room/*roomId: String*/){}
     fun onBoardingRoomPressed(roomId: String){}
     fun onParticipantItemPressed(userId: String){}
     fun onQuestionItemPressed(quizId: String){}

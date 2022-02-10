@@ -41,11 +41,12 @@ object ViewModelModule: IViewModelModule {
     override fun provideRoomViewModel(
         roomUseCaseModule: IRoomUseCaseModule,
         participantUseCaseModule: IParticipantUseCaseModule,
+        resultUseCaseModule: IResultUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IRoomViewModel {
 
-        return RoomViewModel(roomUseCaseModule, participantUseCaseModule, fileCase, savedStateHandle)
+        return RoomViewModel(roomUseCaseModule, participantUseCaseModule, resultUseCaseModule, fileCase, savedStateHandle)
     }
 
     @Provides

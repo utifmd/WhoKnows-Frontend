@@ -20,6 +20,7 @@ sealed class RoomState {
         val room: Room,
         val list: List<OnBoardingState>): RoomState(){
             var currentQuestionIdx by mutableStateOf(0)
+            var duration: Double = (room.minute.toFloat() * 60).toDouble()
     }
 
     data class BoardingResult(

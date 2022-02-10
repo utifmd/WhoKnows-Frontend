@@ -3,16 +3,17 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.local.api.INotificationService
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.QuizActionType
-import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
+import com.dudegenuine.whoknows.ui.compose.component.misc.BroadcastTimerReceiver
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
 
@@ -33,10 +34,19 @@ fun RoomBoardingScreen(
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
 
-    val scope = rememberCoroutineScope()
-    val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed) // val selectedMenu = remember { mutableStateOf("") }
-    val boardingState = remember(state.currentQuestionIdx){
-        state.list[state.currentQuestionIdx]
+    val scaffoldState = rememberBackdropScaffoldState(
+        BackdropValue.Concealed)
+
+    val boardingState = remember(state.currentQuestionIdx)
+        { state.list[state.currentQuestionIdx] }
+
+    val timer = remember { mutableStateOf(
+        INotificationService.asString(state.duration)) }
+
+    BroadcastTimerReceiver { fresh, finished ->
+        timer.value = fresh
+
+        if (finished) onDonePressed()
     }
 
     BackdropScaffold(
@@ -56,7 +66,7 @@ fun RoomBoardingScreen(
                     modifier = modifier.padding(
                         horizontal = 16.dp
                     ),
-                    text = "${state.room.minute} time left",
+                    text = "${timer.value} time left",
                     color = MaterialTheme.colors.onPrimary,
                     style = MaterialTheme.typography.h6
                 )
@@ -81,13 +91,11 @@ fun RoomBoardingScreen(
 
         backLayerContent = {
             Column(
-                modifier = modifier.padding(12.dp),
-                verticalArrangement = Arrangement.SpaceAround,
-                horizontalAlignment = Alignment.CenterHorizontally) {
+                modifier = modifier.padding(12.dp)) {
+                listOf(state.room.title, state.room.description, "${state.room.minute} minute\'s").forEach {
 
-                FieldTag(key = "Title", value = state.room.title, color = MaterialTheme.colors.onPrimary)
-                FieldTag(key = "Description", value = state.room.description, color = MaterialTheme.colors.onPrimary)
-                FieldTag(key = "Total duration", value = "${state.room.minute} minute\'s", color = MaterialTheme.colors.onPrimary)
+                    Text(it, modifier = modifier.padding(vertical = 8.dp, horizontal = 12.dp))
+                }
             }
        },
 
@@ -126,7 +134,7 @@ fun RoomBoardingScreen(
 
                                     chosenAnswer.answers == multipleChoice.answers
                                 }
-                                else -> return@apply
+                                else -> false
                             }
                         }
                     }

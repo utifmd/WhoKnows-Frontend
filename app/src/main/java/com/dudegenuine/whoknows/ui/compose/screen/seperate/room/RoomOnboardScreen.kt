@@ -31,7 +31,7 @@ fun RoomOnboardScreen(
             override fun onNextPressed()
                 { boardingState.currentQuestionIdx +=1 }
             override fun onDonePressed()
-                { viewModel.computeResult(boardingState) }
+                { viewModel.onPreResult(boardingState) }
         }
     }
 

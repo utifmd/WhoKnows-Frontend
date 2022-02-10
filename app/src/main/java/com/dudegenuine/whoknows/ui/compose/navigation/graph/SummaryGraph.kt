@@ -39,6 +39,7 @@ import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel.Compan
 fun NavGraphBuilder.summaryGraph(
     router: NavHostController){
 
+
     composable(
         route = Screen.Home.Summary.RoomCreator.route){
         RoomCreatorScreen(
@@ -65,7 +66,7 @@ fun NavGraphBuilder.summaryGraph(
             "{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}")){ entry ->
         RoomDetail(
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
-            roomEventDetail = RoomEventDetail(router = router)
+            eventRouter = RoomEventDetail(router = router)
         )
     }
 

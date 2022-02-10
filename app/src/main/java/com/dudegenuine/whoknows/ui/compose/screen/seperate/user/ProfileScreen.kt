@@ -37,7 +37,6 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
  * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
-// TODO: Public able
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
@@ -61,11 +60,8 @@ fun ProfileScreen(
 
     val onStartService: () -> Unit = {
         Log.d("ProfileScreen: ", "onStartService..")
-        Intent(context, NotificationService::class.java)
-            .putExtra(INotificationService.TIME_KEY, 30.0).apply(
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) this::startForegroundService
-                else*/ context::startService
-            )
+        Intent(context, NotificationService::class.java).putExtra(
+            INotificationService.EXACT_TIME_KEY, 30.0).apply(context::startService)
     }
 
     if (state.loading) LoadingScreen()

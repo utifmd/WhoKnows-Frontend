@@ -34,14 +34,15 @@ fun RoomScreen(
                 onAction = { _, _ ->  },
                 onPrevPressed = { roomState.currentQuestionIdx -=1 },
                 onNextPressed = { roomState.currentQuestionIdx +=1 },
-                onDonePressed = { viewModel.computeResult(roomState) },
+                onDonePressed = { viewModel.onPreResult(roomState) },
                 onBackPressed = { }
             )
             is RoomState.BoardingResult -> RoomResultScreen(
+                state = roomState,
+                onDonePressed = { viewModel.onCloseResult() },
                 // onBackPressed = {  },
                 // onSharePressed = { viewModel.shareResult() },
-                state = roomState,
-                onDonePressed = { viewModel.closeResult() })
+            )
             else -> RoomHomeScreen(
                 event = event
             )

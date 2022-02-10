@@ -10,6 +10,7 @@ import com.dudegenuine.model.Result
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IParticipantUseCaseModule
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IResultUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ONBOARD_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
@@ -36,6 +37,7 @@ class RoomViewModel
     @Inject constructor(
         private val caseRoom: IRoomUseCaseModule,
         private val caseParticipant: IParticipantUseCaseModule,
+        private val caseResult: IResultUseCaseModule,
         private val caseFile: IFileUseCaseModule,
         private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
 
@@ -133,7 +135,7 @@ class RoomViewModel
         _uiState.value = roomState
     }
 
-    fun computeResult(boardingState: RoomState.BoardingQuiz) {
+    fun onPreResult(boardingState: RoomState.BoardingQuiz) {
         val questioners = boardingState.list
 
         val correct = questioners.count { it.isCorrect }
@@ -156,25 +158,28 @@ class RoomViewModel
             wrongQuiz = questioners.filter { !it.isCorrect }.map { it.quiz.question },
             score = resultScore.toInt(),
             createdAt = Date(),
-            updatedAt = null,
+            updatedAt = null
         )
 
         Log.d(TAG, "computeResult: $result")
+        onBoardingValueChange("", "")
 
-
-        _uiState.value = RoomState.BoardingResult(boardingState.room.title, result)
+        caseResult.postResult(result).onEach { res -> onResourceSucceed(res)
+            { _uiState.value = RoomState.BoardingResult(boardingState.room.title, it) }
+        }
     }
 
     fun shareResult() {
         TODO("Not yet implemented")
     }
 
-    fun closeResult() {
+    fun onCloseResult() {
         _uiState.value = RoomState.CurrentRoom
+
         onBoardingValueChange("", "")
     }
 
-    fun onBoardingValueChange(roomId: String, ppnId: String) {
+    private fun onBoardingValueChange(roomId: String, ppnId: String) {
         caseRoom.setterOnboard.apply {
             roomId(roomId)
             participantId(ppnId)

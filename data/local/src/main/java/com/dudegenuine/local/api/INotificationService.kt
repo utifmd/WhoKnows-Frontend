@@ -18,10 +18,20 @@ abstract class INotificationService: Service() {
         const val FOREGROUND_TIMER_SERVICE_ID = 1001
 
         const val TIME_ACTION = "latest_receiver_updated_action"
-        const val TIME_KEY = "current_time_key"
+        const val EXACT_TIME_KEY = "exact_time_key"
+        const val FINISHED_TIME_KEY = "finish_time_key"
 
         const val CHANNEL_ID = "channel id"
         const val CHANNEL_NAME = "channel name is notification"
+
+        fun asString(time: Double): String {
+            val resultInt = time.roundToInt()
+            val hours = resultInt % 86400 / 3600
+            val minutes = resultInt % 86400 % 3600 / 60
+            val seconds = resultInt % 86400 % 3600 % 60
+
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        }
     }
 
     protected val timer = Timer()
@@ -29,18 +39,10 @@ abstract class INotificationService: Service() {
     protected abstract val notifyManager: NotificationManager
     protected abstract fun notifyBuilder(): NotificationCompat.Builder
 
-    protected abstract fun taskTimer(): TimerTask
+    protected abstract val taskTimer: TimerTask
+    /*protected abstract fun taskTimer(): TimerTask*/
 
     override fun onBind(intent: Intent?): IBinder?  = null
-
-    fun asString(time: Double): String {
-        val resultInt = time.roundToInt()
-        val hours = resultInt % 86400 / 3600
-        val minutes = resultInt % 86400 % 3600 / 60
-        val seconds = resultInt % 86400 % 3600 % 60
-
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds)
-    }
 
     override fun onDestroy() {
         timer.cancel()

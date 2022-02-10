@@ -27,28 +27,6 @@ class RoomRepository
 
     private val TAG: String = javaClass.simpleName
 
-    override val currentUserId: () -> String =
-        { prefs.getString(CURRENT_USER_ID) }
-
-    override val saveInClipboard: (String, String) -> Unit =
-        clip::applyPlainText
-
-    override val getterOnboard = object : IRoomRepository.IBoarding.Getter {
-        override val roomId: () -> String =
-            { prefs.getString(ONBOARD_ROOM_ID) }
-
-        override val participantId: () -> String =
-            { prefs.getString(ONBOARD_PARTICIPANT_ID) }
-    }
-
-    override val setterOnboard = object : IRoomRepository.IBoarding.Setter {
-        override fun roomId(id: String) =
-            prefs.setString(ONBOARD_ROOM_ID, id)
-
-        override fun participantId(id: String) =
-            prefs.setString(ONBOARD_PARTICIPANT_ID, id)
-    }
-
     override suspend fun create(room: Room): Room = try { mapper.asRoom(
         service.create(mapper.asEntity(room)))
     } catch (e: Exception){
@@ -84,5 +62,26 @@ class RoomRepository
         service.list(userId))
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    }
+
+    override val currentUserId: () -> String =
+        { prefs.getString(CURRENT_USER_ID) }
+
+    override val saveInClipboard: (String, String) -> Unit = clip::applyPlainText
+
+    override val getterOnboard = object : IRoomRepository.IBoarding.Getter {
+        override val roomId: () -> String =
+            { prefs.getString(ONBOARD_ROOM_ID) }
+
+        override val participantId: () -> String =
+            { prefs.getString(ONBOARD_PARTICIPANT_ID) }
+    }
+
+    override val setterOnboard = object : IRoomRepository.IBoarding.Setter {
+        override fun roomId(id: String) =
+            prefs.setString(ONBOARD_ROOM_ID, id)
+
+        override fun participantId(id: String) =
+            prefs.setString(ONBOARD_PARTICIPANT_ID, id)
     }
 }
