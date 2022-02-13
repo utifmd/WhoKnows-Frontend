@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.INotificationService
+import com.dudegenuine.local.api.ITimerNotificationService
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.QuizActionType
 import com.dudegenuine.whoknows.ui.compose.component.misc.BroadcastTimerReceiver
@@ -41,7 +41,7 @@ fun RoomBoardingScreen(
         { state.list[state.currentQuestionIdx] }
 
     val timer = remember { mutableStateOf(
-        INotificationService.asString(state.duration)) }
+        ITimerNotificationService.asString(state.duration)) }
 
     BroadcastTimerReceiver { fresh, finished ->
         timer.value = fresh

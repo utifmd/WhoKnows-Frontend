@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
     id 'org.jetbrains.kotlin.android'
     id 'dagger.hilt.android.plugin'
 }
@@ -46,6 +47,11 @@ dependencies {
 
     /*implementation "com.google.accompanist:accompanist-flowlayout:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"*/
+
+    // Firebase
+    implementation platform("com.google.firebase:firebase-bom:$firebase_bom_version")
+    implementation "com.google.firebase:firebase-analytics-ktx:$firebase_analytics_version"
+    implementation "com.google.firebase:firebase-messaging-ktx:$firebase_messaging_version"
 
     // Room database
     implementation "androidx.room:room-ktx:$room_version"

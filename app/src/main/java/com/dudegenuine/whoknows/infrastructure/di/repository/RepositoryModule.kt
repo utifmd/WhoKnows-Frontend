@@ -84,4 +84,15 @@ object RepositoryModule: IRepositoryModule {
     ): IFileRepository {
         return FileRepository(service, mapper)
     }
+
+    @Provides
+    @Singleton
+    override fun provideNotificationRepository(
+        serviceOnPremise: INotificationService,
+        serviceOnCloud: IPushNotificationService,
+        mapper: INotificationDataMapper,
+        pref: IPreferenceManager
+    ): INotificationRepository {
+        return NotificationRepository(serviceOnPremise, serviceOnCloud, mapper, pref)
+    }
 }

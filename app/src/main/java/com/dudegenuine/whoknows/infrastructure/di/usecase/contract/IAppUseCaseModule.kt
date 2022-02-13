@@ -14,4 +14,5 @@ interface IAppUseCaseModule {
     fun provideResultUseCaseModule(repository: IResultRepository): IResultUseCaseModule
     fun provideRoomUseCaseModule(repository: IRoomRepository): IRoomUseCaseModule
     fun provideUserUseCaseModule(repository: IUserRepository): IUserUseCaseModule
+    fun provideNotificationUseCaseModule(repository: INotificationRepository): INotificationUseCaseModule
 }

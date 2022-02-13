@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
 import androidx.lifecycle.SavedStateHandle
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
+import com.dudegenuine.whoknows.ui.presenter.notification.contract.INotificationViewModel
 import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
 import com.dudegenuine.whoknows.ui.presenter.quiz.contract.IQuizViewModel
 import com.dudegenuine.whoknows.ui.presenter.result.contract.IResultViewModel
@@ -38,4 +39,8 @@ interface IViewModelModule {
     fun provideParticipantViewModel(
         participantUseCaseModule: IParticipantUseCaseModule,
         savedStateHandle: SavedStateHandle): IParticipantViewModel
+
+    fun provideNotificationViewModel(
+        case: INotificationUseCaseModule,
+        savedStateHandle: SavedStateHandle): INotificationViewModel
 }

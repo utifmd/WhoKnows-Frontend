@@ -1,14 +1,17 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import coil.annotation.ExperimentalCoilApi
 
 /**
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalCoilApi
 @Composable
-fun DiscoverScreen(modifier: Modifier = Modifier, router: NavHostController) {
-    ErrorScreen(message = "Discover Screen", isDanger = false)
+fun DiscoverScreen(
+    router: NavHostController) {
+
+    NotificationScreen()
 }

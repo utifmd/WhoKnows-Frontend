@@ -31,6 +31,7 @@ abstract class BaseViewModel: ViewModel() {
                     questions = payload.filterIsInstance<Quiz>(),
                     results = payload.filterIsInstance<Result>(),
                     participants = payload.filterIsInstance<Participant>(),
+                    notifications = payload.filterIsInstance<Notification>(),
                     files = payload.filterIsInstance<File>(),
                 )
 
@@ -43,6 +44,7 @@ abstract class BaseViewModel: ViewModel() {
                 is Room -> ResourceState(room = data as Room)
                 is Quiz -> ResourceState(quiz = data as Quiz)
                 is Participant -> ResourceState(participant = data as Participant)
+                is Notification -> ResourceState(notification = data as Notification)
                 is Result -> ResourceState(result = data as Result)
                 is File -> ResourceState(file = data as File)
                 is String -> ResourceState(message = data)

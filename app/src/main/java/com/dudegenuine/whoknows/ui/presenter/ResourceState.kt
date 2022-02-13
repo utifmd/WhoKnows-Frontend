@@ -27,6 +27,9 @@ data class ResourceState(
     val participant: Participant? = null,
     val participants: List<Participant>? = null,
 
+    val notification: Notification? = null,
+    val notifications: List<Notification>? = null,
+
     val file: File? = null,
     val files: List<File>? = null,){
 

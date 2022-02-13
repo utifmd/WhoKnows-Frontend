@@ -9,10 +9,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
-import com.dudegenuine.local.api.INotificationService.Companion.EXACT_TIME_KEY
-import com.dudegenuine.local.api.INotificationService.Companion.FINISHED_TIME_KEY
-import com.dudegenuine.local.api.INotificationService.Companion.TIME_ACTION
-import com.dudegenuine.local.api.INotificationService.Companion.asString
+import com.dudegenuine.local.api.ITimerNotificationService.Companion.INITIAL_TIME_KEY
+import com.dudegenuine.local.api.ITimerNotificationService.Companion.FINISHED_TIME_KEY
+import com.dudegenuine.local.api.ITimerNotificationService.Companion.TIME_ACTION
+import com.dudegenuine.local.api.ITimerNotificationService.Companion.asString
 
 @Composable
 fun BroadcastTimerReceiver(
@@ -26,7 +26,7 @@ fun BroadcastTimerReceiver(
         val intentFilter = IntentFilter(action)
         val broadcast = object: BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent) {
-                val time = intent.getDoubleExtra(EXACT_TIME_KEY, 0.0)
+                val time = intent.getDoubleExtra(INITIAL_TIME_KEY, 0.0)
                 val finished = intent.getBooleanExtra(FINISHED_TIME_KEY, false)
 
                 currentTimeEvent(asString(time), finished)

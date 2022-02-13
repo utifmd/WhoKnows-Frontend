@@ -21,10 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.INotificationService
+import com.dudegenuine.local.api.ITimerNotificationService
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.infrastructure.di.android.api.NotificationService
+import com.dudegenuine.whoknows.infrastructure.di.android.api.TimerNotificationService
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
@@ -60,8 +60,8 @@ fun ProfileScreen(
 
     val onStartService: () -> Unit = {
         Log.d("ProfileScreen: ", "onStartService..")
-        Intent(context, NotificationService::class.java).putExtra(
-            INotificationService.EXACT_TIME_KEY, 30.0).apply(context::startService)
+        Intent(context, TimerNotificationService::class.java).putExtra(
+            ITimerNotificationService.INITIAL_TIME_KEY, 30.0).apply(context::startService)
     }
 
     if (state.loading) LoadingScreen()

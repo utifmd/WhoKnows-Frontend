@@ -34,4 +34,8 @@ interface IRepositoryModule {
     fun provideFileRepository(
         service: IFileService, mapper: IFileDataMapper, pref: IPreferenceManager
     ): IFileRepository
+
+    fun provideNotificationRepository(
+        serviceOnPremise: INotificationService, serviceOnCloud: IPushNotificationService, mapper: INotificationDataMapper, pref: IPreferenceManager
+    ): INotificationRepository
 }

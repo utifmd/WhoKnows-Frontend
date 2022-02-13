@@ -15,4 +15,5 @@ interface IDataMapperModule {
     fun provideParticipantDataMapper(gson: Gson, mapperUser: IUserDataMapper): IParticipantDataMapper
     fun provideResultDataMapper(gson: Gson): IResultDataMapper
     fun provideFileDataMapper(context: Context): IFileDataMapper
+    fun provideNotificationDataMapper(context: Context): INotificationDataMapper
 }

@@ -25,12 +25,13 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @ExperimentalCoilApi
 fun NavGraphBuilder.homeNavGraph(
     modifier: Modifier = Modifier,
+    initial: Screen,
     router: NavHostController,
     viewModel: UserViewModel) {
 
     navigation(
         route = Screen.Home.route,
-        startDestination = Screen.Home.Summary.route) {
+        startDestination = initial.route) {
 
         composable(
             route = Screen.Home.Summary.route) {
@@ -44,7 +45,6 @@ fun NavGraphBuilder.homeNavGraph(
             route = Screen.Home.Discover.route) {
 
             DiscoverScreen(
-                modifier = modifier,
                 router = router
             )
         }

@@ -5,8 +5,8 @@ package com.dudegenuine.local.api
  * WhoKnows by utifmd
  **/
 interface IPreferenceManager {
-    fun getString(key: String): String
-    fun setString(key: String, value: String)
+    fun read(key: String): String
+    fun write(key: String, value: String)
 
     companion object {
         const val PREF_NAME = "WhoKnowsPreference"

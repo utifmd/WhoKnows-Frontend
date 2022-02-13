@@ -64,4 +64,12 @@ object DataMapperModule: IDataMapperModule {
 
         return FileDataMapper(context)
     }
+
+    @Provides
+    @Singleton
+    override fun provideNotificationDataMapper(
+        @ApplicationContext context: Context): INotificationDataMapper {
+
+        return NotificationDataMapper()
+    }
 }

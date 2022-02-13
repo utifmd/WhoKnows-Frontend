@@ -41,7 +41,7 @@ sealed class Screen(val route: String){
         }
     }
 
-    fun withKey(key: String): String = "$route/$key={$key}"
+    // fun withKey(key: String): String = "$route/$key={$key}"
 
     fun withArgs(vararg args: String): String {
         return buildString {

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WhoKnows</string>
+    <string name="app_name">AnyoneKnows</string><!--<string name="app_name">WhoKnows</string>-->
     <string name="done">Selesai</string>
     <string name="not_set">Not set</string>
     <string name="unknown">Unknown</string>
@@ -18,4 +18,7 @@
     <string name="user_id">ID</string>
     <string name="lorem"><div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut consequuntur dignissimos facilis id illum nam necessitatibus recusandae totam ut vel. Consequuntur, cupiditate deserunt fugiat nobis quas repellendus repudiandae vitae voluptas!</div></string>
     <string name="new_question">New Question</string>
+    <string name="default_notification_channel_id">default_notification_channel_id</string>
+    <string name="notify_title">Default title configuration</string>
+    <string name="notify_body">Default body configuration</string>
 </resources>

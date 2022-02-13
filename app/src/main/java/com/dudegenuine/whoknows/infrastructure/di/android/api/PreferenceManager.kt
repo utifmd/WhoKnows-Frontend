@@ -8,23 +8,22 @@ import com.dudegenuine.local.api.IPreferenceManager
  * WhoKnows by utifmd
  **/
 class PreferenceManager(
-    private val prefs: SharedPreferences): IPreferenceManager {
+    private val prefs: SharedPreferences): IPreferenceManager { /*private val prefs = context.getSharedPreferences(IPreferenceManager.PREF_NAME, MODE_PRIVATE)*/
 
-    /*private val prefs = context.getSharedPreferences(IPreferenceManager.PREF_NAME, MODE_PRIVATE)*/
-
-    override fun getString(key: String): String {
+    override fun read(key: String): String {
         return prefs.getString(key, "")!!
     }
 
-    override fun setString(key: String, value: String) {
+    override fun write(key: String, value: String) {
+        /*
         val editor = prefs.edit()
 
         editor.putString(key, value)
-        editor.apply()
+        editor.apply()*/
 
-        /*sharedPreferences.edit().apply {
+        with(prefs.edit()) {
             putString(key, value)
             apply()
-        }*/
+        }
     }
 }

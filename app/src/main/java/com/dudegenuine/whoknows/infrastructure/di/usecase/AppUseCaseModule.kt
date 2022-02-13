@@ -48,4 +48,10 @@ object AppUseCaseModule: IAppUseCaseModule {
     @ViewModelScoped
     override fun provideUserUseCaseModule(repository: IUserRepository): IUserUseCaseModule =
         UserUseCaseModule(repository)
+
+    @Provides
+    @ViewModelScoped
+    override fun provideNotificationUseCaseModule(repository: INotificationRepository): INotificationUseCaseModule {
+        return NotificationUseCaseModule(repository)
+    }
 }

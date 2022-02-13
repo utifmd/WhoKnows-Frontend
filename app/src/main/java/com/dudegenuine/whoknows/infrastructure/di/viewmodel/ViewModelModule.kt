@@ -3,6 +3,8 @@ package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
+import com.dudegenuine.whoknows.ui.presenter.notification.NotificationViewModel
+import com.dudegenuine.whoknows.ui.presenter.notification.contract.INotificationViewModel
 import com.dudegenuine.whoknows.ui.presenter.participant.ParticipantViewModel
 import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
 import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
@@ -76,5 +78,14 @@ object ViewModelModule: IViewModelModule {
     ): IParticipantViewModel {
 
         return ParticipantViewModel(participantUseCaseModule, savedStateHandle)
+    }
+
+    @Provides
+    @ViewModelScoped
+    override fun provideNotificationViewModel(
+        case: INotificationUseCaseModule,
+        savedStateHandle: SavedStateHandle
+    ): INotificationViewModel {
+        return NotificationViewModel(case, savedStateHandle)
     }
 }

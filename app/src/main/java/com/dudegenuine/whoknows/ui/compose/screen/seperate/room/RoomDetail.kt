@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -23,12 +22,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.INotificationService
 import com.dudegenuine.model.Result
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.infrastructure.di.android.api.NotificationService
+import com.dudegenuine.whoknows.infrastructure.di.android.api.TimerNotificationService
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
@@ -93,9 +91,12 @@ fun RoomDetail(
 
         override fun launchTimerService(time: Double) {
             Log.d("RoomDetail: ", "launchTimerService.. w/ $time minute\'s")
+            val service = TimerNotificationService.createInstance(context, time)
 
-            Intent(context, NotificationService::class.java).putExtra(
-                INotificationService.EXACT_TIME_KEY, time).apply(context::startService)
+            service.apply(context::startService)
+
+            /*Intent(context, TimerNotificationService::class.java).putExtra(
+                ITimerNotificationService.INITIAL_TIME_KEY, time).apply(context::startService)*/
         }
     }
 
@@ -253,7 +254,8 @@ private fun FrontLayer(
                 Text(model.description, style = MaterialTheme.typography.body2)
             }
         }
-
+        
+        Spacer(modifier.size(ButtonDefaults.IconSize))
         CardFooter(
             modifier = modifier.padding(horizontal = 24.dp),
             text = "${model.participants.size} " +
@@ -290,6 +292,7 @@ private fun FrontLayer(
             }
         }
 
+        Spacer(modifier.size(ButtonDefaults.IconSize))
         CardFooter(
             modifier = modifier.padding(
                 horizontal = 24.dp),
@@ -317,7 +320,7 @@ private fun FrontLayer(
                                 horizontal = 24.dp),
                             text = /*"${it.plus(1)}. " + */ model.questions[it].question,
                             style = MaterialTheme.typography.subtitle1,
-                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+                            color = MaterialTheme.colors.secondaryVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

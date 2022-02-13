@@ -1,10 +1,8 @@
 package com.dudegenuine.local.api
 
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -12,13 +10,13 @@ import kotlin.math.roundToInt
  * Wed, 09 Feb 2022
  * WhoKnows by utifmd
  **/
-abstract class INotificationService: Service() {
+abstract class ITimerNotificationService: Service() {
 
     companion object {
         const val FOREGROUND_TIMER_SERVICE_ID = 1001
 
         const val TIME_ACTION = "latest_receiver_updated_action"
-        const val EXACT_TIME_KEY = "exact_time_key"
+        const val INITIAL_TIME_KEY = "exact_time_key"
         const val FINISHED_TIME_KEY = "finish_time_key"
 
         const val CHANNEL_ID = "channel id"
@@ -36,8 +34,8 @@ abstract class INotificationService: Service() {
 
     protected val timer = Timer()
 
-    protected abstract val notifyManager: NotificationManager
-    protected abstract fun notifyBuilder(): NotificationCompat.Builder
+    // protected abstract val notifyManager: NotificationManager
+    /*protected abstract fun notifyBuilder(): NotificationCompat.Builder*/
 
     protected abstract val taskTimer: TimerTask
     /*protected abstract fun taskTimer(): TimerTask*/

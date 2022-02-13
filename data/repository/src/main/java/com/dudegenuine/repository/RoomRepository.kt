@@ -1,6 +1,5 @@
 package com.dudegenuine.repository
 
-import android.util.Log
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
@@ -33,12 +32,13 @@ class RoomRepository
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
 
-    override suspend fun read(id: String): Room = try { mapper.asRoom(
+    override suspend fun read(id: String): Room = /*try {*/ mapper.asRoom(
         service.read(id))
-    } catch (e: Exception){
-        Log.d(TAG, e.message ?: "throwable") //Parameter specified as non-null is null: method kotlin.jvm.internal.Intrinsics.checkNotNullParameter, parameter description
+
+    /*} catch (e: Exception){
+        Log.d(TAG, e.message ?: "throwable")
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-    }
+    }*/
 
     override suspend fun update(id: String, room: Room): Room = try { mapper.asRoom(
         service.update(id, mapper.asEntity(room)))
@@ -65,23 +65,23 @@ class RoomRepository
     }
 
     override val currentUserId: () -> String =
-        { prefs.getString(CURRENT_USER_ID) }
+        { prefs.read(CURRENT_USER_ID) }
 
     override val saveInClipboard: (String, String) -> Unit = clip::applyPlainText
 
     override val getterOnboard = object : IRoomRepository.IBoarding.Getter {
         override val roomId: () -> String =
-            { prefs.getString(ONBOARD_ROOM_ID) }
+            { prefs.read(ONBOARD_ROOM_ID) }
 
         override val participantId: () -> String =
-            { prefs.getString(ONBOARD_PARTICIPANT_ID) }
+            { prefs.read(ONBOARD_PARTICIPANT_ID) }
     }
 
     override val setterOnboard = object : IRoomRepository.IBoarding.Setter {
         override fun roomId(id: String) =
-            prefs.setString(ONBOARD_ROOM_ID, id)
+            prefs.write(ONBOARD_ROOM_ID, id)
 
         override fun participantId(id: String) =
-            prefs.setString(ONBOARD_PARTICIPANT_ID, id)
+            prefs.write(ONBOARD_PARTICIPANT_ID, id)
     }
 }

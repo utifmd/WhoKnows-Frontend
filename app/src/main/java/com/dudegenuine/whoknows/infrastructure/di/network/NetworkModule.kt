@@ -1,11 +1,10 @@
 package com.dudegenuine.whoknows.infrastructure.di.network
 
-import com.dudegenuine.whoknows.infrastructure.di.network.factory.BodyFactory
-import com.dudegenuine.whoknows.infrastructure.common.Constants
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.CONNECT_TIMEOUT
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.READ_TIMEOUT
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.WRITE_TIMEOUT
+import com.dudegenuine.whoknows.infrastructure.di.network.factory.BodyFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -50,7 +49,7 @@ object NetworkModule: INetworkModule {
     @Provides
     @Singleton
     override fun provideNetwork(gson: Gson, client: OkHttpClient): Retrofit.Builder {
-        return Retrofit.Builder().baseUrl(Constants.BASE_URL)
+        return Retrofit.Builder()
             .addConverterFactory(BodyFactory.create(gson))
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
