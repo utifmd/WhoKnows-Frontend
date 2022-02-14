@@ -99,14 +99,15 @@ class RoomViewModel
         val model = formState.participantModel.copy(
             roomId = room.id, userId = caseRoom.currentUserId(), timeLeft = room.minute
         )
-
-        caseParticipant.postParticipant(model).onEach { res ->
+        onBoarding(room, model.id)
+        onBoardingValueChange(model.roomId, model.id)
+        /*caseParticipant.postParticipant(model).onEach { res ->
             onResourceSucceed(res) {
                 onBoarding(room, it.id)
 
                 onBoardingValueChange(it.roomId, it.id)
             }
-        }.launchIn(viewModelScope)
+        }.launchIn(viewModelScope)*/
     }
 
     private fun onBoarding(room: Room, ppnId: String){
@@ -164,13 +165,11 @@ class RoomViewModel
         Log.d(TAG, "computeResult: $result")
         onBoardingValueChange("", "")
 
-        caseResult.postResult(result).onEach { res -> onResourceSucceed(res)
-            { _uiState.value = RoomState.BoardingResult(boardingState.room.title, it) }
-        }
-    }
+        _uiState.value = RoomState.BoardingResult(boardingState.room.title, result)
 
-    fun shareResult() {
-        TODO("Not yet implemented")
+        /*caseResult.postResult(result).onEach { res -> onResourceSucceed(res)
+            { _uiState.value = RoomState.BoardingResult(boardingState.room.title, it) }
+        }*/
     }
 
     fun onCloseResult() {

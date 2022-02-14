@@ -29,7 +29,6 @@ interface IRoomEventHome: IRoomEvent {
 }
 
 interface IRoomEventDetail: IRoomEvent {
-    fun launchTimerService(time: Double){}
     fun onPublishRoomPressed(){}
     fun onCloseRoomPressed(room: Room){}
     fun onShareRoomPressed(roomId: String){}

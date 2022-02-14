@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,7 +15,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,7 +24,6 @@ import com.dudegenuine.model.Result
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.infrastructure.di.android.api.TimerNotificationService
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
@@ -53,9 +50,9 @@ fun RoomDetail(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState
         (BackdropValue.Concealed),
-    eventRouter: IRoomEventDetail) {
+    eventRouter: IRoomEventDetail,
+    onLaunchTimer: (Double) -> Unit) {
 
-    val context = LocalContext.current
     val state = viewModel.state
 
     val toggle: () -> Unit = {
@@ -81,22 +78,12 @@ fun RoomDetail(
             toggle()
             eventRouter.onBoardingRoomPressed(room.id)
 
-            launchTimerService(asSecond.toDouble())
+            onLaunchTimer(asSecond.toDouble())
         }
 
         override fun onDeleteRoomPressed(roomId: String) {
             viewModel.deleteRoom(roomId)
                 { eventRouter.onDeleteRoomSucceed(it) }
-        }
-
-        override fun launchTimerService(time: Double) {
-            Log.d("RoomDetail: ", "launchTimerService.. w/ $time minute\'s")
-            val service = TimerNotificationService.createInstance(context, time)
-
-            service.apply(context::startService)
-
-            /*Intent(context, TimerNotificationService::class.java).putExtra(
-                ITimerNotificationService.INITIAL_TIME_KEY, time).apply(context::startService)*/
         }
     }
 

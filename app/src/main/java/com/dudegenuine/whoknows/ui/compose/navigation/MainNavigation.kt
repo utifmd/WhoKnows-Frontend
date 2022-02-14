@@ -48,6 +48,7 @@ fun MainNavigation(
         )
 
         homeNavGraph(
+            context = context,
             router = controller,
             viewModel = viewModel,
             initial = if (routed == MessagingNotificationService.INITIAL_INTENT_DATA)
@@ -55,6 +56,7 @@ fun MainNavigation(
         )
 
         summaryGraph(
+            context = context,
             router = controller,
         )
 

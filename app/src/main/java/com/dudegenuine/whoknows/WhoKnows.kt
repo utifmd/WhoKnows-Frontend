@@ -12,11 +12,9 @@ import dagger.hilt.android.HiltAndroidApp
 class WhoKnows: Application()
 
 // TODO:
-/* Backend
-* Room +
-* - field private
-*
+/*
 * Frontend
+* - handle token either onNewToken or instantiate
 * - Paging
 * - Limitation
 * */

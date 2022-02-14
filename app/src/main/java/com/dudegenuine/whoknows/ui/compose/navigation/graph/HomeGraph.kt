@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.Modifier
@@ -25,6 +26,7 @@ import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
 @ExperimentalCoilApi
 fun NavGraphBuilder.homeNavGraph(
     modifier: Modifier = Modifier,
+    context: Context,
     initial: Screen,
     router: NavHostController,
     viewModel: UserViewModel) {
@@ -37,7 +39,8 @@ fun NavGraphBuilder.homeNavGraph(
             route = Screen.Home.Summary.route) {
 
             SummaryScreen(
-                event = RoomEventHome(router)
+                context = context,
+                eventHome = RoomEventHome(router)
             )
         }
 

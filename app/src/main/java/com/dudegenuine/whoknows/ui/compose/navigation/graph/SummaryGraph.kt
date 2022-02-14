@@ -1,5 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
@@ -7,6 +9,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.local.api.ITimerNotificationService
+import com.dudegenuine.whoknows.infrastructure.di.android.api.TimerNotificationService
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizScreen
@@ -16,8 +20,8 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizSt
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomOnboardScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ONBOARD_ROOM_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomRoutedPreBoardingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.OWN_IS_FALSE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.OWN_IS_TRUE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
@@ -37,8 +41,9 @@ import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel.Compan
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 fun NavGraphBuilder.summaryGraph(
+    context: Context,
     router: NavHostController){
-
+    val service = Intent(context, TimerNotificationService::class.java)
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route){
@@ -47,7 +52,7 @@ fun NavGraphBuilder.summaryGraph(
                 val route = Screen.Home.Summary.route
 
                 router.navigate(route){
-                    popUpTo(route){ inclusive = true }
+                    popUpTo(route) { inclusive = true }
                 }
             }
         )
@@ -66,8 +71,23 @@ fun NavGraphBuilder.summaryGraph(
             "{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}")){ entry ->
         RoomDetail(
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
-            eventRouter = RoomEventDetail(router = router)
-        )
+            eventRouter = RoomEventDetail(router = router)) { time ->
+
+            service.putExtra(ITimerNotificationService.INITIAL_TIME_KEY, time)
+                .apply(context::startService)
+        }
+    }
+
+    composable(
+        route = Screen.Home.Summary.OnBoarding.withArgs(
+            /*"{$ONBOARD_PPN_ID_SAVED_KEY}", */"{${IRoomEvent.ONBOARD_ROOM_ID_SAVED_KEY}}")){
+
+        RoomRoutedPreBoardingScreen(
+            event = object: IRoomEventBoarding{}){
+
+            Log.d("graph", "summaryGraph: triggered")
+            context.stopService(service)
+        }
     }
 
     composable(
@@ -81,7 +101,6 @@ fun NavGraphBuilder.summaryGraph(
             router.apply {
                 popBackStack()
                 popBackStack()
-
                 navigate(route)
             }
         }
@@ -115,21 +134,6 @@ fun NavGraphBuilder.summaryGraph(
         ProfileScreen(
             isOwn = false,
             event = event
-        )
-    }
-
-    composable(
-        route = Screen.Home.Summary.OnBoarding.withArgs(
-            /*"{$ONBOARD_PPN_ID_SAVED_KEY}", */"{$ONBOARD_ROOM_ID_SAVED_KEY}")){
-
-        RoomOnboardScreen(
-            event = object: IRoomEventBoarding {
-                override fun onDonePressed() {
-                    /*router.navigate(
-                        route = Screen.Home.Summary.OnBoarding.Result.route
-                    )*/
-                }
-            }
         )
     }
 }
