@@ -1,19 +1,22 @@
 package com.dudegenuine.remote.mapper
 
 import com.dudegenuine.model.Notification
-import com.dudegenuine.model.PushNotification
 import com.dudegenuine.model.common.validation.HttpFailureException
-import com.dudegenuine.remote.entity.FcmEntity
 import com.dudegenuine.remote.entity.NotificationEntity
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.mapper.contract.INotificationDataMapper
+import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import okhttp3.ResponseBody
+import javax.inject.Inject
 
 /**
  * Thu, 10 Feb 2022
  * WhoKnows by utifmd
  **/
-class NotificationDataMapper: INotificationDataMapper {
+class NotificationDataMapper
+    @Inject constructor(
+    private val mapperUser: IUserDataMapper): INotificationDataMapper {
+
     override fun asEntity(notification: Notification): NotificationEntity {
         return NotificationEntity(
             notificationId = notification.notificationId,
@@ -24,7 +27,9 @@ class NotificationDataMapper: INotificationDataMapper {
             recipientId = notification.recipientId,
             createdAt = notification.createdAt,
             updatedAt = notification.updatedAt,
-            sender = notification.sender
+            sender = notification.sender?.
+                let(mapperUser::asUserCensoredEntity)
+
         )
     }
 
@@ -38,7 +43,8 @@ class NotificationDataMapper: INotificationDataMapper {
             recipientId = entity.recipientId,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
-            sender = entity.sender
+            sender = entity.sender?.
+                let(mapperUser::asUserCensored)
         )
     }
 
@@ -60,36 +66,11 @@ class NotificationDataMapper: INotificationDataMapper {
         }
     }
 
-    override fun asPushNotification(entity: FcmEntity): PushNotification {
-        return PushNotification(
-            notificationId = entity.data.notificationId,
-            topic = entity.to,
-            userId = entity.data.userId,
-            roomId = entity.data.roomId,
-            event = entity.data.event,
-            seen = entity.data.seen,
-            recipientId = entity.data.recipientId,
-            sender = entity.data.sender,
-            senderProfileUrl = entity.data.senderProfileUrl,
-            createdAt = entity.data.createdAt,
-            updatedAt = entity.data.updatedAt,
-        )
-    }
-
-    override fun asFcmSendEntity(notification: PushNotification): FcmEntity {
-        return FcmEntity(
-            to = notification.topic,
-            data = notification
-        )
-    }
-
     override fun asResponseBody(response: retrofit2.Response<ResponseBody>): ResponseBody {
-        if (!response.isSuccessful)
-            throw HttpFailureException("response unsuccessful")
+        if (!response.isSuccessful) throw HttpFailureException("response unsuccessful")
 
-        val body = response.body() ?:
-            throw HttpFailureException(response.errorBody()?.toString() ?: response.message())
-
-        return body
+        return response.body() ?: throw HttpFailureException(
+            response.errorBody()?.toString() ?: response.message()
+        )
     }
 }

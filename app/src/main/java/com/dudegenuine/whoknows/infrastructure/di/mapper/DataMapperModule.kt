@@ -22,7 +22,9 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideUserDataMapper(gson: Gson): IUserDataMapper {
+    override fun provideUserDataMapper(
+        gson: Gson): IUserDataMapper {
+
         return UserDataMapper(gson)
     }
 
@@ -38,7 +40,9 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideQuizDataMapper(gson: Gson): IQuizDataMapper {
+    override fun provideQuizDataMapper(
+        gson: Gson): IQuizDataMapper {
+
         return QuizDataMapper(gson)
     }
 
@@ -46,14 +50,16 @@ object DataMapperModule: IDataMapperModule {
     @Singleton
     override fun provideParticipantDataMapper(
         gson: Gson,
-        mapperUser: IUserDataMapper): IParticipantDataMapper {
+        mapper: IUserDataMapper): IParticipantDataMapper {
 
-        return ParticipantDataMapper(mapperUser)
+        return ParticipantDataMapper(mapper)
     }
 
     @Provides
     @Singleton
-    override fun provideResultDataMapper(gson: Gson): IResultDataMapper {
+    override fun provideResultDataMapper(
+        gson: Gson): IResultDataMapper {
+
         return ResultDataMapper()
     }
 
@@ -67,9 +73,19 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideNotificationDataMapper(
-        @ApplicationContext context: Context): INotificationDataMapper {
+    override fun provideMessagingDataMapper(
+        @ApplicationContext context: Context,
+        gson: Gson): IMessagingDataMapper {
 
-        return NotificationDataMapper()
+        return MessagingDataMapper(gson)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideNotificationDataMapper(
+        @ApplicationContext context: Context,
+        mapper: IUserDataMapper): INotificationDataMapper {
+
+        return NotificationDataMapper(mapper)
     }
 }

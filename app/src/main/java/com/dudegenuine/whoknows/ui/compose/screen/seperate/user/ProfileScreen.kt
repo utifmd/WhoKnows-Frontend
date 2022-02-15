@@ -24,14 +24,14 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.ITimerNotificationService
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.infrastructure.di.android.api.TimerNotificationService
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
-import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import com.dudegenuine.whoknows.ui.service.TimerService
 
 /**
  * Sat, 15 Jan 2022
@@ -60,7 +60,7 @@ fun ProfileScreen(
 
     val onStartService: () -> Unit = {
         Log.d("ProfileScreen: ", "onStartService..")
-        Intent(context, TimerNotificationService::class.java).putExtra(
+        Intent(context, TimerService::class.java).putExtra(
             ITimerNotificationService.INITIAL_TIME_KEY, 30.0).apply(context::startService)
     }
 

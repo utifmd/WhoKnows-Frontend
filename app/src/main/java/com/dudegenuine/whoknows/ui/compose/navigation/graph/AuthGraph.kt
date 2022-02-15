@@ -7,7 +7,7 @@ import androidx.navigation.navigation
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.LoginScreen
 import com.dudegenuine.whoknows.ui.compose.screen.RegisterScreen
-import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
 /**
  * Wed, 19 Jan 2022

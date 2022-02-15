@@ -13,29 +13,50 @@ import com.dudegenuine.repository.contract.*
  **/
 interface IRepositoryModule {
     fun provideUserRepository(
-        service: IUserService, dao: ICurrentUserDao, pref: IPreferenceManager, mapper: IUserDataMapper): IUserRepository
+        service: IUserService,
+        dao: ICurrentUserDao,
+        mapper: IUserDataMapper,
+        pref: IPreferenceManager): IUserRepository
 
     fun provideRoomRepository(
-        service: IRoomService, mapper: IRoomDataMapper, pref: IPreferenceManager, clip: IClipboardManager
-    ): IRoomRepository
+        service: IRoomService,
+        mapper: IRoomDataMapper,
+        pref: IPreferenceManager,
+        clip: IClipboardManager): IRoomRepository
 
     fun provideQuizRepository(
-        service: IQuizService, mapper: IQuizDataMapper, pref: IPreferenceManager
+        service: IQuizService,
+        mapper: IQuizDataMapper,
+        pref: IPreferenceManager
     ): IQuizRepository
 
     fun provideParticipantRepository(
-        service: IParticipantService, mapper: IParticipantDataMapper, pref: IPreferenceManager
+        service: IParticipantService,
+        mapper: IParticipantDataMapper,
+        pref: IPreferenceManager
     ): IParticipantRepository
 
     fun provideResultRepository(
-        service: IResultService, mapper: IResultDataMapper, pref: IPreferenceManager
+        service: IResultService,
+        mapper: IResultDataMapper,
+        pref: IPreferenceManager
     ): IResultRepository
 
     fun provideFileRepository(
-        service: IFileService, mapper: IFileDataMapper, pref: IPreferenceManager
+        service: IFileService,
+        mapper: IFileDataMapper,
+        pref: IPreferenceManager
     ): IFileRepository
 
+    fun provideMessagingRepository(
+        service: IMessagingService,
+        mapper: IMessagingDataMapper,
+        pref: IPreferenceManager
+    ): IMessagingRepository
+
     fun provideNotificationRepository(
-        serviceOnPremise: INotificationService, serviceOnCloud: IPushNotificationService, mapper: INotificationDataMapper, pref: IPreferenceManager
+        service: INotificationService,
+        mapper: INotificationDataMapper,
+        pref: IPreferenceManager
     ): INotificationRepository
 }

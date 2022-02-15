@@ -1,20 +1,25 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.SavedStateHandle
+import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
-import com.dudegenuine.whoknows.ui.presenter.notification.NotificationViewModel
-import com.dudegenuine.whoknows.ui.presenter.notification.contract.INotificationViewModel
-import com.dudegenuine.whoknows.ui.presenter.participant.ParticipantViewModel
-import com.dudegenuine.whoknows.ui.presenter.participant.contract.IParticipantViewModel
-import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
-import com.dudegenuine.whoknows.ui.presenter.quiz.contract.IQuizViewModel
-import com.dudegenuine.whoknows.ui.presenter.result.ResultViewModel
-import com.dudegenuine.whoknows.ui.presenter.result.contract.IResultViewModel
-import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
-import com.dudegenuine.whoknows.ui.presenter.room.contract.IRoomViewModel
-import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
-import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel
+import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ui.vm.main.IActivityViewModel
+import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
+import com.dudegenuine.whoknows.ui.vm.notification.contract.INotificationViewModel
+import com.dudegenuine.whoknows.ui.vm.participant.ParticipantViewModel
+import com.dudegenuine.whoknows.ui.vm.participant.contract.IParticipantViewModel
+import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
+import com.dudegenuine.whoknows.ui.vm.quiz.contract.IQuizViewModel
+import com.dudegenuine.whoknows.ui.vm.result.ResultViewModel
+import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
+import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,9 +30,22 @@ import dagger.hilt.android.scopes.ViewModelScoped
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalCoilApi
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 @Module
 @InstallIn(ViewModelComponent::class)
 object ViewModelModule: IViewModelModule {
+
+    @Provides
+    @ViewModelScoped
+    override fun provideMainActivityViewModel(
+        messagingUseCaseModule: IMessageUseCaseModule,
+        userUseCaseModule: IUserUseCaseModule,
+        savedStateHandle: SavedStateHandle): IActivityViewModel {
+
+        return ActivityViewModel(messagingUseCaseModule, userUseCaseModule, savedStateHandle)
+    }
 
     @Provides
     @ViewModelScoped

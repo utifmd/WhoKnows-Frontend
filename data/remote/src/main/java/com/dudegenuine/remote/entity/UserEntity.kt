@@ -35,7 +35,10 @@ data class UserEntity (
     val createdAt: Date,
 
     @SerializedName("updatedAt")
-    val updatedAt: Date?){
+    val updatedAt: Date?,
+
+    @SerializedName("participants")
+    val participants: List<ParticipantEntity>){
 
     data class LoginRequest(val payload: String, val password: String)
 }

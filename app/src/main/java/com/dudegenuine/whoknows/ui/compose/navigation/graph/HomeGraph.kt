@@ -15,7 +15,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.SettingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.SummaryScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventHome
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.ProfileEvent
-import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
 /**
  * Wed, 19 Jan 2022

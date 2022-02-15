@@ -9,6 +9,7 @@ import com.dudegenuine.repository.contract.*
  **/
 interface IAppUseCaseModule {
     fun provideFileUseCaseModule(context: Context, repository: IFileRepository): IFileUseCaseModule
+    fun provideMessagingUseCaseModule(repository: IMessagingRepository): IMessageUseCaseModule
     fun provideParticipantUseCaseModule(repository: IParticipantRepository): IParticipantUseCaseModule
     fun provideQuizUseCaseModule(repository: IQuizRepository): IQuizUseCaseModule
     fun provideResultUseCaseModule(repository: IResultRepository): IResultUseCaseModule

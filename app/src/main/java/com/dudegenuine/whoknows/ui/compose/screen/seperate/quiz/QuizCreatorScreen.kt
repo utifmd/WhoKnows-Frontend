@@ -29,7 +29,7 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralButtonGroup
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
-import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
+import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
 
 /**
  * Tue, 28 Dec 2021

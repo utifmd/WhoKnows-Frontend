@@ -64,7 +64,7 @@ object ServiceModule: IServiceModule {
 
     @Provides
     @Singleton
-    override fun providePushNotificationService(network: Retrofit.Builder): IPushNotificationService {
-        return network.baseUrl(BASE_URL_FCM).build().create(PushNotificationService::class.java)
+    override fun providePushNotificationService(network: Retrofit.Builder): IMessagingService {
+        return network.baseUrl(BASE_URL_FCM).build().create(MessagingService::class.java)
     }
 }

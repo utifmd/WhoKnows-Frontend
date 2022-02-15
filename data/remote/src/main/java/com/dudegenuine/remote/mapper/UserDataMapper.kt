@@ -1,11 +1,15 @@
 package com.dudegenuine.remote.mapper
 
 import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.model.Participant
 import com.dudegenuine.model.User
 import com.dudegenuine.model.User.Companion.PASSWORD
 import com.dudegenuine.model.User.Companion.PAYLOAD
+import com.dudegenuine.model.UserCensored
 import com.dudegenuine.model.common.validation.HttpFailureException
+import com.dudegenuine.remote.entity.ParticipantEntity
 import com.dudegenuine.remote.entity.Response
+import com.dudegenuine.remote.entity.UserCensoredEntity
 import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.google.gson.Gson
@@ -29,7 +33,9 @@ class UserDataMapper
             password = user.password,
             profileUrl = user.profileUrl,
             createdAt = user.createdAt,
-            updatedAt = user.updatedAt
+            updatedAt = user.updatedAt,
+            participants = user.participants
+                .map(::asEntity)
         )
     }
 
@@ -43,7 +49,9 @@ class UserDataMapper
             password = entity.password,
             profileUrl = entity.profileUrl,
             createdAt = entity.createdAt,
-            updatedAt = entity.updatedAt
+            updatedAt = entity.updatedAt,
+            participants = entity.participants
+                .map(::asParticipant)
         )
     }
 
@@ -84,7 +92,7 @@ class UserDataMapper
     }
 
     override fun asUser(currentUser: CurrentUser): User {
-        return currentUser.let { User(
+        return currentUser.let {User(
             id = it.userId,
             fullName = it.fullName,
             email = it.email,
@@ -93,10 +101,9 @@ class UserDataMapper
             password = it.password,
             profileUrl = it.profileUrl,
             createdAt = Date(it.createdAt),
-            updatedAt = it.updatedAt?.let { date -> Date(date) }
+            updatedAt = it.updatedAt?.let { date -> Date(date) },
+            participants = emptyList()
         )}
-
-        /*return null*/
     }
 
     override fun asCurrentUser(user: User): CurrentUser {
@@ -110,6 +117,54 @@ class UserDataMapper
             profileUrl = user.profileUrl,
             createdAt = user.createdAt.time,
             updatedAt = user.updatedAt?.time
+        )
+    }
+
+    override fun asEntity(participant: Participant): ParticipantEntity {
+        return ParticipantEntity(
+            participant.id,
+            participant.roomId,
+            participant.userId,
+            participant.currentPage,
+            participant.timeLeft,
+            participant.expired,
+            participant.createdAt,
+            participant.updatedAt,
+            participant.user?.
+                let(::asUserCensoredEntity)
+        )
+    }
+
+    override fun asParticipant(entity: ParticipantEntity): Participant {
+        return Participant(
+            entity.participantId,
+            entity.roomId,
+            entity.userId,
+            entity.currentPage,
+            entity.timeLeft,
+            entity.expired,
+            entity.createdAt,
+            entity.updatedAt,
+            entity.user?.
+                let(::asUserCensored)
+        )
+    }
+
+    override fun asUserCensoredEntity(user: UserCensored): UserCensoredEntity {
+        return UserCensoredEntity(
+            userId = user.userId,
+            fullName = user.fullName,
+            username = user.username,
+            profileUrl = user.profileUrl
+        )
+    }
+
+    override fun asUserCensored(entity: UserCensoredEntity): UserCensored {
+        return UserCensored(
+            userId = entity.userId,
+            fullName = entity.fullName,
+            username = entity.username,
+            profileUrl = entity.profileUrl
         )
     }
 }

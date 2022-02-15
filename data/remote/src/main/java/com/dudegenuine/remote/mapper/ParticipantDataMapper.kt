@@ -5,12 +5,14 @@ import com.dudegenuine.remote.entity.ParticipantEntity
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
+import javax.inject.Inject
 
 /**
  * Thu, 09 Dec 2021
  * WhoKnows by utifmd
  **/
-class ParticipantDataMapper(
+class ParticipantDataMapper
+    @Inject constructor(
     private val mapperUser: IUserDataMapper): IParticipantDataMapper {
 
     override fun asEntity(participant: Participant): ParticipantEntity {
@@ -23,7 +25,8 @@ class ParticipantDataMapper(
             participant.expired,
             participant.createdAt,
             participant.updatedAt, //, participant.results.filterIsInstance<ResultEntity>()
-            participant.user?.let(mapperUser::asEntity)
+            participant.user?.
+                let(mapperUser::asUserCensoredEntity)
         )
     }
 
@@ -37,7 +40,8 @@ class ParticipantDataMapper(
             entity.expired,
             entity.createdAt,
             entity.updatedAt, //, entity.results.filterIsInstance<Result>()
-            entity.user?.let(mapperUser::asUser)
+            entity.user?.
+                let(mapperUser::asUserCensored)
         )
     }
 

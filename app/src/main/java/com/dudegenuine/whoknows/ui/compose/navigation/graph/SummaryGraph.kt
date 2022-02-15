@@ -10,7 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.ITimerNotificationService
-import com.dudegenuine.whoknows.infrastructure.di.android.api.TimerNotificationService
+import com.dudegenuine.whoknows.ui.service.TimerService
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizScreen
@@ -31,7 +31,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
-import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 
 /**
  * Tue, 25 Jan 2022
@@ -43,7 +43,7 @@ import com.dudegenuine.whoknows.ui.presenter.user.contract.IUserViewModel.Compan
 fun NavGraphBuilder.summaryGraph(
     context: Context,
     router: NavHostController){
-    val service = Intent(context, TimerNotificationService::class.java)
+    val service = Intent(context, TimerService::class.java)
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route){

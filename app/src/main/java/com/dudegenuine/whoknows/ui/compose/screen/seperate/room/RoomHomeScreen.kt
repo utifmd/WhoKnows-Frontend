@@ -17,7 +17,7 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
-import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
 /**
  * Wed, 29 Dec 2021

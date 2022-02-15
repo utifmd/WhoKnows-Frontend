@@ -16,7 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
-import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
 /**
  * Tue, 18 Jan 2022

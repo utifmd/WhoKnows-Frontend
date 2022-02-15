@@ -9,14 +9,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.whoknows.MainActivity
+import com.dudegenuine.whoknows.ui.activity.MainActivity
 import com.dudegenuine.whoknows.infrastructure.common.extension.findActivity
-import com.dudegenuine.whoknows.infrastructure.di.android.api.MessagingNotificationService
+import com.dudegenuine.whoknows.ui.service.MessagingService
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.authNavGraph
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.homeNavGraph
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.settingGraph
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.summaryGraph
-import com.dudegenuine.whoknows.ui.presenter.user.UserViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
 /**
  * Wed, 19 Jan 2022
@@ -51,7 +51,7 @@ fun MainNavigation(
             context = context,
             router = controller,
             viewModel = viewModel,
-            initial = if (routed == MessagingNotificationService.INITIAL_INTENT_DATA)
+            initial = if (routed == MessagingService.INITIAL_INTENT_DATA)
                 Screen.Home.Discover else Screen.Home.Summary,
         )
 

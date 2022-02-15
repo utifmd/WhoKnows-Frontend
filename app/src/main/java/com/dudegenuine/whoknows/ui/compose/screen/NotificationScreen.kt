@@ -10,13 +10,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.notification.NotificationItem
-import com.dudegenuine.whoknows.ui.presenter.notification.NotificationViewModel
+import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
 
 /**
  * Thu, 10 Feb 2022

@@ -6,10 +6,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.whoknows.infrastructure.di.android.api.TimerNotificationService
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomStatedPreBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
+import com.dudegenuine.whoknows.ui.service.TimerService
 
 /**
  * Thu, 16 Dec 2021
@@ -22,7 +22,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 fun SummaryScreen(
     context: Context,
     eventHome: IRoomEventHome) {
-    val service = Intent(context, TimerNotificationService::class.java)
+    val service = Intent(context, TimerService::class.java)
 
     RoomStatedPreBoardingScreen(
         eventHome = eventHome,

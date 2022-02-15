@@ -15,5 +15,5 @@ interface IServiceModule {
     fun provideResultService(network: Retrofit.Builder): IResultService
     fun provideFileService(network: Retrofit.Builder): IFileService
     fun provideNotificationService(network: Retrofit.Builder): INotificationService
-    fun providePushNotificationService(network: Retrofit.Builder): IPushNotificationService
+    fun providePushNotificationService(network: Retrofit.Builder): IMessagingService
 }

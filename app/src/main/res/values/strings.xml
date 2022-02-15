@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AnyoneKnows</string><!--<string name="app_name">WhoKnows</string>-->
+    <string name="app_name">Any Know?</string><!--<string name="app_name">WhoKnows</string>-->
     <string name="done">Selesai</string>
     <string name="not_set">Not set</string>
     <string name="unknown">Unknown</string>

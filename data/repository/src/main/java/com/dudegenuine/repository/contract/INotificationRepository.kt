@@ -1,8 +1,6 @@
 package com.dudegenuine.repository.contract
 
 import com.dudegenuine.model.Notification
-import com.dudegenuine.model.PushNotification
-import okhttp3.ResponseBody
 
 /**
  * Thu, 10 Feb 2022
@@ -10,7 +8,6 @@ import okhttp3.ResponseBody
  **/
 interface INotificationRepository {
     suspend fun create(notification: Notification): Notification
-    suspend fun push(notification: PushNotification): ResponseBody
     suspend fun read(id: String): Notification
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Notification>

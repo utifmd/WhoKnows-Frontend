@@ -85,7 +85,8 @@ sealed class UserState {
                 password.text,
                 "",
                 Date(),
-                null
+                null,
+                emptyList()
             )
         ).value
 

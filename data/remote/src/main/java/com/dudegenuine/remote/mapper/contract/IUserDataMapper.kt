@@ -1,8 +1,12 @@
 package com.dudegenuine.remote.mapper.contract
 
 import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.model.Participant
 import com.dudegenuine.model.User
+import com.dudegenuine.model.UserCensored
+import com.dudegenuine.remote.entity.ParticipantEntity
 import com.dudegenuine.remote.entity.Response
+import com.dudegenuine.remote.entity.UserCensoredEntity
 import com.dudegenuine.remote.entity.UserEntity
 
 /**
@@ -20,4 +24,10 @@ interface IUserDataMapper {
     /*fun asUserOrNull(currentUser: CurrentUser?): User?*/
     fun asCurrentUser(user: User): CurrentUser
     fun asUser(currentUser: CurrentUser): User
+
+    fun asEntity(participant: Participant): ParticipantEntity
+    fun asParticipant(entity: ParticipantEntity): Participant
+
+    fun asUserCensoredEntity(user: UserCensored): UserCensoredEntity
+    fun asUserCensored(entity: UserCensoredEntity): UserCensored
 }

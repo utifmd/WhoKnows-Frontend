@@ -8,7 +8,7 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
-import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
 /**
  * Sat, 05 Feb 2022

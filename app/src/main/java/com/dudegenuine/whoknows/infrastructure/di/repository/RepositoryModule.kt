@@ -27,8 +27,8 @@ object RepositoryModule: IRepositoryModule {
     override fun provideUserRepository(
         service: IUserService,
         dao: ICurrentUserDao,
-        pref: IPreferenceManager,
-        mapper: IUserDataMapper
+        mapper: IUserDataMapper,
+        pref: IPreferenceManager
     ): IUserRepository {
         return UserRepository(service, dao, pref, mapper)
     }
@@ -87,12 +87,21 @@ object RepositoryModule: IRepositoryModule {
 
     @Provides
     @Singleton
+    override fun provideMessagingRepository(
+        service: IMessagingService,
+        mapper: IMessagingDataMapper,
+        pref: IPreferenceManager): IMessagingRepository {
+
+        return MessagingRepository(service, mapper, pref)
+    }
+
+    @Provides
+    @Singleton
     override fun provideNotificationRepository(
-        serviceOnPremise: INotificationService,
-        serviceOnCloud: IPushNotificationService,
+        service: INotificationService,
         mapper: INotificationDataMapper,
-        pref: IPreferenceManager
-    ): INotificationRepository {
-        return NotificationRepository(serviceOnPremise, serviceOnCloud, mapper, pref)
+        pref: IPreferenceManager): INotificationRepository {
+
+        return NotificationRepository(service, mapper, pref)
     }
 }

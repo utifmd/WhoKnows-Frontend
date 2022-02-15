@@ -21,8 +21,8 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.state.RoomState
-import com.dudegenuine.whoknows.ui.presenter.ResourceState
-import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
+import com.dudegenuine.whoknows.ui.vm.ResourceState
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
 /**
  * Tue, 11 Jan 2022

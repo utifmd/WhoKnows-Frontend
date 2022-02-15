@@ -23,7 +23,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizPrivateState
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizPublicState
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizState
-import com.dudegenuine.whoknows.ui.presenter.quiz.QuizViewModel
+import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
 import okhttp3.internal.http.toHttpDateString
 
 /**

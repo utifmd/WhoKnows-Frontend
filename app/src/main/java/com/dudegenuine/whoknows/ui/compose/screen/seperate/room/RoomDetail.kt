@@ -30,7 +30,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
-import com.dudegenuine.whoknows.ui.presenter.room.RoomViewModel
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.internal.http.toHttpDateString

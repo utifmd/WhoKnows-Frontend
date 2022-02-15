@@ -1,6 +1,5 @@
 package com.dudegenuine.remote.entity
 
-import com.dudegenuine.model.User
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
@@ -34,5 +33,5 @@ data class NotificationEntity(
     val updatedAt: Date?,
 
     @SerializedName("sender")
-    val sender: User?
+    val sender: UserCensoredEntity?
 )

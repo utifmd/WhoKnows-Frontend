@@ -34,8 +34,8 @@ data class ParticipantEntity(
     val updatedAt: Date?,
 
     @SerializedName("user")
-    val user: UserEntity?,
+    val user: UserCensoredEntity?,
 
-//    @SerializedName("results")
+//    @SerializedName("results") UserCensoredEntity
 //    val results: List<ResultEntity>
 )

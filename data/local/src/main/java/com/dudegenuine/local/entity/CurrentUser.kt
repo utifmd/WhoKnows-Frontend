@@ -36,5 +36,5 @@ data class CurrentUser(
     val createdAt: Long,
 
     @ColumnInfo(name = "updatedAt")
-    val updatedAt: Long?,
+    val updatedAt: Long?
 )
