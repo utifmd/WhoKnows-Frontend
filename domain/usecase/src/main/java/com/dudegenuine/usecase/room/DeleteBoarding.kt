@@ -1,7 +1,6 @@
 package com.dudegenuine.usecase.room
 
 import com.dudegenuine.model.Resource
-import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IRoomRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,20 +10,19 @@ import java.io.IOException
 import javax.inject.Inject
 
 /**
- * Wed, 08 Dec 2021
+ * Sat, 19 Feb 2022
  * WhoKnows by utifmd
  **/
-class GetRoom
+class DeleteBoarding
     @Inject constructor(
     private val repository: IRoomRepository) {
-    private val TAG: String = javaClass.simpleName
 
-    operator fun invoke(id: String): Flow<Resource<Room>> = flow {
+    operator fun invoke(participantId: String): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
 
-            val room = repository.read(id)
-            emit(Resource.Success(room))
+            repository.unload(participantId)
+            emit(Resource.Success(participantId))
 
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

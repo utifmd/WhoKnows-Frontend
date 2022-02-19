@@ -48,4 +48,6 @@ interface IRoomEventBoarding: IRoomEvent {
     fun onPrevPressed() {}
     fun onNextPressed() {}
     fun onDonePressed() {}
+
+    fun onDoneResultPressed() {}
 }

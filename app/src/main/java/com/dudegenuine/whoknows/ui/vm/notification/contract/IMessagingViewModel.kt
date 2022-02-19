@@ -10,5 +10,6 @@ interface IMessagingViewModel {
     fun getMessagingGroupKey(keyName: String){}
     fun createMessagingGroup(messaging: Messaging.GroupCreator){}
     fun addMessagingGroupMember(messaging: Messaging.GroupAdder){}
+    //fun removeGroupMemberMessaging(messaging: Messaging.GroupRemover){}
     fun pushMessaging(messaging: Messaging.Pusher){}
 }

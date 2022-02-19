@@ -5,6 +5,7 @@ import com.dudegenuine.model.Messaging
 import com.dudegenuine.remote.mapper.contract.IMessagingDataMapper
 import com.dudegenuine.remote.service.contract.IMessagingService
 import com.dudegenuine.repository.contract.IMessagingRepository
+import com.dudegenuine.repository.contract.IMessagingRepository.Companion.MESSAGING_TOKEN
 import okhttp3.ResponseBody
 
 /**
@@ -40,4 +41,10 @@ class MessagingRepository(
             service.push(mapper.asMessagingPushEntity(messaging))
         )
     }
+
+    override val onMessagingTokenized: () -> String =
+        { pref.read(MESSAGING_TOKEN) }
+
+    override val onMessagingTokenRefresh: (String) -> Unit =
+        { pref.write(MESSAGING_TOKEN, it) }
 }

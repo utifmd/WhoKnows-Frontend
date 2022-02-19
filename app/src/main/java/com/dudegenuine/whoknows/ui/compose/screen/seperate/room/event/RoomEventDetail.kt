@@ -18,9 +18,12 @@ class RoomEventDetail(
     }
 
     override fun onBoardingRoomPressed(roomId: String) {
-        router.navigate(
-            route = Screen.Home.Summary.OnBoarding.withArgs(/*participantId, */roomId)
-        )
+        val screen = Screen.Home.Summary.OnBoarding.withArgs(/*participantId, */roomId)
+
+        with (router) {
+            repeat(3) { popBackStack() }
+            navigate(screen)
+        }
     }
 
     override fun onParticipantItemPressed(userId: String) {

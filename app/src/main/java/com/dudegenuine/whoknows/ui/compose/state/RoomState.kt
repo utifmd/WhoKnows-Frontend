@@ -1,26 +1,21 @@
 package com.dudegenuine.whoknows.ui.compose.state
 
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
-import com.dudegenuine.model.*
-import java.util.*
-
 /**
  * Mon, 20 Dec 2021
  * WhoKnows by utifmd
  **/
-sealed class RoomState {
+/*sealed class RoomState {
     object CurrentRoom: RoomState() //{ var currentUserId by mutableStateOf("") }
 
     data class BoardingQuiz(
         val participantId: String,
-        val room: Room,
-        val list: List<OnBoardingState>): RoomState(){
-            var currentQuestionIdx by mutableStateOf(0)
-            var duration: Double = (room.minute.toFloat() * 60).toDouble()
+        val participantName: String,
+        val roomId: String,
+        val roomTitle: String,
+        val roomDesc: String,
+        val roomMinute: Int,
+        val quizzes: List<OnBoardingState>): RoomState(){
+            var currentQuestionIdx by mutableStateOf(0) //var duration: Double = (room.minute.toFloat() * 60).toDouble()
     }
 
     data class BoardingResult(
@@ -39,6 +34,10 @@ sealed class RoomState {
         private val _desc = mutableStateOf(TextFieldValue(text = ""))
         val desc: TextFieldValue
             get() = _desc.value
+
+        private val _timer = mutableStateOf(0.0)
+        val timer: Double
+            get() = _timer.value
 
         private val _minute = mutableStateOf(TextFieldValue(text = ""))
         val minute: TextFieldValue
@@ -99,17 +98,22 @@ sealed class RoomState {
         fun onRoomIdChange(id: String) {
             _roomId.value = id
         }
-    }
-}
 
-@Stable
-class OnBoardingState(
-    val quiz: Quiz,
-    val questionIndex: Int,
-    val totalQuestionsCount: Int,
-    val showPrevious: Boolean,
-    val showDone: Boolean) {
-        var enableNext by mutableStateOf(false)
-        var answer by mutableStateOf<Answer?>(null)
-        var isCorrect by mutableStateOf(false)
-}
+        fun onTimerChange(time: Double){
+            _timer.value = time
+        }
+    }
+
+    @Stable
+    class OnBoardingState(
+        val quiz: Quiz,
+        val questionIndex: Int,
+        val totalQuestionsCount: Int,
+        val showPrevious: Boolean,
+        val showDone: Boolean) {
+            var enableNext by mutableStateOf(false)
+            var answer by mutableStateOf<Answer?>(null)
+            var isCorrect by mutableStateOf(false)
+    }
+}*/
+

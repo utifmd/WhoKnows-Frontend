@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.repository.contract
 
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.remote.service.contract.*
@@ -14,12 +15,13 @@ import com.dudegenuine.repository.contract.*
 interface IRepositoryModule {
     fun provideUserRepository(
         service: IUserService,
-        dao: ICurrentUserDao,
+        local: ICurrentUserDao,
         mapper: IUserDataMapper,
         pref: IPreferenceManager): IUserRepository
 
     fun provideRoomRepository(
         service: IRoomService,
+        local: ICurrentBoardingDao,
         mapper: IRoomDataMapper,
         pref: IPreferenceManager,
         clip: IClipboardManager): IRoomRepository

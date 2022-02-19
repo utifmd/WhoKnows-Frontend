@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.service
 
 import com.dudegenuine.local.manager.WhoKnowsDatabase
+import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.whoknows.infrastructure.di.service.contract.IDaoModule
 import dagger.Module
@@ -23,5 +24,13 @@ object DaoModule: IDaoModule {
         localDatabase: WhoKnowsDatabase): ICurrentUserDao {
 
         return localDatabase.currentUserDao()
+    }
+
+    @Provides
+    @Singleton
+    override fun provideCurrentBoardingDaoModule(
+        localDatabase: WhoKnowsDatabase): ICurrentBoardingDao {
+
+        return localDatabase.currentBoardingDao()
     }
 }

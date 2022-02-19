@@ -14,7 +14,7 @@ apply from: '../../android.gradle'
 apply from: '../../dependency.gradle'
 
 dependencies {
-    //implementation project(':app')
+    implementation project(':domain:model')
 
     // Room database
     implementation "androidx.room:room-ktx:$room_version"

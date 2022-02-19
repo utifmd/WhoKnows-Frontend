@@ -26,12 +26,26 @@ class RoomUseCaseModule(
     override val getRooms: GetRooms =
         GetRooms(repository),
 
-    override val currentUserId: () -> String =
-        { repository.currentUserId() },
+    override val getBoarding: GetBoarding =
+        GetBoarding(repository),
 
-    override val saveInClipboard: (String, String) -> Unit = { k, v ->
-        repository.saveInClipboard(k, v)
-    },
+    override val postBoarding: PostBoarding =
+        PostBoarding(repository),
+
+    override val patchBoarding: PatchBoarding =
+        PatchBoarding(repository),
+
+    override val deleteBoarding: DeleteBoarding =
+        DeleteBoarding(repository),
+
+    override val currentToken: () -> String =
+        repository.currentToken,
+
+    override val currentUserId: () -> String =
+        repository.currentUserId,
+
+    override val setClipboard: (String, String) -> Unit =
+        repository.setClipboard,
 
     override val getterOnboard: IRoomRepository.IBoarding.Getter =
         repository.getterOnboard,

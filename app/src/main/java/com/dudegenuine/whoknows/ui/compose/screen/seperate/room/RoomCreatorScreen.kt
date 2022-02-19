@@ -20,7 +20,6 @@ import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
-import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
@@ -60,7 +59,7 @@ fun RoomCreatorScreen(
 @Composable
 private fun Body(
     resourceState: ResourceState,
-    formState: RoomState.FormState,
+    formState: Room.RoomState.FormState,
     modifier: Modifier = Modifier){
 
     val isExpand = remember { mutableStateOf(false) }

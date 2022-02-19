@@ -24,4 +24,10 @@ class MessageUseCaseModule(repository: IMessagingRepository): IMessageUseCaseMod
 
     override val addMessaging: AddMessaging =
         AddMessaging(repository)
+
+    override val onMessagingTokenized: () -> String =
+        repository.onMessagingTokenized
+
+    override val onMessagingTokenRefresh: (String) -> Unit =
+        repository.onMessagingTokenRefresh
 }

@@ -9,8 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.ITimerNotificationService
-import com.dudegenuine.whoknows.ui.service.TimerService
+import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizScreen
@@ -31,6 +30,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
+import com.dudegenuine.whoknows.ui.service.TimerService
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 
 /**
@@ -67,25 +67,35 @@ fun NavGraphBuilder.summaryGraph(
     }
 
     composable(
-        route = Screen.Home.Summary.RoomDetail.withArgs(
-            "{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}")){ entry ->
+        route = Screen.Home.Summary.RoomDetail.withArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}")){ entry ->
+
         RoomDetail(
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
             eventRouter = RoomEventDetail(router = router)) { time ->
 
-            service.putExtra(ITimerNotificationService.INITIAL_TIME_KEY, time)
+            service.putExtra(ITimerService.INITIAL_TIME_KEY, 20.0)
                 .apply(context::startService)
         }
     }
 
     composable(
-        route = Screen.Home.Summary.OnBoarding.withArgs(
-            /*"{$ONBOARD_PPN_ID_SAVED_KEY}", */"{${IRoomEvent.ONBOARD_ROOM_ID_SAVED_KEY}}")){
+        route = Screen.Home.Summary.OnBoarding.withArgs("{${IRoomEvent.ONBOARD_ROOM_ID_SAVED_KEY}}")){
+        val event = object: IRoomEventBoarding {
 
-        RoomRoutedPreBoardingScreen(
-            event = object: IRoomEventBoarding{}){
+            override fun onDoneResultPressed() {
+                val screen = Screen.Home.Summary.route
 
-            Log.d("graph", "summaryGraph: triggered")
+                with (router) {
+                    //popBackStack()
+
+                    navigate(screen) {
+                        popUpTo(screen) { inclusive = true }
+                    }
+                }
+            }
+        }
+
+        RoomRoutedPreBoardingScreen(event){
             context.stopService(service)
         }
     }
@@ -98,9 +108,9 @@ fun NavGraphBuilder.summaryGraph(
             val route = Screen.Home.Summary.RoomDetail.withArgs(
                 quiz.roomId, OWN_IS_TRUE)
 
-            router.apply {
-                popBackStack()
-                popBackStack()
+            with (router) {
+                repeat (2){ popBackStack() }
+
                 navigate(route)
             }
         }
@@ -127,9 +137,7 @@ fun NavGraphBuilder.summaryGraph(
         route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs(
             "{$USER_ID_SAVED_KEY}")){
 
-        val event = object: IProfileEvent {
-
-        }
+        val event = object: IProfileEvent { }
 
         ProfileScreen(
             isOwn = false,

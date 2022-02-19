@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.service.contract
 
 import com.dudegenuine.local.manager.WhoKnowsDatabase
+import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 
 /**
@@ -9,4 +10,5 @@ import com.dudegenuine.local.service.contract.ICurrentUserDao
  **/
 interface IDaoModule {
     fun provideCurrentUserDaoModule(localDatabase: WhoKnowsDatabase): ICurrentUserDao
+    fun provideCurrentBoardingDaoModule(localDatabase: WhoKnowsDatabase): ICurrentBoardingDao
 }

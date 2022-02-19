@@ -13,7 +13,6 @@ import com.dudegenuine.remote.entity.UserCensoredEntity
 import com.dudegenuine.remote.entity.UserEntity
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.google.gson.Gson
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -100,8 +99,8 @@ class UserDataMapper
             username = it.username,
             password = it.password,
             profileUrl = it.profileUrl,
-            createdAt = Date(it.createdAt),
-            updatedAt = it.updatedAt?.let { date -> Date(date) },
+            createdAt = currentUser.createdAt, //Date(it.createdAt),
+            updatedAt = currentUser.updatedAt, //it.updatedAt?.let { date -> Date(date) },
             participants = emptyList()
         )}
     }
@@ -115,8 +114,9 @@ class UserDataMapper
             username = user.username,
             password = user.password,
             profileUrl = user.profileUrl,
-            createdAt = user.createdAt.time,
-            updatedAt = user.updatedAt?.time
+            createdAt = user.createdAt,//.time,
+            updatedAt = user.updatedAt,//?.time
+            participants = emptyList()
         )
     }
 

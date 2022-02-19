@@ -11,20 +11,19 @@ import java.io.IOException
 import javax.inject.Inject
 
 /**
- * Wed, 08 Dec 2021
+ * Fri, 18 Feb 2022
  * WhoKnows by utifmd
  **/
-class GetRoom
+class GetBoarding
     @Inject constructor(
     private val repository: IRoomRepository) {
-    private val TAG: String = javaClass.simpleName
 
-    operator fun invoke(id: String): Flow<Resource<Room>> = flow {
+    operator fun invoke(): Flow<Resource<Room.RoomState.BoardingQuiz>> = flow {
         try {
             emit(Resource.Loading())
 
-            val room = repository.read(id)
-            emit(Resource.Success(room))
+            val boarding = repository.load()
+            emit(Resource.Success(boarding))
 
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

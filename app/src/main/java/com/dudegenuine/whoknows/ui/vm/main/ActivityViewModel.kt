@@ -14,6 +14,7 @@ import com.dudegenuine.model.Messaging
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.service.MessagingService
+import com.dudegenuine.whoknows.ui.service.MessagingService.Companion.INITIAL_FCM_TOKEN
 import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
@@ -38,43 +39,39 @@ class ActivityViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IActivityViewModel {
     private val TAG: String = javaClass.simpleName
     private var messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
+
+    private val messagingToken = caseMessaging.onMessagingTokenized()
     private val isSignedIn = caseUser.currentUserId().isNotBlank()
+    private val isTokenized = messagingToken.isNotBlank()
 
     companion object {
         const val TOPIC_COMMON = "common"
     }
 
     init {
-        //fcmTopicSubscribe()
-        //if (isSignedIn) fcmTokenInstantiate()
+        messagingSubscribeTopic()
 
-        getMessagingGroupKey("anyone-knows-room-soekarno"){
+        if (!isTokenized) messagingInitToken()
+        else Log.d(TAG, "local store token: $messagingToken")
+
+        /*getMessagingGroupKey("anyone-knows-room-soekarno"){
             Log.d(TAG, "init: $it")
-        }
+        }*/
     }
 
-    val fcmTokenAction = IntentFilter(MessagingService.ACTION_FCM_TOKEN)
-
-    val fcmTokenReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val token = intent?.getStringExtra(MessagingService.INITIAL_FCM_TOKEN) ?: return
-
-            if (isSignedIn) token.apply(::onRefreshToken)
-            Log.d(TAG, "onReceive: $token")
-        }
-    }
-
-    private fun fcmTopicSubscribe() {
+    private fun messagingSubscribeTopic() {
         messaging.subscribeToTopic(TOPIC_COMMON)
     }
 
-    private fun fcmTokenInstantiate(){
+    private fun messagingInitToken(){
         messaging.token.addOnCompleteListener { task ->
             Log.d(TAG, "fcmTokenInstantiate: triggered")
             if (!task.isSuccessful) return@addOnCompleteListener
             val token = task.result
 
             // TODO: save value to prefs prepare for join selection room
+            caseMessaging.onMessagingTokenRefresh(token)
+
             /*getJoinedRoomIds { ids -> ids
                 .forEach { addTokenByNotifyKeyName(token, it) }
 
@@ -93,14 +90,6 @@ class ActivityViewModel
         }
     }
 
-    override fun getMessagingGroupKey(keyName: String, onSucceed: (String) -> Unit) {
-        if (keyName.isBlank()) _state.value = ResourceState(error = DONT_EMPTY)
-
-        caseMessaging.getMessaging(keyName)
-            .onEach { res -> onResourceSucceed(res, onSucceed) }
-            .launchIn(viewModelScope)
-    }
-
     override fun getJoinedRoomIds(onSucceed: (List<String>) -> Unit) {
         caseUser.getUser(caseUser.currentUserId())
             .onEach { res -> onResourceSucceed(res) { usr ->
@@ -108,16 +97,6 @@ class ActivityViewModel
 
                 onSucceed(participateIds)}}
             .launchIn(viewModelScope)
-    }
-
-    override fun addMessagingGroupMember(messaging: Messaging.GroupAdder) {
-        val model = messaging.copy()
-
-        if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty())
-            _state.value = ResourceState(error = DONT_EMPTY)
-
-        caseMessaging.createMessaging(model)
-            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     private fun addTokenByNotifyKeyName(token: String, roomId: String){
@@ -130,6 +109,34 @@ class ActivityViewModel
 
             addMessagingGroupMember(model)
         }
+    }
+
+    val messagingServiceAction = IntentFilter(MessagingService.ACTION_FCM_TOKEN)
+    val messagingServiceReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val token = intent?.getStringExtra(INITIAL_FCM_TOKEN) ?: return
+
+            if (isSignedIn) token.apply(::onRefreshToken)
+            Log.d(TAG, "onReceive: triggered")
+        }
+    }
+
+    override fun getMessagingGroupKey(keyName: String, onSucceed: (String) -> Unit) {
+        if (keyName.isBlank()) _state.value = ResourceState(error = DONT_EMPTY)
+
+        caseMessaging.getMessaging(keyName)
+            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .launchIn(viewModelScope)
+    }
+
+    override fun addMessagingGroupMember(messaging: Messaging.GroupAdder) {
+        val model = messaging.copy()
+
+        if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty())
+            _state.value = ResourceState(error = DONT_EMPTY)
+
+        caseMessaging.createMessaging(model)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     fun onStateValueChange(state: ResourceState) {

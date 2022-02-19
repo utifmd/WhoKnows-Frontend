@@ -59,14 +59,14 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
-        roomUseCaseModule: IRoomUseCaseModule,
-        participantUseCaseModule: IParticipantUseCaseModule,
-        resultUseCaseModule: IResultUseCaseModule,
-        fileCase: IFileUseCaseModule,
-        savedStateHandle: SavedStateHandle
-    ): IRoomViewModel {
-
-        return RoomViewModel(roomUseCaseModule, participantUseCaseModule, resultUseCaseModule, fileCase, savedStateHandle)
+        caseRoom: IRoomUseCaseModule,
+        caseUser: IUserUseCaseModule,
+        caseParticipant: IParticipantUseCaseModule,
+        caseMessagig: IMessageUseCaseModule,
+        caseFile: IFileUseCaseModule,
+        caseResult: IResultUseCaseModule,
+        savedStateHandle: SavedStateHandle): IRoomViewModel {
+        return RoomViewModel(caseMessagig, caseFile, caseRoom, caseUser, caseParticipant, caseResult, savedStateHandle)
     }
 
     @Provides

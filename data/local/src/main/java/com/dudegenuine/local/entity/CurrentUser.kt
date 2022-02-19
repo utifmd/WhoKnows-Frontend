@@ -3,6 +3,8 @@ package com.dudegenuine.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.dudegenuine.model.Participant
+import java.util.*
 
 /**
  * Thu, 13 Jan 2022
@@ -33,8 +35,11 @@ data class CurrentUser(
     val profileUrl: String,
 
     @ColumnInfo(name = "createdAt")
-    val createdAt: Long,
+    val createdAt: Date,
 
     @ColumnInfo(name = "updatedAt")
-    val updatedAt: Long?
+    val updatedAt: Date?,
+
+    @ColumnInfo(name = "participants")
+    val participants: List<Participant>,
 )

@@ -26,7 +26,7 @@ fun SummaryScreen(
 
     RoomStatedPreBoardingScreen(
         eventHome = eventHome,
-        eventBoarding = object: IRoomEventBoarding {}){
+        eventBoarding = object: IRoomEventBoarding { }){
 
         context.stopService(service)
     }

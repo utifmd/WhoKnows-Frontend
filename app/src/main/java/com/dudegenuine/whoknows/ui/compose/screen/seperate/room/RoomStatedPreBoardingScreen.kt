@@ -7,9 +7,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
-import com.dudegenuine.whoknows.ui.compose.state.RoomState
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
 /**
@@ -28,7 +28,7 @@ fun RoomStatedPreBoardingScreen(
     onStopTimer: () -> Unit) {
     val uiState = viewModel.uiState.observeAsState().value
 
-    val composeEvent: (RoomState.BoardingQuiz) -> IRoomEventBoarding = { roomState ->
+    val composeEvent: (Room.RoomState.BoardingQuiz) -> IRoomEventBoarding = { roomState ->
         object: IRoomEventBoarding {
             override fun onPrevPressed()
                 { roomState.currentQuestionIdx -=1 }
@@ -44,25 +44,24 @@ fun RoomStatedPreBoardingScreen(
         }
     }
 
-    uiState?.let { roomState ->
-        when(roomState){
-            is RoomState.BoardingQuiz -> RoomBoardingScreen(
-                state = roomState,
-                onAction = eventBoarding::onAction,
-                onPrevPressed = { composeEvent(roomState).onPrevPressed() },
-                onNextPressed = { composeEvent(roomState).onNextPressed() },
-                onDonePressed = { composeEvent(roomState).onDonePressed() },
-                onBackPressed = eventBoarding::onBackPressed
-            )
-            is RoomState.BoardingResult -> RoomResultScreen(
-                state = roomState,
-                onDonePressed = { viewModel.onCloseResult() },
-                // onBackPressed = {  },
-                // onSharePressed = { viewModel.shareResult() },
-            )
-            else -> RoomHomeScreen(
-                event = eventHome
-            )
-        }
+    when(uiState){
+        is Room.RoomState.BoardingQuiz -> RoomBoardingScreen(
+            state = uiState,
+            viewModel = viewModel,
+            onAction = eventBoarding::onAction,
+            onPrevPressed = { composeEvent(uiState).onPrevPressed() },
+            onNextPressed = { composeEvent(uiState).onNextPressed() },
+            onDonePressed = { composeEvent(uiState).onDonePressed() },
+            onBackPressed = eventBoarding::onBackPressed
+        )
+        is Room.RoomState.BoardingResult -> RoomResultScreen(
+            state = uiState,
+            onDonePressed = { viewModel.onCloseResult() },
+            // onBackPressed = {  },
+            // onSharePressed = { viewModel.shareResult() },
+        )
+        else -> RoomHomeScreen(
+            event = eventHome
+        )
     }
 }

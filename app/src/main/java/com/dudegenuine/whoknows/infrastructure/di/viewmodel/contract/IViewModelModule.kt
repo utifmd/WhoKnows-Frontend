@@ -26,10 +26,12 @@ interface IViewModelModule {
         savedStateHandle: SavedStateHandle): IUserViewModel
 
     fun provideRoomViewModel(
-        roomUseCaseModule: IRoomUseCaseModule,
-        participantUseCaseModule: IParticipantUseCaseModule,
-        resultUseCaseModule: IResultUseCaseModule,
-        fileCase: IFileUseCaseModule,
+        caseRoom: IRoomUseCaseModule,
+        caseUser: IUserUseCaseModule,
+        caseParticipant: IParticipantUseCaseModule,
+        caseMessagig: IMessageUseCaseModule,
+        caseFile: IFileUseCaseModule,
+        caseResult: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel
 
     fun provideQuizViewModel(

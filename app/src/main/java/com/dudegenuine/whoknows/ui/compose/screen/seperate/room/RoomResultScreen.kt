@@ -1,15 +1,16 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.ui.compose.state.RoomState
 
 /**
  * Fri, 24 Dec 2021
@@ -18,47 +19,53 @@ import com.dudegenuine.whoknows.ui.compose.state.RoomState
 @Composable
 fun RoomResultScreen(
     modifier: Modifier = Modifier,
-    state: RoomState.BoardingResult,
+    state: Room.RoomState.BoardingResult,
     // onSharePressed: () -> Unit,
     onDonePressed: () -> Unit) {
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.SpaceAround) {
-        Text(
-            text = state.title,
-            style = MaterialTheme.typography.h3
-        )
-        state.data?.let {
-            Text(
-                text = it.score.toString(),
-                style = MaterialTheme.typography.h1
-            )
-            Column {
-                if (it.wrongQuiz.isNotEmpty()) Column {
-                    Text(
-                        text = "Wrong quizzes:",
-                        style = MaterialTheme.typography.subtitle1)
-                    it.wrongQuiz.mapIndexed { idx, it ->
-                        Text(
-                            text = "${idx +1}. $it",
-                            style = MaterialTheme.typography.caption)
+    Box(modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center) {
+
+        Column(modifier.padding(12.dp),
+            verticalArrangement = Arrangement.SpaceAround) {
+
+            Text(state.title,
+                style = MaterialTheme.typography.h3)
+
+            state.data?.let {
+                Text(it.score.toString(),
+                    style = MaterialTheme.typography.h1)
+
+                Column {
+                    if (it.wrongQuiz.isNotEmpty()) Column {
+                        Text("Wrong quizzes:",
+                            style = MaterialTheme.typography.subtitle1)
+
+                        it.wrongQuiz.mapIndexed { idx, it ->
+                            Text("${idx +1}. $it",
+                                style = MaterialTheme.typography.caption)
+                        }
                     }
-                }
-                if (it.correctQuiz.isNotEmpty()) Column {
-                    Text(
-                        text = "Correct quizzes:",
-                        style = MaterialTheme.typography.subtitle1)
-                    it.correctQuiz.mapIndexed { idx, it ->
-                        Text(
-                            text = "${idx +1}. $it",
-                            style = MaterialTheme.typography.caption)
+                    if (it.correctQuiz.isNotEmpty()) Column {
+                        Spacer(modifier.size(24.dp))
+                        Text("Correct quizzes:",
+                            style = MaterialTheme.typography.subtitle1)
+
+                        it.correctQuiz.mapIndexed { idx, it ->
+                            Text("${idx +1}. $it",
+                                style = MaterialTheme.typography.caption)
+                        }
                     }
                 }
             }
-        }
-        Button(onClick = onDonePressed) {
-            Text(text = stringResource(R.string.done))
+            Spacer(modifier.size(24.dp))
+
+            Button(onDonePressed) {
+                Icon(Icons.Default.DoneAll, contentDescription = null)
+
+                Spacer(modifier.size(ButtonDefaults.IconSize))
+                Text(stringResource(R.string.done))
+            }
         }
     }
 }

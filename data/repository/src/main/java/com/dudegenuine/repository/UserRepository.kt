@@ -21,10 +21,9 @@ import javax.inject.Inject
 class UserRepository
     @Inject constructor(
     private val service: IUserService,
-    private val dao: ICurrentUserDao,
+    private val local: ICurrentUserDao,
     private val prefs: IPreferenceManager,
     private val mapper: IUserDataMapper): IUserRepository {
-
     private val TAG = javaClass.simpleName
 
     override val currentUserId: () -> String = {
@@ -86,19 +85,19 @@ class UserRepository
     }
 
     override suspend fun save(currentUser: CurrentUser) =
-        dao.create(currentUser).also {
+        local.create(currentUser).also {
             prefs.write(CURRENT_USER_ID, currentUser.userId)
         }
 
     override suspend fun replace(currentUser: CurrentUser) {
-        dao.update(currentUser)
+        local.update(currentUser)
 
         Log.d(TAG, "replace: triggered")
     }
 
     override suspend fun load(userId: String?): User {
         val finalId = userId ?: currentUserId()
-        val currentUser = dao.read(finalId)
+        val currentUser = local.read(finalId)
 
         if (currentUser != null)
             return mapper.asUser(currentUser)
@@ -107,11 +106,11 @@ class UserRepository
     }
 
     override suspend fun unload(userId: String) {
-        val currentUser = dao.read(userId) //?: throw HttpFailureException(NOT_FOUND)
+        val currentUser = local.read(userId) //?: throw HttpFailureException(NOT_FOUND)
 
         currentUser?.let {
             prefs.write(CURRENT_USER_ID, "")
-            dao.delete(it)
+            local.delete(it)
         }
     }
 }

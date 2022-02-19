@@ -1,8 +1,12 @@
 package com.dudegenuine.local.api
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -10,14 +14,14 @@ import kotlin.math.roundToInt
  * Wed, 09 Feb 2022
  * WhoKnows by utifmd
  **/
-abstract class ITimerNotificationService: Service() {
+abstract class ITimerService: Service() {
 
     companion object {
         const val FOREGROUND_TIMER_SERVICE_ID = 1001
 
         const val TIME_ACTION = "latest_receiver_updated_action"
         const val INITIAL_TIME_KEY = "exact_time_key"
-        const val FINISHED_TIME_KEY = "finish_time_key"
+        const val TIME_UP_KEY = "finish_time_key"
 
         const val CHANNEL_ID = "channel id"
         const val CHANNEL_NAME = "channel name is notification"
@@ -32,17 +36,21 @@ abstract class ITimerNotificationService: Service() {
         }
     }
 
+    private val job = SupervisorJob()
     protected val timer = Timer()
+    protected val scope = CoroutineScope(Dispatchers.Main + job)
 
     // protected abstract val notifyManager: NotificationManager
     /*protected abstract fun notifyBuilder(): NotificationCompat.Builder*/
 
-    protected abstract val taskTimer: TimerTask
+    protected abstract val taskTimerListener: (Context) -> TimerTask
+    // protected abstract val taskTimer: TimerTask
     /*protected abstract fun taskTimer(): TimerTask*/
 
     override fun onBind(intent: Intent?): IBinder?  = null
 
     override fun onDestroy() {
+        job.cancel()
         timer.cancel()
 
         super.onDestroy()

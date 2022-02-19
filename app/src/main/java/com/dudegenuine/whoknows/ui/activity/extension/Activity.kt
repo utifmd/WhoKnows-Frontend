@@ -1,4 +1,4 @@
-package com.dudegenuine.whoknows.infrastructure.common.extension
+package com.dudegenuine.whoknows.ui.activity.extension
 
 import android.app.Activity
 import android.content.Context

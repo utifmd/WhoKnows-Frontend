@@ -15,10 +15,12 @@ import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-@ExperimentalCoilApi @ExperimentalMaterialApi @ExperimentalFoundationApi
+@ExperimentalCoilApi
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 class MainActivity: ComponentActivity() {
     private val TAG = javaClass.simpleName
-    private val viewModel: ActivityViewModel by viewModels()
+    private val mainVm: ActivityViewModel by viewModels()
 
     companion object {
         const val INITIAL_DATA_KEY = "initial_data_key"
@@ -31,18 +33,19 @@ class MainActivity: ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mainVm.apply { registerReceiver(
+                messagingServiceReceiver, messagingServiceAction) }
+
         onIntention()
-
-        viewModel.apply {
-            registerReceiver(fcmTokenReceiver, fcmTokenAction) }
-
-        setContent {
-            MainScreen()
-        }
     }
 
     private fun onIntention() {
-        val data = intent.getStringExtra(INITIAL_DATA_KEY)
+        val data = intent.getStringExtra(INITIAL_DATA_KEY) ?: ""
+
+        setContent {
+            MainScreen(initialPassed = data)
+        }
 
         Log.d(TAG, "initial data key: $data")
     }
@@ -50,7 +53,7 @@ class MainActivity: ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        viewModel.fcmTokenReceiver
+        mainVm.messagingServiceReceiver
             .apply(::unregisterReceiver)
     }
 }

@@ -8,18 +8,22 @@ import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.local.api.INotifyManager
+import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.infrastructure.common.singleton.NotifyManager
-import com.dudegenuine.whoknows.infrastructure.common.singleton.PrefsManager
 import com.dudegenuine.whoknows.ui.activity.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Fri, 11 Feb 2022
  * WhoKnows by utifmd
  **/
+@AndroidEntryPoint
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -27,15 +31,23 @@ class MessagingService: FirebaseMessagingService() {
     private val TAG: String = javaClass.simpleName
 
     companion object {
-        const val INITIAL_INTENT_DATA = "MessagingNotificationService"
+        const val MESSAGE_INTENT = "MessagingService message intent"
 
         const val ACTION_FCM_TOKEN = "action_fcm_token"
         const val INITIAL_FCM_TOKEN = "initial_fcm_token"
     }
 
+    @Inject
+    lateinit var prefs: IPreferenceManager
+
+    @Inject
+    lateinit var notifier: INotifyManager
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "onNewToken: $token")
+
+        prefs.write(IMessagingRepository.MESSAGING_TOKEN, token)
 
         Intent(ACTION_FCM_TOKEN)
             .apply { putExtra(INITIAL_FCM_TOKEN, token) }.apply(::sendBroadcast)
@@ -43,8 +55,6 @@ class MessagingService: FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        val prefs = PrefsManager.getInstance(this)
-        val notifier = NotifyManager.getInstance(this)
         Log.d(TAG, "onMessageReceived: triggered")
 
         val currentUserId = prefs.read(CURRENT_USER_ID)
@@ -52,7 +62,7 @@ class MessagingService: FirebaseMessagingService() {
 
         if (currentUserId.isBlank()) return
 
-        val intent: Intent = MainActivity.createIntent(this, INITIAL_INTENT_DATA)
+        val intent: Intent = MainActivity.createIntent(this, MESSAGE_INTENT)
             .apply { addFlags(FLAG_ACTIVITY_CLEAR_TOP) }
 
         val pending: PendingIntent = PendingIntent
@@ -64,7 +74,7 @@ class MessagingService: FirebaseMessagingService() {
         val body = message.data["body"] ?: message.notification?.body ?:
             getString(R.string.notify_body)
 
-        with (notifier.scaffold()) {
+        with (notifier.onBuilt()) {
             setSmallIcon(R.drawable.ic_baseline_assignment_24)
             setContentTitle(title)
             setContentText(body)
@@ -72,7 +82,7 @@ class MessagingService: FirebaseMessagingService() {
             setAutoCancel(true)
         }
 
-        notifier.notify()
+        notifier.onNotify()
     }
 }
 

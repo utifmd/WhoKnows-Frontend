@@ -3,19 +3,21 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.ITimerNotificationService
+import com.dudegenuine.local.api.ITimerService.Companion.TIME_ACTION
+import com.dudegenuine.local.api.ITimerService.Companion.asString
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.QuizActionType
-import com.dudegenuine.whoknows.ui.compose.component.misc.BroadcastTimerReceiver
+import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
-import com.dudegenuine.whoknows.ui.compose.state.RoomState
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
 /**
  * Fri, 17 Dec 2021
@@ -27,26 +29,38 @@ import com.dudegenuine.whoknows.ui.compose.state.RoomState
 fun RoomBoardingScreen(
     // resourceState: ResourceState,
     modifier: Modifier = Modifier,
-    state: RoomState.BoardingQuiz,
+    viewModel: RoomViewModel,
+    state: Room.RoomState.BoardingQuiz,
     onAction: (Int, QuizActionType) -> Unit,
     onBackPressed: () -> Unit,
     onPrevPressed: () -> Unit,
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
+    val context = LocalContext.current
 
     val scaffoldState = rememberBackdropScaffoldState(
         BackdropValue.Concealed)
 
     val boardingState = remember(state.currentQuestionIdx)
-        { state.list[state.currentQuestionIdx] }
+        { state.quizzes[state.currentQuestionIdx] }
 
-    val timer = remember { mutableStateOf(
+    /*val timer = remember { mutableStateOf(
         ITimerNotificationService.asString(state.duration)) }
 
     BroadcastTimerReceiver { fresh, finished ->
         timer.value = fresh
 
         if (finished) onDonePressed()
+    }*/
+
+    DisposableEffect(context, TIME_ACTION) {
+        val broadcast = viewModel.timerServiceReceiver(state)
+        
+        context.registerReceiver(
+            broadcast, viewModel.timerServiceAction)
+
+        onDispose { context.
+            unregisterReceiver(broadcast) }
     }
 
     BackdropScaffold(
@@ -66,7 +80,7 @@ fun RoomBoardingScreen(
                     modifier = modifier.padding(
                         horizontal = 16.dp
                     ),
-                    text = "${timer.value} time left",
+                    text = "${asString(viewModel.formState.timer)} time left",
                     color = MaterialTheme.colors.onPrimary,
                     style = MaterialTheme.typography.h6
                 )
@@ -92,7 +106,7 @@ fun RoomBoardingScreen(
         backLayerContent = {
             Column(
                 modifier = modifier.padding(12.dp)) {
-                listOf(state.room.title, state.room.description, "${state.room.minute} minute\'s").forEach {
+                listOf(state.roomTitle, state.roomDesc, "${state.roomMinute} minute\'s").forEach {
 
                     Text(it, modifier = modifier.padding(vertical = 8.dp, horizontal = 12.dp))
                 }

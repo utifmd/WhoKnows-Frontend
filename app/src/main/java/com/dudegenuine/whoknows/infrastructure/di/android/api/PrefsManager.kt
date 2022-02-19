@@ -7,7 +7,7 @@ import com.dudegenuine.local.api.IPreferenceManager
  * Thu, 13 Jan 2022
  * WhoKnows by utifmd
  **/
-class PreferenceManager(
+class PrefsManager(
     private val prefs: SharedPreferences): IPreferenceManager { /*private val prefs = context.getSharedPreferences(IPreferenceManager.PREF_NAME, MODE_PRIVATE)*/
 
     override fun read(key: String): String {
@@ -21,7 +21,7 @@ class PreferenceManager(
         editor.putString(key, value)
         editor.apply()*/
 
-        with(prefs.edit()) {
+        with (prefs.edit()) {
             putString(key, value)
             apply()
         }

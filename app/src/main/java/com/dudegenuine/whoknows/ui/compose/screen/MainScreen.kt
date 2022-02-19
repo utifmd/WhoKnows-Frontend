@@ -10,8 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.MainNavigation
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
-import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
 /**
  * Wed, 19 Jan 2022
@@ -23,6 +23,7 @@ import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    initialPassed: String,
     viewModel: UserViewModel = hiltViewModel()) {
 
     val router = rememberNavController()
@@ -42,14 +43,18 @@ fun MainScreen(
                 if (state.user != null) {
                     MainNavigation(
                         controller = router,
-                        destination = Screen.Home.route)
+                        destination = Screen.Home.route,
+                        initialPassed = initialPassed
+                    )
                 }
 
                 if (state.error.isNotBlank()) {
                     MainNavigation(
                         viewModel = viewModel,
                         controller = router,
-                        destination = Screen.Auth.route)
+                        destination = Screen.Auth.route,
+                        initialPassed = initialPassed
+                    )
                 }
             }
         )

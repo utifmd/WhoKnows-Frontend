@@ -8,15 +8,22 @@ import com.dudegenuine.usecase.room.*
  * WhoKnows by utifmd
  **/
 interface IRoomUseCaseModule {
-    val currentUserId: () -> String
-    val saveInClipboard: (String, String) -> Unit
-
-    val getterOnboard: IRoomRepository.IBoarding.Getter
-    val setterOnboard: IRoomRepository.IBoarding.Setter
 
     val postRoom: PostRoom
     val getRoom: GetRoom
     val patchRoom: PatchRoom
     val deleteRoom: DeleteRoom
     val getRooms: GetRooms
+
+    val getBoarding: GetBoarding
+    val postBoarding: PostBoarding
+    val patchBoarding: PatchBoarding
+    val deleteBoarding: DeleteBoarding
+
+    val getterOnboard: IRoomRepository.IBoarding.Getter
+    val setterOnboard: IRoomRepository.IBoarding.Setter
+
+    val currentToken: () -> String
+    val currentUserId: () -> String
+    val setClipboard: (String, String) -> Unit
 }

@@ -14,4 +14,7 @@ interface IMessageUseCaseModule {
     val getMessaging: GetMessaging
     val createMessaging: CreateMessaging
     val addMessaging: AddMessaging
+
+    val onMessagingTokenized: () -> String
+    val onMessagingTokenRefresh: (String) -> Unit
 }

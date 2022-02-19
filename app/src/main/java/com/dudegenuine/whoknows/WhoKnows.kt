@@ -14,7 +14,8 @@ class WhoKnows: Application()
 // TODO:
 /*
 * Frontend
-* - handle token either onNewToken or instantiate
-* - Paging
+* - make sure push notification logically works
+* - Paging (Frontend - Backend)
 * - Limitation
+* - handle build un uses warning
 * */

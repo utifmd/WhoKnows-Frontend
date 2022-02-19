@@ -13,6 +13,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.ITimerNotificationService
+import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
@@ -30,8 +32,8 @@ import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
-import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import com.dudegenuine.whoknows.ui.service.TimerService
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
 /**
  * Sat, 15 Jan 2022
@@ -58,10 +60,21 @@ fun ProfileScreen(
         onResult = { viewModel.formState.onImageValueChange(it, context) }
     )
 
-    val onStartService: () -> Unit = {
-        Log.d("ProfileScreen: ", "onStartService..")
-        Intent(context, TimerService::class.java).putExtra(
-            ITimerNotificationService.INITIAL_TIME_KEY, 30.0).apply(context::startService)
+    val serviceStarted = remember { mutableStateOf(false) }
+
+    val onToggleService: () -> Unit = {
+        val service = Intent(context, TimerService::class.java).putExtra(
+            ITimerService.INITIAL_TIME_KEY, 30.0)
+
+        if (!serviceStarted.value) {
+            service.apply(context::startService)
+            serviceStarted.value = true
+        } else {
+            service.apply(context::stopService)
+            serviceStarted.value = false
+        }
+
+        Log.d("ProfileScreen: ", "onToggleService.. serviceStarted ${serviceStarted.value}")
     }
 
     if (state.loading) LoadingScreen()
@@ -126,7 +139,7 @@ fun ProfileScreen(
                             key = stringResource(R.string.username),
                             editable = isOwn,
                             value = user.username,
-                            onValuePressed = onStartService //{ event.onUsernamePressed(user.username) }
+                            onValuePressed = onToggleService //{ event.onUsernamePressed(user.username) }
                         )
 
                         FieldTag(

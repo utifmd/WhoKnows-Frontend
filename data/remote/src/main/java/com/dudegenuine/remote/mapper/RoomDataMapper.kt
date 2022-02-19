@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper
 
+import com.dudegenuine.local.entity.CurrentRoomState
 import com.dudegenuine.model.Room
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
@@ -73,5 +74,52 @@ class RoomDataMapper
             }
             else -> throw IllegalStateException()
         }
+    }
+
+    override fun asCurrentBoarding(boardingQuiz: Room.RoomState.BoardingQuiz): CurrentRoomState {
+        return CurrentRoomState(
+            participantId = boardingQuiz.participantId,
+            participantName = boardingQuiz.participantName,
+            roomId = boardingQuiz.roomId,
+            roomTitle = boardingQuiz.roomTitle,
+            roomDesc = boardingQuiz.roomDesc,
+            roomMinute = boardingQuiz.roomMinute,
+            currentQuestionIdx = boardingQuiz.currentQuestionIdx,
+            quizzes = boardingQuiz.quizzes
+                .map(::asCurrentBoardingQuiz)
+        )
+    }
+
+    override fun asRoomBoardingQuiz(currentRoomState: CurrentRoomState): Room.RoomState.BoardingQuiz {
+        return Room.RoomState.BoardingQuiz(
+            participantId = currentRoomState.participantId,
+            participantName = currentRoomState.participantName,
+            roomId = currentRoomState.roomId,
+            roomTitle = currentRoomState.roomTitle,
+            roomDesc = currentRoomState.roomDesc,
+            roomMinute = currentRoomState.roomMinute,
+            quizzes = currentRoomState.quizzes
+                .map(::asRoomBoardingQuiz)
+        )
+    }
+
+    override fun asRoomBoardingQuiz(boardingQuiz: CurrentRoomState.BoardingQuiz): Room.RoomState.OnBoardingState {
+        return Room.RoomState.OnBoardingState(
+            quiz = boardingQuiz.quiz,
+            questionIndex = boardingQuiz.questionIndex,
+            totalQuestionsCount = boardingQuiz.totalQuestionsCount,
+            showPrevious = boardingQuiz.showPrevious,
+            showDone = boardingQuiz.showDone,
+        )
+    }
+
+    override fun asCurrentBoardingQuiz(roomBoardingQuiz: Room.RoomState.OnBoardingState): CurrentRoomState.BoardingQuiz {
+        return CurrentRoomState.BoardingQuiz(
+            quiz = roomBoardingQuiz.quiz,
+            questionIndex = roomBoardingQuiz.questionIndex,
+            totalQuestionsCount = roomBoardingQuiz.totalQuestionsCount,
+            showPrevious = roomBoardingQuiz.showPrevious,
+            showDone = roomBoardingQuiz.showDone,
+        )
     }
 }

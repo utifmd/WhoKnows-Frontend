@@ -43,5 +43,6 @@ data class ResourceState(
         const val NO_QUESTION = "There is no question for this room."
 
         const val DESC_TOO_LONG = "Description must not more then 225 chars."
+        const val PUSH_NOT_SENT = "Push notification not sent."
     }
 }
