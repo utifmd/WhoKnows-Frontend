@@ -1,6 +1,5 @@
 package com.dudegenuine.local.mapper
 
-import android.util.Log
 import androidx.room.TypeConverter
 import java.util.*
 
@@ -13,7 +12,7 @@ object DateConverter {
 
     @TypeConverter
     fun toDate(dateLong: Long?): Date? {
-        Log.d(TAG, "toDate: triggered")
+        //Log.d(TAG, "toDate: triggered")
 
         return dateLong?.let { Date(it) }
     }

@@ -32,7 +32,9 @@ fun NavGraphBuilder.authNavGraph(
 
         composable(
             route = Screen.Auth.Register.route) {
-            RegisterScreen()
+            RegisterScreen(
+                viewModel = viewModel
+            )
         }
     }
 }

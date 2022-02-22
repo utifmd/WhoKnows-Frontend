@@ -1,6 +1,5 @@
 package com.dudegenuine.local.mapper
 
-import android.util.Log
 import androidx.room.TypeConverter
 import com.dudegenuine.model.Participant
 import com.google.gson.Gson
@@ -18,7 +17,7 @@ object ParticipantConverter {
     fun fromJson(data: String): List<Participant> {
         val type: Type = object : TypeToken<List<Participant?>?>() {}.type
 
-        Log.d(TAG, "fromJson: triggered")
+        //Log.d(TAG, "fromJson: triggered")
 
         return Gson().fromJson(data, type)
     }

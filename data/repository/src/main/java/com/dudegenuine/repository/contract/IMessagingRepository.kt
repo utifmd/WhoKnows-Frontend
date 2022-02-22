@@ -16,6 +16,7 @@ interface IMessagingRepository {
     //suspend fun get(keyName: String): ResponseBody
     suspend fun create(messaging: Messaging): ResponseBody
     suspend fun add(messaging: Messaging): ResponseBody
+    suspend fun remove(messaging: Messaging): ResponseBody
     suspend fun push(messaging: Messaging): ResponseBody
 
     val onMessagingTokenized: () -> String

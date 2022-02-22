@@ -36,6 +36,12 @@ class MessagingRepository(
         )
     }
 
+    override suspend fun remove(messaging: Messaging): ResponseBody {
+        return mapper.asResponseBody(
+            service.remove(mapper.asMessagingRemoveEntity(messaging))
+        )
+    }
+
     override suspend fun push(messaging: Messaging): ResponseBody {
         return mapper.asResponseBody(
             service.push(mapper.asMessagingPushEntity(messaging))

@@ -79,19 +79,26 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    protected fun<T> onResourceSuccess(resources: Resource<T>, onSucceed: (T) -> Unit){
+    protected fun<T> onResourceStateless(resources: Resource<T>, onSucceed: (T) -> Unit){
         if(resources is Resource.Success){
             resources.data?.let { onSucceed(it) }
         }
+
+        if (resources is Resource.Error){
+            Log.d(TAG, "onResourceError: ${resources.message}")
+        }
     }
 
-    protected fun<T> onAuth(resources: Resource<T>){
+    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User) -> Unit){
         when(resources){
             is Resource.Success -> { /*_authState.value = when(resources.data) { is User -> _root_ide_package_.com.dudegenuine.whoknows.ui.presenter.ResourceState.Auth( currentUser = resources.data as User ) else -> _root_ide_package_.com.dudegenuine.whoknows.ui.presenter.ResourceState.Auth() }*/
 
                 _state.value = when(resources.data) {
-                    is User -> ResourceState(
-                        user = resources.data as User)
+                    is User -> (resources.data as User).let {
+                        onSucceed(it)
+
+                        ResourceState(user = it)
+                    }
 
                     is String -> ResourceState( // user signed out
                         user = null,

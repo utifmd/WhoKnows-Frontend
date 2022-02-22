@@ -7,6 +7,6 @@ import com.dudegenuine.whoknows.ui.vm.notification.contract.IMessagingViewModel
  * WhoKnows by utifmd
  **/
 interface IActivityViewModel: IMessagingViewModel {
-    fun getMessagingGroupKey(keyName: String, onSucceed: (String) -> Unit)
+    //fun getMessagingGroupKey(keyName: String, onSucceed: (String) -> Unit)
     fun getJoinedRoomIds(onSucceed: (List<String>) -> Unit)
 }

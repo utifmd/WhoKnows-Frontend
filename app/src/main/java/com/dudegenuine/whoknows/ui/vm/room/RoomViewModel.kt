@@ -51,8 +51,7 @@ class RoomViewModel
 
     private val currentUserId = caseRoom.currentUserId()
     private val currentToken = caseRoom.currentToken()
-    /*private val currentRoomId = caseRoom.getterOnboard.roomId()
-    private val currentParticipantId = caseRoom.getterOnboard.participantId()*/
+    private val currentRunningTime = caseRoom.currentRunningTime()
 
     private val _uiState = MutableLiveData<Room.RoomState>()
     val uiState: LiveData<Room.RoomState>
@@ -63,52 +62,41 @@ class RoomViewModel
         get() = _formState.value
 
     init {
-        val navigated = savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)
+        val routed = savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)
 
-        if (navigated != null) navigated.let(this::getRoom)
+        if (routed != null) routed.let(this::getRoom)
         else getRooms(currentUserId)
 
-        onBoardNavigated()
+        onBoardRouted()
         onBoardStored()
     }
 
-    private fun onBoardNavigated() {
-        val roomId = savedStateHandle.get<String>(ONBOARD_ROOM_ID_SAVED_KEY) //val ppnId = savedStateHandle.get<String>(ONBOARD_PPN_ID_SAVED_KEY)
+    private fun onBoardRouted() {
+        val roomId = savedStateHandle.get<String>(ONBOARD_ROOM_ID_SAVED_KEY)
 
-        if (!roomId.isNullOrBlank() /* && !ppnId.isNullOrBlank()*/)
-            onPreBoarding(roomId)
+        if (!roomId.isNullOrBlank()) onPreBoarding(roomId)
     }
 
-    private fun onBoardStored() { //onBoarded() {
+    private fun onBoardStored() {
         getBoarding { roomState ->
-            //Log.d(TAG, roomState.toString())
-            _uiState.value = roomState
-        }
+            if (currentRunningTime.isNotBlank()) currentRunningTime.let {
+                val time = it.toDouble()
+                formState.onTimerChange(time)
 
-        Log.d(TAG, "onBoarded: triggered")
+                if (time <= 0.0) onPreResult(roomState) //is finished
+            }
+            onUiStateValueChange(roomState)
+        }
     }
 
-    /*private fun onBoardStored() {
-        if (currentParticipantId.isNotBlank() and currentRoomId.isNotBlank())
-            onBoarded()
-        *//*if (currentParticipantId.isNotBlank() && currentRoomId.isNotBlank())
-            onPreBoarding(currentRoomId, currentParticipantId)
-
-        Log.d(TAG, "onBoardStored: done")*//*
-    }*/
-
-    private fun onPreBoarding(roomId: String/*, ppnId: String? = null*/) {
+    private fun onPreBoarding(roomId: String) {
         Log.d(TAG, "onPreBoarding: triggered")
 
         if (roomId.isBlank())
             _state.value = ResourceState(error = DONT_EMPTY)
 
         caseRoom.getRoom(roomId).onEach { res ->
-            onResourceSucceed(res) { room ->
-                /*if (ppnId.isNullOrBlank())*/
-                onInitBoarding(room)
-                /*else onBoarding(room, ppnId)*/
-            }
+            onResourceSucceed(res, ::onInitBoarding)
         }.launchIn(viewModelScope)
     }
 
@@ -119,7 +107,6 @@ class RoomViewModel
             roomId = room.id, userId = currentUserId, timeLeft = room.minute)
 
         onBoarding(room, model.id)
-        //onBoardingValueChange(model.roomId, model.id)
 
         /*caseRoom.postParticipant(model).onEach { res ->
             onResourceSucceed(res) {
@@ -161,10 +148,8 @@ class RoomViewModel
             )
 
             Log.d(TAG, "onBoarding by: ${roomState.participantName}")
-            postBoarding(roomState){
-
-                _uiState.value = roomState
-            }
+            postBoarding(roomState)
+                { onUiStateValueChange(roomState) } //_uiState.value = roomState
         }
     }
 
@@ -185,9 +170,9 @@ class RoomViewModel
             createdAt = Date(),
             updatedAt = null)
 
-        //onBoardingValueChange("", "")
         deleteBoarding {
-            _uiState.value = Room.RoomState.BoardingResult(boardingState.roomTitle, result)
+            onUiStateValueChange(
+                Room.RoomState.BoardingResult(boardingState.roomTitle, result))//_uiState.value = Room.RoomState.BoardingResult(boardingState.roomTitle, result)
 
             /*caseRoom.postResult(result).onEach { res -> onResourceSucceed(res)
                 { _uiState.value = RoomState.BoardingResult(boardingState.roomTitle, it) }
@@ -195,29 +180,34 @@ class RoomViewModel
         }
 
         getMessagingGroupKey(result.roomId) { groupKey ->
-            val messaging = Messaging.Pusher(
-                title = boardingState.roomTitle,
-                body = "${boardingState.participantName} has joined the room",
-                to = groupKey
-            )
+            addMessagingGroupMember(Messaging.GroupAdder(
+                keyName = result.roomId,
+                key = groupKey,
+                tokens = listOf(caseRoom.currentToken()))) {
+                Log.d(TAG, "addMessagingGroupMember: triggered")
+
+                pushMessaging(Messaging.Pusher(
+                    title = boardingState.roomTitle,
+                    body = "${boardingState.participantName} has joined the room",
+                    to = groupKey)) {
+
+                    Log.d(TAG, "pushMessaging: triggered")
+                }
+            }
 
             Log.d(TAG, "getMessagingGroupKey: triggered")
-            pushMessaging(messaging)
         }
 
         Log.d(TAG, "onPreResult: triggered")
     }
 
     fun onCloseResult() {
-        _uiState.value = Room.RoomState.CurrentRoom
+        onUiStateValueChange(Room.RoomState.CurrentRoom) //_uiState.value = Room.RoomState.CurrentRoom
     }
 
-    /*private fun onBoardingValueChange(roomId: String, ppnId: String) {
-        caseRoom.setterOnboard.apply {
-            roomId(roomId)
-            participantId(ppnId)
-        }
-    }*/
+    private fun onUiStateValueChange(roomState: Room.RoomState){
+        _uiState.value = roomState
+    }
 
     fun onClipboardPressed(roomId: String) {
         caseRoom.setClipboard("Room ID", roomId)
@@ -242,10 +232,11 @@ class RoomViewModel
         createMessagingGroup(Messaging.GroupCreator(
             keyName = model.id,
             tokens = listOf(currentToken))){ notifyKey ->
-            Log.d(TAG, "onCreatePressed: notifyKey = $notifyKey")
+            Log.d(TAG, "onCreatePressed: notifyKey is $notifyKey")
 
             caseRoom.postRoom(model)
-                .onEach(::onResource).launchIn(viewModelScope)
+                .onEach { res -> onResourceSucceed(res, onSucceed) }
+                .launchIn(viewModelScope)
         }
     }
 
@@ -339,7 +330,7 @@ class RoomViewModel
         if (keyName.isBlank()) _state.value = ResourceState(error = DONT_EMPTY)
 
         caseMessaging.getMessaging(keyName)
-            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 
@@ -349,49 +340,49 @@ class RoomViewModel
             _state.value = ResourceState(error = DONT_EMPTY)
 
         caseMessaging.createMessaging(model)
-            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 
-    override fun addMessagingGroupMember(messaging: Messaging.GroupAdder) {
+    override fun addMessagingGroupMember(
+        messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
         val model = messaging.copy()
 
         if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty())
             _state.value = ResourceState(error = DONT_EMPTY)
 
         caseMessaging.createMessaging(model)
-            .onEach(::onResource).launchIn(viewModelScope)
+            .onEach { res -> onResourceStateless(res, onSucceed) } //(::onResource)
+            .launchIn(viewModelScope)
     }
 
-    override fun pushMessaging(messaging: Messaging.Pusher) {
+    override fun pushMessaging(
+        messaging: Messaging.Pusher, onSucceed: (String) -> Unit) {
         val model = messaging.copy()
 
         if (model.title.isBlank() or model.body.isBlank() or model.to.isBlank())
             _state.value = ResourceState(error = PUSH_NOT_SENT)
 
         caseMessaging.pushMessaging(model)
-            .onEach(::onResource).launchIn(viewModelScope)
+            .onEach { res -> onResourceStateless(res, onSucceed) }//(::onResource)
+            .launchIn(viewModelScope)
     }
 
     private fun getCurrentUser(onSucceed: (User) -> Unit) {
         caseUser.getUser()
-            .onEach{ res -> onResourceSuccess(res, onSucceed) }
+            .onEach{ res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 
     override fun getBoarding(onSucceed: (Room.RoomState.BoardingQuiz) -> Unit) {
         caseRoom.getBoarding()
-            .onEach/*(::onResource)*/{ res -> onResourceSuccess(res, onSucceed) }
+            .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 
-    override fun deleteBoarding(/*id: String*/onSucceed: (String) -> Unit) {
-        /*if (id.isEmpty())
-            _state.value = ResourceState(error = DONT_EMPTY)
-            */
-
+    override fun deleteBoarding(onSucceed: (String) -> Unit) {
         caseRoom.deleteBoarding()
-            .onEach { res -> onResourceSuccess(res, onSucceed) } //(::onResource)
+            .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 
@@ -408,7 +399,7 @@ class RoomViewModel
             _state.value = ResourceState(error = DONT_EMPTY)
 
         caseRoom.postBoarding(state)
-            .onEach { res -> onResourceSuccess(res, onSucceed) }//(::onResource)
+            .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 

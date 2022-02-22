@@ -1,9 +1,9 @@
 package com.dudegenuine.repository
 
-import android.util.Log
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -29,43 +29,35 @@ class RoomRepository
     private val TAG: String = javaClass.simpleName
 
     override val setClipboard: (String, String) -> Unit = clip::applyPlainText
-    override val currentToken: () -> String = { prefs.read(IMessagingRepository.MESSAGING_TOKEN) }
-    override val currentUserId: () -> String = { prefs.read(CURRENT_USER_ID) }
-    override val currentParticipant: () -> String = { prefs.read(CURRENT_PARTICIPANT_ID) }
 
-    override suspend fun create(room: Room): Room = /*try {*/ mapper.asRoom(
+    override val currentToken: () -> String =
+        { prefs.read(IMessagingRepository.MESSAGING_TOKEN) }
+
+    override val currentUserId: () -> String =
+        { prefs.read(CURRENT_USER_ID) }
+
+    override val currentRunningTime: () -> String =
+        { prefs.read(ITimerService.INITIAL_TIME_KEY) }
+
+    override val currentParticipant: () -> String =
+        { prefs.read(CURRENT_PARTICIPANT_ID) }
+
+    override suspend fun create(room: Room): Room = mapper.asRoom(
         service.create(mapper.asEntity(room)))
-    /*} catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-    }*/
 
-    override suspend fun read(id: String): Room = /*try {*/ mapper.asRoom(
+    override suspend fun read(id: String): Room = mapper.asRoom(
         service.read(id))
 
-    /*} catch (e: Exception){
-        Log.d(TAG, e.message ?: "throwable")
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-    }*/
-
-    override suspend fun update(id: String, room: Room): Room = /*try {*/ mapper.asRoom(
+    override suspend fun update(id: String, room: Room): Room = mapper.asRoom(
         service.update(id, mapper.asEntity(room)))
-    /*} catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-    }*/
 
-    override suspend fun delete(id: String) = /*try {*/
+    override suspend fun delete(id: String) =
         service.delete(id)
-    /*} catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-    }*/
 
-    override suspend fun list(page: Int, size: Int): List<Room> = /*try {*/ mapper.asRooms(
+    override suspend fun list(page: Int, size: Int): List<Room> = mapper.asRooms(
         service.list(page, size))
-    /*} catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-    }*/
 
-    override suspend fun list(userId: String): List<Room> = /*try {*/ mapper.asRooms(
+    override suspend fun list(userId: String): List<Room> = mapper.asRooms(
         service.list(userId))
 
     override suspend fun load(participantId: String?): Room.RoomState.BoardingQuiz {
@@ -92,18 +84,5 @@ class RoomRepository
         else local.delete()
 
         prefs.write(CURRENT_PARTICIPANT_ID, "")
-        Log.d(TAG, "unload: triggered")
     }
-
-    /*override val getterOnboard = object : IRoomRepository.IBoarding.Getter {
-        override val roomId: () -> String = { prefs.read(ONBOARD_ROOM_ID) }
-
-        override val participantId: () -> String = { prefs.read(ONBOARD_PARTICIPANT_ID) }
-    }
-
-    override val setterOnboard = object : IRoomRepository.IBoarding.Setter {
-        override fun roomId(id: String) = prefs.write(ONBOARD_ROOM_ID, id)
-
-        override fun participantId(id: String) = prefs.write(ONBOARD_PARTICIPANT_ID, id)
-    }*/
 }

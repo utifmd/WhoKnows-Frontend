@@ -1,9 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
-import com.dudegenuine.usecase.messaging.AddMessaging
-import com.dudegenuine.usecase.messaging.CreateMessaging
-import com.dudegenuine.usecase.messaging.GetMessaging
-import com.dudegenuine.usecase.messaging.PushMessaging
+import com.dudegenuine.usecase.messaging.*
 
 /**
  * Mon, 14 Feb 2022
@@ -14,6 +11,7 @@ interface IMessageUseCaseModule {
     val getMessaging: GetMessaging
     val createMessaging: CreateMessaging
     val addMessaging: AddMessaging
+    val removeMessaging: RemoveMessaging
 
     val onMessagingTokenized: () -> String
     val onMessagingTokenRefresh: (String) -> Unit

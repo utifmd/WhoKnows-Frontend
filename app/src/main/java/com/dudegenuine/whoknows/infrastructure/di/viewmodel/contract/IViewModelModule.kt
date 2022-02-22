@@ -21,6 +21,7 @@ interface IViewModelModule {
         savedStateHandle: SavedStateHandle): IActivityViewModel
 
     fun provideUserViewModel( /*mapper: IUserDataMapper,*/
+        messaging: IMessageUseCaseModule,
         userUseCase: IUserUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle): IUserViewModel

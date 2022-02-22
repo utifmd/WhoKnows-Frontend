@@ -7,12 +7,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
 /**
  * Mon, 14 Feb 2022
  * WhoKnows by utifmd
  **/
-class GetMessaging(
+class GetMessaging @Inject constructor(
     private val repository: IMessagingRepository) {
 
     operator fun invoke(keyName: String): Flow<Resource<String>> = flow {

@@ -3,6 +3,7 @@ package com.dudegenuine.remote.service.contract
 import com.dudegenuine.remote.entity.MessagingAddEntity
 import com.dudegenuine.remote.entity.MessagingCreateEntity
 import com.dudegenuine.remote.entity.MessagingPushEntity
+import com.dudegenuine.remote.entity.MessagingRemoveEntity
 import okhttp3.ResponseBody
 import retrofit2.Response
 
@@ -14,6 +15,7 @@ interface IMessagingService {
     suspend fun get(keyName: String): Response<ResponseBody>
     suspend fun create(entity: MessagingCreateEntity): Response<ResponseBody>
     suspend fun add(entity: MessagingAddEntity): Response<ResponseBody>
+    suspend fun remove(entity: MessagingRemoveEntity): Response<ResponseBody>
     suspend fun push(entity: MessagingPushEntity): Response<ResponseBody>
 
     companion object {

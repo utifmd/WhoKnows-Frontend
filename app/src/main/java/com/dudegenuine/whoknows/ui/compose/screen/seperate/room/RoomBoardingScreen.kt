@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -28,7 +27,6 @@ import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 fun RoomBoardingScreen(
-    // resourceState: ResourceState,
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel,
     state: Room.RoomState.BoardingQuiz,
@@ -48,27 +46,13 @@ fun RoomBoardingScreen(
     }
 
     val onPreNextPressed: () -> Unit = {
-        //val model = state.copy(roomLatestIndex = state.currentQuestionIdx)
-
-        if (boardingState.showPrevious) {
-            viewModel.patchBoarding(state)
-
-            Log.d(TAG, "RoomBoardingScreen: patchBoarding currentQuestionIdx ${state.currentQuestionIdx}")
-        } else {
-            viewModel.postBoarding(state)
-
-            Log.d(TAG, "RoomBoardingScreen: postBoarding currentQuestionIdx ${state.currentQuestionIdx}")
-        }
+        state.let (
+            if (boardingState.showPrevious) viewModel::patchBoarding
+            else viewModel::postBoarding
+        )
 
         onNextPressed()
     }
-
-    /*val onPreDonePressed: () -> Unit = {
-        viewModel.deleteBoarding(state.participantId)
-
-        onDonePressed()
-        Log.d(TAG, "RoomBoardingScreen: deleteBoarding")
-    }*/
 
     DisposableEffect(context, TIME_ACTION) {
         val broadcast = viewModel.timerServiceReceiver(state)

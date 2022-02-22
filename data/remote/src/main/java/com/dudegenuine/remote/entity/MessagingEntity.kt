@@ -29,6 +29,20 @@ data class MessagingAddEntity(
     val registrationIds: List<String>
 )
 
+data class MessagingRemoveEntity(
+    @SerializedName("operation")
+    val operation: String,
+
+    @SerializedName("notification_key_name")
+    val notificationKeyName: String,
+
+    @SerializedName("notification_key")
+    val notificationKey: String,
+
+    @SerializedName("registration_ids")
+    val registrationIds: List<String>
+)
+
 data class MessagingCreateEntity(
     @SerializedName("operation")
     val operation: String,

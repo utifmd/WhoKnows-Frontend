@@ -1,10 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import com.dudegenuine.repository.contract.IMessagingRepository
-import com.dudegenuine.usecase.messaging.AddMessaging
-import com.dudegenuine.usecase.messaging.CreateMessaging
-import com.dudegenuine.usecase.messaging.GetMessaging
-import com.dudegenuine.usecase.messaging.PushMessaging
+import com.dudegenuine.usecase.messaging.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 
 /**
@@ -24,6 +21,9 @@ class MessageUseCaseModule(repository: IMessagingRepository): IMessageUseCaseMod
 
     override val addMessaging: AddMessaging =
         AddMessaging(repository)
+
+    override val removeMessaging: RemoveMessaging =
+        RemoveMessaging(repository)
 
     override val onMessagingTokenized: () -> String =
         repository.onMessagingTokenized

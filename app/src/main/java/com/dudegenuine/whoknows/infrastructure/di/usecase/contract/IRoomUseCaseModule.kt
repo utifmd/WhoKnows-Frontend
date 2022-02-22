@@ -19,10 +19,8 @@ interface IRoomUseCaseModule {
     val patchBoarding: PatchBoarding
     val deleteBoarding: DeleteBoarding
 
-    /*val getterOnboard: IRoomRepository.IBoarding.Getter
-    val setterOnboard: IRoomRepository.IBoarding.Setter*/
-
     val currentToken: () -> String
     val currentUserId: () -> String
+    val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
 }

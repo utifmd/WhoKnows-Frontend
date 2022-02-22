@@ -44,13 +44,10 @@ class RoomUseCaseModule(
     override val currentUserId: () -> String =
         repository.currentUserId,
 
+    override val currentRunningTime: () -> String =
+        repository.currentRunningTime,
+
     override val setClipboard: (String, String) -> Unit =
         repository.setClipboard,
-
-    /*override val getterOnboard: IRoomRepository.IBoarding.Getter =
-        repository.getterOnboard,
-
-    override val setterOnboard: IRoomRepository.IBoarding.Setter =
-        repository.setterOnboard*/
 
 ): IRoomUseCaseModule

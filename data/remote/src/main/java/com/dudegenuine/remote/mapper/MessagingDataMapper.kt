@@ -5,6 +5,7 @@ import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.MessagingAddEntity
 import com.dudegenuine.remote.entity.MessagingCreateEntity
 import com.dudegenuine.remote.entity.MessagingPushEntity
+import com.dudegenuine.remote.entity.MessagingRemoveEntity
 import com.dudegenuine.remote.mapper.contract.IMessagingDataMapper
 import com.google.gson.Gson
 import okhttp3.ResponseBody
@@ -41,6 +42,18 @@ class MessagingDataMapper
     override fun asMessagingAddEntity(messaging: Messaging): MessagingAddEntity {
         return when (messaging){
             is Messaging.GroupAdder -> MessagingAddEntity(
+                operation = messaging.operation,
+                notificationKeyName = messaging.keyName,
+                notificationKey = messaging.key,
+                registrationIds = messaging.tokens)
+
+            else -> throw IllegalStateException()
+        }
+    }
+
+    override fun asMessagingRemoveEntity(messaging: Messaging): MessagingRemoveEntity {
+        return when (messaging){
+            is Messaging.GroupAdder -> MessagingRemoveEntity(
                 operation = messaging.operation,
                 notificationKeyName = messaging.keyName,
                 notificationKey = messaging.key,

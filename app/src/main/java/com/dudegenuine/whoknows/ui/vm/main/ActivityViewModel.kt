@@ -53,10 +53,6 @@ class ActivityViewModel
 
         if (!isTokenized) messagingInitToken()
         else Log.d(TAG, "local store token: $messagingToken")
-
-        /*getMessagingGroupKey("anyone-knows-room-soekarno"){
-            Log.d(TAG, "init: $it")
-        }*/
     }
 
     private fun messagingSubscribeTopic() {
@@ -65,28 +61,28 @@ class ActivityViewModel
 
     private fun messagingInitToken(){
         messaging.token.addOnCompleteListener { task ->
-            Log.d(TAG, "fcmTokenInstantiate: triggered")
-            if (!task.isSuccessful) return@addOnCompleteListener
+            Log.d(TAG, "messagingInitToken: triggered")
+
+            if (!task.isSuccessful) {
+                _state.value = ResourceState(
+                    message = "Trouble in firebase tokenization")
+
+                return@addOnCompleteListener
+            }
             val token = task.result
 
             // TODO: save value to prefs prepare for join selection room
             caseMessaging.onMessagingTokenRefresh(token)
-
-            /*getJoinedRoomIds { ids -> ids
-                .forEach { addTokenByNotifyKeyName(token, it) }
-
-                Log.d(TAG, "getJoinedRoomIds: ${ids.joinToString(", ")}")
-            }*/
         }
     }
 
     private fun onRefreshToken(token: String) {
         Log.d(TAG, "onRefreshToken: $token")
 
-        getJoinedRoomIds { ids -> ids
+        getJoinedRoomIds { roomIds -> roomIds
             .forEach { addTokenByNotifyKeyName(token, it) }
 
-            Log.d(TAG, "getJoinedRoomIds: ${ids.joinToString(", ")}")
+            Log.d(TAG, "getJoinedRoomIds: ${roomIds.joinToString(" ~> ")}")
         }
     }
 
@@ -107,7 +103,9 @@ class ActivityViewModel
                 tokens = listOf(token)
             )
 
-            addMessagingGroupMember(model)
+            addMessagingGroupMember(model){
+                Log.d(TAG, "addTokenByNotifyKeyName: $it")
+            }
         }
     }
 
@@ -125,18 +123,20 @@ class ActivityViewModel
         if (keyName.isBlank()) _state.value = ResourceState(error = DONT_EMPTY)
 
         caseMessaging.getMessaging(keyName)
-            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 
-    override fun addMessagingGroupMember(messaging: Messaging.GroupAdder) {
+    override fun addMessagingGroupMember(
+        messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
         val model = messaging.copy()
 
         if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty())
             _state.value = ResourceState(error = DONT_EMPTY)
 
         caseMessaging.createMessaging(model)
-            .onEach(::onResource).launchIn(viewModelScope)
+            .onEach { res -> onResourceStateless(res, onSucceed) }
+            .launchIn(viewModelScope)
     }
 
     fun onStateValueChange(state: ResourceState) {

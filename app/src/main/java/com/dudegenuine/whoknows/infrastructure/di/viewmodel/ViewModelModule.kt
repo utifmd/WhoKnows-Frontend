@@ -50,11 +50,13 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideUserViewModel(
+        messaging: IMessageUseCaseModule,
         userUseCase: IUserUseCaseModule,
         fileCase: IFileUseCaseModule,
-        savedStateHandle: SavedStateHandle): IUserViewModel =
+        savedStateHandle: SavedStateHandle
+    ): IUserViewModel =
 
-        UserViewModel(userUseCase, fileCase, savedStateHandle)
+        UserViewModel(messaging, userUseCase, fileCase, savedStateHandle)
 
     @Provides
     @ViewModelScoped

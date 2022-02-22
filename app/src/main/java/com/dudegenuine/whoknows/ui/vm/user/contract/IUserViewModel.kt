@@ -1,12 +1,13 @@
 package com.dudegenuine.whoknows.ui.vm.user.contract
 
 import com.dudegenuine.model.User
+import com.dudegenuine.whoknows.ui.vm.notification.contract.IMessagingViewModel
 
 /**
  * Sat, 04 Dec 2021
  * WhoKnows by utifmd
  **/
-interface IUserViewModel { //: IFilePresenter {
+interface IUserViewModel: IMessagingViewModel { //: IFilePresenter {
     //fun signInUser(loginRequest: LoginRequest)
     fun signInUser()
     fun signUpUser()

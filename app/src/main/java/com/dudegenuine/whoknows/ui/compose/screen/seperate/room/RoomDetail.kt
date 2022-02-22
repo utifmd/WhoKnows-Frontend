@@ -166,7 +166,7 @@ private fun BackLayer(
 
         if (isOwn) {
             TextButton(
-                enabled = enabled,
+                enabled = enabled and (model.questions.size >= 3),
                 modifier = modifier.fillMaxWidth(),
                 onClick = { evenCompose.onShareRoomPressed(model.id) }) {
 

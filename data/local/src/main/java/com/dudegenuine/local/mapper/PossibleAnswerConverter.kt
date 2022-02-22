@@ -18,7 +18,7 @@ object PossibleAnswerConverter {
     fun fromJson(data: String?): PossibleAnswer? {
         val possibility: Answer = Gson().fromJson(data, Answer::class.java)
 
-        Log.d(TAG, "fromJson: answer ${possibility.type}")
+        //Log.d(TAG, "fromJson: answer ${possibility.type}")
 
         return when(possibility.type){
             strOf<PossibleAnswer.SingleChoice>() ->

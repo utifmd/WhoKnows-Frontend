@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
 import com.dudegenuine.whoknows.ui.compose.state.UserState
@@ -28,10 +30,13 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel
     @Inject constructor(
-        private val case: IUserUseCaseModule,
-        private val fileCase: IFileUseCaseModule,
-        private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
+    private val caseMessaging: IMessageUseCaseModule,
+    private val caseUser: IUserUseCaseModule,
+    private val fileCase: IFileUseCaseModule,
+    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
+    private val TAG = javaClass.simpleName
 
+    private val messagingToken = caseMessaging.onMessagingTokenized()
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
         get() = _formState.value
@@ -41,36 +46,45 @@ class UserViewModel
 
         if (navigated != null) navigated.let(this::getUser)
         else getUser()
-
-        Log.d("Main", "pref currentId: ${case.currentUserId()}")
     }
 
-    override fun signInUser() {
+    private fun onRegisterGroupToken(currentUser: User) {
+        currentUser.participants.forEach { participation ->
+            postTokenByNotifyKeyName(
+                messagingToken, participation.roomId)
+        }
+    }
 
-        val model = formState.loginModel
-        if (!formState.isLoginValid.value){
-            _authState.value = ResourceState.Auth(error = DONT_EMPTY)
+    private fun onUnregisterGroupToken(currentUser: User) {
+        currentUser.participants.forEach { participation ->
+            deleteTokenByNotifyKeyName(
+                messagingToken, participation.roomId)
+        }
+    }
+
+    fun onUploadProfile(){
+        val model: User? = state.user
+
+        if (formState.profileImage.isEmpty() || model == null){
+            _state.value = ResourceState(error = DONT_EMPTY)
+
             return
         }
 
-        case.signInUser(model)
-            .onEach(this::onAuth).launchIn(viewModelScope)
-    }
+        model.let { user ->
+            fileCase.uploadFile(formState.profileImage).onEach { res ->
+                onResourceSucceed(res) { file ->
+                    val fresh = user.copy(profileUrl = file.url)
 
-    override fun signUpUser() {
-        val model = formState.regisModel
-        if (!formState.isRegisValid.value){
-            _authState.value = ResourceState.Auth(error = DONT_EMPTY)
-            return
+                    Log.d("onUploadProfile", fresh.toString())
+
+                    patchUser(
+                        id = fresh.id,
+                        freshUser = fresh
+                    )
+                }
+            }.launchIn(viewModelScope)
         }
-
-        case.postUser(model)
-            .onEach(this::onAuth).launchIn(viewModelScope)
-    }
-
-    override fun signOutUser() {
-        case.signOutUser() /*.onEach { res -> onResourceSucceed(res) { onSucceed(it) }} .launchIn(viewModelScope)*/
-            .onEach(this::onAuth).launchIn(viewModelScope)
     }
 
     fun onUpdateUser(fieldKey: String?, fieldValue: String, onSucceed: (User) -> Unit) {
@@ -108,29 +122,63 @@ class UserViewModel
         }
     }
 
-    fun onUploadProfile(){
-        val model: User? = state.user
+    private fun postTokenByNotifyKeyName(token: String, notifyKeyName: String){
+        getMessagingGroupKey(notifyKeyName){ notifyKey ->
+            val model = Messaging.GroupAdder(
+                key = notifyKey,
+                keyName = notifyKeyName,
+                tokens = listOf(token)
+            )
 
-        if (formState.profileImage.isEmpty() || model == null){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            addMessagingGroupMember(model){
+                Log.d(TAG, "added: $it")
+            }
+        }
+    }
 
+    private fun deleteTokenByNotifyKeyName(token: String, notifyKeyName: String){
+        getMessagingGroupKey(notifyKeyName){ notifyKey ->
+            val model = Messaging.GroupRemover(
+                key = notifyKey,
+                keyName = notifyKeyName,
+                tokens = listOf(token)
+            )
+
+            removeGroupMemberMessaging(model){
+                Log.d(TAG, "removed: $it")
+            }
+        }
+    }
+
+    override fun signInUser() {
+
+        val model = formState.loginModel
+        if (!formState.isLoginValid.value){
+            _authState.value = ResourceState.Auth(error = DONT_EMPTY)
             return
         }
 
-        model.let { user ->
-            fileCase.uploadFile(formState.profileImage).onEach { res ->
-                onResourceSucceed(res) { file ->
-                    val fresh = user.copy(profileUrl = file.url)
+        caseUser.signInUser(model)
+            .onEach { res -> onAuth(res, ::onRegisterGroupToken) }//(this::onAuth)
+            .launchIn(viewModelScope)
+    }
 
-                    Log.d("onUploadProfile", fresh.toString())
-
-                    patchUser(
-                        id = fresh.id,
-                        freshUser = fresh
-                    )
-                }
-            }.launchIn(viewModelScope)
+    override fun signUpUser() {
+        val model = formState.regisModel
+        if (!formState.isRegisValid.value){
+            _authState.value = ResourceState.Auth(error = DONT_EMPTY)
+            return
         }
+
+        caseUser.postUser(model)
+            .onEach { res -> onAuth(res, ::onRegisterGroupToken) }
+            .launchIn(viewModelScope)
+    }
+
+    override fun signOutUser() {
+        caseUser.signOutUser()
+            .onEach { res -> onAuth(res, ::onUnregisterGroupToken) } // (this::onAuth)
+            .launchIn(viewModelScope)
     }
 
     override fun postUser(user: User) {
@@ -139,12 +187,12 @@ class UserViewModel
             return
         }
 
-        case.postUser(user)
+        caseUser.postUser(user)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getUser() {
-        case.getUser()
+        caseUser.getUser()
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -154,7 +202,7 @@ class UserViewModel
             return
         }
 
-        case.getUser(id)
+        caseUser.getUser(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -166,7 +214,7 @@ class UserViewModel
 
         freshUser.apply { updatedAt = Date() }
 
-        case.patchUser(id, freshUser)
+        caseUser.patchUser(id, freshUser)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -178,7 +226,7 @@ class UserViewModel
 
         freshUser.apply { updatedAt = Date() }
 
-        case.patchUser(freshUser.id, freshUser)
+        caseUser.patchUser(freshUser.id, freshUser)
             .onEach { onResourceSucceed(it, onSucceed) }.launchIn(viewModelScope)
     }
 
@@ -188,7 +236,7 @@ class UserViewModel
             return
         }
 
-        case.deleteUser(id)
+        caseUser.deleteUser(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -198,36 +246,43 @@ class UserViewModel
             return
         }
 
-        case.getUsers(page, size)
+        caseUser.getUsers(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
+
+    override fun getMessagingGroupKey(
+        keyName: String, onSucceed: (String) -> Unit) {
+        if (keyName.isBlank()) return
+
+        caseMessaging.getMessaging(keyName)
+            .onEach { res -> onResourceStateless(res, onSucceed) }
+            .launchIn(viewModelScope)
+    }
+
+    override fun addMessagingGroupMember(
+        messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
+        if (!messaging.isValid) return
+
+        caseMessaging.addMessaging(messaging)
+            .onEach { res -> onResourceStateless(res, onSucceed) }
+            .launchIn(viewModelScope)
+    }
+
+    override fun removeGroupMemberMessaging(
+        messaging: Messaging.GroupRemover, onSucceed: (String) -> Unit) {
+        if (!messaging.isValid) return
+
+        caseMessaging.removeMessaging(messaging)
+            .onEach { res -> onResourceStateless(res, onSucceed) }
+            .launchIn(viewModelScope)
+    }
+
+    override fun pushMessaging(
+        messaging: Messaging.Pusher, onSucceed: (String) -> Unit) {
+        if (!messaging.isValid) return
+
+        caseMessaging.pushMessaging(messaging)
+            .onEach { res -> onResourceStateless(res, onSucceed) }
+            .launchIn(viewModelScope)
+    }
 }
-
-
-/*private val TAG: String = javaClass.simpleName*/
-/*private val _uiState = MutableLiveData<UserState>()
-val uiState: LiveData<UserState>
-    get() = _uiState*/
-/*private lateinit var initUiState: UserState*/
-/*{
-    savedStateHandle.get<String>("user")?.let {
-        val user = mapper.asUser(it)
-
-        Log.d(TAG, user.email)
-        onUiStateChange(initUiState)
-
-        _state.value = state.copy()
-    }
-}*/
-
-/*fun onUiStateChange(uiState: UserState){
-    if (uiState is UserState.ChangerState) uiState.let {
-        _changerState.value = it
-    }
-
-    if (uiState is UserState.CurrentState) uiState.let {
-        _state.value = state.copy(user = it.freshUser)
-    }
-
-    _uiState.value = uiState
-}*/

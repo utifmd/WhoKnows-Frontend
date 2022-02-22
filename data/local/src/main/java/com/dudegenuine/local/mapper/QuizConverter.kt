@@ -1,6 +1,5 @@
 package com.dudegenuine.local.mapper
 
-import android.util.Log
 import androidx.room.TypeConverter
 import com.dudegenuine.local.entity.QuizTable
 import com.google.gson.Gson
@@ -17,7 +16,7 @@ object QuizConverter {
     fun fromJson(data: String): QuizTable? {
         val type = object: TypeToken<QuizTable?>(){}.type
 
-        Log.d(TAG, "fromJson: triggered")
+        //Log.d(TAG, "fromJson: triggered")
 
         return Gson().fromJson(data, type)
     }

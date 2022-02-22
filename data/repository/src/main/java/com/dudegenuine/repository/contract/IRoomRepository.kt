@@ -29,20 +29,6 @@ interface IRoomRepository {
 
     val currentToken: () -> String
     val currentUserId: () -> String
+    val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
-
-    /*val getterOnboard: IBoarding.Getter
-    val setterOnboard: IBoarding.Setter
-
-    sealed interface IBoarding {
-        interface Getter: IBoarding {
-            val roomId: () -> String
-            val participantId: () -> String
-        }
-
-        interface Setter: IBoarding {
-            fun roomId(id: String)
-            fun participantId(id: String)
-        }
-    }*/
 }

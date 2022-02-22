@@ -11,17 +11,17 @@ import java.io.IOException
 import javax.inject.Inject
 
 /**
- * Mon, 14 Feb 2022
+ * Tue, 22 Feb 2022
  * WhoKnows by utifmd
  **/
-class AddMessaging @Inject constructor(
+class RemoveMessaging @Inject constructor(
     private val repository: IMessagingRepository) {
 
     operator fun invoke(messaging: Messaging): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
 
-            val model = repository.add(messaging).toString()
+            val model = repository.remove(messaging).toString()
             emit(Resource.Success(model))
 
         } catch (e: HttpFailureException){
