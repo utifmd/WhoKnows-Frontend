@@ -47,10 +47,10 @@ class RoomUseCaseModule(
     override val setClipboard: (String, String) -> Unit =
         repository.setClipboard,
 
-    override val getterOnboard: IRoomRepository.IBoarding.Getter =
+    /*override val getterOnboard: IRoomRepository.IBoarding.Getter =
         repository.getterOnboard,
 
     override val setterOnboard: IRoomRepository.IBoarding.Setter =
-        repository.setterOnboard
+        repository.setterOnboard*/
 
 ): IRoomUseCaseModule

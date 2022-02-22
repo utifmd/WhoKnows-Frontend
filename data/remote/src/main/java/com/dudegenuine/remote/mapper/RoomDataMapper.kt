@@ -1,13 +1,20 @@
 package com.dudegenuine.remote.mapper
 
-import com.dudegenuine.local.entity.CurrentRoomState
+import com.dudegenuine.local.entity.BoardingQuizTable
+import com.dudegenuine.local.entity.OnBoardingStateTable
+import com.dudegenuine.local.entity.QuizTable
+import com.dudegenuine.model.Answer
+import com.dudegenuine.model.PossibleAnswer
+import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
+import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
 import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 
 /**
@@ -76,50 +83,104 @@ class RoomDataMapper
         }
     }
 
-    override fun asCurrentBoarding(boardingQuiz: Room.RoomState.BoardingQuiz): CurrentRoomState {
-        return CurrentRoomState(
-            participantId = boardingQuiz.participantId,
-            participantName = boardingQuiz.participantName,
-            roomId = boardingQuiz.roomId,
-            roomTitle = boardingQuiz.roomTitle,
-            roomDesc = boardingQuiz.roomDesc,
-            roomMinute = boardingQuiz.roomMinute,
-            currentQuestionIdx = boardingQuiz.currentQuestionIdx,
-            quizzes = boardingQuiz.quizzes
-                .map(::asCurrentBoardingQuiz)
+    override fun asBoardingQuizTable(
+        boarding: Room.RoomState.BoardingQuiz): BoardingQuizTable {
+
+        return BoardingQuizTable(
+            participantId = boarding.participantId,
+            participantName = boarding.participantName,
+            roomId = boarding.roomId,
+            roomTitle = boarding.roomTitle,
+            roomDesc = boarding.roomDesc,
+            roomMinute = boarding.roomMinute,
+            currentQuestionIdx = boarding.currentQuestionIdx,
+            quizzes = boarding.quizzes
+                .map(::asOnBoardingStateTable)
         )
     }
 
-    override fun asRoomBoardingQuiz(currentRoomState: CurrentRoomState): Room.RoomState.BoardingQuiz {
+    override fun asOnBoardingStateTable(boarding: Room.RoomState.OnBoardingState): OnBoardingStateTable {
+        return OnBoardingStateTable(
+            quiz = asQuizTable(boarding.quiz),
+            questionIndex = boarding.questionIndex,
+            totalQuestionsCount = boarding.totalQuestionsCount,
+            showPrevious = boarding.showPrevious,
+            showDone = boarding.showDone,
+            answer = boarding.answer,
+            enableNext = boarding.enableNext,
+            isCorrect = boarding.isCorrect
+        )
+    }
+
+    override fun asBoardingQuiz(table: BoardingQuizTable): Room.RoomState.BoardingQuiz {
         return Room.RoomState.BoardingQuiz(
-            participantId = currentRoomState.participantId,
-            participantName = currentRoomState.participantName,
-            roomId = currentRoomState.roomId,
-            roomTitle = currentRoomState.roomTitle,
-            roomDesc = currentRoomState.roomDesc,
-            roomMinute = currentRoomState.roomMinute,
-            quizzes = currentRoomState.quizzes
-                .map(::asRoomBoardingQuiz)
-        )
+            participantId = table.participantId,
+            participantName = table.participantName,
+            roomId = table.roomId,
+            roomTitle = table.roomTitle,
+            roomDesc = table.roomDesc,
+            roomMinute = table.roomMinute,
+            quizzes = table.quizzes
+                .map(::asOnBoardingState)).apply {
+
+            currentQuestionIdx = table.currentQuestionIdx
+        }
     }
 
-    override fun asRoomBoardingQuiz(boardingQuiz: CurrentRoomState.BoardingQuiz): Room.RoomState.OnBoardingState {
+    override fun asOnBoardingState(table: OnBoardingStateTable): Room.RoomState.OnBoardingState {
         return Room.RoomState.OnBoardingState(
-            quiz = boardingQuiz.quiz,
-            questionIndex = boardingQuiz.questionIndex,
-            totalQuestionsCount = boardingQuiz.totalQuestionsCount,
-            showPrevious = boardingQuiz.showPrevious,
-            showDone = boardingQuiz.showDone,
+            quiz = asQuiz(table.quiz),
+            questionIndex = table.questionIndex,
+            totalQuestionsCount = table.totalQuestionsCount,
+            showPrevious = table.showPrevious,
+            showDone = table.showDone).apply {
+
+            answer = table.answer
+            enableNext = table.enableNext
+            isCorrect = table.isCorrect
+        }
+    }
+
+    override fun asQuizTable(quiz: Quiz): QuizTable {
+        val strAnswer = gson.toJson(quiz.answer)
+
+        return QuizTable(
+            id = quiz.id,
+            roomId = quiz.roomId,
+            images = quiz.images,
+            question = quiz.question,
+            options = quiz.options,
+            answer = strAnswer,
+            createdBy = quiz.createdBy,
+            createdAt = quiz.createdAt,
+            updatedAt = quiz.updatedAt,
         )
     }
 
-    override fun asCurrentBoardingQuiz(roomBoardingQuiz: Room.RoomState.OnBoardingState): CurrentRoomState.BoardingQuiz {
-        return CurrentRoomState.BoardingQuiz(
-            quiz = roomBoardingQuiz.quiz,
-            questionIndex = roomBoardingQuiz.questionIndex,
-            totalQuestionsCount = roomBoardingQuiz.totalQuestionsCount,
-            showPrevious = roomBoardingQuiz.showPrevious,
-            showDone = roomBoardingQuiz.showDone,
+    override fun asQuiz(table: QuizTable): Quiz {
+        val result = Quiz(
+            id = table.id,
+            roomId = table.roomId,
+            images = table.images,
+            question = table.question,
+            options = table.options,
+            answer = null,
+            createdBy = table.createdBy,
+            createdAt = table.createdAt,
+            updatedAt = table.updatedAt,
         )
+
+        val type = object: TypeToken<Answer?>(){}.type
+        val possibility: Answer = gson.fromJson(table.answer, type)
+
+        return when(possibility.type){
+            strOf<PossibleAnswer.SingleChoice>() -> result.apply {
+                answer = PossibleAnswer.SingleChoice(possibility.answer ?: "")
+            }
+            strOf<PossibleAnswer.MultipleChoice>() -> result.apply {
+                answer = PossibleAnswer.MultipleChoice(possibility.answers ?: emptySet())
+            } //val itemType = object : TypeToken<List<String>>(){ }.type val data: List<String> = gson.fromJson(entity.answer, itemType) //            strOf<PossibleAnswer.Slider>() -> {} //            strOf<PossibleAnswer.Action>() -> {}
+            else -> { result }
+        }
     }
 }

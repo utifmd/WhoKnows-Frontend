@@ -3,14 +3,13 @@ package com.dudegenuine.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dudegenuine.model.Quiz
 
 /**
  * Thu, 17 Feb 2022
  * WhoKnows by utifmd
  **/
 @Entity
-data class CurrentRoomState(
+data class BoardingQuizTable(
     @PrimaryKey
     @ColumnInfo(name = "participantId")
     val participantId: String,
@@ -34,14 +33,6 @@ data class CurrentRoomState(
     val currentQuestionIdx: Int,
 
     @ColumnInfo(name = "quizzes")
-    val quizzes: List<BoardingQuiz>){
-
-    data class BoardingQuiz(
-        val quiz: Quiz,
-        val questionIndex: Int,
-        val totalQuestionsCount: Int,
-        val showPrevious: Boolean,
-        val showDone: Boolean
-    )
-}
+    val quizzes: List<OnBoardingStateTable>
+)
 

@@ -11,7 +11,7 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 @Entity
-data class CurrentUser(
+data class UserTable(
     @PrimaryKey
     @ColumnInfo(name = "userId")
     val userId: String,

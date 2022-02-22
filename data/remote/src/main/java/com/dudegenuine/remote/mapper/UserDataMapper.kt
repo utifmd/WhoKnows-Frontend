@@ -1,6 +1,6 @@
 package com.dudegenuine.remote.mapper
 
-import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.User
 import com.dudegenuine.model.User.Companion.PASSWORD
@@ -90,8 +90,8 @@ class UserDataMapper
         )
     }
 
-    override fun asUser(currentUser: CurrentUser): User {
-        return currentUser.let {User(
+    override fun asUser(userTable: UserTable): User {
+        return userTable.let {User(
             id = it.userId,
             fullName = it.fullName,
             email = it.email,
@@ -99,14 +99,14 @@ class UserDataMapper
             username = it.username,
             password = it.password,
             profileUrl = it.profileUrl,
-            createdAt = currentUser.createdAt, //Date(it.createdAt),
-            updatedAt = currentUser.updatedAt, //it.updatedAt?.let { date -> Date(date) },
-            participants = emptyList()
+            createdAt = userTable.createdAt, //Date(it.createdAt),
+            updatedAt = userTable.updatedAt, //it.updatedAt?.let { date -> Date(date) },
+            participants = userTable.participants
         )}
     }
 
-    override fun asCurrentUser(user: User): CurrentUser {
-        return CurrentUser(
+    override fun asUserTable(user: User): UserTable {
+        return UserTable(
             userId = user.id,
             fullName = user.fullName,
             email = user.email,
@@ -116,7 +116,7 @@ class UserDataMapper
             profileUrl = user.profileUrl,
             createdAt = user.createdAt,//.time,
             updatedAt = user.updatedAt,//?.time
-            participants = emptyList()
+            participants = user.participants
         )
     }
 

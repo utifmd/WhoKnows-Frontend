@@ -1,10 +1,9 @@
 package com.dudegenuine.repository
 
+import android.util.Log
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
-import com.dudegenuine.local.api.IPreferenceManager.Companion.ONBOARD_PARTICIPANT_ID
-import com.dudegenuine.local.api.IPreferenceManager.Companion.ONBOARD_ROOM_ID
 import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -73,30 +72,30 @@ class RoomRepository
         val model = participantId ?: currentParticipant()
         val currentBoarding = local.read(model) ?: throw HttpFailureException(NOT_FOUND)
 
-        return mapper.asRoomBoardingQuiz(currentBoarding)
+        return mapper.asBoardingQuiz(currentBoarding)
     }
 
     override suspend fun save(boarding: Room.RoomState.BoardingQuiz) {
-        local.create(mapper.asCurrentBoarding(boarding)).also {
+        local.create(mapper.asBoardingQuizTable(boarding)).also {
             prefs.write(CURRENT_PARTICIPANT_ID, boarding.participantId)
         }
     }
 
     override suspend fun replace(boarding: Room.RoomState.BoardingQuiz) {
-        local.update(mapper.asCurrentBoarding(boarding))
+        local.update(mapper.asBoardingQuizTable(boarding))
     }
 
-    override suspend fun unload(participantId: String) {
-        val store = local.read(participantId)
+    override suspend fun unload() {
+        val store = local.read(currentParticipant())
 
-        store?.let {
-            prefs.write(CURRENT_PARTICIPANT_ID, "")
+        if (store != null) local.delete(store)
+        else local.delete()
 
-            local::delete
-        }
+        prefs.write(CURRENT_PARTICIPANT_ID, "")
+        Log.d(TAG, "unload: triggered")
     }
 
-    override val getterOnboard = object : IRoomRepository.IBoarding.Getter {
+    /*override val getterOnboard = object : IRoomRepository.IBoarding.Getter {
         override val roomId: () -> String = { prefs.read(ONBOARD_ROOM_ID) }
 
         override val participantId: () -> String = { prefs.read(ONBOARD_PARTICIPANT_ID) }
@@ -106,5 +105,5 @@ class RoomRepository
         override fun roomId(id: String) = prefs.write(ONBOARD_ROOM_ID, id)
 
         override fun participantId(id: String) = prefs.write(ONBOARD_PARTICIPANT_ID, id)
-    }
+    }*/
 }

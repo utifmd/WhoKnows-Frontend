@@ -3,7 +3,7 @@ package com.dudegenuine.repository
 import android.util.Log
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
-import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -33,7 +33,7 @@ class UserRepository
     override suspend fun create(user: User): User = try {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
 
-        remoteUser.also { save(mapper.asCurrentUser(it)) }
+        remoteUser.also { save(mapper.asUserTable(it)) }
     } catch (e: Exception){
 
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
@@ -50,7 +50,7 @@ class UserRepository
     override suspend fun update(id: String, user: User): User = try {
         val remoteUser = mapper.asUser(service.update(id, mapper.asEntity(user)))
 
-        remoteUser.also { replace(mapper.asCurrentUser(it)) }
+        remoteUser.also { replace(mapper.asUserTable(it)) }
     } catch (e: Exception){
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
@@ -70,7 +70,7 @@ class UserRepository
     override suspend fun signIn(params: Map<String, String>): User = try {
         val remoteUser = mapper.asUser(service.signIn(mapper.asLogin(params)))
 
-        remoteUser.also { save(mapper.asCurrentUser(it)) }
+        remoteUser.also { save(mapper.asUserTable(it)) }
     } catch (e: Exception) {
 
         throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
@@ -84,13 +84,13 @@ class UserRepository
         return finalId
     }
 
-    override suspend fun save(currentUser: CurrentUser) =
-        local.create(currentUser).also {
-            prefs.write(CURRENT_USER_ID, currentUser.userId)
+    override suspend fun save(userTable: UserTable) =
+        local.create(userTable).also {
+            prefs.write(CURRENT_USER_ID, userTable.userId)
         }
 
-    override suspend fun replace(currentUser: CurrentUser) {
-        local.update(currentUser)
+    override suspend fun replace(userTable: UserTable) {
+        local.update(userTable)
 
         Log.d(TAG, "replace: triggered")
     }
@@ -108,9 +108,9 @@ class UserRepository
     override suspend fun unload(userId: String) {
         val currentUser = local.read(userId) //?: throw HttpFailureException(NOT_FOUND)
 
-        currentUser?.let {
-            prefs.write(CURRENT_USER_ID, "")
-            local.delete(it)
-        }
+        if (currentUser != null) local.delete(currentUser)
+        else local.delete()
+
+        prefs.write(CURRENT_USER_ID, "")
     }
 }

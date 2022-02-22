@@ -1,6 +1,6 @@
 package com.dudegenuine.repository.contract
 
-import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.User
 
 /**
@@ -17,8 +17,8 @@ interface IUserRepository {
     suspend fun signOut(): String
 
     suspend fun load(userId: String? = null): User
-    suspend fun save(currentUser: CurrentUser)
-    suspend fun replace(currentUser: CurrentUser)
+    suspend fun save(userTable: UserTable)
+    suspend fun replace(userTable: UserTable)
     suspend fun unload(userId: String)
 
     val currentUserId: () -> String

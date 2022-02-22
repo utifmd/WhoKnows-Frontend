@@ -2,7 +2,7 @@ package com.dudegenuine.local.service.contract
 
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
-import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.local.entity.UserTable
 
 /**
  * Thu, 13 Jan 2022
@@ -11,17 +11,20 @@ import com.dudegenuine.local.entity.CurrentUser
 @Dao
 interface ICurrentUserDao {
     @Insert(onConflict = REPLACE)
-    suspend fun create(currentUser: CurrentUser)
+    suspend fun create(userTable: UserTable)
 
-    @Update(entity = CurrentUser::class)
-    suspend fun update(currentUser: CurrentUser)
+    @Update(entity = UserTable::class)
+    suspend fun update(userTable: UserTable)
 
-    @Query("SELECT * FROM currentUser WHERE userId = :userId")
-    suspend fun read(userId: String): CurrentUser?
+    @Query("SELECT * FROM userTable WHERE userId = :userId")
+    suspend fun read(userId: String): UserTable?
 
-    @Query("SELECT * FROM currentUser")
-    suspend fun list(): List<CurrentUser>
+    @Query("SELECT * FROM userTable")
+    suspend fun list(): List<UserTable>
 
     @Delete
-    suspend fun delete(currentUser: CurrentUser)
+    suspend fun delete(userTable: UserTable)
+
+    @Query("DELETE FROM userTable")
+    suspend fun delete()
 }

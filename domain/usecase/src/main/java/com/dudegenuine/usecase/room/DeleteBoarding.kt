@@ -17,12 +17,12 @@ class DeleteBoarding
     @Inject constructor(
     private val repository: IRoomRepository) {
 
-    operator fun invoke(participantId: String): Flow<Resource<String>> = flow {
+    operator fun invoke(): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
 
-            repository.unload(participantId)
-            emit(Resource.Success(participantId))
+            repository.unload()
+            emit(Resource.Success("unloaded"))
 
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

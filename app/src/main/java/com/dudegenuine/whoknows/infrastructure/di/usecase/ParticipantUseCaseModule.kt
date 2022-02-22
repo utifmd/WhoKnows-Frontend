@@ -25,5 +25,4 @@ class ParticipantUseCaseModule(
 
     override val getParticipants: GetParticipants
         get() = GetParticipants(repository)
-
 }

@@ -1,6 +1,6 @@
 package com.dudegenuine.remote.mapper.contract
 
-import com.dudegenuine.local.entity.CurrentUser
+import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.User
 import com.dudegenuine.model.UserCensored
@@ -22,8 +22,8 @@ interface IUserDataMapper {
     fun asLogin(params: Map<String, String>): UserEntity.LoginRequest
 
     /*fun asUserOrNull(currentUser: CurrentUser?): User?*/
-    fun asCurrentUser(user: User): CurrentUser
-    fun asUser(currentUser: CurrentUser): User
+    fun asUserTable(user: User): UserTable
+    fun asUser(userTable: UserTable): User
 
     fun asEntity(participant: Participant): ParticipantEntity
     fun asParticipant(entity: ParticipantEntity): Participant

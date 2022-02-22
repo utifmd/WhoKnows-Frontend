@@ -73,7 +73,7 @@ fun NavGraphBuilder.summaryGraph(
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
             eventRouter = RoomEventDetail(router = router)) { time ->
 
-            service.putExtra(ITimerService.INITIAL_TIME_KEY, 20.0)
+            service.putExtra(ITimerService.INITIAL_TIME_KEY, time)
                 .apply(context::startService)
         }
     }

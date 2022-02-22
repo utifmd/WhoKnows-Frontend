@@ -3,11 +3,9 @@ package com.dudegenuine.local.manager
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.dudegenuine.local.entity.CurrentRoomState
-import com.dudegenuine.local.entity.CurrentUser
-import com.dudegenuine.local.mapper.BoardingConverter
-import com.dudegenuine.local.mapper.DateConverter
-import com.dudegenuine.local.mapper.ParticipantConverter
+import com.dudegenuine.local.entity.BoardingQuizTable
+import com.dudegenuine.local.entity.UserTable
+import com.dudegenuine.local.mapper.*
 import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 
@@ -18,15 +16,23 @@ import com.dudegenuine.local.service.contract.ICurrentUserDao
 
 @Database(
     entities = [
-        CurrentUser::class,
-        CurrentRoomState::class],
+        UserTable::class,
+        BoardingQuizTable::class
+    ],
     version = 1,
-    exportSchema = false)
+    exportSchema = false
+)
 
 @TypeConverters(
     DateConverter::class,
+    ListStringConverter::class,
+    BoardingConverter::class,
     ParticipantConverter::class,
-    BoardingConverter::class)
+    QuizConverter::class,
+    UserCensoredConverter::class,
+    AnswerConverter::class,
+    PossibleAnswerConverter::class
+)
 
 abstract class WhoKnowsDatabase: RoomDatabase() { //, IWhoKnowsDatabase {
     abstract fun currentUserDao(): ICurrentUserDao

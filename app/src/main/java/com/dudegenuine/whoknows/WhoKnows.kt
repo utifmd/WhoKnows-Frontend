@@ -14,6 +14,8 @@ class WhoKnows: Application()
 // TODO:
 /*
 * Frontend
+* - fix bugs delete data room database
+* - launch app whenever timer service finish
 * - make sure push notification logically works
 * - Paging (Frontend - Backend)
 * - Limitation

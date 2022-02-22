@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -36,21 +37,37 @@ fun RoomBoardingScreen(
     onPrevPressed: () -> Unit,
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
+    val TAG = "RoomBoardingScreen"
     val context = LocalContext.current
 
     val scaffoldState = rememberBackdropScaffoldState(
         BackdropValue.Concealed)
 
-    val boardingState = remember(state.currentQuestionIdx)
-        { state.quizzes[state.currentQuestionIdx] }
+    val boardingState = remember(state.currentQuestionIdx) {
+        state.quizzes[state.currentQuestionIdx]
+    }
 
-    /*val timer = remember { mutableStateOf(
-        ITimerNotificationService.asString(state.duration)) }
+    val onPreNextPressed: () -> Unit = {
+        //val model = state.copy(roomLatestIndex = state.currentQuestionIdx)
 
-    BroadcastTimerReceiver { fresh, finished ->
-        timer.value = fresh
+        if (boardingState.showPrevious) {
+            viewModel.patchBoarding(state)
 
-        if (finished) onDonePressed()
+            Log.d(TAG, "RoomBoardingScreen: patchBoarding currentQuestionIdx ${state.currentQuestionIdx}")
+        } else {
+            viewModel.postBoarding(state)
+
+            Log.d(TAG, "RoomBoardingScreen: postBoarding currentQuestionIdx ${state.currentQuestionIdx}")
+        }
+
+        onNextPressed()
+    }
+
+    /*val onPreDonePressed: () -> Unit = {
+        viewModel.deleteBoarding(state.participantId)
+
+        onDonePressed()
+        Log.d(TAG, "RoomBoardingScreen: deleteBoarding")
     }*/
 
     DisposableEffect(context, TIME_ACTION) {
@@ -94,7 +111,7 @@ fun RoomBoardingScreen(
                     } else {
                         TextButton(
                             enabled = boardingState.enableNext,
-                            onClick = onNextPressed
+                            onClick = onPreNextPressed
                         ) {
                             Text(text = "Next", color = MaterialTheme.colors.onPrimary)
                         }

@@ -1,7 +1,7 @@
 package com.dudegenuine.local.service.contract
 
 import androidx.room.*
-import com.dudegenuine.local.entity.CurrentRoomState
+import com.dudegenuine.local.entity.BoardingQuizTable
 
 /**
  * Fri, 18 Feb 2022
@@ -10,14 +10,17 @@ import com.dudegenuine.local.entity.CurrentRoomState
 @Dao
 interface ICurrentBoardingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun create(roomStateState: CurrentRoomState)
+    suspend fun create(boardingQuizTable: BoardingQuizTable)
 
-    @Update(entity = CurrentRoomState::class)
-    suspend fun update(roomStateState: CurrentRoomState)
+    @Update(entity = BoardingQuizTable::class)
+    suspend fun update(boardingQuizTable: BoardingQuizTable)
 
-    @Query("SELECT * FROM currentRoomState WHERE participantId = :participantId")
-    suspend fun read(participantId: String): CurrentRoomState?
+    @Query("SELECT * FROM boardingQuizTable WHERE participantId = :participantId")
+    suspend fun read(participantId: String): BoardingQuizTable?
 
     @Delete
-    suspend fun delete(roomStateState: CurrentRoomState)
+    suspend fun delete(boardingQuizTable: BoardingQuizTable)
+
+    @Query("DELETE FROM boardingQuizTable")
+    suspend fun delete()
 }

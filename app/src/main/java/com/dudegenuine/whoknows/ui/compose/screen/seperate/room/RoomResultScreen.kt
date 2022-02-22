@@ -1,11 +1,12 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -23,8 +24,10 @@ fun RoomResultScreen(
     // onSharePressed: () -> Unit,
     onDonePressed: () -> Unit) {
 
-    Box(modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center) {
+    Box(
+        modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())) {
 
         Column(modifier.padding(12.dp),
             verticalArrangement = Arrangement.SpaceAround) {
