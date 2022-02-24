@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.Title
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +28,7 @@ import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 fun RoomCreatorScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit,
     onSucceed: (Room) -> Unit){
 
     val state = viewModel.state
@@ -41,6 +39,8 @@ fun RoomCreatorScreen(
         topBar = {
             GeneralTopBar(
                 title = "New class",
+                leads = Icons.Filled.ArrowBack,
+                onLeadsPressed = onBackPressed,
                 submitLabel = "Create",
                 submitEnable = formState.isPostValid && !state.loading,
                 submitLoading = state.loading,
@@ -59,8 +59,7 @@ fun RoomCreatorScreen(
 @Composable
 private fun Body(
     resourceState: ResourceState,
-    formState: Room.RoomState.FormState,
-    modifier: Modifier = Modifier){
+    formState: Room.RoomState.FormState){
 
     val isExpand = remember { mutableStateOf(false) }
 
@@ -73,8 +72,8 @@ private fun Body(
             label = "Enter title",
             value = formState.title.text,
             onValueChange = formState::onTitleChange,
-            leads = Icons.Default.Title,
-            tails = if (formState.title.text.isNotBlank()) Icons.Default.Close else null,
+            leads = Icons.Filled.Title,
+            tails = if (formState.title.text.isNotBlank()) Icons.Filled.Close else null,
             onTailPressed = { formState.onTitleChange("") }
         )
 
@@ -82,16 +81,16 @@ private fun Body(
             label = "Enter description",
             value = formState.desc.text,
             singleLine = false,
-            leads = Icons.Default.Description,
+            leads = Icons.Filled.Description,
             onValueChange = formState::onDescChange,
-            tails = if (formState.desc.text.isNotBlank()) Icons.Default.Close else null,
+            tails = if (formState.desc.text.isNotBlank()) Icons.Filled.Close else null,
             onTailPressed = { formState.onDescChange("") }
         )
 
         GeneralTextField(
             label = "Select class duration",
             value = formState.minute.text,
-            leads = Icons.Default.Timer,
+            leads = Icons.Filled.Timer,
             onValueChange = formState::onMinuteChange,
             tails = if (formState.minute.text.isNotBlank()) "minute\'s" else "minute",
             onTailPressed = {

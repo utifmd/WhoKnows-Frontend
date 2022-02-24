@@ -17,6 +17,7 @@ fun NavGraphBuilder.settingGraph(
         route = Screen.Home.Setting.ProfileEditor.withArgs("{filedKey}", "{fieldValue}")){ entry ->
 
         ProfileEditScreen(
+            onBackPressed = router::popBackStack,
             fieldKey = entry.arguments?.getString("filedKey"),
             fieldValue = entry.arguments?.getString("fieldValue")){ _ ->
 

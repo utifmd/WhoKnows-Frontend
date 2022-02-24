@@ -20,6 +20,8 @@ buildscript {
         hilt_dagger_version = '2.38.1' // 2.40.5
         hilt_droidx_version = '1.0.0-alpha03'
         coroutine_jet_version = '1.5.2'
+        paging_runtime_version = "3.1.0"
+        paging_compose_version = "1.0.0-alpha14"
 
         firebase_bom_version = '29.0.4'
         firebase_messaging_version = '23.0.0'

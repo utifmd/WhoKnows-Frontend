@@ -39,7 +39,13 @@ abstract class BaseViewModel: ViewModel() {
                     initialState.copy(error = "No result.")
                 else initialState
 
-            } else _state.value = when(data) {
+            } /*else if (data is PagingData<*>) {
+                val payload = data as PagingData<*>
+                val pagingData = payload.
+                val initialState = ResourceState(
+                    pagedRooms =
+                )
+            } */else _state.value = when(data) {
                 is User -> ResourceState(user = data as User)
                 is Room -> ResourceState(room = data as Room)
                 is Quiz -> ResourceState(quiz = data as Quiz)

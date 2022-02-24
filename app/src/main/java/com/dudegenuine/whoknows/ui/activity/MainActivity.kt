@@ -7,17 +7,21 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.MainScreen
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+@ExperimentalAnimationApi
+@ExperimentalComposeUiApi
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
+@AndroidEntryPoint
 class MainActivity: ComponentActivity() {
     private val TAG = javaClass.simpleName
     private val mainVm: ActivityViewModel by viewModels()

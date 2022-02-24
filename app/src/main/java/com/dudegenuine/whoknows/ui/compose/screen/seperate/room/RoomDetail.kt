@@ -20,7 +20,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.model.Result
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
@@ -51,6 +50,7 @@ fun RoomDetail(
     scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState
         (BackdropValue.Concealed),
     eventRouter: IRoomEventDetail,
+    onBackPressed: () -> Unit,
     onLaunchTimer: (Double) -> Unit) {
 
     val state = viewModel.state
@@ -98,8 +98,9 @@ fun RoomDetail(
                 GeneralTopBar(
                     light = false,
                     title = "${model.minute} minute\'s duration",
-                    leads = Icons.Default.Timer,
+                    leads = Icons.Default.ArrowBack,
                     tails = Icons.Default.Menu,
+                    onLeadsPressed = onBackPressed,
                     onTailPressed = { toggle() }
                 )
             },
@@ -121,8 +122,8 @@ fun RoomDetail(
                     onProfileSelected =
                         eventRouter::onParticipantItemPressed,
                     onQuestionPressed =
-                        eventRouter::onQuestionItemPressed,
-                    onResultSelected = evenCompose::onResultPressed
+                        eventRouter::onQuestionItemPressed/*,
+                    onResultSelected = evenCompose::onResultPressed*/
                 )
             }
         )
@@ -209,8 +210,8 @@ private fun FrontLayer(
     model: Room,
     isOwn: Boolean,
     onQuestionPressed: (String) -> Unit,
-    onProfileSelected: (String) -> Unit,
-    onResultSelected: (Result) -> Unit) {
+    onProfileSelected: (String) -> Unit/*,
+    onResultSelected: (Result) -> Unit*/) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -266,7 +267,7 @@ private fun FrontLayer(
                             modifier = modifier.clickable(
                                 onClick = {
                                     /*if (isOwn) onResultSelected(participant.result)
-                                    else*/ onProfileSelected(participant.userId)
+                                    else */onProfileSelected(participant.userId)
                                 }
                             ),
                             name = participant.user?.fullName ?: "".ifBlank {

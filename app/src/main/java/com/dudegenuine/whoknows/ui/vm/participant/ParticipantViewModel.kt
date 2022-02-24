@@ -2,12 +2,14 @@ package com.dudegenuine.whoknows.ui.vm.participant
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.dudegenuine.model.Participant
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IParticipantUseCaseModule
 import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.participant.contract.IParticipantViewModel
+import com.dudegenuine.whoknows.ui.vm.participant.contract.IParticipantViewModel.Companion.BATCH_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -72,6 +74,9 @@ class ParticipantViewModel
         case.deleteParticipant(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
+
+    val participants = case.getParticipants(BATCH_SIZE)
+        .cachedIn(viewModelScope)
 
     override fun getParticipants(page: Int, size: Int) {
         if (size == 0){

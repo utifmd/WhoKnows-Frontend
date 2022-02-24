@@ -26,7 +26,10 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
 @ExperimentalCoilApi
 @Composable
 fun ProfileCard(
-    modifier: Modifier = Modifier, name: String, desc: String, data: String) {
+    modifier: Modifier = Modifier,
+    name: String,
+    desc: String,
+    data: String) {
 
     GeneralCardView {
         Row(

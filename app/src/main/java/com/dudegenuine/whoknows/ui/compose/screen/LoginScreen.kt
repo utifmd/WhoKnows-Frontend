@@ -38,9 +38,9 @@ fun LoginScreen(
             label = "Enter email or username",
             value = formState.payload.text,
             onValueChange = formState.onUsernameChange,
-            leads = Icons.Default.Email,
+            leads = Icons.Filled.Email,
             tails = if (formState.payload.text.isNotBlank())
-                Icons.Default.Close else null,
+                Icons.Filled.Close else null,
             onTailPressed = { formState.onUsernameChange("") }
         )
 
@@ -48,10 +48,10 @@ fun LoginScreen(
             label = "Enter password",
             value = formState.password.text,
             asPassword = true,
-            leads = Icons.Default.Password,
+            leads = Icons.Filled.Password,
             onValueChange = formState.onPasswordChange,
             tails = if (formState.password.text.isNotBlank())
-                Icons.Default.Close else null,
+                Icons.Filled.Close else null,
             onTailPressed = { formState.onPasswordChange("") })
 
         if (authState.error.isNotBlank()) {

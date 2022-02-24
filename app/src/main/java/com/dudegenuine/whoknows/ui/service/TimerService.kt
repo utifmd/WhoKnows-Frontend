@@ -5,9 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.NotificationCompat
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.INotifyManager
@@ -23,10 +25,12 @@ import javax.inject.Inject
  * Wed, 09 Feb 2022
  * WhoKnows by utifmd
  **/
-@AndroidEntryPoint
+@ExperimentalComposeUiApi
+@ExperimentalAnimationApi
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
+@AndroidEntryPoint
 class TimerService: ITimerService() {
     private val TAG = javaClass.simpleName
 
@@ -60,7 +64,7 @@ class TimerService: ITimerService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override val taskTimerListener: (Context) -> TimerTask = { context ->
+    override val taskTimerListener: (Context) -> TimerTask = { //context ->
         val broadcast = Intent(TIME_ACTION)
 
         val checkToFinish: () -> Unit = {

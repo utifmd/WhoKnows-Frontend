@@ -1,9 +1,11 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
@@ -17,6 +19,8 @@ import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
  * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalComposeUiApi
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi

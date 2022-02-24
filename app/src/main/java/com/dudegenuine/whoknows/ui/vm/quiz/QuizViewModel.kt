@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.dudegenuine.model.File
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Resource
@@ -18,6 +19,7 @@ import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.quiz.contract.IQuizViewModel
+import com.dudegenuine.whoknows.ui.vm.quiz.contract.IQuizViewModel.Companion.BATCH_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -145,6 +147,9 @@ class QuizViewModel
         caseQuiz.deleteQuiz(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
+
+    val questions = caseQuiz.getQuestions(BATCH_SIZE)
+        .cachedIn(viewModelScope)
 
     override fun getQuestions(page: Int, size: Int) {
         if (size == 0){

@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,17 +26,18 @@ import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
 fun NotificationScreen(
     modifier: Modifier = Modifier,
     viewModel: NotificationViewModel = hiltViewModel(),
-    scaffoldState: ScaffoldState = rememberScaffoldState()) {
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
+    onBackPressed: () -> Unit) {
     val state = viewModel.state
     val formState = viewModel.formState
 
-    Scaffold(
-        modifier = modifier,
+    Scaffold(modifier,
         scaffoldState = scaffoldState,
         topBar = {
             GeneralTopBar(
-                title = "Discovery",
-                tails = Icons.Default.Notifications
+                title = "Notifications",
+                leads = Icons.Filled.ArrowBack,
+                onLeadsPressed = onBackPressed
             )
         },
 
@@ -60,13 +61,15 @@ fun NotificationScreen(
                     content = {
 
                         item {
-                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSize))
-                            Text("This Week")
+                            Spacer(modifier.size(ButtonDefaults.IconSize))
+                            Text("Joined classes")
                         }
 
-                        /*repeat(notifications.size) { item { NotificationItem(model = formState.initialModel) } }*/
+                        repeat(notifications.size) {
+                            item { NotificationItem(model = formState.initialModel) }
+                        }
 
-                        repeat(3) {
+                        /*repeat(3) {
                             item { NotificationItem(model = formState.initialModel) }
                         }
 
@@ -77,7 +80,7 @@ fun NotificationScreen(
 
                         repeat(7) {
                             item { NotificationItem(model = formState.initialModel) }
-                        }
+                        }*/
                     }
                 )
             }

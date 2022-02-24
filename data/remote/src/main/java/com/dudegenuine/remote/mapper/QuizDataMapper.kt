@@ -1,8 +1,10 @@
 package com.dudegenuine.remote.mapper
 
+import androidx.paging.PagingSource
 import com.dudegenuine.model.Answer
 import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.ResourcePaging
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.QuizEntity
 import com.dudegenuine.remote.entity.Response
@@ -60,4 +62,8 @@ class QuizDataMapper
             else -> throw IllegalStateException()
         }
     }
+
+    override fun asPagingSource(
+        onEvent: suspend (Int) -> List<Quiz>):PagingSource<Int, Quiz> =
+        ResourcePaging(onEvent)
 }

@@ -1,7 +1,9 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
@@ -30,6 +32,8 @@ import dagger.hilt.android.scopes.ViewModelScoped
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalComposeUiApi
+@ExperimentalAnimationApi
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.QuestionAnswer
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 @Composable
 fun RoomItem(
     modifier: Modifier = Modifier,
+    censored: Boolean = false,
     state: Room, onPressed: () -> Unit) {
 
     val desc: String = state.description
@@ -58,32 +60,35 @@ fun RoomItem(
                 )
             }
 
-
-            Row(
-                modifier = modifier.fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically) {
-
+            if (censored) {
+                Spacer(modifier.size(16.dp))
                 CardFooter(
-                    icon = Icons.Default.AccessTime,
-                    text = if (!state.expired) "Ongoing ${timeAgo(state.createdAt)}"
-                        else "Ended ${state.updatedAt?.let {timeAgo(it)}}"
+                    icon = Icons.Default.Timer,
+                    text = "${state.minute} minute\'s"
                 )
-
-                Row(
-                    modifier = Modifier) {
-                    CardFooter(
-                        icon = Icons.Default.QuestionAnswer,
-                        text = state.questions.size.toString())
-
-                    Spacer(
-                        modifier = modifier.width(16.dp))
+            } else {
+                Row(modifier.fillMaxWidth().padding(top = 16.dp, bottom = 0.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
 
                     CardFooter(
-                        icon = Icons.Default.People,
-                        text = state.participants.size.toString()
+                        icon = Icons.Default.AccessTime,
+                        text = if (!state.expired) "Ongoing ${timeAgo(state.createdAt)}"
+                        else "Ended ${state.updatedAt?.let { timeAgo(it) }}"
                     )
+
+                    Row(Modifier) {
+                        CardFooter(
+                            icon = Icons.Default.QuestionAnswer,
+                            text = state.questions.size.toString())
+
+                        Spacer(modifier.width(16.dp))
+
+                        CardFooter(
+                            icon = Icons.Default.People,
+                            text = state.participants.size.toString()
+                        )
+                    }
                 }
             }
         }

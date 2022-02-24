@@ -39,7 +39,7 @@ interface IRoomEventDetail: IRoomEvent {
     fun onBoardingRoomPressed(roomId: String){}
     fun onParticipantItemPressed(userId: String){}
     fun onQuestionItemPressed(quizId: String){}
-    fun onResultPressed(result: Result){}
+    //fun onResultPressed(result: Result){}
 }
 
 interface IRoomEventBoarding: IRoomEvent {

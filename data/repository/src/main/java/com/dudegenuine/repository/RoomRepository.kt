@@ -1,5 +1,6 @@
 package com.dudegenuine.repository
 
+import androidx.paging.PagingSource
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
@@ -59,6 +60,11 @@ class RoomRepository
 
     override suspend fun list(userId: String): List<Room> = mapper.asRooms(
         service.list(userId))
+
+    override fun page(batchSize: Int): PagingSource<Int, Room> =
+        mapper.asPagingSource { page ->
+            list(page, batchSize)
+        }
 
     override suspend fun load(participantId: String?): Room.RoomState.BoardingQuiz {
         val model = participantId ?: currentParticipant()

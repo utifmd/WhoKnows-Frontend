@@ -53,16 +53,20 @@ fun GeneralTextField(
         label = {
             Text(
                 text = label)},
-        leadingIcon = {
+        leadingIcon =
             if (leads != null) {
-                Icon(
-                    modifier = modifier.clickable(
-                        onClick = onTailClicked),
-                    imageVector = leads,
-                    contentDescription = null
-                )
+                {
+                    Icon(
+                        modifier = modifier.clickable(
+                            onClick = onTailClicked
+                        ),
+                        imageVector = leads,
+                        contentDescription = null
+                    )
+                }
             }
-        },
+            else null
+        ,
         trailingIcon = {
             Row {
                 when (tails){
@@ -80,8 +84,8 @@ fun GeneralTextField(
                 }
                 if(asPassword){
                     Icon(
-                        imageVector = if(!isPassVisible.value) Icons.Default.Visibility
-                            else Icons.Default.VisibilityOff,
+                        imageVector = if(!isPassVisible.value) Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff,
                         contentDescription = "tails-$label",
                         modifier = modifier
                             .padding(

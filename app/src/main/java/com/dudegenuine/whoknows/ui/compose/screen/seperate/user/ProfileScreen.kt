@@ -1,7 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
-import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -11,10 +9,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
@@ -32,7 +28,6 @@ import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
-import com.dudegenuine.whoknows.ui.service.TimerService
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
 /**
@@ -60,41 +55,24 @@ fun ProfileScreen(
         onResult = { viewModel.formState.onImageValueChange(it, context) }
     )
 
-    val serviceStarted = remember { mutableStateOf(false) }
-
-    val onToggleService: () -> Unit = {
-        val service = Intent(context, TimerService::class.java).putExtra(
-            ITimerService.INITIAL_TIME_KEY, 30.0)
-
-        if (!serviceStarted.value) {
-            service.apply(context::startService)
-            serviceStarted.value = true
-        } else {
-            service.apply(context::stopService)
-            serviceStarted.value = false
-        }
-
-        Log.d("ProfileScreen: ", "onToggleService.. serviceStarted ${serviceStarted.value}")
-    }
-
-    if (state.loading) LoadingScreen()
+    if (state.loading)
+        LoadingScreen()
 
     state.user?.let { user ->
-        Scaffold(
-            modifier = modifier.fillMaxSize(),
+        Scaffold(modifier.fillMaxSize(),
             topBar = {
                 GeneralTopBar(
-                    title = state.user.username
+                    title = state.user.username,
+                    leads = if (!isOwn) Icons.Filled.ArrowBack else null,
+                    onLeadsPressed = if (!isOwn) event::onBackPressed else null
                 )
             },
 
             content = {
-                Column(
-                    modifier = modifier.verticalScroll(scrollState),
+                Column(modifier.verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally){
 
-                    Spacer(
-                        modifier = modifier.size(12.dp))
+                    Spacer(modifier.size(12.dp))
 
                     if (isOwn) GeneralPicture(
                         data = if (byteArray.isNotEmpty())
@@ -105,56 +83,49 @@ fun ProfileScreen(
                         data = user.profileUrl
                     )
 
-                    Spacer(
-                        modifier = modifier.size(36.dp))
+                    Spacer(modifier.size(36.dp))
 
-                    Column(
-                        modifier = contentModifier
+                    Column(contentModifier
                             .fillMaxWidth()
                             .padding(
-                                vertical = 8.dp, horizontal = 12.dp
-                            )
+                                vertical = 8.dp, horizontal = 12.dp)
                             .clip(
-                                shape = MaterialTheme.shapes.medium
-                            )
+                                shape = MaterialTheme.shapes.medium)
                             .background(
-                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
-                            )) {
+                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
 
                         FieldTag(
                             key = stringResource(R.string.full_name),
                             editable = isOwn,
                             value = user.fullName.ifBlank { "Not set" },
-                            onValuePressed = { event.onFullNamePressed(user.fullName.ifBlank { "Not set" }) }
-                        )
+                            onValuePressed =
+                                { event.onFullNamePressed(user.fullName.ifBlank { "Not set" }) })
 
                         FieldTag(
                             key = stringResource(R.string.phone_number),
                             editable = isOwn,
                             value = user.phone.ifBlank { "Not set" },
-                            onValuePressed = { event.onPhonePressed(user.phone.ifBlank { "Not set" }) }
-                        )
+                            onValuePressed =
+                                { event.onPhonePressed(user.phone.ifBlank { "Not set" }) })
 
                         FieldTag(
                             key = stringResource(R.string.username),
                             editable = isOwn,
                             value = user.username,
-                            onValuePressed = onToggleService //{ event.onUsernamePressed(user.username) }
-                        )
+                            onValuePressed =
+                                { event.onUsernamePressed(user.username) })
 
                         FieldTag(
                             key = stringResource(R.string.email),
                             value = user.email,
                             editable = false,
-                            onValuePressed = { event.onEmailPressed(user.email) }
-                        )
+                            onValuePressed = { event.onEmailPressed(user.email) })
 
                         FieldTag(
                             key = stringResource(R.string.user_id),
                             value = user.id,
                             editable = false,
-                            onValuePressed = { event.onPasswordPressed(user.password) }
-                        )
+                            onValuePressed = { event.onPasswordPressed(user.password) })
 
                         FieldTag(
                             key = stringResource(R.string.password),
@@ -162,29 +133,26 @@ fun ProfileScreen(
                             editable = false,
                             censored = true,
                             isDivide = false,
-                            onValuePressed = { event.onPasswordPressed(user.password) }
-                        )
+                            onValuePressed = { event.onPasswordPressed(user.password) })
                     }
 
                     if (isOwn){
-                        Button(
-                            onClick = event::onSignOutPressed) {
+                        Button(event::onSignOutPressed) {
 
-                            Icon(
-                                imageVector = Icons.Default.Logout, contentDescription = null
-                            )
+                            Icon(Icons.Default.Logout,
+                                contentDescription = null)
 
                             Spacer(modifier.size(ButtonDefaults.IconSize))
                             Text(stringResource(R.string.sign_out))
                         }
                     }
 
-                    Spacer(modifier = modifier.size(12.dp))
+                    Spacer(modifier.size(12.dp))
                 }
             }
         )
     }
 
-    if (state.error.isNotBlank()) ErrorScreen(message = state.error)
-
+    if (state.error.isNotBlank())
+        ErrorScreen(message = state.error)
 }

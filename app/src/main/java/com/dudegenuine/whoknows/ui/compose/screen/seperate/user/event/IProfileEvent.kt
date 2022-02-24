@@ -9,6 +9,7 @@ interface IProfileEvent {
     fun onEmailPressed(it: String){}
     fun onUsernamePressed(it: String){}
     fun onPasswordPressed(it: String){}
+    fun onBackPressed(){}
     fun onSignOutPressed(){}
 
     companion object {

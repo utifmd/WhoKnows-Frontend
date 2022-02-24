@@ -37,29 +37,29 @@ fun RegisterScreen(
             label = "Enter email",
             value = formState.payload.text,
             onValueChange = formState.onUsernameChange,
-            leads = Icons.Default.Email,
+            leads = Icons.Filled.Email,
             tails = if (formState.payload.text.isNotBlank())
-                Icons.Default.Close else null,
+                Icons.Filled.Close else null,
             onTailPressed = { formState.onUsernameChange("") }
         )
         GeneralTextField(
             label = "Enter password",
             value = formState.password.text,
             asPassword = true,
-            leads = Icons.Default.Password,
+            leads = Icons.Filled.Password,
             onValueChange = formState.onPasswordChange,
             tails = if (formState.password.text.isNotBlank())
-                Icons.Default.Close else null,
+                Icons.Filled.Close else null,
             onTailPressed = { formState.onPasswordChange("") }
         )
         GeneralTextField(
             label = "Confirm password",
             value = formState.rePassword.text,
             asPassword = true,
-            leads = Icons.Default.Password,
+            leads = Icons.Filled.Password,
             onValueChange = formState.onRePasswordChange,
             tails = if (formState.rePassword.text.isNotBlank())
-                Icons.Default.Close else null,
+                Icons.Filled.Close else null,
             onTailPressed = { formState.onRePasswordChange("") }
         )
         if (authState.error.isNotBlank()) {
@@ -76,18 +76,18 @@ fun RegisterScreen(
             label = "Enter full name",
             value = formState.fullName.text,
             onValueChange = formState.onFullNameChange,
-            leads = Icons.Default.Person,
+            leads = Icons.Filled.Person,
             tails = if (formState.fullName.text.isNotBlank())
-                Icons.Default.Close else null,
+                Icons.Filled.Close else null,
             onTailPressed = { formState.onFullNameChange("") }
         )
         GeneralTextField(
             label = "Enter phone number",
             value = formState.phone.text,
             onValueChange = formState.onPhoneChange,
-            leads = Icons.Default.Phone,
+            leads = Icons.Filled.Phone,
             tails = if (formState.phone.text.isNotBlank())
-                Icons.Default.Close else null,
+                Icons.Filled.Close else null,
             onTailPressed = { formState.onPhoneChange("") }
         )*/
     }

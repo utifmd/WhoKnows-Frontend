@@ -5,8 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import coil.annotation.ExperimentalCoilApi
@@ -31,6 +33,8 @@ import javax.inject.Inject
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
+@ExperimentalComposeUiApi
+@ExperimentalAnimationApi
 @HiltViewModel
 class ActivityViewModel
     @Inject constructor(

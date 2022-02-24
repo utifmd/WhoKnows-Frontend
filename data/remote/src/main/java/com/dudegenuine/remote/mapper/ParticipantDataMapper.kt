@@ -1,6 +1,8 @@
 package com.dudegenuine.remote.mapper
 
+import androidx.paging.PagingSource
 import com.dudegenuine.model.Participant
+import com.dudegenuine.model.ResourcePaging
 import com.dudegenuine.remote.entity.ParticipantEntity
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
@@ -50,6 +52,11 @@ class ParticipantDataMapper
             is ParticipantEntity -> asParticipant(response.data)
             else -> throw IllegalStateException()
         }
+    }
+
+    override fun asPagingResource(
+        onEvent: suspend (Int) -> List<Participant>): PagingSource<Int, Participant> {
+        return ResourcePaging(onEvent)
     }
 
     override fun asParticipants(response: Response<List<ParticipantEntity>>): List<Participant> {

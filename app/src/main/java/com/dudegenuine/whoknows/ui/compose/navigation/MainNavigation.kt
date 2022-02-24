@@ -1,17 +1,16 @@
 package com.dudegenuine.whoknows.ui.compose.navigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.whoknows.ui.compose.navigation.graph.authNavGraph
-import com.dudegenuine.whoknows.ui.compose.navigation.graph.homeNavGraph
-import com.dudegenuine.whoknows.ui.compose.navigation.graph.settingGraph
-import com.dudegenuine.whoknows.ui.compose.navigation.graph.summaryGraph
+import com.dudegenuine.whoknows.ui.compose.navigation.graph.*
 import com.dudegenuine.whoknows.ui.service.MessagingService.Companion.MESSAGE_INTENT
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 
@@ -19,6 +18,8 @@ import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
  * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalAnimationApi
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
@@ -42,21 +43,21 @@ fun MainNavigation(
 
         authNavGraph(
             router = controller,
-            viewModel = viewModel,
-        )
+            viewModel = viewModel)
 
         homeNavGraph(
             context = context,
             router = controller,
             viewModel = viewModel,
             initial = if (initialPassed == MESSAGE_INTENT /*TIME_RUNNING*/)
-                Screen.Home.Discover else Screen.Home.Summary,
-        )
+                Screen.Home.Discover else Screen.Home.Summary)
 
         summaryGraph(
             context = context,
-            router = controller,
-        )
+            router = controller)
+
+        discoverGraph(
+            router = controller)
 
         settingGraph(
             router = controller

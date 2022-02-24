@@ -31,11 +31,10 @@ fun RoomBoardingScreen(
     viewModel: RoomViewModel,
     state: Room.RoomState.BoardingQuiz,
     onAction: (Int, QuizActionType) -> Unit,
-    onBackPressed: () -> Unit,
     onPrevPressed: () -> Unit,
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
-    val TAG = "RoomBoardingScreen"
+    //val TAG = "RoomBoardingScreen"
     val context = LocalContext.current
 
     val scaffoldState = rememberBackdropScaffoldState(

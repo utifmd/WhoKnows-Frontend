@@ -15,4 +15,7 @@ apply from: '../../dependency.gradle'
 
 dependencies {
     // implementation project(':domain:model')
+    
+    implementation("androidx.paging:paging-runtime:$paging_runtime_version")
+    implementation("androidx.paging:paging-compose:$paging_compose_version")
 }

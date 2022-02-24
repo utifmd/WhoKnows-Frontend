@@ -1,9 +1,10 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -12,8 +13,9 @@ import androidx.compose.ui.unit.dp
 fun GeneralTopBar(
     modifier: Modifier = Modifier,
     title: String,
-    leads: Any? = null,
     light: Boolean = true,
+    leads: Any? = null,
+    onLeadsPressed: (() -> Unit)? = null,
     tails: ImageVector? = null,
     onTailPressed: (() -> Unit) ? = null,
     submitEnable: Boolean = false,
@@ -21,72 +23,44 @@ fun GeneralTopBar(
     submitLabel: String? = null,
     onSubmitPressed: (() -> Unit)? = null){
 
-    val onSubmitClick: () -> Unit = {
-        onSubmitPressed?.let { onSubmitPressed() }
-    }
-
-    val onTailClicked: () -> Unit = {
-        onTailPressed?.let { onTailPressed() }
-    }
-
     TopAppBar(
         elevation = (0.5).dp,
         backgroundColor = if (light) MaterialTheme.colors.surface
-            else MaterialTheme.colors.primary) {
+            else MaterialTheme.colors.primary,
+        title = {
+            Text(title,
+                color = if (light) MaterialTheme.colors.onSurface
+                    else MaterialTheme.colors.onPrimary,
+            )
+        },
+        navigationIcon = if (leads is ImageVector) {{
+            IconButton({ onLeadsPressed?.invoke() }) {
+                Icon(
+                    leads, contentDescription = null,
+                    tint = if (light) MaterialTheme.colors.onSurface
+                else MaterialTheme.colors.onPrimary)}}}
+            else null,
+        actions =  {
+            tails?.let {
+                IconButton({ onTailPressed?.invoke() }) {
 
-        Row(
-            modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically){
-
-                when (leads) {
-                    is ImageVector -> {
-                        Icon(
-                            modifier = modifier.padding(start = 16.dp, end = 12.dp),
-                            imageVector = leads, contentDescription = null,
-                            tint = if (light) MaterialTheme.colors.primaryVariant.copy(alpha = 0.8f)
-                                else MaterialTheme.colors.onPrimary
-                        )
-                    }
-                }
-                Text(
-                    modifier = modifier.padding(
-                        horizontal = if (leads != null) 0.dp else 16.dp
-                    ),
-                    text = title,
-                    color = if (light) MaterialTheme.colors.primaryVariant.copy(alpha = 0.8f)
-                        else MaterialTheme.colors.surface,
-                    style = MaterialTheme.typography.h6
-                )
-            }
-
-            if(tails != null){
-                IconButton(
-                    onClick = onTailClicked) {
-
-                    Icon(
-                        imageVector = tails,
-                        tint = if (light) MaterialTheme.colors.primaryVariant.copy(alpha = 0.8f)
+                    Icon(tails,
+                        tint = if (light) MaterialTheme.colors.onSurface
                             else MaterialTheme.colors.onPrimary,
                         contentDescription = null)
                 }
             }
 
             submitLabel?.let {
-                TextButton(
-                    enabled = submitEnable,
-                    onClick = onSubmitClick) {
+                TextButton({ onSubmitPressed?.invoke() },
+                    enabled = submitEnable) {
 
                     if (submitLoading){
-                        CircularProgressIndicator(
-                            modifier = modifier.size(16.dp),
+                        CircularProgressIndicator(modifier.size(16.dp),
                             color = MaterialTheme.colors.error,
                             strokeWidth = (1.5).dp
                         )
-                        Spacer(modifier = modifier.width(8.dp))
+                        Spacer(modifier.width(8.dp))
                     }
 
                     Text(
@@ -98,5 +72,5 @@ fun GeneralTopBar(
                 }
             }
         }
-    }
+    )
 }

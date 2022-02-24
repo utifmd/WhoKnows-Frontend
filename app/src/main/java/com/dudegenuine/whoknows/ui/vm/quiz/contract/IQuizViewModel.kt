@@ -8,6 +8,10 @@ import com.dudegenuine.whoknows.ui.vm.file.IFilePresenter
  * WhoKnows by utifmd
  **/
 interface IQuizViewModel: IFilePresenter {
+    companion object {
+        const val BATCH_SIZE = 2
+    }
+
     fun postQuiz(quiz: Quiz)
     fun getQuiz(id: String)
     fun patchQuiz(id: String, current: Quiz)

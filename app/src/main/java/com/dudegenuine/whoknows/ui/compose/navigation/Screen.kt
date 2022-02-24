@@ -32,6 +32,8 @@ sealed class Screen(val route: String){
         }
 
         object Discover: Screen(strOf<Home>()+strOf<Discover>()){
+            object Notification: Screen(strOf<Discover>()+strOf<Notification>())
+            object RoomFinder: Screen(strOf<Discover>()+strOf<RoomFinder>())
             object RoomDetail: Screen(strOf<Discover>()+strOf<RoomDetail>())
             object ProfileDetail: Screen(strOf<Discover>()+strOf<ProfileDetail>())
         }

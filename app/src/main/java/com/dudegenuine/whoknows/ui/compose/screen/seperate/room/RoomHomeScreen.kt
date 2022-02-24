@@ -3,10 +3,7 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -15,7 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
-import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.LoadBoxScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
@@ -27,52 +24,52 @@ import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 @Composable
 fun RoomHomeScreen(
     modifier: Modifier = Modifier,
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
     viewModel: RoomViewModel = hiltViewModel(),
     event: IRoomEventHome) {
     val state = viewModel.state
 
-    if (state.loading)
-        LoadingScreen()
+    Scaffold(
+        topBar = {
+            GeneralTopBar(
+                title = "Recently class", //"Recently class\'s",
+            )
+        },
+        modifier = modifier,
+        scaffoldState = scaffoldState) {
 
-    state.rooms?.let { rooms ->
-        Scaffold(
-            modifier = modifier,
-            topBar = {
-                GeneralTopBar(
-                    title = "Recently class", //"Recently class\'s",
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+            stickyHeader {
+                Header(
+                    modifier = modifier,
+                    onNewClassPressed = event::onNewClassPressed,
+                    onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
                 )
-            },
-            content = {
-                LazyColumn(
-                    modifier = modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            }
 
-                    stickyHeader {
-                        Header(
-                            modifier = modifier,
-                            onNewClassPressed = event::onNewClassPressed,
-                            onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
-                        )
-                    }
+            if (state.loading) items(5) {
+                LoadBoxScreen(height = 130.dp)
+            }
 
-                    rooms.forEach { room ->
-                        item {
-                            RoomItem(
-                                state = room){
+            state.rooms?.forEach { room ->
+                item {
+                    RoomItem(
+                        state = room){
 
-                                event.onRoomItemSelected(room.id)
-                            }
-                        }
+                        event.onRoomItemSelected(room.id)
                     }
                 }
             }
+        }
+
+        if(state.error.isNotBlank()) ErrorScreen(
+            modifier = modifier, message = state.error, isDanger = false
         )
     }
-
-    if(state.error.isNotBlank()) ErrorScreen(
-        modifier = modifier, message = state.error, isDanger = false
-    )
 }
 
 @Composable

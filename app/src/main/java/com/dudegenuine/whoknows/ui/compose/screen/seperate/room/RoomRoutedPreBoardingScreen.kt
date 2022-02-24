@@ -21,7 +21,7 @@ fun RoomRoutedPreBoardingScreen(
     event: IRoomEventBoarding,
     viewModel: RoomViewModel = hiltViewModel(),
     onStopTimer: () -> Unit) {
-    val state = viewModel.state
+    //val state = viewModel.state
     val uiState = viewModel.uiState.observeAsState().value
 
     val composeEvent: (Room.RoomState.BoardingQuiz) -> IRoomEventBoarding = { boardingState ->
@@ -48,8 +48,7 @@ fun RoomRoutedPreBoardingScreen(
                 onAction = event::onAction,
                 onPrevPressed = { composeEvent(roomState).onPrevPressed() },
                 onNextPressed = { composeEvent(roomState).onNextPressed() },
-                onDonePressed = { composeEvent(roomState).onDonePressed() },
-                onBackPressed = event::onBackPressed
+                onDonePressed = { composeEvent(roomState).onDonePressed() }
             )
             is Room.RoomState.BoardingResult -> RoomResultScreen(
                 state = roomState,

@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.dudegenuine.local.api.ITimerService.Companion.INITIAL_TIME_KEY
 import com.dudegenuine.local.api.ITimerService.Companion.TIME_ACTION
 import com.dudegenuine.local.api.ITimerService.Companion.TIME_UP_KEY
@@ -156,7 +157,7 @@ class RoomViewModel
     fun onPreResult(boardingState: Room.RoomState.BoardingQuiz) {
         val questioners = boardingState.quizzes
         val correct = questioners.count { it.isCorrect }
-        val incorrect = questioners.count { !it.isCorrect }
+        //val incorrect = questioners.count { !it.isCorrect }
         val resultScore: Float = correct.toFloat() / questioners.size.toFloat() * 100
 
         val result = Result(
@@ -309,6 +310,9 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
+    val rooms = caseRoom
+        .getRooms(2).cachedIn(viewModelScope)
+
     override fun getRooms(page: Int, size: Int) {
         if (size == 0){
             _state.value = ResourceState(error = DONT_EMPTY)
@@ -317,6 +321,18 @@ class RoomViewModel
         caseRoom.getRooms(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
+
+    /*fun getRooms(size: Int) {
+        if (size == 0){
+            _state.value = ResourceState(error = DONT_EMPTY)
+        }
+
+        caseRoom.getRooms(size)
+            .onEach {
+
+            }
+            .launchIn(viewModelScope)
+    }*/
 
     override fun getRooms(userId: String) {
         if (userId.isBlank())

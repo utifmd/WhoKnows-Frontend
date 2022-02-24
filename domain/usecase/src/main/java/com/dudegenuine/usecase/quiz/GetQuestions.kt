@@ -1,5 +1,8 @@
 package com.dudegenuine.usecase.quiz
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -16,13 +19,21 @@ import javax.inject.Inject
  **/
 class GetQuestions
     @Inject constructor(
-        private val repository: IQuizRepository) {
+    private val repository: IQuizRepository) {
+
+        operator fun invoke(size: Int): Flow<PagingData<Quiz>> = Pager(
+            PagingConfig(size,
+                enablePlaceholders = true, maxSize = 200))
+
+            { repository.page(size) }.flow
 
         operator fun invoke(page: Int, size: Int): Flow<Resource<List<Quiz>>> = flow {
             try {
                 emit(Resource.Loading())
+
                 val list = repository.list(page, size)
                 emit(Resource.Success(list))
+
             } catch (e: HttpFailureException){
                 emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
             } catch (e: HttpException){

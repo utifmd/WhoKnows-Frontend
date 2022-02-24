@@ -8,6 +8,10 @@ import com.dudegenuine.model.Room
  * WhoKnows by utifmd
  **/
 interface IParticipantViewModel {
+    companion object {
+        const val BATCH_SIZE = 5
+    }
+
     fun initParticipant(participant: Participant){}
     fun postParticipant(participant: Participant){}
     fun getParticipant(id: String){}

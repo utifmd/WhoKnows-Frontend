@@ -8,10 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.QuestionAnswer
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +36,9 @@ import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
 @ExperimentalFoundationApi
 fun QuizCreatorScreen(
     modifier: Modifier = Modifier,
-    viewModel: QuizViewModel = hiltViewModel(), onSucceed: (Quiz) -> Unit) {
+    viewModel: QuizViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit,
+    onSucceed: (Quiz) -> Unit) {
     val context = LocalContext.current
     val state = viewModel.state
     val formState = viewModel.formState
@@ -60,6 +59,8 @@ fun QuizCreatorScreen(
         topBar = {
             GeneralTopBar(
                 title = stringResource(R.string.new_question),
+                leads = Icons.Filled.ArrowBack,
+                onLeadsPressed = onBackPressed,
                 submitLabel = "Add",
                 submitEnable = formState.isValid,
                 submitLoading = state.loading,
@@ -87,9 +88,9 @@ fun QuizCreatorScreen(
                         label = "Enter a question",
                         value = formState.currentQuestion.text,
                         onValueChange = formState::onQuestionValueChange,
-                        leads = Icons.Default.QuestionAnswer,
+                        leads = Icons.Filled.QuestionAnswer,
                         tails = if (formState.currentQuestion.text.isNotBlank())
-                                Icons.Default.Close else null,
+                                Icons.Filled.Close else null,
                         onTailPressed = { formState.onQuestionValueChange("") },
                         modifier = modifier
                     )
@@ -98,9 +99,9 @@ fun QuizCreatorScreen(
                         label = "Push some options",
                         value = formState.currentOption.text,
                         onValueChange = formState::onOptionValueChange,
-                        leads = Icons.Default.List,
+                        leads = Icons.Filled.List,
                         tails = if (formState.currentOption.text.isNotBlank())
-                            Icons.Default.AddCircleOutline else null,
+                            Icons.Filled.AddCircleOutline else null,
                         onTailPressed = formState::onPushedOption,
                         modifier = Modifier
                             .onKeyEvent(formState::onOptionKeyEvent)

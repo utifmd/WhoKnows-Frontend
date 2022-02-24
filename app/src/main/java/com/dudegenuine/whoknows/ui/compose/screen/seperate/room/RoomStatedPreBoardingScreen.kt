@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Room
@@ -21,7 +20,7 @@ import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 @ExperimentalMaterialApi
 @Composable
 fun RoomStatedPreBoardingScreen(
-    modifier: Modifier = Modifier,
+    //modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),
     eventHome: IRoomEventHome,
     eventBoarding: IRoomEventBoarding,
@@ -51,8 +50,7 @@ fun RoomStatedPreBoardingScreen(
             onAction = eventBoarding::onAction,
             onPrevPressed = { composeEvent(uiState).onPrevPressed() },
             onNextPressed = { composeEvent(uiState).onNextPressed() },
-            onDonePressed = { composeEvent(uiState).onDonePressed() },
-            onBackPressed = eventBoarding::onBackPressed
+            onDonePressed = { composeEvent(uiState).onDonePressed() }
         )
         is Room.RoomState.BoardingResult -> RoomResultScreen(
             state = uiState,

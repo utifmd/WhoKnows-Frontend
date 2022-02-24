@@ -1,5 +1,6 @@
 package com.dudegenuine.repository.contract
 
+import androidx.paging.PagingSource
 import com.dudegenuine.model.Quiz
 
 /**
@@ -12,6 +13,8 @@ interface IQuizRepository {
     suspend fun update(id: String, quiz: Quiz): Quiz
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Quiz>
+
+    fun page(batchSize: Int): PagingSource<Int, Quiz>
 
     companion object {
         const val NOT_FOUND = "Quiz not found."

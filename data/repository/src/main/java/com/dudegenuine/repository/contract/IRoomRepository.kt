@@ -1,5 +1,6 @@
 package com.dudegenuine.repository.contract
 
+import androidx.paging.PagingSource
 import com.dudegenuine.model.Room
 
 
@@ -26,6 +27,8 @@ interface IRoomRepository {
     suspend fun save(boarding: Room.RoomState.BoardingQuiz)
     suspend fun replace(boarding: Room.RoomState.BoardingQuiz)
     suspend fun unload()/*(participantId: String)*/
+
+    fun page(batchSize: Int): PagingSource<Int, Room>
 
     val currentToken: () -> String
     val currentUserId: () -> String

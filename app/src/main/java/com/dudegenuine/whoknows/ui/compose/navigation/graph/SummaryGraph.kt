@@ -3,8 +3,10 @@ package com.dudegenuine.whoknows.ui.compose.navigation.graph
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -37,6 +39,8 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USE
  * Tue, 25 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalComposeUiApi
+@ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
@@ -48,6 +52,7 @@ fun NavGraphBuilder.summaryGraph(
     composable(
         route = Screen.Home.Summary.RoomCreator.route){
         RoomCreatorScreen(
+            onBackPressed = router::popBackStack,
             onSucceed = {
                 val route = Screen.Home.Summary.route
 
@@ -60,16 +65,20 @@ fun NavGraphBuilder.summaryGraph(
 
     composable(
         route = Screen.Home.Summary.RoomFinder.route){
-        RoomFinderScreen { roomId ->
-
-            router.navigate(Screen.Home.Summary.RoomDetail.withArgs(roomId, OWN_IS_FALSE))
-        }
+        RoomFinderScreen(
+            onBackPressed = router::popBackStack,
+            onRoomSelected = { roomId ->
+                router.navigate(
+                    Screen.Home.Summary.RoomDetail.withArgs(roomId, OWN_IS_FALSE))
+            }
+        )
     }
 
     composable(
         route = Screen.Home.Summary.RoomDetail.withArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}")){ entry ->
 
         RoomDetail(
+            onBackPressed = router::popBackStack,
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
             eventRouter = RoomEventDetail(router = router)) { time ->
 
@@ -104,7 +113,7 @@ fun NavGraphBuilder.summaryGraph(
         route = Screen.Home.Summary.RoomDetail.QuizCreator.withArgs(
             "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")){
 
-        QuizCreatorScreen { quiz ->
+        QuizCreatorScreen(onBackPressed = router::popBackStack) { quiz ->
             val route = Screen.Home.Summary.RoomDetail.withArgs(
                 quiz.roomId, OWN_IS_TRUE)
 
@@ -137,7 +146,10 @@ fun NavGraphBuilder.summaryGraph(
         route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs(
             "{$USER_ID_SAVED_KEY}")){
 
-        val event = object: IProfileEvent { }
+        val event = object: IProfileEvent {
+            override fun onBackPressed()
+                { router.popBackStack() }
+        }
 
         ProfileScreen(
             isOwn = false,

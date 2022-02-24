@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.runtime.Composable
@@ -23,7 +24,7 @@ import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 @Composable
 fun RoomFinderScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel(), onRoomSelected: (String) -> Unit) {
+    viewModel: RoomViewModel = hiltViewModel(), onRoomSelected: (String) -> Unit, onBackPressed: () -> Unit) {
     val formState = viewModel.formState
 
     Scaffold(
@@ -33,6 +34,8 @@ fun RoomFinderScreen(
                 title = stringResource(
                     id = R.string.join_with_a_code
                 ),
+                leads = Icons.Filled.ArrowBack,
+                onLeadsPressed = onBackPressed,
                 submitLabel = "Search",
                 submitEnable = formState.isGetValid,
                 submitLoading = viewModel.state.loading,
@@ -47,8 +50,8 @@ fun RoomFinderScreen(
                 GeneralTextField(
                     label = "Enter an invitation code",
                     value = formState.roomId,
-                    leads = Icons.Default.Security,
-                    tails = if(formState.roomId.isNotBlank()) Icons.Default.Close else null,
+                    leads = Icons.Filled.Security,
+                    tails = if(formState.roomId.isNotBlank()) Icons.Filled.Close else null,
                     onTailPressed = { formState.onRoomIdChange("") },
                     onValueChange = formState::onRoomIdChange
                 )

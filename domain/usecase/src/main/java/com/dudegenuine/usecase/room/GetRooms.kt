@@ -1,5 +1,8 @@
 package com.dudegenuine.usecase.room
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -17,6 +20,15 @@ import javax.inject.Inject
 class GetRooms
     @Inject constructor(
     private val repository: IRoomRepository) {
+
+    operator fun invoke(size: Int): Flow<PagingData<Room>> {
+        val config = PagingConfig(size,
+            enablePlaceholders = true, maxSize = 200)
+
+        val pager = Pager(config) { repository.page(size) }
+
+        return pager.flow
+    }
 
     operator fun invoke(page: Int, size: Int): Flow<Resource<List<Room>>> = flow {
         try {

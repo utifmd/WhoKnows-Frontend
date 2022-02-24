@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +28,7 @@ fun ProfileEditScreen(
     fieldKey: String?,
     fieldValue: String?,
     viewModel: UserViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit,
     onSucceed: (User) -> Unit) {
 
     val field = remember {
@@ -42,6 +43,8 @@ fun ProfileEditScreen(
         topBar = {
             GeneralTopBar(
                 title = "Profile edit",
+                leads = Icons.Filled.ArrowBack,
+                onLeadsPressed = onBackPressed,
                 submitLabel = "Update",
                 submitEnable = field.value.isNotBlank() && !viewModel.state.loading,
                 submitLoading = viewModel.state.loading,
@@ -54,8 +57,7 @@ fun ProfileEditScreen(
             GeneralTextField(
                 label = fieldKey ?: "No label",
                 value = field.value,
-                leads = Icons.Default.TextFields,
-                tails = if(field.value.isNotBlank()) Icons.Default.Close else null,
+                tails = if(field.value.isNotBlank()) Icons.Filled.Close else null,
                 onValueChange = { field.value = it },
                 onTailPressed = { field.value = "" }
             )

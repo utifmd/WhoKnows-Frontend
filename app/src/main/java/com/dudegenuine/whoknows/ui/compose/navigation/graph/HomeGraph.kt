@@ -1,8 +1,10 @@
 package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
 import android.content.Context
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -21,6 +23,8 @@ import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
  * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalComposeUiApi
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi

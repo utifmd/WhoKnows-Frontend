@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper.contract
 
+import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.BoardingQuizTable
 import com.dudegenuine.local.entity.OnBoardingStateTable
 import com.dudegenuine.local.entity.QuizTable
@@ -27,4 +28,6 @@ interface IRoomDataMapper {
 
     fun asQuizTable(quiz: Quiz): QuizTable
     fun asQuiz(table: QuizTable): Quiz
+
+    fun asPagingSource(onEvent: suspend (Int) -> List<Room>): PagingSource<Int, Room>
 }

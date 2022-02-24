@@ -1,12 +1,10 @@
 package com.dudegenuine.remote.mapper
 
+import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.BoardingQuizTable
 import com.dudegenuine.local.entity.OnBoardingStateTable
 import com.dudegenuine.local.entity.QuizTable
-import com.dudegenuine.model.Answer
-import com.dudegenuine.model.PossibleAnswer
-import com.dudegenuine.model.Quiz
-import com.dudegenuine.model.Room
+import com.dudegenuine.model.*
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
@@ -183,4 +181,8 @@ class RoomDataMapper
             else -> { result }
         }
     }
+
+    override fun asPagingSource(
+        onEvent: suspend (Int) -> List<Room>): PagingSource<Int, Room> =
+        ResourcePaging(onEvent)
 }
