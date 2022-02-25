@@ -19,7 +19,8 @@ interface IDataMapperModule {
         mapperParticipant: IParticipantDataMapper): IRoomDataMapper
 
     fun provideQuizDataMapper(
-        gson: Gson): IQuizDataMapper
+        gson: Gson,
+        mapper: IUserDataMapper): IQuizDataMapper
 
     fun provideParticipantDataMapper(
         gson: Gson, mapper: IUserDataMapper): IParticipantDataMapper

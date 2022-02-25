@@ -9,6 +9,7 @@ import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.QuizEntity
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
+import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.google.gson.Gson
 import javax.inject.Inject
 
@@ -18,7 +19,8 @@ import javax.inject.Inject
  **/
 class QuizDataMapper
     @Inject constructor(
-    val gson: Gson): IQuizDataMapper {
+        val gson: Gson,
+        private val mapperUser: IUserDataMapper): IQuizDataMapper {
     val TAG: String = strOf<QuizDataMapper>()
 
     override fun asEntity(quiz: Quiz): QuizEntity {
@@ -26,12 +28,16 @@ class QuizDataMapper
 
         return QuizEntity(
             quiz.id, quiz.roomId, quiz.images, quiz.question,
-            quiz.options, strAnswer, quiz.createdBy, quiz.createdAt, quiz.updatedAt
+            quiz.options, strAnswer, quiz.createdBy, quiz.createdAt, quiz.updatedAt,
+            quiz.user?.let(mapperUser::asUserCensoredEntity)
         )
     }
 
     override fun asQuiz(entity: QuizEntity): Quiz {
-        val result = Quiz(entity.quizId, entity.roomId, entity.images, entity.question, entity.options, null, entity.createdBy, entity.createdAt, entity.updatedAt)
+        val result = Quiz(entity.quizId, entity.roomId, entity.images,
+            entity.question, entity.options, null, entity.createdBy, entity.createdAt, entity.updatedAt,
+            entity.user?.let(mapperUser::asUserCensored))
+
         val possibility: Answer = gson.fromJson(entity.answer, Answer::class.java)
 
         return when(possibility.type){

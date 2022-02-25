@@ -126,6 +126,7 @@ sealed class QuizState {
                     options = options,
                     answer = selectedAnswer,
                     createdAt = Date(),
-                    updatedAt = null)).value
+                    updatedAt = null,
+                    user = null)).value
     }
 }

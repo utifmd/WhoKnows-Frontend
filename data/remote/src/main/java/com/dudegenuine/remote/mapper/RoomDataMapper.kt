@@ -152,6 +152,7 @@ class RoomDataMapper
             createdBy = quiz.createdBy,
             createdAt = quiz.createdAt,
             updatedAt = quiz.updatedAt,
+            user = quiz.user,
         )
     }
 
@@ -166,6 +167,7 @@ class RoomDataMapper
             createdBy = table.createdBy,
             createdAt = table.createdAt,
             updatedAt = table.updatedAt,
+            user = table.user,
         )
 
         val type = object: TypeToken<Answer?>(){}.type

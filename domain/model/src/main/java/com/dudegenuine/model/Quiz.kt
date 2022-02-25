@@ -16,7 +16,9 @@ data class Quiz(
     var answer: PossibleAnswer?,
     var createdBy: String,
     var createdAt: Date,
-    var updatedAt: Date?) {
+    var updatedAt: Date?,
+    val user: UserCensored?) {
+
     val isPropsBlank: Boolean = roomId.isBlank() ||
             question.isBlank() || options.isEmpty() ||
             createdBy.isBlank() // answer.isBlank() ||

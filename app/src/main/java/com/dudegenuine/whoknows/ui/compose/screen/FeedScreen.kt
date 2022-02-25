@@ -142,23 +142,26 @@ private fun BodyQuiz(
 
         items(lazyQuizzes) { item ->
             item?.let {
-                Row(modifier.width(246.dp).background(
-                    color = MaterialTheme.colors.onSurface.copy(
-                        alpha = if (MaterialTheme.colors.isLight) 0.04f else 0.06f
-                    ),
-                    shape = MaterialTheme.shapes.small
-                )) {
+                Row(
+                    modifier
+                        .width(246.dp)
+                        .background(
+                            color = MaterialTheme.colors.onSurface.copy(
+                                alpha = if (MaterialTheme.colors.isLight) 0.04f else 0.06f
+                            ),
+                            shape = MaterialTheme.shapes.small
+                        )) {
                     val text = buildAnnotatedString {
                         withStyle(SpanStyle(
                             fontWeight = FontWeight.SemiBold)) {
 
-                            append(item.user?.fullName)
+                            append(item.user?.fullName ?: "unknown")
                         }
                         
                         withStyle(SpanStyle(MaterialTheme.colors.onSurface.copy(0.5f),
                             fontStyle = FontStyle.Italic, fontSize = 11.sp)) {
 
-                            append(" @${item.user?.username}")
+                            append(" @${item.user?.username ?: "unknown"}")
                             append(" ${timeAgo(item.createdAt)}")
                         }
 

@@ -40,10 +40,9 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideQuizDataMapper(
-        gson: Gson): IQuizDataMapper {
+    override fun provideQuizDataMapper(gson: Gson, mapper: IUserDataMapper): IQuizDataMapper {
 
-        return QuizDataMapper(gson)
+        return QuizDataMapper(gson, mapper)
     }
 
     @Provides

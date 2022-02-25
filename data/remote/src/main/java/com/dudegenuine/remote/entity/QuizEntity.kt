@@ -38,6 +38,9 @@ data class QuizEntity(
     val createdAt: Date,
 
     @SerializedName("updatedAt")
-    val updatedAt: Date?
+    val updatedAt: Date?,
+
+    @SerializedName("user")
+    val user: UserCensoredEntity?
 
 ): Serializable
