@@ -21,7 +21,7 @@ interface IMessagingService {
     companion object {
         const val ENDPOINT_FCM_SEND = "/fcm/send"
         const val ENDPOINT_FCM_NOTIFICATION = "/fcm/notification"
-        const val AUTH_KEY_FCM = "Authorization: key=AAAAfd49hCg:APA91bEENFcJbmG1JAKM_KRoCVmimDpWXPxExfZ1Y6mG3gsy8nIyL3Z-eepeP6iBh--ZOI_tX4Z7nsKyxqWV9fQMIkDkiBS07Oyb8_0hvZpc4WAjynfrFlmyVYeyLdqYz1BgRWR7krC8"
+        const val AUTH_KEY_FCM = "Authorization: key=AAAAfd49hCg:APA91bHAuEj5UApV_wmjw7ARpyQngZhdkYAErw4LYG8widsKvh4OFclb3bUhDQthv4GZll-IGdemE2OWexW4Q6IBC0V6mV7Nup1ibbLrXSCwRKVjdcYlcDLel2-iW-IH1QnRK3FNi4qX"//const val AUTH_KEY_FCM = "Authorization: key=AAAAfd49hCg:APA91bEENFcJbmG1JAKM_KRoCVmimDpWXPxExfZ1Y6mG3gsy8nIyL3Z-eepeP6iBh--ZOI_tX4Z7nsKyxqWV9fQMIkDkiBS07Oyb8_0hvZpc4WAjynfrFlmyVYeyLdqYz1BgRWR7krC8"
         const val CONTENT_TYPE = "Content-Type: application/json"
         const val PROJECT_ID = "project_id: 540599485480"
     }

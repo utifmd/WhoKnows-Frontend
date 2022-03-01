@@ -2,14 +2,21 @@ package com.dudegenuine.whoknows.ui.service
 
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_ONE_SHOT
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.core.app.NotificationCompat.PRIORITY_MAX
+import coil.ImageLoader
 import coil.annotation.ExperimentalCoilApi
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.dudegenuine.local.api.INotifyManager
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
@@ -19,6 +26,7 @@ import com.dudegenuine.whoknows.ui.activity.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 /**
@@ -33,6 +41,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MessagingService: FirebaseMessagingService() {
     private val TAG: String = javaClass.simpleName
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.Main + job)
 
     companion object {
         const val MESSAGE_INTENT = "MessagingService message intent"
@@ -80,13 +90,35 @@ class MessagingService: FirebaseMessagingService() {
 
         with (notifier.onBuilt()) {
             setSmallIcon(R.drawable.ic_baseline_assignment_24)
+            setContentIntent(pending)
             setContentTitle(title)
             setContentText(body)
-            setContentIntent(pending)
             setAutoCancel(true)
+
+            priority = PRIORITY_MAX
+            message.data["largeIcon"]?.let { url ->
+                scope.launch { setLargeIcon(asBitmap(this@MessagingService, url)) }
+            }
         }
 
         notifier.onNotify()
+    }
+
+    private val asBitmap: suspend (Context, String) -> Bitmap = { context, url ->
+        val job = scope.async {
+            val loader = ImageLoader(context)
+            val request = ImageRequest.Builder(context)
+                .allowHardware(false) // Disable hardware bitmaps.
+                .data(url) //.data("https://images.dog.ceo/breeds/saluki/n02091831_3400.jpg")
+                .build()
+
+            val result = (loader.execute(request) as SuccessResult).drawable
+            val bitmap = (result as BitmapDrawable).bitmap
+
+            bitmap
+        }
+
+        job.await()
     }
 }
 

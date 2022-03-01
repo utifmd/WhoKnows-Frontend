@@ -360,16 +360,25 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
+    // TODO:
+    //  1. when signOut remove current register messaging in all of room owner neither participation room other
+    //  2. when signIn add fresh messaging in all of room owner neither participation room other
+    //  3. post participant degrade if roomId already joined
     override fun addMessagingGroupMember(
         messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
         val model = messaging.copy()
 
-        if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty())
+        if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty()) {
             _state.value = ResourceState(error = DONT_EMPTY)
 
-        caseMessaging.createMessaging(model)
+            return
+        }
+
+        caseMessaging.addMessaging(model)
             .onEach { res -> onResourceStateless(res, onSucceed) } //(::onResource)
             .launchIn(viewModelScope)
+
+        Log.d(TAG, "addMessagingGroupMember: triggered")
     }
 
     override fun pushMessaging(

@@ -1,11 +1,13 @@
 package com.dudegenuine.whoknows.infrastructure.di.android.api
 
 import android.app.NotificationChannel
-import android.app.NotificationManager.IMPORTANCE_DEFAULT
+import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import com.dudegenuine.local.api.INotifyManager
+import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_DESC
 import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID
 import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_NAME
 import com.dudegenuine.model.common.Utility.isOreoCompatibility
@@ -30,7 +32,12 @@ class NotifyManager(
     init {
         if (isOreoCompatibility) {
             channel = NotificationChannel(
-                CHANNEL_ID, CHANNEL_NAME, IMPORTANCE_DEFAULT)
+                CHANNEL_ID, CHANNEL_NAME, IMPORTANCE_HIGH).apply {
+                description = CHANNEL_DESC
+                lockscreenVisibility = VISIBILITY_PUBLIC
+
+                setShowBadge(true)
+            }
         }
 
         manager.apply {

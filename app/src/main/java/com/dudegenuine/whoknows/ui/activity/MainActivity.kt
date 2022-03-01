@@ -51,7 +51,7 @@ class MainActivity: ComponentActivity() {
             MainScreen(initialPassed = data)
         }
 
-        Log.d(TAG, "initial data key: $data")
+        if(data.isNotBlank()) Log.d(TAG, "initial data key: $data")
     }
 
     override fun onDestroy() {

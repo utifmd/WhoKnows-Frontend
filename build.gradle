@@ -25,7 +25,7 @@ buildscript {
 
         firebase_bom_version = '29.0.4'
         firebase_messaging_version = '23.0.0'
-        firebase_analytics_version = '20.0.2'
+        firebase_analytics_version = '20.1.0'
 
         test_junit_version = '4.13.2'
         android_test_junit_version = '1.1.3'

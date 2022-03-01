@@ -31,7 +31,7 @@ class PushMessaging @Inject constructor(
         } catch (e: IOException){
             emit(Resource.Error(Resource.IO_EXCEPTION))
         } catch (e: Exception){
-            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+            emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
     }
 }

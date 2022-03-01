@@ -16,6 +16,7 @@ interface INotifyManager {
     companion object {
         const val CHANNEL_ID = "channel ID"
         const val CHANNEL_NAME = "channel name"
+        const val CHANNEL_DESC = "channel description"
     }
 
     val onBuilt: () -> NotificationCompat.Builder

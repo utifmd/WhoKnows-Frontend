@@ -42,14 +42,14 @@ class ActivityViewModel
     private val caseUser: IUserUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IActivityViewModel {
     private val TAG: String = javaClass.simpleName
-    private var messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
+    private val messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
 
     private val messagingToken = caseMessaging.onMessagingTokenized()
     private val isSignedIn = caseUser.currentUserId().isNotBlank()
     private val isTokenized = messagingToken.isNotBlank()
 
     companion object {
-        const val TOPIC_COMMON = "common"
+        const val TOPIC_COMMON = "common" //"/topics/common"
     }
 
     init {
@@ -60,7 +60,10 @@ class ActivityViewModel
     }
 
     private fun messagingSubscribeTopic() {
-        messaging.subscribeToTopic(TOPIC_COMMON)
+        messaging.apply {
+            isAutoInitEnabled = true
+            subscribeToTopic(TOPIC_COMMON)
+        }
     }
 
     private fun messagingInitToken(){
@@ -68,13 +71,12 @@ class ActivityViewModel
             Log.d(TAG, "messagingInitToken: triggered")
 
             if (!task.isSuccessful) {
-                _state.value = ResourceState(
-                    message = "Trouble in firebase tokenization")
+                Log.d(TAG, "messagingInitToken: ${task.exception?.localizedMessage}")
 
                 return@addOnCompleteListener
             }
-            val token = task.result
 
+            val token = task.result
             // TODO: save value to prefs prepare for join selection room
             caseMessaging.onMessagingTokenRefresh(token)
         }

@@ -97,7 +97,7 @@ private fun BodyParticipant(
             )
         }
 
-        item { LazyStatePaging(items = lazyParticipants) }
+        item { LazyStatePaging(items = lazyParticipants, times = 3) }
     }
 }
 
@@ -116,7 +116,7 @@ private fun BodyRoom(modifier: Modifier, onJoinButtonPressed: () -> Unit,
             }
         }
 
-        item { LazyStatePaging(items = lazyRooms) }
+        item { LazyStatePaging(items = lazyRooms, times = 3) }
     }
 
     Box(modifier.fillMaxWidth(),
@@ -142,15 +142,11 @@ private fun BodyQuiz(
 
         items(lazyQuizzes) { item ->
             item?.let {
-                Row(
-                    modifier
-                        .width(246.dp)
-                        .background(
-                            color = MaterialTheme.colors.onSurface.copy(
-                                alpha = if (MaterialTheme.colors.isLight) 0.04f else 0.06f
-                            ),
-                            shape = MaterialTheme.shapes.small
-                        )) {
+                Row(modifier.width(246.dp).background(
+                    color = MaterialTheme.colors.onSurface.copy(
+                        alpha = if (MaterialTheme.colors.isLight) 0.04f else 0.06f
+                    ),
+                    shape = MaterialTheme.shapes.small)) {
                     val text = buildAnnotatedString {
                         withStyle(SpanStyle(
                             fontWeight = FontWeight.SemiBold)) {
@@ -161,7 +157,7 @@ private fun BodyQuiz(
                         withStyle(SpanStyle(MaterialTheme.colors.onSurface.copy(0.5f),
                             fontStyle = FontStyle.Italic, fontSize = 11.sp)) {
 
-                            append(" @${item.user?.username ?: "unknown"}")
+                            append(" @${item.user?.username ?: "@unknown"}")
                             append(" ${timeAgo(item.createdAt)}")
                         }
 
@@ -181,7 +177,7 @@ private fun BodyQuiz(
             }
         }
 
-        item { LazyStatePaging(items = lazyQuizzes) }
+        item { LazyStatePaging(items = lazyQuizzes, times = 3) }
     }
 }
 

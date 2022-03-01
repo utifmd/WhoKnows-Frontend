@@ -9,7 +9,7 @@ import okhttp3.ResponseBody
  **/
 interface IMessagingRepository {
     companion object {
-        const val MESSAGING_TOKEN = ""
+        const val MESSAGING_TOKEN = "current_user_firebase_messaging_token"
     }
 
     suspend fun get(keyName: String): Messaging.Getter.Response
