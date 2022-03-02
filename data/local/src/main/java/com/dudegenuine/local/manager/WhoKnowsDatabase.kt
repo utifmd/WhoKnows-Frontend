@@ -30,6 +30,7 @@ import com.dudegenuine.local.service.contract.ICurrentUserDao
     ParticipantConverter::class,
     QuizConverter::class,
     UserCensoredConverter::class,
+    RoomCensoredConverter::class,
     AnswerConverter::class,
     PossibleAnswerConverter::class
 )

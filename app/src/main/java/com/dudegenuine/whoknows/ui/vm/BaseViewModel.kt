@@ -61,7 +61,9 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    protected fun<T> onResourceSucceed(resources: Resource<T>, onSuccess: (T) -> Unit){
+    protected fun<T> onResourceSucceed(
+        resources: Resource<T>, onSuccess: (T) -> Unit){
+
         when(resources){
             is Resource.Success -> resources.data?.let { onSuccess(it) } ?: also {
                 Log.d(TAG, "Resource.Error: ${resources.message}")
@@ -85,8 +87,15 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
+    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User) -> Unit) {
+        onAuth(resources, onSucceed) {
+
+            _authState.value = ResourceState.Auth()
+        }
+    }
+
     protected fun<T> onResourceStateless(resources: Resource<T>, onSucceed: (T) -> Unit){
-        if(resources is Resource.Success){
+        if(resources is Resource.Success) {
             resources.data?.let { onSucceed(it) }
         }
 
@@ -95,22 +104,25 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User) -> Unit){
+    protected fun<T> onAuth(
+        resources: Resource<T>, onSucceed: ((User) -> Unit)? = null, onSignedOut: () -> Unit){
         when(resources){
-            is Resource.Success -> { /*_authState.value = when(resources.data) { is User -> _root_ide_package_.com.dudegenuine.whoknows.ui.presenter.ResourceState.Auth( currentUser = resources.data as User ) else -> _root_ide_package_.com.dudegenuine.whoknows.ui.presenter.ResourceState.Auth() }*/
+            is Resource.Success -> {
 
                 _state.value = when(resources.data) {
                     is User -> (resources.data as User).let {
-                        onSucceed(it)
+                        onSucceed?.invoke(it)
 
                         ResourceState(user = it)
                     }
 
                     is String -> ResourceState( // user signed out
                         user = null,
-                        error = resources.message ?: "An unexpected error occurred.").also {
+                        error = resources.message
+                            ?: "An unexpected error occurred."
 
-                        _authState.value = ResourceState.Auth() }
+                    ).also { onSignedOut() }
+
                     else -> ResourceState()
                 }
             }

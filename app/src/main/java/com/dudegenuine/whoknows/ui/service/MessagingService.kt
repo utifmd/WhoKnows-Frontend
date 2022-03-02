@@ -18,6 +18,7 @@ import coil.annotation.ExperimentalCoilApi
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.dudegenuine.local.api.INotifyManager
+import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_PARAM_MAX
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.repository.contract.IMessagingRepository
@@ -88,7 +89,7 @@ class MessagingService: FirebaseMessagingService() {
         val body = message.data["body"] ?: message.notification?.body ?:
             getString(R.string.notify_body)
 
-        with (notifier.onBuilt()) {
+        with (notifier.onBuilt(CHANNEL_PARAM_MAX)) {
             setSmallIcon(R.drawable.ic_baseline_assignment_24)
             setContentIntent(pending)
             setContentTitle(title)

@@ -3,6 +3,7 @@ package com.dudegenuine.remote.service
 import com.dudegenuine.remote.entity.MessagingAddEntity
 import com.dudegenuine.remote.entity.MessagingCreateEntity
 import com.dudegenuine.remote.entity.MessagingPushEntity
+import com.dudegenuine.remote.entity.MessagingRemoveEntity
 import com.dudegenuine.remote.service.contract.IMessagingService
 import com.dudegenuine.remote.service.contract.IMessagingService.Companion.AUTH_KEY_FCM
 import com.dudegenuine.remote.service.contract.IMessagingService.Companion.CONTENT_TYPE
@@ -33,8 +34,15 @@ interface MessagingService: IMessagingService {
     override suspend fun add(
         @Body entity: MessagingAddEntity): Response<ResponseBody>
 
+
+    @Headers(AUTH_KEY_FCM, CONTENT_TYPE, PROJECT_ID)
+    @POST(ENDPOINT_FCM_NOTIFICATION)
+    override suspend fun remove(
+        @Body entity: MessagingRemoveEntity): Response<ResponseBody>
+
     @Headers(AUTH_KEY_FCM, CONTENT_TYPE)
     @POST(ENDPOINT_FCM_SEND)
     override suspend fun push(
         @Body entity: MessagingPushEntity): Response<ResponseBody>
+
 }

@@ -6,7 +6,9 @@ import com.dudegenuine.local.entity.OnBoardingStateTable
 import com.dudegenuine.local.entity.QuizTable
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
+import com.dudegenuine.model.RoomCensored
 import com.dudegenuine.remote.entity.Response
+import com.dudegenuine.remote.entity.RoomCensoredEntity
 import com.dudegenuine.remote.entity.RoomEntity
 
 /**
@@ -28,6 +30,9 @@ interface IRoomDataMapper {
 
     fun asQuizTable(quiz: Quiz): QuizTable
     fun asQuiz(table: QuizTable): Quiz
+
+    fun asRoomCensoredEntity(room: RoomCensored): RoomCensoredEntity
+    fun asRoomCensored(entity: RoomCensoredEntity): RoomCensored
 
     fun asPagingSource(onEvent: suspend (Int) -> List<Room>): PagingSource<Int, Room>
 }

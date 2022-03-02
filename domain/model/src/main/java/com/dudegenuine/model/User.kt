@@ -18,7 +18,8 @@ data class User (
     var profileUrl: String,
     var createdAt: Date,
     var updatedAt: Date?,
-    var participants: List<Participant>): Serializable {
+    var participants: List<Participant>,
+    var rooms: List<RoomCensored>): Serializable {
 
     val isPropsBlank: Boolean =
         /*fullName.isBlank() ||*/ email.isBlank() || /*phone.isBlank() ||*/

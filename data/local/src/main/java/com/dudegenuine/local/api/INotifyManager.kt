@@ -17,8 +17,10 @@ interface INotifyManager {
         const val CHANNEL_ID = "channel ID"
         const val CHANNEL_NAME = "channel name"
         const val CHANNEL_DESC = "channel description"
+        const val CHANNEL_PARAM_MAX = "channel_param_max"
+        const val CHANNEL_PARAM_DEFAULT = "channel_param_default"
     }
 
-    val onBuilt: () -> NotificationCompat.Builder
+    val onBuilt: (String) -> NotificationCompat.Builder
     val onNotify: () -> Unit
 }

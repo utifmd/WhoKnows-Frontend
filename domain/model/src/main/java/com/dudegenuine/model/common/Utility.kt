@@ -9,4 +9,8 @@ import android.os.Build
 object Utility {
     val isOreoCompatibility: Boolean
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+
+    fun <T> concatenate(vararg lists: List<T>): List<T> {
+        return listOf(*lists).flatten()
+    }
 }

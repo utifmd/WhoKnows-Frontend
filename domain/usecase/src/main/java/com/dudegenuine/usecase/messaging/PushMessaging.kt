@@ -21,7 +21,7 @@ class PushMessaging @Inject constructor(
         try {
             emit(Resource.Loading())
 
-            val model = repository.push(messaging).toString()
+            val model = repository.push(messaging).string()
             emit(Resource.Success(model))
 
         } catch (e: HttpFailureException){

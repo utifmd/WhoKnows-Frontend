@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.User
+import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
@@ -49,20 +50,24 @@ class UserViewModel
     }
 
     private fun onRegisterGroupToken(currentUser: User) {
-        currentUser.participants.forEach { participation ->
-            postTokenByNotifyKeyName(
-                messagingToken, participation.roomId)
+        val joined = currentUser.participants.map { it.roomId }
+        val owned = currentUser.rooms.map { it.roomId }
+
+        concatenate(joined, owned).forEach { roomId ->
+            postTokenByNotifyKeyName(messagingToken, roomId)
         }
     }
 
     private fun onUnregisterGroupToken(currentUser: User) {
-        currentUser.participants.forEach { participation ->
-            deleteTokenByNotifyKeyName(
-                messagingToken, participation.roomId)
+        val joined = currentUser.participants.map { it.roomId }
+        val owned = currentUser.rooms.map { it.roomId } //.also { Log.d(TAG, "onUnregisterGroupToken: ${it.joinToString(" -> ")}") }
+
+        concatenate(joined, owned).forEach { roomId ->
+            deleteTokenByNotifyKeyName(messagingToken, roomId)
         }
     }
 
-    fun onUploadProfile(){
+    fun onUploadProfile() {
         val model: User? = state.user
 
         if (formState.profileImage.isEmpty() || model == null){
@@ -176,9 +181,15 @@ class UserViewModel
     }
 
     override fun signOutUser() {
-        caseUser.signOutUser()
-            .onEach { res -> onAuth(res, ::onUnregisterGroupToken) } // (this::onAuth)
-            .launchIn(viewModelScope)
+        getUser(caseUser.currentUserId()) { freshUser ->
+            caseUser.signOutUser()
+                .onEach { res -> onAuth(res, null) {
+                    onUnregisterGroupToken(freshUser)
+
+                    _authState.value = ResourceState.Auth()
+                }}
+                .launchIn(viewModelScope)
+        }
     }
 
     override fun postUser(user: User) {
@@ -188,7 +199,7 @@ class UserViewModel
         }
 
         caseUser.postUser(user)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     override fun getUser() {
@@ -201,9 +212,19 @@ class UserViewModel
             _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
-
         caseUser.getUser(id)
             .onEach(this::onResource).launchIn(viewModelScope)
+    }
+
+    override fun getUser(id: String, onSucceed: (User) -> Unit) {
+        if (id.isBlank()){
+            _state.value = ResourceState(error = DONT_EMPTY)
+            return
+        }
+
+        caseUser.getUser(id)
+            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .launchIn(viewModelScope)
     }
 
     override fun patchUser(id: String, freshUser: User) {

@@ -92,7 +92,7 @@ private fun BodyParticipant(
             if (item != null) ProfileCard(
                 modifier.fillMaxWidth(),
                 name = item.user?.fullName ?: stringResource(R.string.unknown),
-                desc = item.user?.username?.padStart(1, '@') ?: stringResource(R.string.unknown),
+                desc = (item.user?.username ?: stringResource(R.string.unknown)).padStart(1, '@'),
                 data = item.user?.profileUrl ?: ""
             )
         }

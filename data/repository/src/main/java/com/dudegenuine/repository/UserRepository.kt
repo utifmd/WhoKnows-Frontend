@@ -11,7 +11,6 @@ import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.dudegenuine.remote.service.contract.IUserService
 import com.dudegenuine.repository.contract.IUserRepository
 import com.dudegenuine.repository.contract.IUserRepository.Companion.CURRENT_USER_NOT_FOUND
-import com.dudegenuine.repository.contract.IUserRepository.Companion.NOT_FOUND
 import javax.inject.Inject
 
 /**
@@ -30,50 +29,37 @@ class UserRepository
         prefs.read(CURRENT_USER_ID)
     }
 
-    override suspend fun create(user: User): User = try {
+    override suspend fun create(user: User): User {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
 
-        remoteUser.also { save(mapper.asUserTable(it)) }
-    } catch (e: Exception){
-
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+        return remoteUser.also { save(mapper.asUserTable(it)) }
     }
 
-    override suspend fun read(id: String): User = try {
-        val remoteUser = mapper.asUser(service.read(id)) /*val localUser = load(id)*/
+    override suspend fun read(id: String): User {
 
-        remoteUser
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+        return mapper.asUser(service.read(id))
     }
 
-    override suspend fun update(id: String, user: User): User = try {
+    override suspend fun update(id: String, user: User): User {
         val remoteUser = mapper.asUser(service.update(id, mapper.asEntity(user)))
 
-        remoteUser.also { replace(mapper.asUserTable(it)) }
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+        return remoteUser.also { replace(mapper.asUserTable(it)) }
     }
 
-    override suspend fun delete(id: String) { try {
+    override suspend fun delete(id: String) {
         service.delete(id)
 
         unload(id)
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
-    }}
+    }
 
     override suspend fun list(page: Int, size: Int): List<User> = mapper.asUsers(
         service.list(page, size)
     )
 
-    override suspend fun signIn(params: Map<String, String>): User = try {
+    override suspend fun signIn(params: Map<String, String>): User {
         val remoteUser = mapper.asUser(service.signIn(mapper.asLogin(params)))
 
-        remoteUser.also { save(mapper.asUserTable(it)) }
-    } catch (e: Exception) {
-
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+        return remoteUser.also { save(mapper.asUserTable(it)) }
     }
 
     override suspend fun signOut(): String {

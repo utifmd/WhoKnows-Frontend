@@ -86,6 +86,7 @@ sealed class UserState {
                 "",
                 Date(),
                 null,
+                emptyList(),
                 emptyList()
             )
         ).value

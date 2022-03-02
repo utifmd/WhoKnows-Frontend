@@ -53,7 +53,7 @@ class MessagingDataMapper
 
     override fun asMessagingRemoveEntity(messaging: Messaging): MessagingRemoveEntity {
         return when (messaging){
-            is Messaging.GroupAdder -> MessagingRemoveEntity(
+            is Messaging.GroupRemover -> MessagingRemoveEntity(
                 operation = messaging.operation,
                 notificationKeyName = messaging.keyName,
                 notificationKey = messaging.key,

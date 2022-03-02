@@ -7,6 +7,7 @@ import com.dudegenuine.local.entity.QuizTable
 import com.dudegenuine.model.*
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.Response
+import com.dudegenuine.remote.entity.RoomCensoredEntity
 import com.dudegenuine.remote.entity.RoomEntity
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
 import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
@@ -182,6 +183,28 @@ class RoomDataMapper
             } //val itemType = object : TypeToken<List<String>>(){ }.type val data: List<String> = gson.fromJson(entity.answer, itemType) //            strOf<PossibleAnswer.Slider>() -> {} //            strOf<PossibleAnswer.Action>() -> {}
             else -> { result }
         }
+    }
+
+    override fun asRoomCensoredEntity(room: RoomCensored): RoomCensoredEntity {
+        return RoomCensoredEntity(
+            roomId = room.roomId,
+            userId = room.userId,
+            minute = room.minute,
+            title = room.title,
+            description = room.description,
+            expired = room.expired,
+        )
+    }
+
+    override fun asRoomCensored(entity: RoomCensoredEntity): RoomCensored {
+        return RoomCensored(
+            roomId = entity.roomId,
+            userId = entity.userId,
+            minute = entity.minute,
+            title = entity.title,
+            description = entity.description,
+            expired = entity.expired,
+        )
     }
 
     override fun asPagingSource(

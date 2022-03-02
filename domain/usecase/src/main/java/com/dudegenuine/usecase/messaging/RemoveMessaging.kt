@@ -21,7 +21,7 @@ class RemoveMessaging @Inject constructor(
         try {
             emit(Resource.Loading())
 
-            val model = repository.remove(messaging).toString()
+            val model = repository.remove(messaging).string()
             emit(Resource.Success(model))
 
         } catch (e: HttpFailureException){

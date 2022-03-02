@@ -350,8 +350,10 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
-    override fun createMessagingGroup(messaging: Messaging.GroupCreator, onSucceed: (String) -> Unit) {
+    override fun createMessagingGroup(
+        messaging: Messaging.GroupCreator, onSucceed: (String) -> Unit) {
         val model = messaging.copy()
+
         if (model.operation.isBlank() or model.keyName.isBlank() or model.tokens.isEmpty())
             _state.value = ResourceState(error = DONT_EMPTY)
 
@@ -363,7 +365,6 @@ class RoomViewModel
     // TODO:
     //  1. when signOut remove current register messaging in all of room owner neither participation room other
     //  2. when signIn add fresh messaging in all of room owner neither participation room other
-    //  3. post participant degrade if roomId already joined
     override fun addMessagingGroupMember(
         messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
         val model = messaging.copy()

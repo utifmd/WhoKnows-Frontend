@@ -2,15 +2,13 @@ package com.dudegenuine.remote.mapper
 
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.Participant
+import com.dudegenuine.model.RoomCensored
 import com.dudegenuine.model.User
 import com.dudegenuine.model.User.Companion.PASSWORD
 import com.dudegenuine.model.User.Companion.PAYLOAD
 import com.dudegenuine.model.UserCensored
 import com.dudegenuine.model.common.validation.HttpFailureException
-import com.dudegenuine.remote.entity.ParticipantEntity
-import com.dudegenuine.remote.entity.Response
-import com.dudegenuine.remote.entity.UserCensoredEntity
-import com.dudegenuine.remote.entity.UserEntity
+import com.dudegenuine.remote.entity.*
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.google.gson.Gson
 import javax.inject.Inject
@@ -34,7 +32,9 @@ class UserDataMapper
             createdAt = user.createdAt,
             updatedAt = user.updatedAt,
             participants = user.participants
-                .map(::asEntity)
+                .map(::asEntity),
+            rooms = user.rooms
+                .map(::asRoomCensoredEntity)
         )
     }
 
@@ -50,7 +50,9 @@ class UserDataMapper
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
             participants = entity.participants
-                .map(::asParticipant)
+                .map(::asParticipant),
+            rooms = entity.rooms
+                .map(::asRoomCensored)
         )
     }
 
@@ -101,7 +103,8 @@ class UserDataMapper
             profileUrl = it.profileUrl,
             createdAt = userTable.createdAt, //Date(it.createdAt),
             updatedAt = userTable.updatedAt, //it.updatedAt?.let { date -> Date(date) },
-            participants = userTable.participants
+            participants = userTable.participants,
+            rooms = userTable.rooms
         )}
     }
 
@@ -116,7 +119,8 @@ class UserDataMapper
             profileUrl = user.profileUrl,
             createdAt = user.createdAt,//.time,
             updatedAt = user.updatedAt,//?.time
-            participants = user.participants
+            participants = user.participants,
+            rooms = user.rooms
         )
     }
 
@@ -165,6 +169,28 @@ class UserDataMapper
             fullName = entity.fullName,
             username = entity.username,
             profileUrl = entity.profileUrl
+        )
+    }
+
+    override fun asRoomCensoredEntity(room: RoomCensored): RoomCensoredEntity {
+        return RoomCensoredEntity(
+            roomId = room.roomId,
+            userId = room.userId,
+            minute = room.minute,
+            title = room.title,
+            description = room.description,
+            expired = room.expired,
+        )
+    }
+
+    override fun asRoomCensored(entity: RoomCensoredEntity): RoomCensored {
+        return RoomCensored(
+            roomId = entity.roomId,
+            userId = entity.userId,
+            minute = entity.minute,
+            title = entity.title,
+            description = entity.description,
+            expired = entity.expired,
         )
     }
 }

@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.dudegenuine.model.Participant
+import com.dudegenuine.model.RoomCensored
 import java.util.*
 
 /**
@@ -42,4 +43,7 @@ data class UserTable(
 
     @ColumnInfo(name = "participants")
     val participants: List<Participant>,
+
+    @ColumnInfo(name = "rooms")
+    val rooms: List<RoomCensored>,
 )

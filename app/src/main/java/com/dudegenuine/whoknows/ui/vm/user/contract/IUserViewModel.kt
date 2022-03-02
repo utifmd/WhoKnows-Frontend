@@ -15,6 +15,7 @@ interface IUserViewModel: IMessagingViewModel { //: IFilePresenter {
     fun postUser(user: User)
     fun getUser()
     fun getUser(id: String)
+    fun getUser(id: String, onSucceed: (User) -> Unit)
     fun patchUser(id: String, freshUser: User)
     fun patchUser(freshUser: User, onSucceed: (User) -> Unit)
     fun deleteUser(id: String)
