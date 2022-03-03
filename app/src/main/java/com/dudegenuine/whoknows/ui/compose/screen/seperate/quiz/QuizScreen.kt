@@ -4,6 +4,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -17,6 +18,7 @@ import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.ui.compose.component.GeneralCardView
 import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
+import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
@@ -49,7 +51,9 @@ fun QuizScreen(
         is IQuizPublicState -> PublicBody(
             modifier = modifier,
             contentModifier = contentModifier,
-            stateCompose = stateCompose
+            stateCompose = stateCompose,
+            onBackPressed = stateCompose
+                .event::onBackPressed
         )
         else -> ErrorScreen(message = "State compose does\'nt exist")
     }
@@ -81,12 +85,16 @@ private fun Body(
 
             model.images.map { url ->
                 GeneralImage(
-                    modifier = modifier.size(240.dp).clickable(
-                        onClick = { onPicturePressed(url) }),
+                    modifier = modifier
+                        .size(240.dp)
+                        .clickable(
+                            onClick = { onPicturePressed(url) }),
                     data = if(url.contains("://")) url else ImageUtil.asBitmap(url),
                     placeholder = {
                         Icon(
-                            modifier = modifier.fillMaxSize().padding(12.dp),
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
                             imageVector = Icons.Default.Person, tint = MaterialTheme.colors.primary,
                             contentDescription = null
                         )
@@ -100,7 +108,8 @@ private fun Body(
                 .fillMaxWidth()
                 .background(
                     color = backgroundColor,
-                    shape = MaterialTheme.shapes.small)) {
+                    shape = MaterialTheme.shapes.small
+                )) {
             Text(
                 text = model.question,
                 style = MaterialTheme.typography.subtitle1,
@@ -140,7 +149,8 @@ private fun PrivateBody (
 
     Column(
         modifier = contentModifier
-            .fillMaxSize().verticalScroll(scrollState)) {
+            .fillMaxSize()
+            .verticalScroll(scrollState)) {
 
         Body(modifier, model, stateCompose.event::onPicturePressed){
             when(model.answer) {
@@ -170,37 +180,44 @@ private fun PublicBody (
     contentModifier: Modifier,
     stateCompose: IQuizPublicState,
     viewModel: QuizViewModel = hiltViewModel(),
-    scrollState: ScrollState = rememberScrollState()){
+    scrollState: ScrollState = rememberScrollState(), onBackPressed: () -> Unit){
     val state = viewModel.state
 
-    if (state.loading)
-        LoadingScreen()
+    Scaffold(modifier,
+        topBar = { GeneralTopBar(
+            title = "Question detail",
+            leads = Icons.Filled.ArrowBack,
+            onLeadsPressed = onBackPressed) }) {
 
-    if (state.error.isNotBlank())
-        ErrorScreen(message = state.error)
+        if (state.loading)
+            LoadingScreen()
 
-    state.quiz?.let { model ->
-        Column(
-            modifier = contentModifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)) {
+        state.quiz?.let { model ->
+            Column(
+                modifier = contentModifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)) {
 
-            Body(modifier, model, stateCompose.event::onPicturePressed){
-                when(model.answer){
-                    is PossibleAnswer.SingleChoice ->
-                        FieldTag(
-                            key = "Answer",
-                            editable = false,
-                            value = (model.answer as PossibleAnswer.SingleChoice).answer)
-                    is PossibleAnswer.MultipleChoice ->
-                        FieldTag(
-                            key = "Answers",
-                            editable = false,
-                            value = (model.answer as PossibleAnswer.MultipleChoice)
-                                .answers.joinToString(", "))
-                    else -> return@Body
+                Body(modifier, model, stateCompose.event::onPicturePressed){
+                    when(model.answer){
+                        is PossibleAnswer.SingleChoice ->
+                            FieldTag(
+                                key = "Answer",
+                                editable = false,
+                                value = (model.answer as PossibleAnswer.SingleChoice).answer)
+                        is PossibleAnswer.MultipleChoice ->
+                            FieldTag(
+                                key = "Answers",
+                                editable = false,
+                                value = (model.answer as PossibleAnswer.MultipleChoice)
+                                    .answers.joinToString(", "))
+                        else -> return@Body
+                    }
                 }
             }
         }
+
+        if (state.error.isNotBlank())
+            ErrorScreen(message = state.error)
     }
 }

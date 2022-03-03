@@ -111,7 +111,7 @@ class TimerService: ITimerService() {
         val actionIntent = NotificationCompat.Action.Builder(
             R.drawable.ic_baseline_task_24, "Go Back", pendingIntent).build()
 
-        val builder = notifier.onBuilt(CHANNEL_PARAM_DEFAULT)
+        val builder: NotificationCompat.Builder = notifier.onBuilt(CHANNEL_PARAM_DEFAULT)
 
         with(builder) {
             setContentTitle("The class still going")

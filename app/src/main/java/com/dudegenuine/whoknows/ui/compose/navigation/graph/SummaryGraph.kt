@@ -130,6 +130,11 @@ fun NavGraphBuilder.summaryGraph(
             "{$QUIZ_ID_SAVED_KEY}")){
 
         val event = object: IQuizPublicEvent {
+
+            override fun onBackPressed() {
+                router.popBackStack()
+            }
+
             override fun onPicturePressed(url: String) {
                 Log.d("onPicturePressed", "triggered")
             }

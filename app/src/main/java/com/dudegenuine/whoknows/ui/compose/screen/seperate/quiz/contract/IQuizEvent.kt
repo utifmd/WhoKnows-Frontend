@@ -19,4 +19,6 @@ interface IQuizPrivateEvent: IQuizEvent {
     fun onAnswerSelected(freshAnswer: String, selected: Boolean){}
 }
 
-interface IQuizPublicEvent: IQuizEvent
+interface IQuizPublicEvent: IQuizEvent{
+    fun onBackPressed()
+}

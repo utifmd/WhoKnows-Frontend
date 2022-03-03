@@ -21,7 +21,6 @@ import com.dudegenuine.local.api.INotifyManager
 import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_PARAM_MAX
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
-import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.activity.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -62,7 +61,10 @@ class MessagingService: FirebaseMessagingService() {
         super.onNewToken(token)
         Log.d(TAG, "onNewToken: $token")
 
-        prefs.write(IMessagingRepository.MESSAGING_TOKEN, token)
+        //prefs.write(IMessagingRepository.MESSAGING_TOKEN, token)
+
+        // TODO: 2. route from result to another bottom bar not found
+        // TODO: 3. notification go back still apear after timer counting
 
         Intent(ACTION_FCM_TOKEN)
             .apply { putExtra(INITIAL_FCM_TOKEN, token) }.apply(::sendBroadcast)

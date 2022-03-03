@@ -44,8 +44,7 @@ class ActivityViewModel
     private val TAG: String = javaClass.simpleName
     private val messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
 
-    private val messagingToken = caseMessaging.onMessagingTokenized()
-    private val isSignedIn = caseUser.currentUserId().isNotBlank()
+    private val messagingToken = caseMessaging.onMessagingTokenized() //private val isSignedIn = caseUser.currentUserId().isNotBlank()
     private val isTokenized = messagingToken.isNotBlank()
 
     companion object {
@@ -119,8 +118,12 @@ class ActivityViewModel
     val messagingServiceReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val token = intent?.getStringExtra(INITIAL_FCM_TOKEN) ?: return
+            /*if (isSignedIn) */
+            token.let {
+                caseMessaging.onMessagingTokenRefresh(it)
 
-            if (isSignedIn) token.apply(::onRefreshToken)
+                ::onRefreshToken
+            }
             Log.d(TAG, "onReceive: triggered")
         }
     }
