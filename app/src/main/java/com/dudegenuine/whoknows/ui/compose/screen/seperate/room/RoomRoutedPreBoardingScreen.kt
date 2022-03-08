@@ -19,8 +19,8 @@ import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 @Composable
 fun RoomRoutedPreBoardingScreen(
     event: IRoomEventBoarding,
-    viewModel: RoomViewModel = hiltViewModel(),
-    onStopTimer: () -> Unit) {
+    viewModel: RoomViewModel = hiltViewModel()/*,
+    onStopTimer: () -> Unit*/) {
     //val state = viewModel.state
     val uiState = viewModel.uiState.observeAsState().value
 
@@ -33,7 +33,7 @@ fun RoomRoutedPreBoardingScreen(
                 { boardingState.currentQuestionIdx +=1 }
 
             override fun onDonePressed() {
-                onStopTimer()
+                //onStopTimer()
 
                 viewModel.onPreResult(boardingState)
             }

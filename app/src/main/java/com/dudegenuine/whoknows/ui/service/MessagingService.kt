@@ -2,32 +2,34 @@ package com.dudegenuine.whoknows.ui.service
 
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_ONE_SHOT
-import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.core.app.NotificationCompat.PRIORITY_MAX
-import coil.ImageLoader
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
+import androidx.core.app.NotificationManagerCompat.IMPORTANCE_MAX
 import coil.annotation.ExperimentalCoilApi
-import coil.request.ImageRequest
-import coil.request.SuccessResult
 import com.dudegenuine.local.api.INotifyManager
-import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_PARAM_MAX
+import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID_COMMON
+import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID_JOINED
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.model.common.ImageUtil.asBitmapAsync
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.activity.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 /**
  * Fri, 11 Feb 2022
@@ -44,6 +46,9 @@ class MessagingService: FirebaseMessagingService() {
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.Main + job)
 
+    @Inject lateinit var prefs: IPreferenceManager
+    @Inject lateinit var notifier: INotifyManager
+
     companion object {
         const val MESSAGE_INTENT = "MessagingService message intent"
 
@@ -51,20 +56,15 @@ class MessagingService: FirebaseMessagingService() {
         const val INITIAL_FCM_TOKEN = "initial_fcm_token"
     }
 
-    @Inject
-    lateinit var prefs: IPreferenceManager
-
-    @Inject
-    lateinit var notifier: INotifyManager
-
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "onNewToken: $token")
 
         //prefs.write(IMessagingRepository.MESSAGING_TOKEN, token)
 
-        // TODO: 2. route from result to another bottom bar not found
-        // TODO: 3. notification go back still apear after timer counting
+        // TODO: 2. route from result to profile bottom bar not found
+        // TODO: 3. notification go back still appear after timer counting
+        // TODO: 4. delete group messaging when room deleted
 
         Intent(ACTION_FCM_TOKEN)
             .apply { putExtra(INITIAL_FCM_TOKEN, token) }.apply(::sendBroadcast)
@@ -76,52 +76,38 @@ class MessagingService: FirebaseMessagingService() {
 
         val currentUserId = prefs.read(CURRENT_USER_ID)
         Log.d(TAG, "currentUserId: $currentUserId")
-
         if (currentUserId.isBlank()) return
 
-        val intent: Intent = MainActivity.createIntent(this, MESSAGE_INTENT)
-            .apply { addFlags(FLAG_ACTIVITY_CLEAR_TOP) }
+        notification(message)
+    }
 
-        val pending: PendingIntent = PendingIntent
-            .getActivity(this, 0, intent, FLAG_ONE_SHOT)
+    private fun notification(message: RemoteMessage) {
+        val title = message.data["title"] ?: message.notification?.title ?: getString(R.string.notify_title)
+        val body = message.data["body"] ?: message.notification?.body ?: getString(R.string.notify_body)
+        val largeIcon = message.data["largeIcon"] ?: message.notification?.imageUrl as String?
 
-        val title = message.data["title"] ?: message.notification?.title ?:
-            getString(R.string.notify_title)
+        val intent = MainActivity.createIntent(this, MESSAGE_INTENT).apply { addFlags(FLAG_ACTIVITY_CLEAR_TOP) }
+        val channelId = if (message.data.isNotEmpty()) CHANNEL_ID_JOINED else message.notification?.channelId ?: CHANNEL_ID_COMMON
+        val channelLevel = if (message.data.isNotEmpty()) IMPORTANCE_MAX else IMPORTANCE_DEFAULT
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_ONE_SHOT)
 
-        val body = message.data["body"] ?: message.notification?.body ?:
-            getString(R.string.notify_body)
+        val builder = notifier.onBuilt(channelId, channelLevel)
+        with (builder) {
+            if (message.data.isNotEmpty()) priority = NotificationCompat.PRIORITY_MAX
 
-        with (notifier.onBuilt(CHANNEL_PARAM_MAX)) {
+            largeIcon?.let { url -> scope.launch {
+                setLargeIcon(asBitmapAsync(this@MessagingService, url)) }
+            }
+
             setSmallIcon(R.drawable.ic_baseline_assignment_24)
-            setContentIntent(pending)
+            setContentIntent(pendingIntent)
             setContentTitle(title)
             setContentText(body)
             setAutoCancel(true)
-
-            priority = PRIORITY_MAX
-            message.data["largeIcon"]?.let { url ->
-                scope.launch { setLargeIcon(asBitmap(this@MessagingService, url)) }
-            }
         }
 
-        notifier.onNotify()
-    }
-
-    private val asBitmap: suspend (Context, String) -> Bitmap = { context, url ->
-        val job = scope.async {
-            val loader = ImageLoader(context)
-            val request = ImageRequest.Builder(context)
-                .allowHardware(false) // Disable hardware bitmaps.
-                .data(url) //.data("https://images.dog.ceo/breeds/saluki/n02091831_3400.jpg")
-                .build()
-
-            val result = (loader.execute(request) as SuccessResult).drawable
-            val bitmap = (result as BitmapDrawable).bitmap
-
-            bitmap
-        }
-
-        job.await()
+        notifier.manager.notify(
+            Random.nextInt(), builder.build())
     }
 }
 

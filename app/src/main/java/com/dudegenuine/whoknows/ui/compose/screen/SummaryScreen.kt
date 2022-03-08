@@ -1,7 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
@@ -11,7 +9,6 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomStatedPreBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
-import com.dudegenuine.whoknows.ui.service.TimerService
 
 /**
  * Thu, 16 Dec 2021
@@ -24,14 +21,14 @@ import com.dudegenuine.whoknows.ui.service.TimerService
 @ExperimentalMaterialApi
 @Composable
 fun SummaryScreen(
-    context: Context,
+    //context: Context,
     eventHome: IRoomEventHome) {
-    val service = Intent(context, TimerService::class.java)
+    //val service = Intent(context, TimerService::class.java)
 
     RoomStatedPreBoardingScreen(
         eventHome = eventHome,
         eventBoarding = object: IRoomEventBoarding { }){
 
-        context.stopService(service)
+        //context.stopService(service)
     }
 }

@@ -25,6 +25,12 @@ interface NotificationService: INotificationService {
     override suspend fun read(
         @Path("id") id: String): Response<NotificationEntity>
 
+    @Headers(API_KEY, CONTENT_TYPE,  ACCEPT)
+    @GET("$ENDPOINT/{id}")
+    override suspend fun update(
+        @Path("id") id: String,
+        @Body entity: NotificationEntity): Response<NotificationEntity>
+
     @Headers(API_KEY, ACCEPT)
     @DELETE("$ENDPOINT/{id}")
     override suspend fun delete(

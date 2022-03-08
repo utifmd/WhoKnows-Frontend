@@ -7,10 +7,10 @@ import com.dudegenuine.model.Messaging
  * WhoKnows by utifmd
  **/
 interface IMessagingViewModel {
-    fun createMessagingGroup(messaging: Messaging.GroupCreator, onSucceed: (String) -> Unit){}
-    fun getMessagingGroupKey(keyName: String, onSucceed: (String) -> Unit){}
-    fun addMessagingGroupMember(messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit){}
-    fun removeGroupMemberMessaging(messaging: Messaging.GroupRemover, onSucceed: (String) -> Unit){}
+    fun createMessaging(messaging: Messaging.GroupCreator, onSucceed: (String) -> Unit){}
+    fun getMessaging(keyName: String, onSucceed: (String) -> Unit){}
+    fun addMessaging(messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit){}
+    fun removeMessaging(messaging: Messaging.GroupRemover, onSucceed: (String) -> Unit){}
     fun pushMessaging(messaging: Messaging.Pusher, onSucceed: (String) -> Unit){}
 
     /*fun getMessagingGroupKey(keyName: String){}

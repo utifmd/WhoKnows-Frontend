@@ -21,6 +21,5 @@ data class Result (
             participantId.isBlank() ||
             userId.isBlank() ||
             correctQuiz.isEmpty() ||
-            wrongQuiz.isEmpty() ||
-            score != 0
+            wrongQuiz.isEmpty()
 }

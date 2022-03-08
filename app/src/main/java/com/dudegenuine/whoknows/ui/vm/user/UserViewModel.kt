@@ -49,21 +49,21 @@ class UserViewModel
         else getUser()
     }
 
-    private fun onRegisterGroupToken(currentUser: User) {
+    private fun onPreRegisterGroupToken(currentUser: User) {
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
 
         concatenate(joined, owned).forEach { roomId ->
-            postTokenByNotifyKeyName(messagingToken, roomId)
+            onRegisterToken(messagingToken, roomId)
         }
     }
 
-    private fun onUnregisterGroupToken(currentUser: User) {
+    private fun onPreUnregisterGroupToken(currentUser: User) {
         val joined = currentUser.participants.map { it.roomId }
-        val owned = currentUser.rooms.map { it.roomId } //.also { Log.d(TAG, "onUnregisterGroupToken: ${it.joinToString(" -> ")}") }
+        val owned = currentUser.rooms.map { it.roomId }
 
         concatenate(joined, owned).forEach { roomId ->
-            deleteTokenByNotifyKeyName(messagingToken, roomId)
+            onUnregisterToken(messagingToken, roomId)
         }
     }
 
@@ -127,29 +127,29 @@ class UserViewModel
         }
     }
 
-    private fun postTokenByNotifyKeyName(token: String, notifyKeyName: String){
-        getMessagingGroupKey(notifyKeyName){ notifyKey ->
+    private fun onRegisterToken(token: String, notifyKeyName: String){
+        getMessaging(notifyKeyName){ notifyKey ->
             val model = Messaging.GroupAdder(
                 key = notifyKey,
                 keyName = notifyKeyName,
                 tokens = listOf(token)
             )
 
-            addMessagingGroupMember(model){
+            addMessaging(model) {
                 Log.d(TAG, "added: $it")
             }
         }
     }
 
-    private fun deleteTokenByNotifyKeyName(token: String, notifyKeyName: String){
-        getMessagingGroupKey(notifyKeyName){ notifyKey ->
+    private fun onUnregisterToken(token: String, notifyKeyName: String) {
+        getMessaging(notifyKeyName){ notifyKey ->
             val model = Messaging.GroupRemover(
                 key = notifyKey,
                 keyName = notifyKeyName,
                 tokens = listOf(token)
             )
 
-            removeGroupMemberMessaging(model){
+            removeMessaging(model){
                 Log.d(TAG, "removed: $it")
             }
         }
@@ -164,7 +164,7 @@ class UserViewModel
         }
 
         caseUser.signInUser(model)
-            .onEach { res -> onAuth(res, ::onRegisterGroupToken) }//(this::onAuth)
+            .onEach { res -> onAuth(res, ::onPreRegisterGroupToken) }//(this::onAuth)
             .launchIn(viewModelScope)
     }
 
@@ -176,7 +176,7 @@ class UserViewModel
         }
 
         caseUser.postUser(model)
-            .onEach { res -> onAuth(res, ::onRegisterGroupToken) }
+            .onEach { res -> onAuth(res, ::onPreRegisterGroupToken) }
             .launchIn(viewModelScope)
     }
 
@@ -184,7 +184,7 @@ class UserViewModel
         getUser(caseUser.currentUserId()) { freshUser ->
             caseUser.signOutUser()
                 .onEach { res -> onAuth(res, null) {
-                    onUnregisterGroupToken(freshUser)
+                    onPreUnregisterGroupToken(freshUser)
 
                     _authState.value = ResourceState.Auth()
                 }}
@@ -271,7 +271,7 @@ class UserViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun getMessagingGroupKey(
+    override fun getMessaging(
         keyName: String, onSucceed: (String) -> Unit) {
         if (keyName.isBlank()) return
 
@@ -280,7 +280,7 @@ class UserViewModel
             .launchIn(viewModelScope)
     }
 
-    override fun addMessagingGroupMember(
+    override fun addMessaging(
         messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
         if (!messaging.isValid) return
 
@@ -289,7 +289,7 @@ class UserViewModel
             .launchIn(viewModelScope)
     }
 
-    override fun removeGroupMemberMessaging(
+    override fun removeMessaging(
         messaging: Messaging.GroupRemover, onSucceed: (String) -> Unit) {
         if (!messaging.isValid) return
 

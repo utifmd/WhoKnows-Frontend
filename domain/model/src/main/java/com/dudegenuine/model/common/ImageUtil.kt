@@ -3,8 +3,12 @@ package com.dudegenuine.model.common
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.util.Base64
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import java.io.ByteArrayOutputStream
 
 
@@ -43,5 +47,18 @@ object ImageUtil {
         }
 
         stream.toByteArray()
+    }
+
+    val asBitmapAsync: suspend (Context, String) -> Bitmap = { context, url ->
+        val loader = ImageLoader(context)
+        val request = ImageRequest.Builder(context)
+            .allowHardware(false) // Disable hardware bitmaps.
+            .data(url) //.data("https://images.dog.ceo/breeds/saluki/n02091831_3400.jpg")
+            .build()
+
+        val result = (loader.execute(request) as SuccessResult).drawable
+        val bitmap = (result as BitmapDrawable).bitmap
+
+        bitmap
     }
 }

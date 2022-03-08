@@ -50,8 +50,8 @@ fun RoomDetail(
     scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState
         (BackdropValue.Concealed),
     eventRouter: IRoomEventDetail,
-    onBackPressed: () -> Unit,
-    onLaunchTimer: (Double) -> Unit) {
+    onBackPressed: () -> Unit/*,
+    onLaunchTimer: (Double) -> Unit*/) {
 
     val state = viewModel.state
 
@@ -72,13 +72,10 @@ fun RoomDetail(
         override fun onCloseRoomPressed(room: Room)
             { viewModel.expireRoom(room) { toggle() } }
 
-        override fun onJoinRoomDirectlyPressed(room: Room) {
-            val asSecond = room.minute.toFloat() * 60
+        override fun onJoinRoomDirectlyPressed(room: Room) { toggle()
+            //onLaunchTimer(asSecond.toDouble())
 
-            toggle()
             eventRouter.onBoardingRoomPressed(room.id)
-
-            onLaunchTimer(asSecond.toDouble())
         }
 
         override fun onDeleteRoomPressed(roomId: String) {

@@ -8,6 +8,7 @@ import com.dudegenuine.model.Notification
  **/
 interface INotificationRepository {
     suspend fun create(notification: Notification): Notification
+    suspend fun update(fresh: Notification): Notification
     suspend fun read(id: String): Notification
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Notification>

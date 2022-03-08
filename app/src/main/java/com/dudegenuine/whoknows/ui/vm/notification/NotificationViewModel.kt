@@ -49,6 +49,18 @@ class NotificationViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
+    override fun patchNotification(notification: Notification) {
+        if (notification.isPropsBlank) {
+            onStateValueChange(ResourceState(error = DONT_EMPTY))
+            return
+        }
+
+        case.patchNotification(notification)
+            .onEach { res -> onResourceStateless(res)
+                { Log.d(TAG, "patchNotification: ${it.notificationId}") }}
+            .launchIn(viewModelScope)
+    }
+
     override fun getNotification(id: String) {
         if (id.isBlank()){
 

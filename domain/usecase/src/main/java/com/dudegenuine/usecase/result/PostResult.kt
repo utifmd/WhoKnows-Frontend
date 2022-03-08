@@ -20,8 +20,10 @@ class PostResult
         operator fun invoke(result: Result): Flow<Resource<Result>> = flow {
             try {
                 emit(Resource.Loading())
+
                 val posted = repository.create(result)
                 emit(Resource.Success(posted))
+
             } catch (e: HttpFailureException){
                 emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
             } catch (e: HttpException){

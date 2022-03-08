@@ -30,8 +30,8 @@ interface IViewModelModule {
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
         caseParticipant: IParticipantUseCaseModule,
-        caseMessagig: IMessageUseCaseModule,
-        caseFile: IFileUseCaseModule,
+        caseMessaging: IMessageUseCaseModule,
+        caseNotification: INotificationUseCaseModule,
         caseResult: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel
 

@@ -26,7 +26,8 @@ fun SingleChoiceQuestion(
     onAnswerSelected: (String) -> Unit,
 ) {
     val selected = answer?.answer
-    val (selectedOption, onOptionSelected) = remember(answer) { mutableStateOf(selected) }
+    val (selectedOption, onOptionSelected) = remember(answer)
+        { mutableStateOf(selected) }
 
     Column(
         modifier = modifier) {

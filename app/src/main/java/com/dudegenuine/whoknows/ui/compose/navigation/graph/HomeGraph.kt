@@ -30,7 +30,7 @@ import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 @ExperimentalCoilApi
 fun NavGraphBuilder.homeNavGraph(
     modifier: Modifier = Modifier,
-    context: Context,
+    //context: Context,
     initial: Screen,
     router: NavHostController,
     viewModel: UserViewModel) {
@@ -43,7 +43,7 @@ fun NavGraphBuilder.homeNavGraph(
             route = Screen.Home.Summary.route) {
 
             SummaryScreen(
-                context = context,
+                //context = context,
                 eventHome = RoomEventHome(router)
             )
         }

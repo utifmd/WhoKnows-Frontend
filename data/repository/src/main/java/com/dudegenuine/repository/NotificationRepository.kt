@@ -23,6 +23,12 @@ class NotificationRepository
             service.create(mapper.asEntity(notification)))
     }
 
+    override suspend fun update(fresh: Notification): Notification {
+        return mapper.asNotification(
+            service.update(fresh.notificationId, mapper.asEntity(fresh))
+        )
+    }
+
     override suspend fun read(id: String): Notification {
         return mapper.asNotification(
             service.read(id))

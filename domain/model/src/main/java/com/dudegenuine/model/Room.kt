@@ -34,6 +34,7 @@ data class Room(
             val participantId: String,
             val participantName: String,
             val roomId: String,
+            val userId: String,
             val roomTitle: String,
             val roomDesc: String,
             val roomMinute: Int,
@@ -70,37 +71,32 @@ data class Room(
                 get() = mutableStateOf(
                     title.text.isNotBlank() &&
                             desc.text.isNotBlank() &&
-                            minute.text.isNotBlank()
-                ).value
+                            minute.text.isNotBlank()).value
 
-            val model: Room
+            val room: Room
                 get() = mutableStateOf(Room(
-                    id = "ROM-${UUID.randomUUID()}",
-                    userId = "",
-                    minute = if(minute.text.isBlank()) 0 else minute.text.toInt(),
-                    title = title.text,
-                    description = desc.text,
-                    expired = false,
-                    questions = emptyList(),
-                    participants = emptyList(),
-                    createdAt = Date(),
-                    updatedAt = null )).value
+                    id = "ROM-${UUID.randomUUID()}", userId = "",
+                    minute = if(minute.text.isBlank()) 0 else minute.text.toInt(), title = title.text, description = desc.text,
+                    expired = false, questions = emptyList(), participants = emptyList(), createdAt = Date(), updatedAt = null )).value
+
+            val notification: Notification get() = mutableStateOf(Notification(
+                notificationId = "NTF-${UUID.randomUUID()}",
+                userId = "", roomId = "", event = "", seen = false, recipientId = "", createdAt = Date(), null, null)).value
+
+            val result: Result = mutableStateOf(Result(
+                id = "RSL-${UUID.randomUUID()}",
+                roomId = "", participantId = "", userId = "", correctQuiz = emptyList(), wrongQuiz = emptyList(), score = 0,
+                createdAt = Date(),
+                updatedAt = null)).value
 
             private val _participantModel = mutableStateOf(
                 Participant(
                     id = "PPN-${UUID.randomUUID()}",
-                    roomId = "",
-                    userId = "",
-                    currentPage = "0",
-                    timeLeft = null,
-                    expired = false,
-                    createdAt = Date(),
-                    updatedAt = null,
-                    user = null
-                )
+                    roomId = "", userId = "", currentPage = "0", timeLeft = null, expired = false,
+                    createdAt = Date(), updatedAt = null, user = null)
             )
 
-            val participantModel: Participant
+            val participant: Participant
                 get() = _participantModel.value
 
             val isGetValid: Boolean

@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.notification
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -8,7 +9,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,10 +28,17 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
 @ExperimentalCoilApi
 @Composable
 fun NotificationItem(
-    modifier: Modifier = Modifier, model: Notification) {
+    modifier: Modifier = Modifier,
+    model: Notification, onItemPressed: () -> Unit) {
+    var isSeen by remember { mutableStateOf(model.seen) }
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().clickable(
+            enabled = !isSeen){
+            isSeen = true
+
+            onItemPressed()
+        },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
 
@@ -52,10 +60,10 @@ fun NotificationItem(
         }
 
         Column {
-            Text( stringResource(R.string.lorem)/*model.sender?.username ?: (stringResource(R.string.unknown) +" "+ model.event)*/,
+            Text((model.sender?.username ?: stringResource(R.string.unknown)) +" "+ model.event,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                color = if (model.seen) MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
+                color = if (!isSeen) MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
                     else MaterialTheme.colors.secondaryVariant,
                 style = MaterialTheme.typography.caption)
 

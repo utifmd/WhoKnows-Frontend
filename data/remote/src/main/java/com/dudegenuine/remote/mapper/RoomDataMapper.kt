@@ -88,6 +88,7 @@ class RoomDataMapper
         return BoardingQuizTable(
             participantId = boarding.participantId,
             participantName = boarding.participantName,
+            userId = boarding.userId,
             roomId = boarding.roomId,
             roomTitle = boarding.roomTitle,
             roomDesc = boarding.roomDesc,
@@ -115,6 +116,7 @@ class RoomDataMapper
         return Room.RoomState.BoardingQuiz(
             participantId = table.participantId,
             participantName = table.participantName,
+            userId = table.userId,
             roomId = table.roomId,
             roomTitle = table.roomTitle,
             roomDesc = table.roomDesc,

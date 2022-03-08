@@ -17,6 +17,9 @@ data class BoardingQuizTable(
     @ColumnInfo(name = "participantName")
     val participantName: String,
 
+    @ColumnInfo(name = "userId")
+    val userId: String,
+
     @ColumnInfo(name = "roomId")
     val roomId: String,
 

@@ -32,7 +32,7 @@ fun RoomHomeScreen(
     Scaffold(
         topBar = {
             GeneralTopBar(
-                title = "Recently class", //"Recently class\'s",
+                title = "Created class", //"Recently class\'s",
             )
         },
         modifier = modifier,

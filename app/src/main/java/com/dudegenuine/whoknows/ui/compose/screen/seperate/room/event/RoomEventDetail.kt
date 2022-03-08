@@ -23,6 +23,10 @@ class RoomEventDetail(
         with (router) {
             repeat(3) { popBackStack() }
             navigate(screen)
+
+            /*navigate(screen) {
+                popUpTo(screen) { inclusive = true }
+            }*/
         }
     }
 

@@ -68,11 +68,12 @@ object ViewModelModule: IViewModelModule {
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
         caseParticipant: IParticipantUseCaseModule,
-        caseMessagig: IMessageUseCaseModule,
-        caseFile: IFileUseCaseModule,
+        caseMessaging: IMessageUseCaseModule,
+        caseNotification: INotificationUseCaseModule,
         caseResult: IResultUseCaseModule,
-        savedStateHandle: SavedStateHandle): IRoomViewModel {
-        return RoomViewModel(caseMessagig, caseFile, caseRoom, caseUser, caseParticipant, caseResult, savedStateHandle)
+        savedStateHandle: SavedStateHandle
+    ): IRoomViewModel {
+        return RoomViewModel(caseMessaging, caseNotification, caseRoom, caseUser, caseParticipant, caseResult, savedStateHandle)
     }
 
     @Provides

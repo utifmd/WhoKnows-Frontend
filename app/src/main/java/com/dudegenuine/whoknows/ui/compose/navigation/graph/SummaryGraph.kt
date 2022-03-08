@@ -1,7 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
-import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -11,7 +9,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizScreen
@@ -32,7 +29,6 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
-import com.dudegenuine.whoknows.ui.service.TimerService
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 
 /**
@@ -45,12 +41,11 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USE
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 fun NavGraphBuilder.summaryGraph(
-    context: Context,
-    router: NavHostController){
-    val service = Intent(context, TimerService::class.java)
+    router: NavHostController) {
+    //context: Context, //val service = Intent(context, TimerService::class.java)
 
     composable(
-        route = Screen.Home.Summary.RoomCreator.route){
+        route = Screen.Home.Summary.RoomCreator.route) {
         RoomCreatorScreen(
             onBackPressed = router::popBackStack,
             onSucceed = {
@@ -80,11 +75,11 @@ fun NavGraphBuilder.summaryGraph(
         RoomDetail(
             onBackPressed = router::popBackStack,
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
-            eventRouter = RoomEventDetail(router = router)) { time ->
+            eventRouter = RoomEventDetail(router = router)) /*{ time ->
 
             service.putExtra(ITimerService.INITIAL_TIME_KEY, time)
                 .apply(context::startService)
-        }
+        }*/
     }
 
     composable(
@@ -104,9 +99,9 @@ fun NavGraphBuilder.summaryGraph(
             }
         }
 
-        RoomRoutedPreBoardingScreen(event){
+        RoomRoutedPreBoardingScreen(event)/*{
             context.stopService(service)
-        }
+        }*/
     }
 
     composable(
@@ -114,13 +109,17 @@ fun NavGraphBuilder.summaryGraph(
             "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")){
 
         QuizCreatorScreen(onBackPressed = router::popBackStack) { quiz ->
-            val route = Screen.Home.Summary.RoomDetail.withArgs(
+            val screen = Screen.Home.Summary.RoomDetail.withArgs(
                 quiz.roomId, OWN_IS_TRUE)
 
             with (router) {
                 repeat (2){ popBackStack() }
 
-                navigate(route)
+                navigate(screen)
+
+                /*navigate(screen) {
+                    popUpTo(screen) { inclusive = true }
+                }*/
             }
         }
     }

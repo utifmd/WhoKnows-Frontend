@@ -28,8 +28,7 @@ fun NotificationScreen(
     viewModel: NotificationViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     onBackPressed: () -> Unit) {
-    val state = viewModel.state
-    val formState = viewModel.formState
+    val state = viewModel.state //val formState = viewModel.formState
 
     Scaffold(modifier,
         scaffoldState = scaffoldState,
@@ -45,15 +44,6 @@ fun NotificationScreen(
             if (state.loading) LoadingScreen()
 
             state.notifications?.let { notifications ->
-                /*val format = SimpleDateFormat("hh:mm aa")
-                val calendar = GregorianCalendar.getInstance()
-
-                val groupedNotifies = notifications.groupBy { item ->
-                    val date = format.parse(item.createdAt.toString())
-                    calendar.time = date
-
-                    calendar.get(Calendar.HOUR_OF_DAY)
-                }*/
 
                 LazyColumn(
                     contentPadding = PaddingValues(12.dp),
@@ -62,25 +52,14 @@ fun NotificationScreen(
 
                         item {
                             Spacer(modifier.size(ButtonDefaults.IconSize))
-                            Text("Joined classes")
+                            Text("Recently event${ if(notifications.size > 1)"\'s" else ""}")
                         }
 
-                        repeat(notifications.size) {
-                            item { NotificationItem(model = formState.initialModel) }
+                        notifications.forEach { model ->
+                            item { NotificationItem(model = model)
+                                { viewModel.patchNotification(model.copy(seen = true)) }
+                            }
                         }
-
-                        /*repeat(3) {
-                            item { NotificationItem(model = formState.initialModel) }
-                        }
-
-                        item {
-                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSize))
-                            Text("Last Year")
-                        }
-
-                        repeat(7) {
-                            item { NotificationItem(model = formState.initialModel) }
-                        }*/
                     }
                 )
             }

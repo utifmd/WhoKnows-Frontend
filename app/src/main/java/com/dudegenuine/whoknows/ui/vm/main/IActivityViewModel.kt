@@ -8,5 +8,5 @@ import com.dudegenuine.whoknows.ui.vm.notification.contract.IMessagingViewModel
  **/
 interface IActivityViewModel: IMessagingViewModel {
     //fun getMessagingGroupKey(keyName: String, onSucceed: (String) -> Unit)
-    fun getJoinedRoomIds(onSucceed: (List<String>) -> Unit)
+    fun getJoinedOwnedRoomIds(onSucceed: (List<String>) -> Unit)
 }

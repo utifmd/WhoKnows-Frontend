@@ -1,9 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
-import com.dudegenuine.usecase.notification.DeleteNotification
-import com.dudegenuine.usecase.notification.GetNotification
-import com.dudegenuine.usecase.notification.GetNotifications
-import com.dudegenuine.usecase.notification.PostNotification
+import com.dudegenuine.usecase.notification.*
 
 /**
  * Thu, 10 Feb 2022
@@ -13,6 +10,7 @@ interface INotificationUseCaseModule {
     val currentUserId: () -> String
 
     val postNotification: PostNotification
+    val patchNotification: PatchNotification
     val getNotification: GetNotification
     val deleteNotification: DeleteNotification
     val getNotifications: GetNotifications

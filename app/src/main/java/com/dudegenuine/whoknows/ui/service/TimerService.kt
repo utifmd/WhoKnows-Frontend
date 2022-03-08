@@ -11,9 +11,10 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.INotifyManager
-import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_PARAM_DEFAULT
+import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID_TIMER
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.whoknows.R
@@ -111,7 +112,7 @@ class TimerService: ITimerService() {
         val actionIntent = NotificationCompat.Action.Builder(
             R.drawable.ic_baseline_task_24, "Go Back", pendingIntent).build()
 
-        val builder: NotificationCompat.Builder = notifier.onBuilt(CHANNEL_PARAM_DEFAULT)
+        val builder = notifier.onBuilt(CHANNEL_ID_TIMER, IMPORTANCE_DEFAULT)
 
         with(builder) {
             setContentTitle("The class still going")

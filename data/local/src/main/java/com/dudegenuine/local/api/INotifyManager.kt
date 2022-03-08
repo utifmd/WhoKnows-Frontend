@@ -14,13 +14,11 @@ interface INotifyManager {
     var builder: NotificationCompat.Builder // = NotificationCompat.Builder(context, CHANNEL_ID)
 
     companion object {
-        const val CHANNEL_ID = "channel ID"
-        const val CHANNEL_NAME = "channel name"
-        const val CHANNEL_DESC = "channel description"
-        const val CHANNEL_PARAM_MAX = "channel_param_max"
-        const val CHANNEL_PARAM_DEFAULT = "channel_param_default"
+        const val CHANNEL_ID_TIMER = "timer"
+        const val CHANNEL_ID_COMMON = "common"
+        const val CHANNEL_ID_JOINED = "joined"
     }
 
-    val onBuilt: (String) -> NotificationCompat.Builder
-    val onNotify: () -> Unit
+    val onBuilt: (String, Int) -> NotificationCompat.Builder
+    //val onNotify: () -> Unit
 }

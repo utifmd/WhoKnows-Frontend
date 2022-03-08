@@ -5,7 +5,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -30,7 +29,7 @@ fun MainNavigation(
     destination: String,
     viewModel: UserViewModel = hiltViewModel()) {
 
-    val context = LocalContext.current.applicationContext
+    //val context = LocalContext.current.applicationContext
     /*val activity = context.findActivity()
     val routed = activity?.intent?.getStringExtra(MainActivity.INITIAL_DATA_KEY)*/
 
@@ -46,14 +45,14 @@ fun MainNavigation(
             viewModel = viewModel)
 
         homeNavGraph(
-            context = context,
+            //context = context,
             router = controller,
             viewModel = viewModel,
             initial = if (initialPassed == MESSAGE_INTENT /*TIME_RUNNING*/)
                 Screen.Home.Discover else Screen.Home.Summary)
 
         summaryGraph(
-            context = context,
+            //context = context,
             router = controller)
 
         discoverGraph(

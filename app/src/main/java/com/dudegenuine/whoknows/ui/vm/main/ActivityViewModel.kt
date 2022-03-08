@@ -13,6 +13,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Messaging
+import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.service.MessagingService
@@ -76,7 +77,6 @@ class ActivityViewModel
             }
 
             val token = task.result
-            // TODO: save value to prefs prepare for join selection room
             caseMessaging.onMessagingTokenRefresh(token)
         }
     }
@@ -84,31 +84,31 @@ class ActivityViewModel
     private fun onRefreshToken(token: String) {
         Log.d(TAG, "onRefreshToken: $token")
 
-        getJoinedRoomIds { roomIds -> roomIds
-            .forEach { addTokenByNotifyKeyName(token, it) }
-
-            Log.d(TAG, "getJoinedRoomIds: ${roomIds.joinToString(" ~> ")}")
+        getJoinedOwnedRoomIds { roomIds -> roomIds
+            .forEach { onRegisterToken(token, it) } //Log.d(TAG, "getJoinedRoomIds: ${roomIds.joinToString(" ~> ")}")
         }
     }
 
-    override fun getJoinedRoomIds(onSucceed: (List<String>) -> Unit) {
+    override fun getJoinedOwnedRoomIds(onSucceed: (List<String>) -> Unit) {
         caseUser.getUser(caseUser.currentUserId())
             .onEach { res -> onResourceSucceed(res) { usr ->
-                val participateIds = usr.participants.map { it.roomId }
+                val joined = usr.participants.map { it.roomId }
+                val owned = usr.rooms.map { it.roomId }
 
-                onSucceed(participateIds)}}
+                onSucceed(concatenate(owned, joined))
+            }}
             .launchIn(viewModelScope)
     }
 
-    private fun addTokenByNotifyKeyName(token: String, roomId: String){
-        getMessagingGroupKey(roomId){ notifyKey ->
+    private fun onRegisterToken(token: String, roomId: String){
+        getMessaging(roomId){ notifyKey ->
             val model = Messaging.GroupAdder(
                 key = notifyKey,
                 keyName = roomId,
                 tokens = listOf(token)
             )
 
-            addMessagingGroupMember(model){
+            addMessaging(model){
                 Log.d(TAG, "addTokenByNotifyKeyName: $it")
             }
         }
@@ -128,7 +128,7 @@ class ActivityViewModel
         }
     }
 
-    override fun getMessagingGroupKey(keyName: String, onSucceed: (String) -> Unit) {
+    override fun getMessaging(keyName: String, onSucceed: (String) -> Unit) {
         if (keyName.isBlank()) _state.value = ResourceState(error = DONT_EMPTY)
 
         caseMessaging.getMessaging(keyName)
@@ -136,7 +136,7 @@ class ActivityViewModel
             .launchIn(viewModelScope)
     }
 
-    override fun addMessagingGroupMember(
+    override fun addMessaging(
         messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
         val model = messaging.copy()
 
