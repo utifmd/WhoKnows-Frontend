@@ -73,8 +73,8 @@ fun RoomItem(
 
                     CardFooter(
                         icon = Icons.Default.AccessTime,
-                        text = if (!state.expired) "Ongoing ${timeAgo(state.createdAt)}"
-                        else "Ended ${state.updatedAt?.let { timeAgo(it) }}"
+                        text = if (!state.expired) "Opened at ${timeAgo(state.createdAt)}"
+                        else "Closed at ${state.updatedAt?.let { timeAgo(it) }}"
                     )
 
                     Row(Modifier) {

@@ -10,8 +10,10 @@ import com.dudegenuine.remote.entity.ResultEntity
 interface IResultService {
     suspend fun create(entity: ResultEntity): Response<ResultEntity>
     suspend fun read(id: String): Response<ResultEntity>
+    suspend fun read(roomId: String, userId: String): Response<ResultEntity>
     suspend fun update(id: String, entity: ResultEntity): Response<ResultEntity>
     suspend fun delete(id: String)
+    suspend fun delete(roomId: String, userId: String)
     suspend fun list(page: Int, size: Int): Response<List<ResultEntity>>
 
     companion object {

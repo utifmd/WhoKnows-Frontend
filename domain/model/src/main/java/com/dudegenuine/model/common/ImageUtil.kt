@@ -49,7 +49,7 @@ object ImageUtil {
         stream.toByteArray()
     }
 
-    val asBitmapAsync: suspend (Context, String) -> Bitmap = { context, url ->
+    val getBitmapAsync: suspend (Context, String, (Bitmap) -> Unit) -> Unit = { context, url, onSuccess ->
         val loader = ImageLoader(context)
         val request = ImageRequest.Builder(context)
             .allowHardware(false) // Disable hardware bitmaps.
@@ -59,6 +59,6 @@ object ImageUtil {
         val result = (loader.execute(request) as SuccessResult).drawable
         val bitmap = (result as BitmapDrawable).bitmap
 
-        bitmap
+        onSuccess(bitmap)
     }
 }

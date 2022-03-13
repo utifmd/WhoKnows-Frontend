@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
-import android.content.Context
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
@@ -18,11 +17,13 @@ import com.dudegenuine.whoknows.ui.compose.screen.SummaryScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventHome
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.ProfileEvent
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi

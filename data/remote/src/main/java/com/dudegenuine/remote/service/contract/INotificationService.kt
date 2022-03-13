@@ -12,6 +12,7 @@ interface INotificationService {
     suspend fun read(id: String): Response<NotificationEntity>
     suspend fun update(id: String, entity: NotificationEntity): Response<NotificationEntity>
     suspend fun delete(id: String)
+    suspend fun delete(roomId: String, userId: String)
     suspend fun list(page: Int, size: Int): Response<List<NotificationEntity>>
     suspend fun list(recipientId: String, page: Int, size: Int): Response<List<NotificationEntity>>
 

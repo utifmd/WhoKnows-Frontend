@@ -1,5 +1,8 @@
 package com.dudegenuine.repository
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import androidx.paging.PagingSource
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
@@ -28,6 +31,17 @@ class RoomRepository
     private val prefs: IPreferenceManager,
     private val clip: IClipboardManager): IRoomRepository {
     private val TAG: String = javaClass.simpleName
+
+    override val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver = { onTime ->
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                val time = intent.getDoubleExtra(ITimerService.INITIAL_TIME_KEY, 0.0)
+                val finished = intent.getBooleanExtra(ITimerService.TIME_UP_KEY, false)
+
+                onTime(time, finished)
+            }
+        }
+    }
 
     override val setClipboard: (String, String) -> Unit = clip::applyPlainText
 
@@ -58,12 +72,17 @@ class RoomRepository
     override suspend fun list(page: Int, size: Int): List<Room> = mapper.asRooms(
         service.list(page, size))
 
-    override suspend fun list(userId: String): List<Room> = mapper.asRooms(
-        service.list(userId))
+    override suspend fun list(userId: String, page: Int, size: Int): List<Room> = mapper.asRooms(
+        service.list(userId, page, size))
 
     override fun page(batchSize: Int): PagingSource<Int, Room> =
         mapper.asPagingSource { page ->
             list(page, batchSize)
+        }
+
+    override fun page(userId: String, batchSize: Int): PagingSource<Int, Room> =
+        mapper.asPagingSource { page ->
+            list(userId, page, batchSize)
         }
 
     override suspend fun load(participantId: String?): Room.RoomState.BoardingQuiz {

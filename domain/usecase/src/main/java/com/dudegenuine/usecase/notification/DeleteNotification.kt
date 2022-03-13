@@ -34,4 +34,22 @@ class DeleteNotification
             emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
     }
+
+    operator fun invoke(roomId: String, userId: String): Flow<Resource<String>> = flow {
+        try {
+            emit(Resource.Loading())
+
+            repository.delete(roomId, userId)
+            emit(Resource.Success(roomId))
+
+        } catch (e: HttpFailureException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: HttpException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        } catch (e: IOException){
+            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
+        }
+    }
 }

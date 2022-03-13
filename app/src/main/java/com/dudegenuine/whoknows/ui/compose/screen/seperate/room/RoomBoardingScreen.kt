@@ -18,11 +18,13 @@ import com.dudegenuine.model.QuizActionType
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Fri, 17 Dec 2021
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @Composable
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
@@ -34,7 +36,6 @@ fun RoomBoardingScreen(
     onPrevPressed: () -> Unit,
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
-    //val TAG = "RoomBoardingScreen"
     val context = LocalContext.current
 
     val scaffoldState = rememberBackdropScaffoldState(
@@ -47,9 +48,7 @@ fun RoomBoardingScreen(
     val onPreNextPressed: () -> Unit = {
         state.let (
             if (boardingState.showPrevious) viewModel::patchBoarding
-            else viewModel::postBoarding
-        )
-
+            else viewModel::postBoarding)
         onNextPressed()
     }
 

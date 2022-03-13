@@ -2,6 +2,7 @@ package com.dudegenuine.repository
 
 import android.util.Log
 import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.local.service.contract.ICurrentUserDao
@@ -36,8 +37,14 @@ class UserRepository
     }
 
     override suspend fun read(id: String): User {
+        val remoteUser = mapper.asUser(service.read(id))
 
-        return mapper.asUser(service.read(id))
+        if (id == currentUserId())
+            replace(mapper.asUserTable(remoteUser))
+
+        Log.d(TAG, "read: triggered")
+
+        return remoteUser
     }
 
     override suspend fun update(id: String, user: User): User {
@@ -98,5 +105,6 @@ class UserRepository
         else local.delete()
 
         prefs.write(CURRENT_USER_ID, "")
+        prefs.write(CURRENT_NOTIFICATION_BADGE, "")
     }
 }

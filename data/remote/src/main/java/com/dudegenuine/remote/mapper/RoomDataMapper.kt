@@ -87,7 +87,7 @@ class RoomDataMapper
 
         return BoardingQuizTable(
             participantId = boarding.participantId,
-            participantName = boarding.participantName,
+            participant = boarding.participant,
             userId = boarding.userId,
             roomId = boarding.roomId,
             roomTitle = boarding.roomTitle,
@@ -115,7 +115,7 @@ class RoomDataMapper
     override fun asBoardingQuiz(table: BoardingQuizTable): Room.RoomState.BoardingQuiz {
         return Room.RoomState.BoardingQuiz(
             participantId = table.participantId,
-            participantName = table.participantName,
+            participant = table.participant,
             userId = table.userId,
             roomId = table.roomId,
             roomTitle = table.roomTitle,

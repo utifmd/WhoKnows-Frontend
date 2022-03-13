@@ -55,18 +55,13 @@ fun ImagesPreUpload(
                 )
             }
         }
-        item {
-            Icon(
-                imageVector = Icons.Default.AddCircleOutline,
-                tint = MaterialTheme.colors.primary,
-                contentDescription = "landscape",
-                modifier = modifier
-                    .size(35.dp)
-                    .padding(5.dp)
-                    .clickable(
-                        enabled = images.size <= 3,
-                        onClick = onAddPressed
-                    )
+        if (images.size < 3) item {
+            Icon(Icons.Default.AddCircleOutline,
+                tint = MaterialTheme.colors.primary, contentDescription = null,
+                modifier = modifier.size(35.dp).padding(5.dp).clickable(
+                    enabled = images.size < 3,
+                    onClick = onAddPressed
+                )
             )
         }
     }

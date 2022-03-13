@@ -117,7 +117,7 @@ class TimerService: ITimerService() {
         with(builder) {
             setContentTitle("The class still going")
             setContentText("Just go back don\'t waste your time!")
-            setSmallIcon(R.drawable.ic_baseline_assignment_24)
+            setSmallIcon(R.drawable.ic_outline_timer_24)
             setAutoCancel(true)
             addAction(actionIntent)
         }

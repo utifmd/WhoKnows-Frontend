@@ -24,6 +24,12 @@ interface ResultService: IResultService {
     override suspend fun read(
         @Path("userId") id: String): Response<ResultEntity>
 
+    @Headers(API_KEY, ACCEPT)
+    @GET("${ENDPOINT}/with_args")
+    override suspend fun read(
+        @Query("roomId") roomId: String,
+        @Query("userId") userId: String): Response<ResultEntity>
+
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
     @PUT("${ENDPOINT}/{userId}")
     override suspend fun update(
@@ -34,6 +40,12 @@ interface ResultService: IResultService {
     @DELETE("${ENDPOINT}/{userId}")
     override suspend fun delete(
         @Path("userId") id: String)
+
+    @Headers(API_KEY, ACCEPT)
+    @DELETE("${ENDPOINT}/with_args")
+    override suspend fun delete(
+        @Query("roomId") roomId: String,
+        @Query("userId") userId: String)
 
     @Headers(API_KEY, ACCEPT)
     @GET(ENDPOINT)

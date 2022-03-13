@@ -1,25 +1,22 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
@@ -29,8 +26,10 @@ import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
+import com.dudegenuine.whoknows.ui.compose.state.ModalDialog
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import okhttp3.internal.http.toHttpDateString
 
@@ -38,6 +37,7 @@ import okhttp3.internal.http.toHttpDateString
  * Thu, 27 Jan 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
@@ -47,44 +47,42 @@ fun RoomDetail(
     isOwn: Boolean = false,
     viewModel: RoomViewModel = hiltViewModel(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState
-        (BackdropValue.Concealed),
+    scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed),
     eventRouter: IRoomEventDetail,
-    onBackPressed: () -> Unit/*,
-    onLaunchTimer: (Double) -> Unit*/) {
-
+    onBackPressed: () -> Unit) {
     val state = viewModel.state
+    val context =  LocalContext.current
 
     val toggle: () -> Unit = {
         coroutineScope.launch {
-            if(scaffoldState.isRevealed)
-                scaffoldState.conceal()
-            else
-                scaffoldState.reveal()
+            if(scaffoldState.isRevealed) scaffoldState.conceal()
+            else scaffoldState.reveal()
         }
     }
 
-    val evenCompose = object: IRoomEventDetail {
+    var modalDialog by remember { mutableStateOf(ModalDialog()) }
 
-        override fun onShareRoomPressed(roomId: String)
-            { viewModel.onClipboardPressed(roomId) }
+    val eventCompose = object: IRoomEventDetail {
+        override fun onShareRoomPressed(roomId: String) { viewModel.onSharePressed(roomId) }
 
-        override fun onCloseRoomPressed(room: Room)
-            { viewModel.expireRoom(room) { toggle() } }
-
-        override fun onJoinRoomDirectlyPressed(room: Room) { toggle()
-            //onLaunchTimer(asSecond.toDouble())
-
-            eventRouter.onBoardingRoomPressed(room.id)
+        override fun onParticipantLongPressed(participant: Participant) {
+            modalDialog = ModalDialog(context.getString(R.string.title_delete_participant), context.getString(R.string.text_delete_participant), true,
+            if(state.room?.expired == false) {
+                { viewModel.deleteParticipation(participant) }} else null)
         }
-
+        override fun onCloseRoomPressed(room: Room) {
+            modalDialog = ModalDialog(context.getString(R.string.title_close_room), context.getString(R.string.text_close_room), true)
+                { viewModel.expireRoom(room) { toggle() } }
+        }
+        override fun onJoinRoomDirectlyPressed(room: Room) {
+            modalDialog = ModalDialog(context.getString(R.string.title_join_room), context.getString(R.string.text_join_room), true)
+                { eventRouter.onBoardingRoomPressed(room.id); toggle() }
+        }
         override fun onDeleteRoomPressed(roomId: String) {
-            viewModel.deleteRoom(roomId)
-                { eventRouter.onDeleteRoomSucceed(it) }
+            modalDialog = ModalDialog(context.getString(R.string.title_delete_room), context.getString(R.string.text_delete_room), true)
+                { viewModel.deleteRoom(roomId) { eventRouter.onDeleteRoomSucceed(it) }}
         }
     }
-
-    if (state.loading) LoadingScreen(modifier)
 
     state.room?.let { model ->
         BackdropScaffold(
@@ -106,31 +104,46 @@ fun RoomDetail(
                 BackLayer(
                     model = model,
                     isOwn = isOwn,
-                    evenCompose = evenCompose,
+                    evenCompose = eventCompose,
                     evenRouter = eventRouter
                 )
             },
 
             frontLayerContent = {
-                FrontLayer(
-                    contentModifier = modifier,
-                    model = model,
-                    isOwn = isOwn,
-                    onProfileSelected =
-                        eventRouter::onParticipantItemPressed,
-                    onQuestionPressed =
-                        eventRouter::onQuestionItemPressed/*,
-                    onResultSelected = evenCompose::onResultPressed*/
+                FrontLayer(modifier,
+                    model = model, isOwn = isOwn,
+                    onProfileSelected = eventRouter::onParticipantItemPressed,
+                    onProfileLongPressed = eventCompose::onParticipantLongPressed,
+                    onQuestionPressed = eventRouter::onQuestionItemPressed,
+                    onResultSelected = eventRouter::onResultPressed
                 )
             }
         )
     }
+
+    if (state.loading) LoadingScreen(modifier)
 
     if (state.error.isNotBlank()) {
         ErrorScreen(
             modifier = modifier, message = state.error
         )
     }
+
+    if (modalDialog.opened) AlertDialog(
+        modifier = modifier.padding(horizontal = 24.dp),
+        onDismissRequest = { modalDialog = ModalDialog() },
+        title = { Text(modalDialog.title ?: "") },
+        text = { Text(modalDialog.text ?: "") },
+        confirmButton = {
+            TextButton({
+                modalDialog.event?.invoke()
+                modalDialog = ModalDialog()},
+                enabled = modalDialog.event != null) {
+
+                Text(stringResource(R.string.confirm))
+            }
+        }
+    )
 }
 
 @Composable
@@ -170,7 +183,7 @@ private fun BackLayer(
 
                 Text(
                     color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
-                    text = "Copy Invitation Code"
+                    text = "Invite with a link"
                 )
             }
 
@@ -207,8 +220,9 @@ private fun FrontLayer(
     model: Room,
     isOwn: Boolean,
     onQuestionPressed: (String) -> Unit,
-    onProfileSelected: (String) -> Unit/*,
-    onResultSelected: (Result) -> Unit*/) {
+    onProfileSelected: (String) -> Unit,
+    onProfileLongPressed: (Participant) -> Unit,
+    onResultSelected: (String, String) -> Unit) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -261,10 +275,11 @@ private fun FrontLayer(
                 model.participants.forEach { participant ->
                     item {
                         ProfileCard(
-                            modifier = modifier.clickable(
+                            modifier = modifier.combinedClickable(
+                                onLongClick = { onProfileLongPressed(participant) },
                                 onClick = {
-                                    /*if (isOwn) onResultSelected(participant.result)
-                                    else */onProfileSelected(participant.userId)
+                                    if (isOwn) onResultSelected(participant.roomId, participant.userId)
+                                    else  onProfileSelected(participant.userId)
                                 }
                             ),
                             name = participant.user?.fullName ?: "".ifBlank {

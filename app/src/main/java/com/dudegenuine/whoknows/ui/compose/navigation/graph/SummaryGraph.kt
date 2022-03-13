@@ -8,13 +8,16 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.whoknows.infrastructure.common.Constants.BASE_CLIENT_URL
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizPublicEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizPublicState
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizState.Companion.QUIZ_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.result.ResultDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
@@ -29,6 +32,8 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
+import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 
 /**
@@ -70,7 +75,8 @@ fun NavGraphBuilder.summaryGraph(
     }
 
     composable(
-        route = Screen.Home.Summary.RoomDetail.withArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}")){ entry ->
+        route = Screen.Home.Summary.RoomDetail.withArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
+        deepLinks = listOf(navDeepLink { uriPattern = "$BASE_CLIENT_URL/who-knows/room/{$ROOM_ID_SAVED_KEY}" })){ entry ->
 
         RoomDetail(
             onBackPressed = router::popBackStack,
@@ -147,17 +153,23 @@ fun NavGraphBuilder.summaryGraph(
     }
 
     composable(
-        route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs(
-            "{$USER_ID_SAVED_KEY}")){
+        route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs("{$USER_ID_SAVED_KEY}"),
+        deepLinks = listOf(navDeepLink { uriPattern = "$BASE_CLIENT_URL/who-knows/user/{$USER_ID_SAVED_KEY}" })){
 
         val event = object: IProfileEvent {
-            override fun onBackPressed()
-                { router.popBackStack() }
+            override fun onBackPressed() { router.popBackStack() }
         }
 
         ProfileScreen(
             isOwn = false,
             event = event
         )
+    }
+
+    composable(
+        route = Screen.Home.Summary.RoomDetail.ResultDetail.withArgs(
+            "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}")){
+
+        ResultDetail(onBackPressed = router::popBackStack)
     }
 }

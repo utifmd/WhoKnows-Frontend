@@ -9,11 +9,13 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomStatedPreBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalCoilApi
@@ -27,8 +29,8 @@ fun SummaryScreen(
 
     RoomStatedPreBoardingScreen(
         eventHome = eventHome,
-        eventBoarding = object: IRoomEventBoarding { }){
+        eventBoarding = object: IRoomEventBoarding { })/*{
 
         //context.stopService(service)
-    }
+    }*/
 }

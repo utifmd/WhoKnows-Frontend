@@ -84,7 +84,7 @@ fun QuizCreatorScreen(
                         onRemovePressed = formState::onImagesRemoveAt
                     )
 
-                    GeneralTextField(
+                    GeneralTextField(modifier,
                         label = "Enter a question",
                         value = formState.currentQuestion.text,
                         onValueChange = formState::onQuestionValueChange,
@@ -92,7 +92,6 @@ fun QuizCreatorScreen(
                         tails = if (formState.currentQuestion.text.isNotBlank())
                                 Icons.Filled.Close else null,
                         onTailPressed = { formState.onQuestionValueChange("") },
-                        modifier = modifier
                     )
 
                     GeneralTextField(

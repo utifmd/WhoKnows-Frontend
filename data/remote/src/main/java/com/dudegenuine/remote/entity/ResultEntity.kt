@@ -10,10 +10,7 @@ import java.util.*
 data class ResultEntity (
 
     @SerializedName("resultId") // @SerializedName("resultId")
-    val resultId: String,
-
-    @SerializedName("participantId")
-    val participantId: String,
+    val resultId: String, /*@SerializedName("participantId") val participantId: String,*/
 
     @SerializedName("roomId")
     val roomId: String,
@@ -34,5 +31,8 @@ data class ResultEntity (
     val createdAt: Date,
 
     @SerializedName("updatedAt")
-    val updatedAt: Date?
+    val updatedAt: Date?,
+
+    @SerializedName("user")
+    val user: UserCensoredEntity?,
 )

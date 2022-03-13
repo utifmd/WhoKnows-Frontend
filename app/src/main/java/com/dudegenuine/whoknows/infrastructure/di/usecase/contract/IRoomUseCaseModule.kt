@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
+import android.content.BroadcastReceiver
 import com.dudegenuine.usecase.room.*
 
 /**
@@ -23,4 +24,5 @@ interface IRoomUseCaseModule {
     val currentUserId: () -> String
     val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
+    val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver
 }

@@ -26,6 +26,17 @@ class ResultViewModel
     private val case: IResultUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IResultViewModel {
 
+    init {
+        onResultRouted()
+    }
+
+    private fun onResultRouted() {
+        val userId = savedStateHandle.get<String>(IResultViewModel.RESULT_USER_ID_SAVED_KEY)
+        val roomId = savedStateHandle.get<String>(IResultViewModel.RESULT_ROOM_ID_SAVED_KEY)
+
+        if (!userId.isNullOrBlank() && !roomId.isNullOrBlank()) getResult(roomId, userId)
+    }
+
     override fun postResult(result: Result) {
         if (result.isPropsBlank){
             _state.value = ResourceState(error = DONT_EMPTY)
@@ -45,6 +56,16 @@ class ResultViewModel
         }
 
         case.getResult(id)
+            .onEach(this::onResource).launchIn(viewModelScope)
+    }
+
+    private fun getResult(roomId: String, userId: String) {
+        if (roomId.isBlank() or userId.isBlank()){
+            _state.value = ResourceState(error = DONT_EMPTY)
+            return
+        }
+
+        case.getResult(roomId, userId)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 

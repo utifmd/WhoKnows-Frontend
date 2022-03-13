@@ -11,6 +11,7 @@ interface IPreferenceManager {
     companion object {
         const val PREF_NAME = "WhoKnowsPreference"
         const val CURRENT_USER_ID = "current_user_id"
+        const val CURRENT_NOTIFICATION_BADGE = "current_notification_badge"
 
         const val ONBOARD_ROOM_ID = "onboard_user_id"
         const val ONBOARD_PARTICIPANT_ID = "onboard_participant_id"

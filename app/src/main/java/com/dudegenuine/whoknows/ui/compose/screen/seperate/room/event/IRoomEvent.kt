@@ -1,7 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event
 
+import com.dudegenuine.model.Participant
 import com.dudegenuine.model.QuizActionType
-import com.dudegenuine.model.Result
 import com.dudegenuine.model.Room
 
 /**
@@ -29,7 +29,7 @@ interface IRoomEventHome: IRoomEvent {
 }
 
 interface IRoomEventDetail: IRoomEvent {
-    fun onPublishRoomPressed(){}
+    fun onParticipantLongPressed(participant: Participant){}
     fun onCloseRoomPressed(room: Room){}
     fun onShareRoomPressed(roomId: String){}
     fun onDeleteRoomPressed(roomId: String){}
@@ -39,7 +39,7 @@ interface IRoomEventDetail: IRoomEvent {
     fun onBoardingRoomPressed(roomId: String){}
     fun onParticipantItemPressed(userId: String){}
     fun onQuestionItemPressed(quizId: String){}
-    //fun onResultPressed(result: Result){}
+    fun onResultPressed(roomId: String, userId: String){}
 }
 
 interface IRoomEventBoarding: IRoomEvent {

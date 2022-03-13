@@ -32,7 +32,6 @@ import javax.inject.Inject
  **/
 @HiltViewModel
 class QuizViewModel
-
     @Inject constructor(
     private val caseQuiz: IQuizUseCaseModule,
     private val caseFile: IFileUseCaseModule,
@@ -59,8 +58,7 @@ class QuizViewModel
 
     fun onPostPressed(onSucceed: (Quiz) -> Unit) {
         val model = formState.postModel
-
-        Log.d(TAG, model.toString())
+        Log.d(TAG, "onPostPressed: triggered")
 
         if (formState.isValid) {
             if (formState.images.isNotEmpty())

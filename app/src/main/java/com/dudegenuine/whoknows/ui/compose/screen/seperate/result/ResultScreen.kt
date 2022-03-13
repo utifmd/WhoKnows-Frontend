@@ -18,11 +18,11 @@ import com.dudegenuine.whoknows.R
  * WhoKnows by utifmd
  **/
 @Composable
-fun RoomResultScreen(
+fun ResultScreen(
     modifier: Modifier = Modifier,
     state: Room.RoomState.BoardingResult,
     // onSharePressed: () -> Unit,
-    onDonePressed: () -> Unit) {
+    onDonePressed: (() -> Unit)? = null) {
 
     Box(
         modifier
@@ -63,7 +63,7 @@ fun RoomResultScreen(
             }
             Spacer(modifier.size(24.dp))
 
-            Button(onDonePressed) {
+            if (onDonePressed != null) Button(onDonePressed) {
                 Icon(Icons.Default.DoneAll, contentDescription = null)
 
                 Spacer(modifier.size(ButtonDefaults.IconSize))

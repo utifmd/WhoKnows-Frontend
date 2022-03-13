@@ -1,8 +1,6 @@
 package com.dudegenuine.whoknows.ui.vm.room
 
 import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -10,12 +8,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.dudegenuine.local.api.ITimerService.Companion.INITIAL_TIME_KEY
-import com.dudegenuine.local.api.ITimerService.Companion.TIME_ACTION
-import com.dudegenuine.local.api.ITimerService.Companion.TIME_UP_KEY
+import com.dudegenuine.local.api.IShareLauncher
+import com.dudegenuine.local.api.ITimerLauncher
+import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.model.*
-import com.dudegenuine.whoknows.infrastructure.di.android.ITimerLauncher
+import com.dudegenuine.whoknows.infrastructure.common.Constants.BASE_CLIENT_URL
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ONBOARD_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
@@ -26,10 +25,11 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.NO_QUESTION
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.PUSH_NOT_SENT
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.DEFAULT_BATCH_ROOM
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -37,6 +37,7 @@ import javax.inject.Inject
  * Wed, 08 Dec 2021
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @HiltViewModel
 class RoomViewModel
     @Inject constructor(
@@ -47,10 +48,10 @@ class RoomViewModel
     private val caseParticipant: IParticipantUseCaseModule,
     private val caseResult: IResultUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
-    private val TAG: String = javaClass.simpleName
-
     @Inject lateinit var timer: ITimerLauncher
+    @Inject lateinit var share: IShareLauncher
 
+    private val TAG: String = javaClass.simpleName
     private val currentUserId = caseRoom.currentUserId()
     private val currentToken = caseRoom.currentToken()
     private val currentRunningTime = caseRoom.currentRunningTime()
@@ -64,13 +65,17 @@ class RoomViewModel
         get() = _formState.value
 
     init {
-        val routed = savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)
+        onUiStateValueChange(
+            Room.RoomState.CurrentRoom)
 
-        if (routed != null) routed.let(this::getRoom)
-        else getRooms(currentUserId)
-
+        onDetailRouted()
         onBoardRouted()
         onBoardStored()
+    }
+
+    private fun onDetailRouted(){
+        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(this::getRoom)
+        //else getRooms(currentUserId, DEFAULT_BATCH_ROOM)
     }
 
     private fun onBoardRouted() {
@@ -110,11 +115,18 @@ class RoomViewModel
         val asSecond = (room.minute.toFloat() * 60).toDouble()
 
         caseParticipant.postParticipant(model).onEach { res ->
-            onResourceSucceed(res) {
-                timer.start(asSecond)
+            onResource(
+                resources = res,
+                onSuccess = {
+                    timer.start(asSecond)
 
-                onBoarding(room, it.id)
-            }
+                    onBoarding(room, it.id)
+                },
+                onError = {
+                    onCloseBoarding()
+                    _state.value = ResourceState(error = it)
+                }
+            )
         }.launchIn(viewModelScope)
     }
 
@@ -139,7 +151,8 @@ class RoomViewModel
         getCurrentUser { user ->
             val roomState = Room.RoomState.BoardingQuiz(
                 participantId = ppnId,
-                participantName = user.username,
+                participant = user.let { UserCensored(
+                    it.id, it.fullName, it.username, it.profileUrl) },
                 userId = room.userId,
                 roomId = room.id,
                 roomTitle = room.title,
@@ -149,7 +162,7 @@ class RoomViewModel
             )
             postBoarding(roomState) { onUiStateValueChange(roomState) } //_uiState.value = roomState
 
-            Log.d(TAG, "onBoarding by: ${roomState.participantName}")
+            Log.d(TAG, "onBoarding by: ${roomState.participant.username}")
         }
     }
 
@@ -157,11 +170,10 @@ class RoomViewModel
         val questioners = boardingState.quizzes
         val correct = questioners.count { it.isCorrect }
         val resultScore: Float = correct.toFloat() / questioners.size.toFloat() * 100
-        val event = "${boardingState.participantName} has joined the room"
+        val event = "${boardingState.participant.username} has joined the ${boardingState.roomTitle}"
 
        val modelResult = formState.result.copy(
-           roomId = boardingState.roomId,
-           participantId = boardingState.participantId,
+           roomId = boardingState.roomId, //participantId = boardingState.participantId,
            userId = currentUserId,
            correctQuiz = questioners.filter { it.isCorrect }.map { it.quiz.question },
            wrongQuiz = questioners.filter { !it.isCorrect }.map { it.quiz.question },
@@ -174,8 +186,9 @@ class RoomViewModel
             recipientId = boardingState.userId)
 
        val modelMessaging = Messaging.Pusher(
+            largeIcon = boardingState.participant.profileUrl,
             title = boardingState.roomTitle,
-            body = event, "")
+            body = event, to = "")
 
        timer.stop()
        Log.d(TAG, "onPreResult: triggered")
@@ -187,12 +200,13 @@ class RoomViewModel
     private fun onResult(roomTitle: String,
         modelResult: Result, modelNotification: Notification, modelMessaging: Messaging.Pusher){
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val jobResult = postResult(modelResult)
-                val jobNotification = postNotification(modelNotification)
-
-                joinAll(jobResult, jobNotification)
+        flowOf(
+            caseResult.postResult(modelResult),
+            caseNotification.postNotification(modelNotification))
+            .flattenMerge()
+            .onEach { onResource(it) }
+            .onCompletion {
+                deleteBoarding { Log.d(TAG, "delete boarding: $it") }
                 getMessaging(modelResult.roomId) { groupKey ->
                     addMessaging(Messaging.GroupAdder(
                         key = groupKey, keyName = modelResult.roomId, tokens = listOf(caseRoom.currentToken()))) {
@@ -201,21 +215,13 @@ class RoomViewModel
                             { Log.d(TAG, "pushMessaging: triggered") }
                     }
                 }
-
-            } catch (e: CancellationException){
-                Log.d(TAG, "CancellationException: ${e.localizedMessage}")
-
-            } finally {
-                deleteBoarding { Log.d(TAG, "delete boarding: $it") }
                 _uiState.postValue(
                     Room.RoomState.BoardingResult(roomTitle, modelResult))
-
-                Log.d(TAG, "finally: triggered")
-            }
-        }
+                Log.d(TAG, "finally: triggered") }
+            .launchIn(viewModelScope)
     }
 
-    fun onCloseResult() {
+    fun onCloseBoarding() {
         onUiStateValueChange(Room.RoomState.CurrentRoom) //_uiState.value = Room.RoomState.CurrentRoom
     }
 
@@ -223,9 +229,21 @@ class RoomViewModel
         _uiState.value = roomState
     }
 
-    fun onClipboardPressed(roomId: String) {
-        caseRoom.setClipboard("Room ID", roomId)
-        Log.d(TAG, "onClipboardPressed: triggered")
+    fun onSharePressed(roomId: String) { //caseRoom.setClipboard("Room ID", roomId)
+        val data = "$BASE_CLIENT_URL/who-knows/room/$roomId"
+
+        share.launch(data)
+    }
+
+    val timerServiceAction = IntentFilter(ITimerService.TIME_ACTION)
+
+    val timerServiceReceiver: (
+        Room.RoomState.BoardingQuiz) -> BroadcastReceiver = { roomState ->
+
+        caseRoom.onTimerThick { time, finished ->
+            formState.onTimerChange(time)
+            if (finished) onPreResult(roomState)
+        }
     }
 
     fun onCreatePressed(onSucceed: (Room) -> Unit) {
@@ -320,21 +338,36 @@ class RoomViewModel
 
         caseRoom.deleteRoom(id)
             .onEach { res -> onResourceSucceed(res) {
-                getMessaging(id){ groupKey ->
+                getMessaging(id) { groupKey ->
                     val group = Messaging.GroupRemover(
                         keyName = id, key = groupKey, tokens = listOf(currentToken))
 
-                    removeMessaging(group) {
-                        Log.d(TAG, "deleted: group $it")
-                    }
+                    removeMessaging(group) { Log.d(TAG, "deleted: group $it") }
                 }
                 onSucceed(id)
             }}
             .launchIn(viewModelScope)
     }
 
-    val rooms = caseRoom
-        .getRooms(2).cachedIn(viewModelScope)
+    fun deleteParticipation(
+        participant: Participant) = viewModelScope.launch {
+
+        flowOf(
+            caseParticipant.deleteParticipant(participant.id),
+            caseNotification.deleteNotification(participant.roomId, participant.userId),
+            caseResult.deleteResult(participant.roomId, participant.userId))
+            .flattenMerge()
+            .onEach(::onResource)
+            .onCompletion { onCloseBoarding() }
+            .launchIn(viewModelScope)
+    }
+
+    override val rooms: Flow<PagingData<Room>> =
+        caseRoom.getRooms(DEFAULT_BATCH_ROOM).cachedIn(viewModelScope)
+
+    override val roomsOwner: Flow<PagingData<Room>> =
+        caseRoom.getRooms(currentUserId, DEFAULT_BATCH_ROOM)
+            .cachedIn(viewModelScope)
 
     override fun getRooms(page: Int, size: Int) {
         if (size == 0){
@@ -343,28 +376,6 @@ class RoomViewModel
 
         caseRoom.getRooms(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
-    }
-
-    override fun getRooms(userId: String) {
-        if (userId.isBlank())
-            _state.value = ResourceState(error = DONT_EMPTY)
-
-        caseRoom.getRooms(userId)
-            .onEach(this::onResource).launchIn(viewModelScope)
-    }
-
-    private val postNotification: (Notification) -> Job = { model ->
-        if (model.isPropsBlank) throw CancellationException(DONT_EMPTY)
-
-        caseNotification.postNotification(model) //.onEach(this::onResource)
-            .launchIn(viewModelScope)
-    }
-
-    private val postResult: (Result) -> Job = { model ->
-        if(model.isPropsBlank) throw CancellationException(DONT_EMPTY)
-
-        caseResult.postResult(model) /*.onEach(::onResource)*/
-            .launchIn(viewModelScope) //.onCompletion() finally
     }
 
     override fun getMessaging(keyName: String, onSucceed: (String) -> Unit) {
@@ -449,19 +460,5 @@ class RoomViewModel
         caseRoom.postBoarding(state)
             .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
-    }
-
-    val timerServiceAction = IntentFilter(TIME_ACTION)
-
-    val timerServiceReceiver: (Room.RoomState.BoardingQuiz) -> BroadcastReceiver = { roomState ->
-        object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-                val time = intent.getDoubleExtra(INITIAL_TIME_KEY, 0.0)
-                val finished = intent.getBooleanExtra(TIME_UP_KEY, false)
-
-                formState.onTimerChange(time)
-                if (finished) onPreResult(roomState)
-            }
-        }
     }
 }

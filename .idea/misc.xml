@@ -26,6 +26,9 @@
         <entry key="../../../../../../../../../layout/compose-model-1645719124633.xml" value="0.5" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1045" />
         <entry key="app/src/main/res/drawable/ic_baseline_task_24.xml" value="0.1045" />
+        <entry key="app/src/main/res/drawable/ic_outline_fact_check_24.xml" value="0.1325" />
+        <entry key="app/src/main/res/drawable/ic_outline_timer_24.xml" value="0.1325" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1325" />
       </map>
     </option>
   </component>

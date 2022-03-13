@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.concatenate
+import com.dudegenuine.whoknows.infrastructure.common.Constants
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
@@ -35,9 +37,11 @@ class UserViewModel
     private val caseUser: IUserUseCaseModule,
     private val fileCase: IFileUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
-    private val TAG = javaClass.simpleName
+    @Inject lateinit var share: IShareLauncher
 
+    private val TAG = javaClass.simpleName
     private val messagingToken = caseMessaging.onMessagingTokenized()
+
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
         get() = _formState.value
@@ -155,8 +159,12 @@ class UserViewModel
         }
     }
 
-    override fun signInUser() {
+    fun onSharePressed(userId: String){
+        val data = "${Constants.BASE_CLIENT_URL}/who-knows/user/$userId"
+        share.launch(data)
+    }
 
+    override fun signInUser() {
         val model = formState.loginModel
         if (!formState.isLoginValid.value){
             _authState.value = ResourceState.Auth(error = DONT_EMPTY)
@@ -164,7 +172,7 @@ class UserViewModel
         }
 
         caseUser.signInUser(model)
-            .onEach { res -> onAuth(res, ::onPreRegisterGroupToken) }//(this::onAuth)
+            .onEach { res -> onAuth(res, ::onPreRegisterGroupToken) } //(this::onAuth)
             .launchIn(viewModelScope)
     }
 

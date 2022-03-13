@@ -1,5 +1,6 @@
 package com.dudegenuine.repository.contract
 
+import android.content.BroadcastReceiver
 import androidx.paging.PagingSource
 import com.dudegenuine.model.Room
 
@@ -21,7 +22,7 @@ interface IRoomRepository {
     suspend fun update(id: String, room: Room): Room
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<Room>
-    suspend fun list(userId: String): List<Room>
+    suspend fun list(userId: String, page: Int, size: Int): List<Room>
 
     suspend fun load(participantId: String? = null): Room.RoomState.BoardingQuiz
     suspend fun save(boarding: Room.RoomState.BoardingQuiz)
@@ -29,9 +30,11 @@ interface IRoomRepository {
     suspend fun unload()/*(participantId: String)*/
 
     fun page(batchSize: Int): PagingSource<Int, Room>
+    fun page(userId: String, batchSize: Int): PagingSource<Int, Room>
 
     val currentToken: () -> String
     val currentUserId: () -> String
     val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
+    val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver
 }

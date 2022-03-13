@@ -7,19 +7,19 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 data class Result (
-    val id: String,
+    val resultId: String,
     var roomId: String,
-    var participantId: String,
+    //var participantId: String,
     var userId: String,
     var correctQuiz: List<String>,
     var wrongQuiz: List<String>,
     var score: Int?,
     var createdAt: Date,
-    var updatedAt: Date?
-){
-    val isPropsBlank: Boolean = roomId.isBlank() ||
-            participantId.isBlank() ||
-            userId.isBlank() ||
+    var updatedAt: Date?,
+    val user: UserCensored?){
+
+    val isPropsBlank: Boolean = roomId.isBlank() || //participantId.isBlank() ||
+            userId.isBlank() /*||
             correctQuiz.isEmpty() ||
-            wrongQuiz.isEmpty()
+            wrongQuiz.isEmpty()*/
 }

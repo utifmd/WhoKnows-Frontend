@@ -18,28 +18,30 @@ data class BottomDomain (
     val badge: Int = 0){
 
     companion object {
-        private const val SUMMARY = "Summary"
-        private const val DISCOVER = "Discover"
-        private const val SETTING = "Settings"
+        const val SUMMARY = "Summary"
+        const val DISCOVER = "Discover"
+        const val SETTING = "Settings"
 
-        val list: List<BottomDomain> get() = listOf(
-            BottomDomain(
-                name = SUMMARY,
-                route = Screen.Home.Summary.route,
-                icon = Icons.Default.Summarize
-            ),
-
-            BottomDomain(
-                name = DISCOVER,
-                route = Screen.Home.Discover.route,
-                icon = Icons.Default.Explore //, badge = 2
-            ),
-
-            BottomDomain(
-                name = SETTING,
-                route = Screen.Home.Setting.route,
-                icon = Icons.Default.Settings
+        val listItem: (Int) -> Set<BottomDomain> = { fresh ->
+            mutableSetOf(
+                BottomDomain(
+                    name = BottomDomain.SUMMARY,
+                    route = Screen.Home.Summary.route,
+                    icon = Icons.Default.Summarize
+                ),
+                BottomDomain(
+                    name = BottomDomain.DISCOVER,
+                    route = Screen.Home.Discover.route,
+                    icon = Icons.Default.Explore,
+                    badge = fresh
+                ),
+                BottomDomain(
+                    name = BottomDomain.SETTING,
+                    route = Screen.Home.Setting.route,
+                    icon = Icons.Default.Settings
+                )
             )
-        )
+        }
     }
+
 }

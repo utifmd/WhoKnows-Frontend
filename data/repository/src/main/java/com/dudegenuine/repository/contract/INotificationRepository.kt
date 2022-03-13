@@ -11,10 +11,13 @@ interface INotificationRepository {
     suspend fun update(fresh: Notification): Notification
     suspend fun read(id: String): Notification
     suspend fun delete(id: String)
+    suspend fun delete(roomId: String, userId: String)
     suspend fun list(page: Int, size: Int): List<Notification>
     suspend fun list(recipientId: String, page: Int, size: Int): List<Notification>
 
     val currentUserId: () -> String
+    val currentBadge: () -> String
+    val onCurrentBadgeChange: (String) -> Unit
 
     companion object {
         const val NOT_FOUND = "Notification not found."

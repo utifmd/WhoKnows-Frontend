@@ -2,15 +2,11 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.common.ImageUtil
@@ -26,9 +23,10 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
-import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 /**
  * Sat, 15 Jan 2022
@@ -43,97 +41,112 @@ fun ProfileScreen(
     contentModifier: Modifier = Modifier,
     isOwn: Boolean,
     event: IProfileEvent,
-    viewModel: UserViewModel = hiltViewModel()){
+    viewModel: UserViewModel = hiltViewModel(),
+    scrollState: ScrollState = rememberScrollState()){
 
-    val context = LocalContext.current
     val state = viewModel.state
-    val byteArray = viewModel.formState.profileImage
-
-    val scrollState = rememberScrollState()
+    val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { viewModel.formState.onImageValueChange(it, context) }
     )
+    val swipeRefreshState = rememberSwipeRefreshState(state.loading)
 
-    if (state.loading)
-        LoadingScreen()
+    val byteArray = viewModel.formState.profileImage
+    Scaffold(modifier.fillMaxSize(),
+        topBar = {
+            GeneralTopBar(
+                title = state.user?.username ?: "",
+                leads = if (!isOwn) Icons.Filled.ArrowBack else null,
+                onLeadsPressed = if (!isOwn) event::onBackPressed else null,
+                tails = Icons.Filled.MoreVert,
+                onTailPressed = { state.user?.let { viewModel.onSharePressed(it.id) } }
+            )
+        },
 
-    state.user?.let { user ->
-        Scaffold(modifier.fillMaxSize(),
-            topBar = {
-                GeneralTopBar(
-                    title = state.user.username,
-                    leads = if (!isOwn) Icons.Filled.ArrowBack else null,
-                    onLeadsPressed = if (!isOwn) event::onBackPressed else null
-                )
-            },
-
-            content = {
-                Column(modifier.verticalScroll(scrollState),
+        content = {
+            SwipeRefresh(swipeRefreshState, onRefresh = { state.user?.let { viewModel.getUser(it.id) } }) {
+                if (state.error.isNotBlank()) ErrorScreen(message = state.error)
+                else Column(modifier.verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally){
 
                     Spacer(modifier.size(12.dp))
 
                     if (isOwn) GeneralPicture(
-                        data = if (byteArray.isNotEmpty())
-                            ImageUtil.asBitmap(byteArray) else user.profileUrl,
+                        data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray)
+                            else state.user?.profileUrl ?: "",
                         onChangePressed = { launcher.launch("image/*") },
                         onCheckPressed = viewModel::onUploadProfile
-                    ) else GeneralPicture(
-                        data = user.profileUrl
-                    )
+                    ) else GeneralPicture(data = state.user?.profileUrl ?: "")
 
-                    Spacer(modifier.size(36.dp))
+                    Spacer(modifier.size(12.dp))
 
-                    Column(contentModifier
+                    Row {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.Class, contentDescription = null)
+                            Text("${state.user?.rooms?.size} class${if((state.user?.rooms?.size ?: 0) > 1)"es" else ""}", fontSize = 9.sp)
+                        }
+                        Spacer(modifier.size(24.dp))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.Login, contentDescription = null)
+                            Text("${state.user?.participants?.size} participation ${if((state.user?.participants?.size ?: 0) > 1)"\'s" else ""}", fontSize = 9.sp)
+                        }
+                    }
+
+                    Spacer(modifier.size(12.dp))
+
+                    Column(
+                        contentModifier
                             .fillMaxWidth()
                             .padding(
-                                vertical = 8.dp, horizontal = 12.dp)
+                                vertical = 8.dp, horizontal = 12.dp
+                            )
                             .clip(
-                                shape = MaterialTheme.shapes.medium)
+                                shape = MaterialTheme.shapes.medium
+                            )
                             .background(
-                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
+                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
+                            )) {
 
                         FieldTag(
                             key = stringResource(R.string.full_name),
                             editable = isOwn,
-                            value = user.fullName.ifBlank { "Not set" },
+                            value =  state.user?.let { it.fullName.ifBlank { "Not Set" } } ?: "",
                             onValuePressed =
-                                { event.onFullNamePressed(user.fullName.ifBlank { "Not set" }) })
+                            { state.user?.let { event.onFullNamePressed(it.fullName) } })
 
                         FieldTag(
                             key = stringResource(R.string.phone_number),
                             editable = isOwn,
-                            value = user.phone.ifBlank { "Not set" },
-                            onValuePressed =
-                                { event.onPhonePressed(user.phone.ifBlank { "Not set" }) })
+                            value = state.user?.let { it.phone.ifBlank { "Not Set" } } ?: "",
+                            onValuePressed = { state.user?.let { event.onPhonePressed(it.phone) } })
 
                         FieldTag(
                             key = stringResource(R.string.username),
                             editable = isOwn,
-                            value = user.username,
+                            value = state.user?.username ?: "",
                             onValuePressed =
-                                { event.onUsernamePressed(user.username) })
+                            { state.user?.let { event.onUsernamePressed(it.username) }})
 
                         FieldTag(
                             key = stringResource(R.string.email),
-                            value = user.email,
+                            value = state.user?.email ?: "",
                             editable = false,
-                            onValuePressed = { event.onEmailPressed(user.email) })
+                            onValuePressed = { state.user?.let { event.onEmailPressed(it.email) } })
 
                         FieldTag(
                             key = stringResource(R.string.user_id),
-                            value = user.id,
+                            value = state.user?.id ?: "Not set",
                             editable = false,
-                            onValuePressed = { event.onPasswordPressed(user.password) })
+                            onValuePressed = { state.user?.let { event.onPasswordPressed(it.password) }})
 
                         FieldTag(
                             key = stringResource(R.string.password),
-                            value = user.password,
+                            value = state.user?.password ?: "Not set",
                             editable = false,
                             censored = true,
                             isDivide = false,
-                            onValuePressed = { event.onPasswordPressed(user.password) })
+                            onValuePressed = { state.user?.let { event.onPasswordPressed(it.password) }})
                     }
 
                     if (isOwn){
@@ -150,9 +163,6 @@ fun ProfileScreen(
                     Spacer(modifier.size(12.dp))
                 }
             }
-        )
-    }
-
-    if (state.error.isNotBlank())
-        ErrorScreen(message = state.error)
+        }
+    )
 }

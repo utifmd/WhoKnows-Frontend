@@ -55,16 +55,19 @@ fun NotificationItem(
                             .fillMaxSize()
                             .padding(4.dp),
                         imageVector = Icons.Default.Person,
-                        tint = MaterialTheme.colors.secondaryVariant, contentDescription = null)}
+                        tint = MaterialTheme.colors.secondaryVariant,
+                        contentDescription = null
+                    )
+                }
             )
         }
 
         Column {
-            Text((model.sender?.username ?: stringResource(R.string.unknown)) +" "+ model.event,
+            Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" @"+ model.event,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                color = if (!isSeen) MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
-                    else MaterialTheme.colors.secondaryVariant,
+                color = if (!isSeen) MaterialTheme.colors.secondaryVariant
+                    else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
                 style = MaterialTheme.typography.caption)
 
             Text(timeAgo(model.createdAt),

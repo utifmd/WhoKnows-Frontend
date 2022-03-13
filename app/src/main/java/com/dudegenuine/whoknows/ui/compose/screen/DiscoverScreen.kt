@@ -6,11 +6,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalCoilApi

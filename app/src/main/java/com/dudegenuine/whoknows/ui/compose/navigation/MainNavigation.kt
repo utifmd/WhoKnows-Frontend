@@ -12,6 +12,7 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.*
 import com.dudegenuine.whoknows.ui.service.MessagingService.Companion.MESSAGE_INTENT
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 19 Jan 2022
@@ -22,6 +23,7 @@ import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
+@FlowPreview
 @Composable
 fun MainNavigation(
     controller: NavHostController,

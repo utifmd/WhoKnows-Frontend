@@ -36,6 +36,7 @@ sealed class Messaging {
     data class Pusher(
         val title: String,
         val body: String,
+        val largeIcon: String,
         val to: String): Messaging(){
             var isValid: Boolean = mutableStateOf(
                 title.isNotBlank() and body.isNotBlank() and to.isNotBlank()).value

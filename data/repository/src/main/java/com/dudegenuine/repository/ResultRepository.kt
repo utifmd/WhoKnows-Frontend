@@ -1,11 +1,9 @@
 package com.dudegenuine.repository
 
 import com.dudegenuine.model.Result
-import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IResultDataMapper
 import com.dudegenuine.remote.service.contract.IResultService
 import com.dudegenuine.repository.contract.IResultRepository
-import com.dudegenuine.repository.contract.IResultRepository.Companion.NOT_FOUND
 import javax.inject.Inject
 
 /**
@@ -15,36 +13,34 @@ import javax.inject.Inject
 class ResultRepository
     @Inject constructor(
     private val service: IResultService,
-    private val mapper: IResultDataMapper
-    ): IResultRepository {
+    private val mapper: IResultDataMapper): IResultRepository {
 
-    override suspend fun create(user: Result): Result = try { mapper.asResult(
-        service.create(mapper.asEntity(user)))
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    override suspend fun create(user: Result): Result {
+        return mapper.asResult(service.create(mapper.asEntity(user)))
     }
 
-    override suspend fun read(id: String): Result = try { mapper.asResult(
-        service.read(id))
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    override suspend fun read(id: String): Result {
+        return mapper.asResult(
+            service.read(id))
     }
 
-    override suspend fun update(id: String, user: Result): Result = try { mapper.asResult(
-        service.update(id, mapper.asEntity(user)))
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    override suspend fun read(roomId: String, userId: String): Result {
+        return mapper.asResult(service.read(roomId, userId))
     }
 
-    override suspend fun delete(id: String) = try {
+    override suspend fun update(id: String, user: Result): Result {
+        return mapper.asResult(service.update(id, mapper.asEntity(user)))
+    }
+
+    override suspend fun delete(id: String) {
         service.delete(id)
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
     }
 
-    override suspend fun list(page: Int, size: Int): List<Result> = try { mapper.asResults(
-        service.list(page, size))
-    } catch (e: Exception){
-        throw HttpFailureException(e.localizedMessage ?: NOT_FOUND)
+    override suspend fun delete(roomId: String, userId: String) {
+        service.delete(roomId, userId)
+    }
+
+    override suspend fun list(page: Int, size: Int): List<Result> {
+        return mapper.asResults(service.list(page, size))
     }
 }

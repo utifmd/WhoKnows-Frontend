@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
+import android.content.BroadcastReceiver
 import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.usecase.room.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
@@ -49,5 +50,8 @@ class RoomUseCaseModule(
 
     override val setClipboard: (String, String) -> Unit =
         repository.setClipboard,
+
+    override val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver =
+        repository.onTimerThick
 
 ): IRoomUseCaseModule

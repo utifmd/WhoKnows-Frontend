@@ -12,11 +12,13 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 23 Feb 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @ExperimentalCoilApi

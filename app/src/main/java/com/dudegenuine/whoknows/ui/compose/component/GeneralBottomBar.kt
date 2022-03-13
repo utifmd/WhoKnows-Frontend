@@ -1,11 +1,14 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,7 +24,7 @@ import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
 @Composable
 fun GeneralBottomBar(
     modifier: Modifier = Modifier,
-    items: List<BottomDomain>,
+    items: Set<BottomDomain>,
     controller: NavController/*, onItemPressed: (BottomDomain) -> Unit*/) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
@@ -58,7 +61,17 @@ fun GeneralBottomBar(
                         if (screen.badge > 0) {
                             BadgedBox(
                                 badge = {
-                                    Text(text = screen.badge.toString())
+                                    Surface(
+                                        color = MaterialTheme.colors.error,
+                                        shape = CircleShape) {
+
+                                        Text(screen.badge.toString(),
+                                            modifier = modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                            fontSize = 8.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colors.onError
+                                        )
+                                    }
                                 }
                             ) {
                                 Icon(

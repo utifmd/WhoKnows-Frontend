@@ -3,6 +3,7 @@ package com.dudegenuine.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.dudegenuine.model.UserCensored
 
 /**
  * Thu, 17 Feb 2022
@@ -14,8 +15,8 @@ data class BoardingQuizTable(
     @ColumnInfo(name = "participantId")
     val participantId: String,
 
-    @ColumnInfo(name = "participantName")
-    val participantName: String,
+    @ColumnInfo(name = "participant")
+    val participant: UserCensored,
 
     @ColumnInfo(name = "userId")
     val userId: String,

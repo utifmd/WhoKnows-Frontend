@@ -1,6 +1,7 @@
 package com.dudegenuine.repository
 
 import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.model.Notification
 import com.dudegenuine.remote.mapper.contract.INotificationDataMapper
@@ -37,6 +38,10 @@ class NotificationRepository
     override suspend fun delete(id: String)
         { service.delete(id) }
 
+    override suspend fun delete(roomId: String, userId: String) {
+        service.delete(roomId, userId)
+    }
+
     override suspend fun list(page: Int, size: Int): List<Notification> {
         return mapper.asNotifications(
             service.list(page, size)
@@ -51,4 +56,11 @@ class NotificationRepository
 
     override val currentUserId: () -> String =
         { prefs.read(CURRENT_USER_ID) }
+
+    override val currentBadge: () -> String =
+        { prefs.read(CURRENT_NOTIFICATION_BADGE) }
+
+    override val onCurrentBadgeChange: (String) -> Unit = { fresh ->
+        prefs.write(CURRENT_NOTIFICATION_BADGE, fresh)
+    }
 }

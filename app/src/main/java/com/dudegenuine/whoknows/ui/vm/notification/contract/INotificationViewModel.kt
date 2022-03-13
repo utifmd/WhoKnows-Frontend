@@ -8,7 +8,7 @@ import com.dudegenuine.model.Notification
  **/
 interface INotificationViewModel {
     fun postNotification(notification: Notification)
-    fun patchNotification(notification: Notification)
+    fun patchNotification(notification: Notification, onSuccess: (Notification) -> Unit)
     fun getNotification(id: String)
     fun deleteNotification(id: String)
     fun getNotifications(page: Int, size: Int)

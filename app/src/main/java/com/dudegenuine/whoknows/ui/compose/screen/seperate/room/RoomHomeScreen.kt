@@ -9,17 +9,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
+import com.dudegenuine.whoknows.ui.compose.component.misc.LazyStatePaging
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
-import com.dudegenuine.whoknows.ui.compose.screen.LoadBoxScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 29 Dec 2021
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalFoundationApi
 @Composable
 fun RoomHomeScreen(
@@ -28,41 +34,41 @@ fun RoomHomeScreen(
     viewModel: RoomViewModel = hiltViewModel(),
     event: IRoomEventHome) {
     val state = viewModel.state
+    val swipeRefreshState = rememberSwipeRefreshState(state.loading)
+    val lazyPagingRooms = viewModel.roomsOwner.collectAsLazyPagingItems()
 
-    Scaffold(
-        topBar = {
-            GeneralTopBar(
-                title = "Created class", //"Recently class\'s",
-            )
-        },
-        modifier = modifier,
+    Scaffold(modifier,
+        topBar = { GeneralTopBar(title = "Created class") },
         scaffoldState = scaffoldState) {
+        SwipeRefresh(swipeRefreshState, onRefresh = { lazyPagingRooms.refresh() }) {
 
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
-            stickyHeader {
-                Header(
-                    modifier = modifier,
-                    onNewClassPressed = event::onNewClassPressed,
-                    onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
-                )
-            }
+                stickyHeader {
+                    Header(
+                        modifier = modifier,
+                        onNewClassPressed = event::onNewClassPressed,
+                        onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
+                    )
+                }
+                items(lazyPagingRooms) {
+                    it?.let { room ->
+                        RoomItem(
+                            state = room){
 
-            if (state.loading) items(5) {
-                LoadBoxScreen(height = 130.dp)
-            }
-
-            state.rooms?.forEach { room ->
-                item {
-                    RoomItem(
-                        state = room){
-
-                        event.onRoomItemSelected(room.id)
+                            event.onRoomItemSelected(room.id)
+                        }
                     }
                 }
+                items(5) {
+                    LazyStatePaging(
+                        items = lazyPagingRooms, height = 130.dp, width = null)
+                }
+
+                if (lazyPagingRooms.itemCount < 1) item { ErrorScreen(message = "No results") }
             }
         }
 

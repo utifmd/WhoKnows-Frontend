@@ -15,12 +15,14 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.MainScreen
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.FlowPreview
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
+@FlowPreview
 @AndroidEntryPoint
 class MainActivity: ComponentActivity() {
     private val TAG = javaClass.simpleName
@@ -47,9 +49,7 @@ class MainActivity: ComponentActivity() {
     private fun onIntention() {
         val data = intent.getStringExtra(INITIAL_DATA_KEY) ?: ""
 
-        setContent {
-            MainScreen(initialPassed = data)
-        }
+        setContent { MainScreen(initialPassed = data) }
 
         if(data.isNotBlank()) Log.d(TAG, "initial data key: $data")
     }

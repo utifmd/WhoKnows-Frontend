@@ -44,5 +44,7 @@ interface RoomService: IRoomService {
     @Headers(API_KEY, ACCEPT)
     @GET("${ENDPOINT}/owner/{userId}")
     override suspend fun list(
-        @Path("userId") userId: String): Response<List<RoomEntity>>
+        @Path("userId") userId: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int): Response<List<RoomEntity>>
 }

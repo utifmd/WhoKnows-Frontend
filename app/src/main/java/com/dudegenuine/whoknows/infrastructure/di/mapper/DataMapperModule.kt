@@ -56,10 +56,9 @@ object DataMapperModule: IDataMapperModule {
 
     @Provides
     @Singleton
-    override fun provideResultDataMapper(
-        gson: Gson): IResultDataMapper {
+    override fun provideResultDataMapper(gson: Gson, mapper: IUserDataMapper): IResultDataMapper {
 
-        return ResultDataMapper()
+        return ResultDataMapper(mapper, gson)
     }
 
     @Provides

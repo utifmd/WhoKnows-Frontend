@@ -25,6 +25,7 @@ sealed class Screen(val route: String){
                 object QuizCreator: Screen(strOf<RoomDetail>()+strOf<QuizCreator>())
                 object QuizDetail: Screen(strOf<RoomDetail>()+strOf<QuizDetail>())
                 object ProfileDetail: Screen(strOf<RoomDetail>()+strOf<ProfileDetail>())
+                object ResultDetail: Screen(strOf<RoomDetail>()+strOf<ResultDetail>())
             }
             object OnBoarding: Screen(strOf<Summary>()+strOf<OnBoarding>()){
                 object Result: Screen(strOf<OnBoarding>()+strOf<Result>())

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
@@ -17,6 +18,7 @@ fun GeneralTopBar(
     leads: Any? = null,
     onLeadsPressed: (() -> Unit)? = null,
     tails: ImageVector? = null,
+    tailsTint: Color? = null,
     onTailPressed: (() -> Unit) ? = null,
     submitEnable: Boolean = false,
     submitLoading: Boolean = false,
@@ -45,7 +47,7 @@ fun GeneralTopBar(
                 IconButton({ onTailPressed?.invoke() }) {
 
                     Icon(tails,
-                        tint = if (light) MaterialTheme.colors.onSurface
+                        tint = if (light) tailsTint ?: MaterialTheme.colors.onSurface
                             else MaterialTheme.colors.onPrimary,
                         contentDescription = null)
                 }

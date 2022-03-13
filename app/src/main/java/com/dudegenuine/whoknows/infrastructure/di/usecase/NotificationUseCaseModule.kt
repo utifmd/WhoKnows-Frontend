@@ -17,4 +17,6 @@ class NotificationUseCaseModule(
     override val getNotification: GetNotification = GetNotification(repository)
     override val deleteNotification: DeleteNotification = DeleteNotification(repository)
     override val getNotifications: GetNotifications = GetNotifications(repository)
+    override val currentBadge: () -> String = repository.currentBadge
+    override val onCurrentBadgeChange: (String) -> Unit = repository.onCurrentBadgeChange
 }

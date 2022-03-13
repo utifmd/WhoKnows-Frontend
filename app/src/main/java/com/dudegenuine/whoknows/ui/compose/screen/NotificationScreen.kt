@@ -57,7 +57,7 @@ fun NotificationScreen(
 
                         notifications.forEach { model ->
                             item { NotificationItem(model = model)
-                                { viewModel.patchNotification(model.copy(seen = true)) }
+                                { viewModel.onNotificationPressed(model) }
                             }
                         }
                     }

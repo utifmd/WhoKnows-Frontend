@@ -7,6 +7,12 @@ import com.dudegenuine.model.Result
  * WhoKnows by utifmd
  **/
 interface IResultViewModel {
+    companion object {
+
+        const val RESULT_USER_ID_SAVED_KEY = "result_user_id_saved_key"
+        const val RESULT_ROOM_ID_SAVED_KEY = "result_room_id_saved_key"
+
+    }
     fun postResult(result: Result)
     fun getResult(id: String)
     fun patchResult(id: String, current: Result)

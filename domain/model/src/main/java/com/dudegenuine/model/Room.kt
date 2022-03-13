@@ -32,7 +32,7 @@ data class Room(
 
         data class BoardingQuiz(
             val participantId: String,
-            val participantName: String,
+            val participant: UserCensored,
             val roomId: String,
             val userId: String,
             val roomTitle: String,
@@ -84,10 +84,10 @@ data class Room(
                 userId = "", roomId = "", event = "", seen = false, recipientId = "", createdAt = Date(), null, null)).value
 
             val result: Result = mutableStateOf(Result(
-                id = "RSL-${UUID.randomUUID()}",
-                roomId = "", participantId = "", userId = "", correctQuiz = emptyList(), wrongQuiz = emptyList(), score = 0,
+                resultId = "RSL-${UUID.randomUUID()}",
+                roomId = "", /*participantId = "", */userId = "", correctQuiz = emptyList(), wrongQuiz = emptyList(), score = 0,
                 createdAt = Date(),
-                updatedAt = null)).value
+                updatedAt = null, user = null)).value
 
             private val _participantModel = mutableStateOf(
                 Participant(

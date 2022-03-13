@@ -35,6 +35,12 @@ class RoomEventDetail(
             route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs(userId))
     }
 
+    override fun onResultPressed(roomId: String, userId: String) {
+        router.navigate(
+            route = Screen.Home.Summary.RoomDetail.ResultDetail.withArgs(roomId, userId)
+        )
+    }
+
     override fun onQuestionItemPressed(quizId: String) {
         router.navigate(
             route = Screen.Home.Summary.RoomDetail.QuizDetail.withArgs(quizId))

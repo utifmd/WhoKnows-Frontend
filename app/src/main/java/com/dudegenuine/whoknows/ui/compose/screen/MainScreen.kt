@@ -14,6 +14,7 @@ import com.dudegenuine.whoknows.ui.compose.navigation.MainNavigation
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 19 Jan 2022
@@ -24,12 +25,12 @@ import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
+@FlowPreview
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     initialPassed: String,
     viewModel: UserViewModel = hiltViewModel()) {
-
     val router = rememberNavController()
     val state = viewModel.state
 

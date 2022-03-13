@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.ui.vm
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagingData
 import com.dudegenuine.model.*
 
 /**
@@ -78,6 +79,21 @@ abstract class BaseViewModel: ViewModel() {
                     error = resources.message ?: "An unexpected error occurred."
                 )
             }
+            is Resource.Loading -> {
+                Log.d(TAG, "Resource.Loading..")
+                _state.value = state.copy(
+                    loading = true
+                )
+            }
+        }
+    }
+
+    protected fun<T> onResource(
+        resources: Resource<T>, onSuccess: (T) -> Unit, onError: (String) -> Unit){
+
+        when(resources){
+            is Resource.Success -> resources.data?.let(onSuccess)
+            is Resource.Error -> resources.message?.let(onError)
             is Resource.Loading -> {
                 Log.d(TAG, "Resource.Loading..")
                 _state.value = ResourceState(

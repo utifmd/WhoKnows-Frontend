@@ -75,8 +75,7 @@ class ParticipantViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    val participants = case.getParticipants(BATCH_SIZE)
-        .cachedIn(viewModelScope)
+    val participants = case.getParticipants(BATCH_SIZE).cachedIn(viewModelScope)
 
     override fun getParticipants(page: Int, size: Int) {
         if (size == 0){
