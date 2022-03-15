@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
@@ -35,11 +34,15 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Tue, 25 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
+@FlowPreview
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
@@ -135,13 +138,10 @@ fun NavGraphBuilder.summaryGraph(
             "{$QUIZ_ID_SAVED_KEY}")){
 
         val event = object: IQuizPublicEvent {
-
-            override fun onBackPressed() {
-                router.popBackStack()
-            }
-
-            override fun onPicturePressed(url: String) {
-                Log.d("onPicturePressed", "triggered")
+            override fun onBackPressed() { router.popBackStack() }
+            override fun onDeletePressed() { router.popBackStack() }
+            override fun onPicturePressed(fileId: String) {
+                router.navigate(Screen.Home.Preview.withArgs(fileId))
             }
         }
 
@@ -158,6 +158,9 @@ fun NavGraphBuilder.summaryGraph(
 
         val event = object: IProfileEvent {
             override fun onBackPressed() { router.popBackStack() }
+            override fun onPicturePressed(fileId: String) {
+                router.navigate(Screen.Home.Preview.withArgs(fileId))
+            }
         }
 
         ProfileScreen(

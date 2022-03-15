@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.vm
 
-import androidx.paging.compose.LazyPagingItems
 import com.dudegenuine.model.*
 
 /**
@@ -18,7 +17,7 @@ data class ResourceState(
 
     val room: Room? = null,
     val rooms: List<Room>? = null,
-    val pagedRooms: LazyPagingItems<Room>? = null,
+    //val pagedRooms: LazyPagingItems<Room>? = null,
 
     val quiz: Quiz? = null,
     val questions: List<Quiz>? = null,

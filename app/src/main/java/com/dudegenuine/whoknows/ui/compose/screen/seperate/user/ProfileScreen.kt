@@ -27,11 +27,13 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
@@ -45,14 +47,14 @@ fun ProfileScreen(
     scrollState: ScrollState = rememberScrollState()){
 
     val state = viewModel.state
+    val byteArray = viewModel.formState.profileImage
     val context = LocalContext.current
+    val swipeRefreshState = rememberSwipeRefreshState(state.loading)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { viewModel.formState.onImageValueChange(it, context) }
     )
-    val swipeRefreshState = rememberSwipeRefreshState(state.loading)
 
-    val byteArray = viewModel.formState.profileImage
     Scaffold(modifier.fillMaxSize(),
         topBar = {
             GeneralTopBar(
@@ -66,54 +68,51 @@ fun ProfileScreen(
 
         content = {
             SwipeRefresh(swipeRefreshState, onRefresh = { state.user?.let { viewModel.getUser(it.id) } }) {
-                if (state.error.isNotBlank()) ErrorScreen(message = state.error)
-                else Column(modifier.verticalScroll(scrollState),
-                    horizontalAlignment = Alignment.CenterHorizontally){
-
+                Column(modifier.verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     Spacer(modifier.size(12.dp))
 
                     if (isOwn) GeneralPicture(
                         data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray)
                             else state.user?.profileUrl ?: "",
                         onChangePressed = { launcher.launch("image/*") },
-                        onCheckPressed = viewModel::onUploadProfile
-                    ) else GeneralPicture(data = state.user?.profileUrl ?: "")
+                        onCheckPressed = viewModel::onUploadProfile,
+                        onPreviewPressed = {
+                            val fileId = state.user?.profileUrl?.substringAfterLast("/") ?: ""
+                            event.onPicturePressed(fileId)
+                        }
 
-                    Spacer(modifier.size(12.dp))
+                    ) else GeneralPicture(
+                        data = state.user?.profileUrl ?: "",
+                        onGeneralImagePressed = event::onPicturePressed
+                    )
 
+                    Spacer(modifier.size(24.dp))
                     Row {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Filled.Class, contentDescription = null)
-                            Text("${state.user?.rooms?.size} class${if((state.user?.rooms?.size ?: 0) > 1)"es" else ""}", fontSize = 9.sp)
+                            Icon(Icons.Filled.Class, tint = MaterialTheme.colors.primary, contentDescription = null)
+                            Text("${state.user?.rooms?.size} class${if((state.user?.rooms?.size ?: 0) > 1)"es" else ""}", fontSize = 11.sp)
                         }
                         Spacer(modifier.size(24.dp))
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Filled.Login, contentDescription = null)
-                            Text("${state.user?.participants?.size} participation ${if((state.user?.participants?.size ?: 0) > 1)"\'s" else ""}", fontSize = 9.sp)
+                            Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
+                            Text("${state.user?.participants?.size} participation ${if((state.user?.participants?.size ?: 0) > 1)"\'s" else ""}", fontSize = 11.sp)
                         }
                     }
 
-                    Spacer(modifier.size(12.dp))
-
+                    Spacer(modifier.size(24.dp))
                     Column(
                         contentModifier
                             .fillMaxWidth()
-                            .padding(
-                                vertical = 8.dp, horizontal = 12.dp
-                            )
-                            .clip(
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .background(
-                                color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
-                            )) {
+                            .padding(vertical = 8.dp, horizontal = 12.dp)
+                            .clip(shape = MaterialTheme.shapes.medium)
+                            .background(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
 
                         FieldTag(
                             key = stringResource(R.string.full_name),
                             editable = isOwn,
                             value =  state.user?.let { it.fullName.ifBlank { "Not Set" } } ?: "",
-                            onValuePressed =
-                            { state.user?.let { event.onFullNamePressed(it.fullName) } })
+                            onValuePressed = { state.user?.let { event.onFullNamePressed(it.fullName) } })
 
                         FieldTag(
                             key = stringResource(R.string.phone_number),
@@ -123,10 +122,9 @@ fun ProfileScreen(
 
                         FieldTag(
                             key = stringResource(R.string.username),
-                            editable = isOwn,
+                            editable = false,
                             value = state.user?.username ?: "",
-                            onValuePressed =
-                            { state.user?.let { event.onUsernamePressed(it.username) }})
+                            onValuePressed = { state.user?.let { event.onUsernamePressed(it.username) }})
 
                         FieldTag(
                             key = stringResource(R.string.email),
@@ -162,6 +160,7 @@ fun ProfileScreen(
 
                     Spacer(modifier.size(12.dp))
                 }
+                if (state.error.isNotBlank()) ErrorScreen(message = state.error)
             }
         }
     )

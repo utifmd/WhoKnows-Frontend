@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import androidx.paging.compose.itemsIndexed
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Quiz
@@ -40,18 +41,23 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.LazyStatePaging
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomItem
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
+import com.dudegenuine.whoknows.ui.theme.ColorBronze
+import com.dudegenuine.whoknows.ui.theme.ColorGold
+import com.dudegenuine.whoknows.ui.theme.ColorSilver
 import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
 import com.dudegenuine.whoknows.ui.vm.participant.ParticipantViewModel
 import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Tue, 22 Feb 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @FlowPreview
 @ExperimentalCoilApi
 @ExperimentalComposeUiApi
@@ -63,7 +69,8 @@ fun FeedScreen(modifier: Modifier = Modifier,
     vmQuiz: QuizViewModel = hiltViewModel(),
     vmNotification: NotificationViewModel = hiltViewModel(),
     vmParticipant: ParticipantViewModel = hiltViewModel(),
-    vmRoom: RoomViewModel = hiltViewModel(), onJoinButtonPressed: () -> Unit, onNotificationPressed: () -> Unit) {
+    vmRoom: RoomViewModel = hiltViewModel(),
+    onJoinButtonPressed: () -> Unit, onNotificationPressed: () -> Unit) {
     val lazyParticipants = vmParticipant.participants.collectAsLazyPagingItems()
     val lazyRooms = vmRoom.rooms.collectAsLazyPagingItems()
     val lazyQuizzes = vmQuiz.questions.collectAsLazyPagingItems()
@@ -92,13 +99,13 @@ fun FeedScreen(modifier: Modifier = Modifier,
                 Column(modifier.padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)){
 
-                    Header(modifier, "Most happening question", Icons.Filled.TrendingUp, true)
-                    BodyQuiz(modifier, lazyQuizzes)
-
-                    Header(modifier,"Most popular classes", Icons.Filled.Class)
+                    Header(modifier,"Most popular class${if(lazyRooms.itemCount > 1)"es" else ""}", Icons.Filled.Class, true)
                     BodyRoom(modifier, lazyRooms, onJoinButtonPressed)
 
-                    Header(modifier,"Most actively participant", Icons.Filled.People)
+                    Header(modifier, "Random question${if(lazyQuizzes.itemCount > 1)"\'s" else ""}", Icons.Filled.Shuffle)
+                    BodyQuiz(modifier, lazyQuizzes)
+
+                    Header(modifier,"Most active participant${if(lazyParticipants.itemCount > 1)"\'s" else ""}", Icons.Filled.TrendingUp)
                     BodyParticipant(modifier, lazyParticipants)
                 }
             }
@@ -114,9 +121,14 @@ private fun BodyParticipant(
     LazyRow(modifier.padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
 
-        items(lazyParticipants) { item ->
-            if (item != null) ProfileCard(
-                modifier.fillMaxWidth(),
+        itemsIndexed(lazyParticipants) { index, item ->
+            if (item != null) ProfileCard(modifier.fillMaxWidth(),
+                colorBorder = when (index) {
+                    0 -> ColorGold
+                    1 -> ColorSilver
+                    2 -> ColorBronze
+                    else -> null
+                },
                 name = item.user?.fullName ?: stringResource(R.string.unknown),
                 desc = (item.user?.username ?: stringResource(R.string.unknown)).padStart(1, '@'),
                 data = item.user?.profileUrl ?: ""
@@ -137,9 +149,8 @@ private fun BodyRoom(
 
         items(lazyRooms){ room ->
             if (room != null) RoomItem(modifier.width(246.dp),
-                state = room, censored = true){
-
-            }
+                state = room, censored = true
+            )
         }
 
         item { LazyStatePaging(items = lazyRooms, times = 3) }

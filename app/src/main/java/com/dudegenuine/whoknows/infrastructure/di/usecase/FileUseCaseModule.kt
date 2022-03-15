@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import android.content.Context
 import com.dudegenuine.repository.contract.IFileRepository
+import com.dudegenuine.usecase.file.DeleteFile
 import com.dudegenuine.usecase.file.UploadFile
 import com.dudegenuine.usecase.file.UploadFiles
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
@@ -19,4 +20,7 @@ class FileUseCaseModule(
 
     override val uploadFiles: UploadFiles
         get() = UploadFiles(context, repository)
+
+    override val deleteFile: DeleteFile
+        get() = DeleteFile(repository)
 }

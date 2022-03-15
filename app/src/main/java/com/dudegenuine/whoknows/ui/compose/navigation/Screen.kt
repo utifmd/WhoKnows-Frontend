@@ -42,6 +42,8 @@ sealed class Screen(val route: String){
         object Setting: Screen(strOf<Home>()+strOf<Setting>()){
             object ProfileEditor: Screen(strOf<Setting>()+strOf<ProfileEditor>())
         }
+
+        object Preview: Screen(strOf<Home>()+strOf<Preview>())
     }
 
     // fun withKey(key: String): String = "$route/$key={$key}"

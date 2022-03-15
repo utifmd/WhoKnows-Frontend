@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.dudegenuine.whoknows.R
@@ -19,12 +20,14 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 29 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @FlowPreview
 @ExperimentalFoundationApi
 @Composable
@@ -67,8 +70,10 @@ fun RoomHomeScreen(
                     LazyStatePaging(
                         items = lazyPagingRooms, height = 130.dp, width = null)
                 }
-
-                if (lazyPagingRooms.itemCount < 1) item { ErrorScreen(message = "No results") }
+                with (lazyPagingRooms) {
+                    if (loadState.append is LoadState.NotLoading)
+                        if(itemCount < 1) item { ErrorScreen(message = "No results", isDanger = false, isSnack = true) }
+                }
             }
         }
 

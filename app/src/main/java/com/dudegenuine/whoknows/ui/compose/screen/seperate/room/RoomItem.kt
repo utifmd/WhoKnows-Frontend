@@ -30,14 +30,15 @@ import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 fun RoomItem(
     modifier: Modifier = Modifier,
     censored: Boolean = false,
-    state: Room, onPressed: () -> Unit) {
+    state: Room, onPressed: (() -> Unit)? = null) {
 
     val desc: String = state.description
         .replace("\n", "").trim()
 
     GeneralCardView(
         modifier = modifier.clickable(
-            onClick = onPressed)) {
+            enabled = onPressed != null,
+            onClick = { onPressed?.invoke() })) {
 
         Column(
             modifier = modifier.padding(12.dp)) {
@@ -67,7 +68,10 @@ fun RoomItem(
                     text = "${state.minute} minute\'s"
                 )
             } else {
-                Row(modifier.fillMaxWidth().padding(top = 16.dp, bottom = 0.dp),
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 0.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
 

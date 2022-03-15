@@ -1,8 +1,11 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Participant
+import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
@@ -29,6 +33,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
 import com.dudegenuine.whoknows.ui.compose.state.ModalDialog
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import okhttp3.internal.http.toHttpDateString
@@ -37,6 +42,7 @@ import okhttp3.internal.http.toHttpDateString
  * Thu, 27 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @FlowPreview
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
@@ -48,39 +54,40 @@ fun RoomDetail(
     viewModel: RoomViewModel = hiltViewModel(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed),
-    eventRouter: IRoomEventDetail,
-    onBackPressed: () -> Unit) {
+    eventRouter: IRoomEventDetail, onBackPressed: () -> Unit) {
     val state = viewModel.state
     val context =  LocalContext.current
 
+    var modalDialog by remember { mutableStateOf(ModalDialog()) }
+    val onModalDismissed: () -> Unit = { modalDialog = ModalDialog() }
     val toggle: () -> Unit = {
         coroutineScope.launch {
             if(scaffoldState.isRevealed) scaffoldState.conceal()
             else scaffoldState.reveal()
         }
     }
-
-    var modalDialog by remember { mutableStateOf(ModalDialog()) }
-
     val eventCompose = object: IRoomEventDetail {
         override fun onShareRoomPressed(roomId: String) { viewModel.onSharePressed(roomId) }
-
-        override fun onParticipantLongPressed(participant: Participant) {
-            modalDialog = ModalDialog(context.getString(R.string.title_delete_participant), context.getString(R.string.text_delete_participant), true,
-            if(state.room?.expired == false) {
-                { viewModel.deleteParticipation(participant) }} else null)
+        override fun onParticipantLongPressed(expired: Boolean, participant: Participant) {
+            modalDialog = ModalDialog(context.getString(R.string.delete_participant), true, if(!expired) {
+                { viewModel.deleteParticipation(participant) { eventRouter.onRoomRetailPressed(participant.roomId) } }} else null)
+        }
+        override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz, roomId: String) {
+            modalDialog = ModalDialog(context.getString(R.string.delete_question), true, if(enabled) {
+                { viewModel.deleteQuestion(quiz) { eventRouter.onRoomRetailPressed(roomId) }}} else null)
         }
         override fun onCloseRoomPressed(room: Room) {
-            modalDialog = ModalDialog(context.getString(R.string.title_close_room), context.getString(R.string.text_close_room), true)
-                { viewModel.expireRoom(room) { toggle() } }
+            modalDialog = ModalDialog(context.getString(R.string.close_the_class), true) {
+                viewModel.expireRoom(room) { toggle() } }
         }
         override fun onJoinRoomDirectlyPressed(room: Room) {
-            modalDialog = ModalDialog(context.getString(R.string.title_join_room), context.getString(R.string.text_join_room), true)
-                { eventRouter.onBoardingRoomPressed(room.id); toggle() }
+            modalDialog = ModalDialog(context.getString(R.string.participate_the_class), true) {
+                eventRouter.onBoardingRoomPressed(room.id); toggle() }
         }
         override fun onDeleteRoomPressed(roomId: String) {
-            modalDialog = ModalDialog(context.getString(R.string.title_delete_room), context.getString(R.string.text_delete_room), true)
-                { viewModel.deleteRoom(roomId) { eventRouter.onDeleteRoomSucceed(it) }}
+            modalDialog = ModalDialog(context.getString(R.string.delete_class), true) {
+                viewModel.deleteRoom(roomId) { eventRouter.onDeleteRoomSucceed(it) }
+            }
         }
     }
 
@@ -112,9 +119,11 @@ fun RoomDetail(
             frontLayerContent = {
                 FrontLayer(modifier,
                     model = model, isOwn = isOwn,
+                    currentUserId = viewModel.currentUserId,
                     onProfileSelected = eventRouter::onParticipantItemPressed,
-                    onProfileLongPressed = eventCompose::onParticipantLongPressed,
+                    onProfileLongPressed = { eventCompose.onParticipantLongPressed(model.expired, it) },
                     onQuestionPressed = eventRouter::onQuestionItemPressed,
+                    onQuestionLongPressed = eventCompose::onQuestionLongPressed,
                     onResultSelected = eventRouter::onResultPressed
                 )
             }
@@ -122,28 +131,22 @@ fun RoomDetail(
     }
 
     if (state.loading) LoadingScreen(modifier)
+    if (state.error.isNotBlank()) ErrorScreen(modifier, message = state.error)
+    if (modalDialog.opened) with (modalDialog) {
+        AlertDialog(
+            modifier = modifier.padding(horizontal = 24.dp),
+            onDismissRequest = onModalDismissed,
+            title = { Text(title) },
+            text = { Text(text) },
+            confirmButton = {
+                TextButton({ event?.invoke(); onModalDismissed() },
+                    enabled = event != null) {
 
-    if (state.error.isNotBlank()) {
-        ErrorScreen(
-            modifier = modifier, message = state.error
+                    Text((button ?: "submit").replaceFirstChar { it.uppercase() })
+                }
+            }
         )
     }
-
-    if (modalDialog.opened) AlertDialog(
-        modifier = modifier.padding(horizontal = 24.dp),
-        onDismissRequest = { modalDialog = ModalDialog() },
-        title = { Text(modalDialog.title ?: "") },
-        text = { Text(modalDialog.text ?: "") },
-        confirmButton = {
-            TextButton({
-                modalDialog.event?.invoke()
-                modalDialog = ModalDialog()},
-                enabled = modalDialog.event != null) {
-
-                Text(stringResource(R.string.confirm))
-            }
-        }
-    )
 }
 
 @Composable
@@ -199,11 +202,12 @@ private fun BackLayer(
             }
 
             TextButton(
+                enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
                 onClick = { evenCompose.onDeleteRoomPressed(model.id) }) {
 
                 Text(
-                    color = MaterialTheme.colors.onPrimary,
+                    color =  if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
                     text = "Delete Permanently"
                 )
             }
@@ -217,9 +221,10 @@ private fun BackLayer(
 private fun FrontLayer(
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
-    model: Room,
+    model: Room, currentUserId: String,
     isOwn: Boolean,
     onQuestionPressed: (String) -> Unit,
+    onQuestionLongPressed: (enabled: Boolean, quiz: Quiz, roomId: String) -> Unit,
     onProfileSelected: (String) -> Unit,
     onProfileLongPressed: (Participant) -> Unit,
     onResultSelected: (String, String) -> Unit) {
@@ -263,22 +268,18 @@ private fun FrontLayer(
             icon = Icons.Default.People,
         )
 
-        if (model.participants.isNotEmpty()){
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 24.dp
-                    )) {
+        if (model.participants.isNotEmpty()) {
+            LazyRow(modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)) {
 
                 model.participants.forEach { participant ->
                     item {
                         ProfileCard(
                             modifier = modifier.combinedClickable(
-                                onLongClick = { onProfileLongPressed(participant) },
+                                onLongClick = { if (isOwn) onProfileLongPressed(participant) },
                                 onClick = {
-                                    if (isOwn) onResultSelected(participant.roomId, participant.userId)
+                                    if (isOwn || participant.userId == currentUserId)
+                                        onResultSelected(participant.roomId, participant.userId)
                                     else  onProfileSelected(participant.userId)
                                 }
                             ),
@@ -293,32 +294,25 @@ private fun FrontLayer(
         }
 
         Spacer(modifier.size(ButtonDefaults.IconSize))
-        CardFooter(
-            modifier = modifier.padding(
-                horizontal = 24.dp),
+        CardFooter(modifier.padding(horizontal = 24.dp),
             text = "${model.questions.size} " +
                     if (model.questions.size > 1) "Question\'s" else "Question",
             icon = Icons.Default.QuestionAnswer
         )
 
-        if (isOwn && model.questions.isNotEmpty()){
-            Column(
-                modifier = modifier.fillMaxWidth()) {
+        if (isOwn and model.questions.isNotEmpty()){
+            Column(modifier.fillMaxWidth()) {
+                model.questions.forEach { quiz ->
 
-                repeat(model.questions.size) {
-                    Box(
-                        modifier = modifier.clickable {
-                            onQuestionPressed(model.questions[it].id)
-                        }
-                    ){
-                        Divider(
-                            thickness = (0.5).dp)
+                    Box(modifier.combinedClickable(
+                        onLongClick = { onQuestionLongPressed(!model.expired or model.participants.isNotEmpty(), quiz, model.id) },
+                        onClick = { onQuestionPressed(quiz.id) })) {
+                        Divider(thickness = (0.5).dp)
 
-                        Text(
+                        Text(quiz.question,
                             modifier = modifier.padding(
                                 vertical = 12.dp,
                                 horizontal = 24.dp),
-                            text = /*"${it.plus(1)}. " + */ model.questions[it].question,
                             style = MaterialTheme.typography.subtitle1,
                             color = MaterialTheme.colors.secondaryVariant,
                             maxLines = 1,

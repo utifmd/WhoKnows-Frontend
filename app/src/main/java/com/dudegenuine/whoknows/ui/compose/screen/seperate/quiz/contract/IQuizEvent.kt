@@ -8,7 +8,7 @@ import com.dudegenuine.model.QuizActionType
  * WhoKnows by utifmd
  **/
 interface IQuizEvent {
-    fun onPicturePressed(url: String) {}
+    fun onPicturePressed(fileId: String) {}
 }
 
 interface IQuizPrivateEvent: IQuizEvent {
@@ -21,4 +21,5 @@ interface IQuizPrivateEvent: IQuizEvent {
 
 interface IQuizPublicEvent: IQuizEvent{
     fun onBackPressed()
+    fun onDeletePressed()
 }

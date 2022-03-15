@@ -1,13 +1,13 @@
 package com.dudegenuine.whoknows.ui.vm.quiz.contract
 
 import com.dudegenuine.model.Quiz
-import com.dudegenuine.whoknows.ui.vm.file.IFilePresenter
+import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel
 
 /**
  * Thu, 09 Dec 2021
  * WhoKnows by utifmd
  **/
-interface IQuizViewModel: IFilePresenter {
+interface IQuizViewModel: IFileViewModel {
     companion object {
         const val BATCH_SIZE = 2
     }

@@ -53,4 +53,13 @@ class RoomEventDetail(
             }
         }
     }
+
+    override fun onRoomRetailPressed(roomId: String) {
+        router.apply {
+            popBackStack()
+            navigate(Screen.Home.Summary.RoomDetail.withArgs(
+                roomId, IRoomEvent.OWN_IS_TRUE)
+            )
+        }
+    }
 }

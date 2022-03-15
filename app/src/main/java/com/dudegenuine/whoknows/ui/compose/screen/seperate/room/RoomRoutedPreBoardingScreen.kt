@@ -10,12 +10,14 @@ import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Sat, 05 Feb 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @FlowPreview
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
@@ -23,8 +25,8 @@ import kotlinx.coroutines.FlowPreview
 fun RoomRoutedPreBoardingScreen(
     event: IRoomEventBoarding,
     viewModel: RoomViewModel = hiltViewModel()) {
-    val state = viewModel.state
     val uiState = viewModel.uiState.observeAsState().value
+    val state = viewModel.state
 
     val composeEvent: (Room.RoomState.BoardingQuiz) -> IRoomEventBoarding = { boardingState ->
         object : IRoomEventBoarding {
@@ -34,22 +36,20 @@ fun RoomRoutedPreBoardingScreen(
         }
     }
 
-    uiState?.let { roomState ->
-        when {
-            roomState is Room.RoomState.BoardingQuiz -> RoomBoardingScreen(
-                state = roomState,
-                viewModel = viewModel,
-                onAction = event::onAction,
-                onPrevPressed = { composeEvent(roomState).onPrevPressed() },
-                onNextPressed = { composeEvent(roomState).onNextPressed() },
-                onDonePressed = { composeEvent(roomState).onDonePressed() }
-            )
-            roomState is Room.RoomState.BoardingResult -> ResultScreen(
-                state = roomState,
-                onDonePressed = event::onDoneResultPressed
-            )
-            state.loading -> LoadingScreen()
-            else -> ErrorScreen(message = state.error)
-        }
+    when {
+        uiState is Room.RoomState.BoardingQuiz -> RoomBoardingScreen(
+            state = uiState,
+            viewModel = viewModel,
+            onAction = event::onAction,
+            onPrevPressed = { composeEvent(uiState).onPrevPressed() },
+            onNextPressed = { composeEvent(uiState).onNextPressed() },
+            onDonePressed = { composeEvent(uiState).onDonePressed() }
+        )
+        uiState is Room.RoomState.BoardingResult -> ResultScreen(
+            state = uiState,
+            onDonePressed = event::onDoneResultPressed
+        )
+        state.loading -> LoadingScreen()
+        else -> ErrorScreen(message = state.error)
     }
 }

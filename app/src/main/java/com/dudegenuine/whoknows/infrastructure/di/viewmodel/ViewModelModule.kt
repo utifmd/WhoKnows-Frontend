@@ -6,8 +6,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
+import com.dudegenuine.whoknows.ui.vm.file.FileViewModel
+import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.main.IActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
@@ -27,11 +30,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Thu, 02 Dec 2021
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalCoilApi
@@ -65,15 +70,18 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
+        caseFile: IFileUseCaseModule,
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
         caseParticipant: IParticipantUseCaseModule,
         caseMessaging: IMessageUseCaseModule,
+        caseQuiz: IQuizUseCaseModule,
         caseNotification: INotificationUseCaseModule,
         caseResult: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IRoomViewModel {
-        return RoomViewModel(caseMessaging, caseNotification, caseRoom, caseUser, caseParticipant, caseResult, savedStateHandle)
+        return RoomViewModel(caseMessaging, caseFile, caseNotification,
+            caseRoom, caseUser, caseParticipant, caseQuiz, caseResult, savedStateHandle)
     }
 
     @Provides
@@ -109,8 +117,16 @@ object ViewModelModule: IViewModelModule {
     @ViewModelScoped
     override fun provideNotificationViewModel(
         case: INotificationUseCaseModule,
-        savedStateHandle: SavedStateHandle
-    ): INotificationViewModel {
+        savedStateHandle: SavedStateHandle): INotificationViewModel {
         return NotificationViewModel(case, savedStateHandle)
     }
+
+
+    @Provides
+    @ViewModelScoped
+    override fun provideFileViewModel(
+        case: IFileUseCaseModule,
+        launcher: IShareLauncher,
+        savedStateHandle: SavedStateHandle): IFileViewModel =
+        FileViewModel(case, launcher, savedStateHandle)
 }

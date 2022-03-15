@@ -16,6 +16,6 @@ interface INetworkModule {
     companion object {
         const val CONNECT_TIMEOUT = 60L //10L
         const val WRITE_TIMEOUT = 60L //1L
-        const val READ_TIMEOUT = 20L
+        const val READ_TIMEOUT = 60L //20L
     }
 }

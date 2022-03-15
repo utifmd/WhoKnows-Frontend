@@ -17,6 +17,8 @@ class ProfileEvent(
     val onSignOutClicked: () -> Unit): IProfileEvent {
     private val profileEditor = Screen.Home.Setting.ProfileEditor
 
+    override fun onPicturePressed(fileId: String) {
+        router.navigate(Screen.Home.Preview.withArgs(fileId))}
 
     override fun onFullNamePressed(it: String){
         router.navigate(profileEditor.withArgs(NAME, it))}
@@ -25,8 +27,7 @@ class ProfileEvent(
         router.navigate(profileEditor.withArgs(PHONE, it))}
 
     override fun onEmailPressed(it: String){
-        router.navigate(profileEditor.withArgs(EMAIL, it))
-    }
+        router.navigate(profileEditor.withArgs(EMAIL, it))}
 
     override fun onUsernamePressed(it: String){
         router.navigate(profileEditor.withArgs(USERNAME, it))}
@@ -34,6 +35,5 @@ class ProfileEvent(
     override fun onPasswordPressed(it: String){
         router.navigate(profileEditor.withArgs(PASSWORD, it))}
 
-    override fun onSignOutPressed()
-        { onSignOutClicked() }
+    override fun onSignOutPressed() { onSignOutClicked() }
 }

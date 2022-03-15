@@ -23,17 +23,17 @@ import javax.inject.Inject
 @HiltViewModel
 class NotificationViewModel
     @Inject constructor(
-    private val case: INotificationUseCaseModule,
+    private val caseNotify: INotificationUseCaseModule,
     private val savedState: SavedStateHandle): BaseViewModel(), INotificationViewModel {
     private val TAG = javaClass.simpleName
+    private val currentUserId = caseNotify.currentUserId()
 
     private val _formState = mutableStateOf(NotificationState.FormState())
     val formState = _formState.value
 
-    init { getNotifications(case.currentUserId(), 0, 15) }
+    init { getNotifications(currentUserId, 0, Int.MAX_VALUE) }
 
-    val badge = case.currentBadge()
-
+    val badge = caseNotify.currentBadge()
     val onStateValueChange: (ResourceState) -> Unit = { _state.value = it }
 
     fun onNotificationPressed(notification: Notification) {
@@ -43,7 +43,7 @@ class NotificationViewModel
             val badgeNumeric = if(badge.isNotBlank()) badge.toInt() else 0
             val result = badgeNumeric -1
 
-            case.onCurrentBadgeChange(result.toString())
+            caseNotify.onCurrentBadgeChange(result.toString())
         }
     }
 
@@ -53,7 +53,7 @@ class NotificationViewModel
             return
         }
 
-        case.postNotification(notification)
+        caseNotify.postNotification(notification)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -65,7 +65,7 @@ class NotificationViewModel
             return
         }
 
-        case.patchNotification(notification)
+        caseNotify.patchNotification(notification)
             .onEach { res -> onResourceStateless(res, onSuccess) }
             .launchIn(viewModelScope)
     }
@@ -76,7 +76,7 @@ class NotificationViewModel
             return
         }
 
-        case.getNotification(id)
+        caseNotify.getNotification(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -86,7 +86,7 @@ class NotificationViewModel
             return
         }
 
-        case.deleteNotification(id)
+        caseNotify.deleteNotification(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
@@ -96,21 +96,21 @@ class NotificationViewModel
             return
         }
 
-        case.getNotifications(page, size)
+        caseNotify.getNotifications(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
     override fun getNotifications(recipientId: String, page: Int, size: Int) {
-        if (size <= 0){
+        if (size < 1){
             onStateValueChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
-        case.getNotifications(recipientId, page, size)
+        caseNotify.getNotifications(recipientId, page, size)
             .onEach { res ->
                 if (res is Resource.Success){
                     val badges = res.data?.count { !it.seen } ?: 0
-                    case.onCurrentBadgeChange(badges.toString())
+                    caseNotify.onCurrentBadgeChange(badges.toString())
                 }
             }
             .onEach(::onResource)

@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
+import com.dudegenuine.usecase.file.DeleteFile
 import com.dudegenuine.usecase.file.UploadFile
 import com.dudegenuine.usecase.file.UploadFiles
 
@@ -10,4 +11,5 @@ import com.dudegenuine.usecase.file.UploadFiles
 interface IFileUseCaseModule {
     val uploadFile: UploadFile
     val uploadFiles: UploadFiles
+    val deleteFile: DeleteFile
 }

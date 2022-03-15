@@ -18,12 +18,14 @@ import com.dudegenuine.model.QuizActionType
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Fri, 17 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @FlowPreview
 @Composable
 @ExperimentalCoilApi

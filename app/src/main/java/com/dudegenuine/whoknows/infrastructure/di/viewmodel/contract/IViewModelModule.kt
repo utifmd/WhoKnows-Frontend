@@ -1,7 +1,9 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
 import androidx.lifecycle.SavedStateHandle
+import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
+import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel
 import com.dudegenuine.whoknows.ui.vm.main.IActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.notification.contract.INotificationViewModel
 import com.dudegenuine.whoknows.ui.vm.participant.contract.IParticipantViewModel
@@ -27,10 +29,12 @@ interface IViewModelModule {
         savedStateHandle: SavedStateHandle): IUserViewModel
 
     fun provideRoomViewModel(
+        caseFile: IFileUseCaseModule,
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
         caseParticipant: IParticipantUseCaseModule,
         caseMessaging: IMessageUseCaseModule,
+        caseQuiz: IQuizUseCaseModule,
         caseNotification: INotificationUseCaseModule,
         caseResult: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel
@@ -52,4 +56,9 @@ interface IViewModelModule {
     fun provideNotificationViewModel(
         case: INotificationUseCaseModule,
         savedStateHandle: SavedStateHandle): INotificationViewModel
+
+    fun provideFileViewModel(
+        case: IFileUseCaseModule,
+        launcher: IShareLauncher,
+        savedStateHandle: SavedStateHandle): IFileViewModel
 }

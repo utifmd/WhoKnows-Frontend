@@ -1,13 +1,17 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,39 +70,24 @@ private fun Body(
     model: Quiz,
     onPicturePressed: (String) -> Unit,
     content: @Composable () -> Unit){
-
     val backgroundColor = MaterialTheme.colors.onSurface.copy(
         alpha = if(MaterialTheme.colors.isLight) 0.04f else 0.06f)
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp)) {
-
-        Spacer(
-            modifier = modifier.height(36.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = modifier.fillMaxWidth()){
-
-            model.images.map { url ->
-                GeneralImage(
-                    modifier = modifier
-                        .size(240.dp)
-                        .clickable(
-                            onClick = { onPicturePressed(url) }),
+    Column(modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (model.images.isNotEmpty()) Row(modifier.fillMaxWidth().height(200.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)){
+            model.images.forEach { url ->
+                GeneralImage(modifier.weight(1f),
                     data = if(url.contains("://")) url else ImageUtil.asBitmap(url),
+                    onPressed = onPicturePressed,
                     placeholder = {
-                        Icon(
-                            modifier = modifier
-                                .fillMaxSize()
-                                .padding(12.dp),
-                            imageVector = Icons.Default.Person, tint = MaterialTheme.colors.primary,
-                            contentDescription = null
+                        Icon(Icons.Default.Person,
+                            tint = MaterialTheme.colors.primary, contentDescription = null,
+                            modifier = modifier.fillMaxSize().padding(12.dp)
                         )
-                    }
+                    },
                 )
             }
         }

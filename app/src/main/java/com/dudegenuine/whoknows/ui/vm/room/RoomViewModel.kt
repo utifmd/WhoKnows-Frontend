@@ -27,6 +27,7 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.PUSH_NOT_SENT
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.DEFAULT_BATCH_ROOM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -37,22 +38,25 @@ import javax.inject.Inject
  * Wed, 08 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @FlowPreview
 @HiltViewModel
 class RoomViewModel
     @Inject constructor(
     private val caseMessaging: IMessageUseCaseModule,
+    private val caseFile: IFileUseCaseModule,
     private val caseNotification: INotificationUseCaseModule,
     private val caseRoom: IRoomUseCaseModule,
     private val caseUser: IUserUseCaseModule,
     private val caseParticipant: IParticipantUseCaseModule,
+    private val caseQuiz: IQuizUseCaseModule,
     private val caseResult: IResultUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
     @Inject lateinit var timer: ITimerLauncher
     @Inject lateinit var share: IShareLauncher
 
     private val TAG: String = javaClass.simpleName
-    private val currentUserId = caseRoom.currentUserId()
+    val currentUserId = caseRoom.currentUserId()
     private val currentToken = caseRoom.currentToken()
     private val currentRunningTime = caseRoom.currentRunningTime()
 
@@ -330,27 +334,27 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    fun deleteRoom(id: String, onSucceed: (String) -> Unit) {
-        if (id.isBlank()){
+    fun deleteRoom(roomId: String, onSucceed: (String) -> Unit) {
+        if (roomId.isBlank()){
             _state.value = ResourceState(error = DONT_EMPTY)
             return
         }
 
-        caseRoom.deleteRoom(id)
+        caseRoom.deleteRoom(roomId)
             .onEach { res -> onResourceSucceed(res) {
-                getMessaging(id) { groupKey ->
-                    val group = Messaging.GroupRemover(
-                        keyName = id, key = groupKey, tokens = listOf(currentToken))
+
+                getMessaging(roomId) { groupKey ->
+                    val group = Messaging.GroupRemover(roomId, listOf(currentToken), groupKey)
 
                     removeMessaging(group) { Log.d(TAG, "deleted: group $it") }
                 }
-                onSucceed(id)
+                onSucceed(roomId)
             }}
             .launchIn(viewModelScope)
     }
 
     fun deleteParticipation(
-        participant: Participant) = viewModelScope.launch {
+        participant: Participant, onSucceed: () -> Unit) = viewModelScope.launch {
 
         flowOf(
             caseParticipant.deleteParticipant(participant.id),
@@ -358,7 +362,20 @@ class RoomViewModel
             caseResult.deleteResult(participant.roomId, participant.userId))
             .flattenMerge()
             .onEach(::onResource)
-            .onCompletion { onCloseBoarding() }
+            .onCompletion { onSucceed() }
+            .launchIn(viewModelScope)
+    }
+
+    fun deleteQuestion(quiz: Quiz, onSucceed: () -> Unit) {
+        val deleteFiles = quiz.images.map {
+            val fileId = it.substringAfterLast("/")
+            caseFile.deleteFile(fileId)
+        }
+
+        flowOf(deleteFiles.merge(), caseQuiz.deleteQuiz(quiz.id))
+            .flattenMerge()
+            .onEach(::onResource)
+            .onCompletion { onSucceed() }
             .launchIn(viewModelScope)
     }
 

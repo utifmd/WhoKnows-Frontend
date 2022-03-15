@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -12,12 +13,15 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 23 Feb 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
+@ExperimentalComposeUiApi
 @FlowPreview
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
@@ -28,7 +32,12 @@ fun NavGraphBuilder.discoverGraph(
     composable(
         route = Screen.Home.Discover.Notification.route){
         NotificationScreen(
-            onBackPressed = router::popBackStack
+            onBackPressed = router::popBackStack,
+            onDetailRoomPressed = {
+                router.navigate(
+                    route = Screen.Home.Discover.RoomDetail.withArgs(it.roomId)
+                )
+            }
         )
     }
 
@@ -44,11 +53,12 @@ fun NavGraphBuilder.discoverGraph(
     }
 
     composable(
-        route = Screen.Home.Discover.RoomDetail.withArgs("{${IRoomEvent.ROOM_ID_SAVED_KEY}}", "{${IRoomEvent.ROOM_IS_OWN}}")){ entry ->
+        route = Screen.Home.Discover.RoomDetail.withArgs(
+            "{${IRoomEvent.ROOM_ID_SAVED_KEY}}"/*, "{${IRoomEvent.ROOM_IS_OWN}}"*/)){// entry ->
 
         RoomDetail(
             onBackPressed = router::popBackStack,
-            isOwn = entry.arguments?.getString(IRoomEvent.ROOM_IS_OWN) == IRoomEvent.OWN_IS_TRUE,
+            isOwn = false, //entry.arguments?.getString(IRoomEvent.ROOM_IS_OWN) == IRoomEvent.OWN_IS_TRUE,
             eventRouter = RoomEventDetail(router = router)
         )
     }

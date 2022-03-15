@@ -14,12 +14,14 @@ import com.dudegenuine.whoknows.ui.compose.navigation.MainNavigation
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi

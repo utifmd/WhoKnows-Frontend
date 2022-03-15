@@ -3,7 +3,6 @@ package com.dudegenuine.whoknows.ui.vm
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.paging.PagingData
 import com.dudegenuine.model.*
 
 /**
@@ -110,9 +109,10 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    protected fun<T> onResourceStateless(resources: Resource<T>, onSucceed: (T) -> Unit){
+    protected fun<T> onResourceStateless(resources: Resource<T>, onSucceed: ((T) -> Unit)? = null){
         if(resources is Resource.Success) {
-            resources.data?.let { onSucceed(it) }
+            resources.data?.let { onSucceed?.invoke(it) }
+            Log.d(TAG, "onResourceStateless: success")
         }
 
         if (resources is Resource.Error){

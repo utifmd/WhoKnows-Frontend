@@ -12,11 +12,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.component.GeneralCardView
 import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
+import com.dudegenuine.whoknows.ui.theme.SmoothBackground
 
 /**
  * Sat, 15 Jan 2022
@@ -27,41 +30,30 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
 @Composable
 fun ProfileCard(
     modifier: Modifier = Modifier,
+    colorBorder: Color? = null,
     name: String,
     desc: String,
     data: String) {
 
-    GeneralCardView {
-        Row(
-            modifier.padding(8.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(MaterialTheme.colors.surface)) {
+    GeneralCardView(colorBorder = colorBorder) {
+        Row(modifier.padding(8.dp)
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.surface)) {
 
-            Surface(
-                modifier = Modifier.size(50.dp),
+            Surface(modifier.size(50.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)) {
+                color = SmoothBackground) {
 
-                GeneralImage(
-                    modifier = modifier.fillMaxSize(),
+                GeneralImage(modifier.fillMaxSize(),
                     data = data,
+                    contentScale = ContentScale.Crop,
                     placeholder = {
-                        Icon(
-                            modifier = modifier
-                                .fillMaxSize()
-                                .padding(4.dp),
-                            imageVector = Icons.Default.Person,
+                        Icon(Icons.Default.Person,
+                            modifier = modifier.fillMaxSize().padding(4.dp),
                             tint = MaterialTheme.colors.secondaryVariant, contentDescription = null
                         )
                     }
                 )
-                /*Image(
-                    modifier = modifier.fillMaxSize(),
-                    painter = rememberImagePainter(
-                        data = url
-                    ),
-                    contentDescription = null
-                )*/
             }
 
             Column(

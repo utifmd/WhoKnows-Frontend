@@ -20,6 +20,8 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.*
@@ -30,6 +32,7 @@ import javax.inject.Inject
  * WhoKnows by utifmd
  **/
 
+@FlowPreview
 @HiltViewModel
 class UserViewModel
     @Inject constructor(
@@ -81,18 +84,16 @@ class UserViewModel
         }
 
         model.let { user ->
-            fileCase.uploadFile(formState.profileImage).onEach { res ->
-                onResourceSucceed(res) { file ->
-                    val fresh = user.copy(profileUrl = file.url)
+            fileCase.uploadFile(formState.profileImage)
+                .onEach { res -> onResourceSucceed(res) { file ->
+                        val fresh = user.copy(profileUrl = file.url)
 
-                    Log.d("onUploadProfile", fresh.toString())
-
-                    patchUser(
-                        id = fresh.id,
-                        freshUser = fresh
-                    )
+                        Log.d("onUploadProfile", fresh.toString())
+                        patchUser(id = fresh.id, freshUser = fresh)
+                    }
                 }
-            }.launchIn(viewModelScope)
+                .flatMapMerge { fileCase.deleteFile(user.profileUrl) }
+                .launchIn(viewModelScope)
         }
     }
 
@@ -146,16 +147,10 @@ class UserViewModel
     }
 
     private fun onUnregisterToken(token: String, notifyKeyName: String) {
-        getMessaging(notifyKeyName){ notifyKey ->
-            val model = Messaging.GroupRemover(
-                key = notifyKey,
-                keyName = notifyKeyName,
-                tokens = listOf(token)
-            )
+        getMessaging(notifyKeyName) { notifyKey ->
+            val model = Messaging.GroupRemover(notifyKeyName, listOf(token), notifyKey)
 
-            removeMessaging(model){
-                Log.d(TAG, "removed: $it")
-            }
+            removeMessaging(model) { Log.d(TAG, "removed: $it") }
         }
     }
 

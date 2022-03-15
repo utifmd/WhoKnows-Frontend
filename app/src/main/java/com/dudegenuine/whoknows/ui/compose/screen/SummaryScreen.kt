@@ -9,12 +9,14 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomStatedPreBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @FlowPreview
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi

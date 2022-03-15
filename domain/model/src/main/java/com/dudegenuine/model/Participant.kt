@@ -20,5 +20,5 @@ data class Participant (
 ){
     val isPropsBlank: Boolean =
         roomId.isBlank() || userId.isBlank() ||
-                currentPage.isBlank() || timeLeft == 0
+                currentPage.isBlank()
 }

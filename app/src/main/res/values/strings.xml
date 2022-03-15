@@ -22,14 +22,19 @@
     <string name="default_notification_channel_id">default_notification_channel_id</string>
     <string name="notify_title">Default title configuration</string>
     <string name="notify_body">Default body configuration</string>
-    <string name="title_close_room">Konfirmasi penutupan kelas</string>
+    <!--<string name="title_close_room">Konfirmasi penutupan kelas</string>
     <string name="text_close_room">Pilih konfirmasi untuk melanjutkan</string>
     <string name="title_join_room">Konfirmasi partisipasi kelas</string>
     <string name="text_join_room">Pilih konfirmasi untuk melanjutkan</string>
     <string name="title_delete_room">Konfirmasi penghapusan kelas</string>
     <string name="title_delete_participant">Konfirmasi penghapusan partisipan</string>
     <string name="text_delete_room">Pilih konfirmasi untuk melanjutkan</string>
-    <string name="text_delete_participant">Pilih konfirmasi untuk melanjutkan</string>
+    <string name="text_delete_participant">Pilih konfirmasi untuk melanjutkan</string>-->
     <string name="confirm">Konfirmasi</string>
     <string name="share">Bagikan</string>
+    <string name="delete_participant">hapus participant</string>
+    <string name="close_the_class">tutup kelas</string>
+    <string name="participate_the_class">partisipasi kelas</string>
+    <string name="delete_class">hapus kelas</string>
+    <string name="delete_question">hapus pertanyaan</string>
 </resources>

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -29,6 +30,7 @@ fun GeneralTextField(
     leads: ImageVector? = null,
     tails: Any? = null,
     isExpand: Boolean = false,
+    keyboardActions: KeyboardActions? = null,
     onTailPressed: (() -> Unit)? = null,
     onExpanderSelected: ((Int) -> Unit)? = null,
     onExpanderDismiss: (() -> Unit)? = null){
@@ -99,6 +101,7 @@ fun GeneralTextField(
                 }
             }
         },
+        keyboardActions = keyboardActions ?: KeyboardActions.Default,
         singleLine = singleLine,
         readOnly = readOnly,
         visualTransformation = if (asPassword) {

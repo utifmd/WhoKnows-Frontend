@@ -102,11 +102,7 @@ class ActivityViewModel
 
     private fun onRegisterToken(token: String, roomId: String){
         getMessaging(roomId){ notifyKey ->
-            val model = Messaging.GroupAdder(
-                key = notifyKey,
-                keyName = roomId,
-                tokens = listOf(token)
-            )
+            val model = Messaging.GroupAdder(roomId, listOf(token), notifyKey)
 
             addMessaging(model){
                 Log.d(TAG, "addTokenByNotifyKeyName: $it")

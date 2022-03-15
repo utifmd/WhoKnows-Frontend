@@ -12,12 +12,14 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.graph.*
 import com.dudegenuine.whoknows.ui.service.MessagingService.Companion.MESSAGE_INTENT
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -31,37 +33,17 @@ fun MainNavigation(
     destination: String,
     viewModel: UserViewModel = hiltViewModel()) {
 
-    //val context = LocalContext.current.applicationContext
-    /*val activity = context.findActivity()
-    val routed = activity?.intent?.getStringExtra(MainActivity.INITIAL_DATA_KEY)*/
-
-    //Log.d( "MainNavigation", "$routed")
-
     NavHost(
         route = Screen.ROOT_ROUTE,
         startDestination = destination,
         navController = controller){
 
-        authNavGraph(
-            router = controller,
-            viewModel = viewModel)
-
-        homeNavGraph(
-            //context = context,
-            router = controller,
-            viewModel = viewModel,
-            initial = if (initialPassed == MESSAGE_INTENT /*TIME_RUNNING*/)
-                Screen.Home.Discover else Screen.Home.Summary)
-
-        summaryGraph(
-            //context = context,
-            router = controller)
-
-        discoverGraph(
-            router = controller)
-
-        settingGraph(
-            router = controller
-        )
+        authNavGraph(controller, viewModel = viewModel)
+        homeNavGraph(controller, viewModel = viewModel, initial =
+            if (initialPassed == MESSAGE_INTENT /*TIME_RUNNING*/) Screen.Home.Discover
+            else Screen.Home.Summary)
+        summaryGraph(controller)
+        discoverGraph(controller)
+        settingGraph(controller)
     }
 }

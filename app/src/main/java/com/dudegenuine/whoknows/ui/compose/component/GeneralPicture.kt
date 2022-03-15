@@ -9,93 +9,84 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Photo
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 
 @Composable
 @ExperimentalCoilApi
 fun GeneralPicture(
-    modifier: Modifier = Modifier,
-    data: Any,
+    modifier: Modifier = Modifier, data: Any,
+    onGeneralImagePressed:((String) -> Unit)? = null,
+    onPreviewPressed:(() -> Unit)? = null,
     onChangePressed:(() -> Unit)? = null,
     onCheckPressed:(() -> Unit)? = null){
+    var editable by remember { mutableStateOf(false) }
+    val toggle: () -> Unit = { editable = !editable }
 
-    val toggle = remember { mutableStateOf(false) }
-
-    val onChangeClicked: () -> Unit = {
-        onChangePressed?.let {
-            onChangePressed().also {
-                toggle.value = !toggle.value
-            }
-        }
-    }
-    val onCheckClicked: () -> Unit = {
-        if (onCheckPressed != null) onCheckPressed()
-    }
-
-    Surface(
-        modifier = modifier.size(120.dp),
+    Surface(modifier.size(120.dp),
         shape = CircleShape,
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)) {
 
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .clickable(
-                    enabled = onCheckPressed != null,
-                    onClick = { toggle.value = !toggle.value }
-                )
-        ) {
-            GeneralImage(
-                modifier = modifier.fillMaxSize(),
-                data = data,
-                placeholder = {
-                    Icon(
-                        modifier = modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        imageVector = Icons.Default.Person, tint = MaterialTheme.colors.primary,
-                        contentDescription = null
-                    )
-                }
-            )
+        Box(if (onGeneralImagePressed != null) modifier.fillMaxSize()
+            else modifier.fillMaxSize().clickable(onClick = toggle)) {
 
-            if(toggle.value){
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colors.secondaryVariant),
+            if(editable) {
+                Column(modifier.fillMaxSize()
+                    .background(MaterialTheme.colors.secondaryVariant),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly) {
 
                     if (data is Bitmap){
-                        Icon(
-                            imageVector = Icons.Default.Check,
+                        Icon(Icons.Default.Check, contentDescription = null,
                             tint = MaterialTheme.colors.onPrimary,
                             modifier = modifier.clickable(
-                                onClick = onCheckClicked
+                                enabled = onCheckPressed != null,
+                                onClick = { onCheckPressed?.invoke() }
                             ),
-                            contentDescription = null,
                         )
                     }
 
-                    Icon(
-                        imageVector = Icons.Default.Photo,
-                        tint = MaterialTheme.colors.onPrimary,
-                        modifier = modifier.clickable(
-                            onClick = onChangeClicked
+                    Icon(Icons.Default.Visibility,
+                        tint = MaterialTheme.colors.onPrimary, contentDescription = null,
+                        modifier = modifier.clickable (
+                            enabled = onPreviewPressed != null,
+                            onClick = {
+                                onPreviewPressed?.invoke()
+                                toggle()
+                            }
                         ),
-                        contentDescription = null,
+                    )
+
+                    Icon(Icons.Default.Photo,
+                        tint = MaterialTheme.colors.onPrimary, contentDescription = null,
+                        modifier = modifier.clickable (
+                            enabled = onChangePressed != null,
+                            onClick = {
+                                onChangePressed?.invoke()
+                                toggle()
+                            }
+                        ),
                     )
                 }
+            } else {
+                GeneralImage(modifier.fillMaxSize(),
+                    data = data, onPressed = onGeneralImagePressed,
+                    contentScale = ContentScale.Crop,
+                    placeholder = {
+                        Icon(Icons.Default.Person,
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            tint = MaterialTheme.colors.primary,
+                            contentDescription = null
+                        )
+                    }
+                )
             }
         }
     }

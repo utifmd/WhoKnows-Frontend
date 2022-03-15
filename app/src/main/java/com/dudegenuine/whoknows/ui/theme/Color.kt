@@ -13,6 +13,10 @@ val ColorPrimary600 = Color(0xFF4a6572)
 val ColorAccent = Color(0xFFCDDC39)
 val ColorDanger = Color(0xFFff4c5d)
 
+val ColorGold = Color(0xFFCDDC39)
+val ColorSilver = Color(0xFFadbbc4)
+val ColorBronze = Color(0xFFBF360C)
+
 val SmoothBackground = Color.Black.copy(alpha = 0.04f)
 
 val ShimmerColorShades = listOf(

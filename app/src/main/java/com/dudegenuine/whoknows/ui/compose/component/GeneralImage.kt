@@ -2,7 +2,9 @@ package com.dudegenuine.whoknows.ui.compose.component
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,17 +20,16 @@ import coil.compose.rememberImagePainter
 @Composable
 fun GeneralImage(
     modifier: Modifier = Modifier,
-    data: Any,
-    placeholder: @Composable () -> Unit,
     contentDescription: String? = null,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null, ) {
-
+    colorFilter: ColorFilter? = null,
+    data: Any, onPressed: ((String) -> Unit)? = null,
+    placeholder: @Composable () -> Unit) {
     val painter = rememberImagePainter(data = data)
 
-    Box(modifier) {
+    Box(modifier.fillMaxSize()) {
         when(data){
             is Bitmap -> Image(
                 bitmap = data.asImageBitmap(),
@@ -37,7 +38,7 @@ fun GeneralImage(
                 contentScale = contentScale,
                 alpha = alpha,
                 colorFilter = colorFilter,
-                modifier = modifier.matchParentSize()
+                modifier = modifier.fillMaxSize()
             )
             else -> {
                 Image(
@@ -47,7 +48,9 @@ fun GeneralImage(
                     contentScale = contentScale,
                     alpha = alpha,
                     colorFilter = colorFilter,
-                    modifier = modifier.matchParentSize()
+                    modifier = if(onPressed != null) modifier.fillMaxSize().clickable(
+                        onClick = { onPressed.invoke((data as String).substringAfterLast("/")) }
+                    ) else modifier.fillMaxSize()
                 )
 
                 when (painter.state) { /*is ImagePainter.State.Empty, is ImagePainter.State.Success, -> {}*/
