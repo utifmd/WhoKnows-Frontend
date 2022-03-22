@@ -82,7 +82,7 @@ fun NotificationScreen(
                         }
 
                         notifications.forEach { model ->
-                            item { NotificationItem(model = model) { vmNotifier.onNotificationPressed(model) } }
+                            item { NotificationItem(model = model) { vmNotifier.onNotificationDecrease(model) } }
                         }
                     }
                 }

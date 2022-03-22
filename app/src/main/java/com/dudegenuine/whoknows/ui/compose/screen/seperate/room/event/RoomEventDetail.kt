@@ -14,11 +14,11 @@ class RoomEventDetail(
 
     override fun onNewRoomQuizPressed(roomId: String, owner: String) {
         router.navigate(
-            route = Screen.Home.Summary.RoomDetail.QuizCreator.withArgs(roomId, owner))
+            route = Screen.Home.Summary.RoomDetail.QuizCreator.routeWithArgs(roomId, owner))
     }
 
     override fun onBoardingRoomPressed(roomId: String) {
-        val screen = Screen.Home.Summary.OnBoarding.withArgs(/*participantId, */roomId)
+        val screen = Screen.Home.Summary.OnBoarding.routeWithArgs(/*participantId, */roomId)
 
         with (router) {
             repeat(3) { popBackStack() }
@@ -32,18 +32,18 @@ class RoomEventDetail(
 
     override fun onParticipantItemPressed(userId: String) {
         router.navigate(
-            route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs(userId))
+            route = Screen.Home.Summary.RoomDetail.ProfileDetail.routeWithArgs(userId))
     }
 
     override fun onResultPressed(roomId: String, userId: String) {
         router.navigate(
-            route = Screen.Home.Summary.RoomDetail.ResultDetail.withArgs(roomId, userId)
+            route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(roomId, userId)
         )
     }
 
     override fun onQuestionItemPressed(quizId: String) {
         router.navigate(
-            route = Screen.Home.Summary.RoomDetail.QuizDetail.withArgs(quizId))
+            route = Screen.Home.Summary.RoomDetail.QuizDetail.routeWithArgs(quizId))
     }
 
     override fun onDeleteRoomSucceed(roomId: String) {
@@ -57,7 +57,7 @@ class RoomEventDetail(
     override fun onRoomRetailPressed(roomId: String) {
         router.apply {
             popBackStack()
-            navigate(Screen.Home.Summary.RoomDetail.withArgs(
+            navigate(Screen.Home.Summary.RoomDetail.routeWithArgs(
                 roomId, IRoomEvent.OWN_IS_TRUE)
             )
         }

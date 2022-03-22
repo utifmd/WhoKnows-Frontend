@@ -1,5 +1,6 @@
 package com.dudegenuine.repository
 
+import android.content.SharedPreferences
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
@@ -15,9 +16,9 @@ import javax.inject.Inject
  **/
 class NotificationRepository
     @Inject constructor(
-        private val service: INotificationService,
-        private val mapper: INotificationDataMapper,
-        private val prefs: IPreferenceManager): INotificationRepository {
+    private val service: INotificationService,
+    private val mapper: INotificationDataMapper,
+    private val prefs: IPreferenceManager): INotificationRepository {
 
     override suspend fun create(notification: Notification): Notification {
         return mapper.asNotification(
@@ -54,13 +55,18 @@ class NotificationRepository
         )
     }
 
-    override val currentUserId: () -> String =
-        { prefs.read(CURRENT_USER_ID) }
+    override val currentUserId: () ->
+        String = { prefs.readString(CURRENT_USER_ID) }
 
-    override val currentBadge: () -> String =
-        { prefs.read(CURRENT_NOTIFICATION_BADGE) }
+    override val currentBadge: () ->
+        Int = { prefs.readInt(CURRENT_NOTIFICATION_BADGE) }
 
-    override val onCurrentBadgeChange: (String) -> Unit = { fresh ->
-        prefs.write(CURRENT_NOTIFICATION_BADGE, fresh)
-    }
+    override val onChangeCurrentBadge: (Int) ->
+        Unit = { prefs.write(CURRENT_NOTIFICATION_BADGE, it) }
+
+    override val registerPrefsListener: (
+        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.register
+
+    override val unregisterPrefsListener: (
+        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.unregister
 }

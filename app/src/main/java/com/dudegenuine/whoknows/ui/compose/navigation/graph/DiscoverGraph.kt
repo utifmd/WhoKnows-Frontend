@@ -6,6 +6,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.NotificationScreen
@@ -29,13 +30,16 @@ import kotlinx.coroutines.FlowPreview
 fun NavGraphBuilder.discoverGraph(
     router: NavHostController){
 
+    val notification = Screen.Home.Discover.Notification
     composable(
-        route = Screen.Home.Discover.Notification.route){
+        route = notification.route,
+        deepLinks = listOf( navDeepLink { uriPattern = notification.uriPattern })){
+
         NotificationScreen(
             onBackPressed = router::popBackStack,
             onDetailRoomPressed = {
                 router.navigate(
-                    route = Screen.Home.Discover.RoomDetail.withArgs(it.roomId)
+                    route = Screen.Home.Discover.RoomDetail.routeWithArgs(it.roomId)
                 )
             }
         )
@@ -47,13 +51,13 @@ fun NavGraphBuilder.discoverGraph(
             onBackPressed = router::popBackStack,
             onRoomSelected = { roomId ->
                 router.navigate(
-                    Screen.Home.Discover.RoomDetail.withArgs(roomId, IRoomEvent.OWN_IS_FALSE))
+                    Screen.Home.Discover.RoomDetail.routeWithArgs(roomId, IRoomEvent.OWN_IS_FALSE))
             }
         )
     }
 
     composable(
-        route = Screen.Home.Discover.RoomDetail.withArgs(
+        route = Screen.Home.Discover.RoomDetail.routeWithArgs(
             "{${IRoomEvent.ROOM_ID_SAVED_KEY}}"/*, "{${IRoomEvent.ROOM_IS_OWN}}"*/)){// entry ->
 
         RoomDetail(

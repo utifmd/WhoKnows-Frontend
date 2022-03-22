@@ -20,7 +20,7 @@ import com.dudegenuine.whoknows.ui.service.TimerService
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
-class TimerLauncher(
+class TimerModule(
     private val context: Context): ITimerLauncher {
     val service = Intent(context, TimerService::class.java)
 

@@ -1,10 +1,7 @@
 package com.dudegenuine.remote.mapper.contract
 
 import com.dudegenuine.local.entity.UserTable
-import com.dudegenuine.model.Participant
-import com.dudegenuine.model.RoomCensored
-import com.dudegenuine.model.User
-import com.dudegenuine.model.UserCensored
+import com.dudegenuine.model.*
 import com.dudegenuine.remote.entity.*
 
 /**
@@ -25,6 +22,9 @@ interface IUserDataMapper {
 
     fun asEntity(participant: Participant): ParticipantEntity
     fun asParticipant(entity: ParticipantEntity): Participant
+
+    fun asNotifierEntity(notification: Notification): NotificationEntity
+    fun asNotification(entity: NotificationEntity): Notification
 
     fun asUserCensoredEntity(user: UserCensored): UserCensoredEntity
     fun asUserCensored(entity: UserCensoredEntity): UserCensored

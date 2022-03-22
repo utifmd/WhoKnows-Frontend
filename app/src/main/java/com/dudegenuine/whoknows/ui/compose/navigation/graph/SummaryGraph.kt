@@ -9,7 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.whoknows.infrastructure.common.Constants.BASE_CLIENT_URL
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizScreen
@@ -72,14 +71,16 @@ fun NavGraphBuilder.summaryGraph(
             onBackPressed = router::popBackStack,
             onRoomSelected = { roomId ->
                 router.navigate(
-                    Screen.Home.Summary.RoomDetail.withArgs(roomId, OWN_IS_FALSE))
+                    Screen.Home.Summary.RoomDetail.routeWithArgs(roomId, OWN_IS_FALSE))
             }
         )
     }
 
+    val roomDetail = Screen.Home.Summary.RoomDetail
     composable(
-        route = Screen.Home.Summary.RoomDetail.withArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
-        deepLinks = listOf(navDeepLink { uriPattern = "$BASE_CLIENT_URL/who-knows/room/{$ROOM_ID_SAVED_KEY}" })){ entry ->
+        route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
+        deepLinks = listOf( navDeepLink {
+            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") })){ entry ->
 
         RoomDetail(
             onBackPressed = router::popBackStack,
@@ -92,7 +93,7 @@ fun NavGraphBuilder.summaryGraph(
     }
 
     composable(
-        route = Screen.Home.Summary.OnBoarding.withArgs("{${IRoomEvent.ONBOARD_ROOM_ID_SAVED_KEY}}")){
+        route = Screen.Home.Summary.OnBoarding.routeWithArgs("{${IRoomEvent.ONBOARD_ROOM_ID_SAVED_KEY}}")){
         val event = object: IRoomEventBoarding {
 
             override fun onDoneResultPressed() {
@@ -114,11 +115,11 @@ fun NavGraphBuilder.summaryGraph(
     }
 
     composable(
-        route = Screen.Home.Summary.RoomDetail.QuizCreator.withArgs(
+        route = Screen.Home.Summary.RoomDetail.QuizCreator.routeWithArgs(
             "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")){
 
         QuizCreatorScreen(onBackPressed = router::popBackStack) { quiz ->
-            val screen = Screen.Home.Summary.RoomDetail.withArgs(
+            val screen = Screen.Home.Summary.RoomDetail.routeWithArgs(
                 quiz.roomId, OWN_IS_TRUE)
 
             with (router) {
@@ -134,14 +135,15 @@ fun NavGraphBuilder.summaryGraph(
     }
 
     composable(
-        route = Screen.Home.Summary.RoomDetail.QuizDetail.withArgs(
+        route = Screen.Home.Summary.RoomDetail.QuizDetail.routeWithArgs(
             "{$QUIZ_ID_SAVED_KEY}")){
 
         val event = object: IQuizPublicEvent {
             override fun onBackPressed() { router.popBackStack() }
             override fun onDeletePressed() { router.popBackStack() }
-            override fun onPicturePressed(fileId: String) {
-                router.navigate(Screen.Home.Preview.withArgs(fileId))
+            override fun onPicturePressed(fileId: String?) {
+                if (fileId.isNullOrBlank()) return
+                router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
             }
         }
 
@@ -152,14 +154,18 @@ fun NavGraphBuilder.summaryGraph(
         )
     }
 
+    val profile = Screen.Home.Summary.RoomDetail.ProfileDetail
     composable(
-        route = Screen.Home.Summary.RoomDetail.ProfileDetail.withArgs("{$USER_ID_SAVED_KEY}"),
-        deepLinks = listOf(navDeepLink { uriPattern = "$BASE_CLIENT_URL/who-knows/user/{$USER_ID_SAVED_KEY}" })){
+        route = profile.routeWithArgs("{$USER_ID_SAVED_KEY}"),
+        deepLinks = listOf( navDeepLink {
+            uriPattern = profile.uriWithArgs("{$USER_ID_SAVED_KEY}") })){
 
         val event = object: IProfileEvent {
             override fun onBackPressed() { router.popBackStack() }
-            override fun onPicturePressed(fileId: String) {
-                router.navigate(Screen.Home.Preview.withArgs(fileId))
+            override fun onPicturePressed(fileId: String?) {
+                if(fileId.isNullOrBlank()) return
+
+                router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
             }
         }
 
@@ -170,7 +176,7 @@ fun NavGraphBuilder.summaryGraph(
     }
 
     composable(
-        route = Screen.Home.Summary.RoomDetail.ResultDetail.withArgs(
+        route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(
             "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}")){
 
         ResultDetail(onBackPressed = router::popBackStack)

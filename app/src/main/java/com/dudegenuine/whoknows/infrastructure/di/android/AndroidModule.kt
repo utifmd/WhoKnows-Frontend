@@ -74,7 +74,7 @@ object AndroidModule: IAndroidModule {
     override fun provideTimerLauncher(
         @ApplicationContext context: Context): ITimerLauncher {
 
-        return TimerLauncher(context)
+        return TimerModule(context)
     }
 
     @Provides
@@ -82,5 +82,12 @@ object AndroidModule: IAndroidModule {
     override fun provideShareModule(
         @ApplicationContext context: Context): IShareLauncher {
         return ShareModule(context)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideBroadcastReceiverModule(
+        @ApplicationContext context: Context): IReceiverFactory {
+        return ReceiverFactory()
     }
 }

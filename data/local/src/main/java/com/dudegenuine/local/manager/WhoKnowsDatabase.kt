@@ -28,6 +28,7 @@ import com.dudegenuine.local.service.contract.ICurrentUserDao
     ListStringConverter::class,
     BoardingConverter::class,
     ParticipantConverter::class,
+    NotificationConverter::class,
     QuizConverter::class,
     UserCensoredConverter::class,
     RoomCensoredConverter::class,

@@ -38,9 +38,6 @@ class QuizViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IQuizViewModel {
     private val TAG: String = strOf<QuizViewModel>()
 
-    private val resourceState: ResourceState
-        get() = _state.value
-
     private val _formState = mutableStateOf(QuizState.FormState())
     val formState: QuizState.FormState
         get() = _formState.value
@@ -66,7 +63,7 @@ class QuizViewModel
             else postQuiz(model, onSucceed)
 
         } else {
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
         }
     }
 
@@ -79,7 +76,7 @@ class QuizViewModel
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> onMultiUploaded(resources: Resource<List<File>>, onSucceed: (T) -> Unit) {
-        val model = resourceState.quiz ?: formState.postModel
+        val model = state.quiz ?: formState.postModel
         Log.d(TAG, "onFileUploaded: $model")
 
         onResourceSucceed(resources) { data ->
@@ -95,7 +92,7 @@ class QuizViewModel
 
     private fun postQuiz(quiz: Quiz, onSucceed: (Quiz) -> Unit) {
         if (quiz.roomId.isBlank() || quiz.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -106,7 +103,7 @@ class QuizViewModel
 
     override fun postQuiz(quiz: Quiz) {
         if (quiz.roomId.isBlank() || quiz.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -116,7 +113,7 @@ class QuizViewModel
 
     override fun getQuiz(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -126,7 +123,7 @@ class QuizViewModel
 
     override fun patchQuiz(id: String, current: Quiz) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -138,7 +135,7 @@ class QuizViewModel
 
     override fun deleteQuiz(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -151,7 +148,7 @@ class QuizViewModel
 
     override fun getQuestions(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -174,7 +171,7 @@ class QuizViewModel
 
             if(resource.data?.url == null) {
                 Log.d(TAG, "onFileUploaded: url null")
-                _state.value = ResourceState(error = NULL_STATE)
+                onStateChange(ResourceState(error = NULL_STATE))
             }
 
             val uploadedUrl = resource.data?.url ?: return@onUploaded

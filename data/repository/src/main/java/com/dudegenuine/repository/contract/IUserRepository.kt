@@ -1,5 +1,7 @@
 package com.dudegenuine.repository.contract
 
+import android.content.BroadcastReceiver
+import android.content.SharedPreferences
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.User
 
@@ -22,6 +24,13 @@ interface IUserRepository {
     suspend fun unload(userId: String)
 
     val currentUserId: () -> String
+    val networkReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
+
+    val onChangeCurrentBadge: (Int) -> Unit
+    val currentBadge: () -> Int
+
+    val registerPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) -> Unit
+    val unregisterPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) -> Unit
 
     companion object {
         const val NOT_FOUND = "User not found."

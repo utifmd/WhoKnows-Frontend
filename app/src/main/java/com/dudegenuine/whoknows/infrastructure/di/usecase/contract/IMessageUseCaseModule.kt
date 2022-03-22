@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
+import android.content.BroadcastReceiver
 import com.dudegenuine.usecase.messaging.*
 
 /**
@@ -15,4 +16,8 @@ interface IMessageUseCaseModule {
 
     val onMessagingTokenized: () -> String
     val onMessagingTokenRefresh: (String) -> Unit
+    val currentBadgeStatus: () -> Boolean
+    val onBadgeStatusRefresh: (Boolean) -> Unit
+    val onInternetReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
+    val onTokenReceived: (onTokenized: (String) -> Unit) -> BroadcastReceiver
 }

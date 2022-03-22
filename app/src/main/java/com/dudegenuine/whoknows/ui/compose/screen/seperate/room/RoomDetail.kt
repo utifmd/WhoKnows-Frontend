@@ -81,8 +81,8 @@ fun RoomDetail(
                 viewModel.expireRoom(room) { toggle() } }
         }
         override fun onJoinRoomDirectlyPressed(room: Room) {
-            modalDialog = ModalDialog(context.getString(R.string.participate_the_class), true) {
-                eventRouter.onBoardingRoomPressed(room.id); toggle() }
+            modalDialog = ModalDialog(context.getString(R.string.participate_the_class), true, if (viewModel.currentUserId.isNotBlank()) {{
+                eventRouter.onBoardingRoomPressed(room.id); toggle() }} else null)
         }
         override fun onDeleteRoomPressed(roomId: String) {
             modalDialog = ModalDialog(context.getString(R.string.delete_class), true) {
@@ -305,7 +305,7 @@ private fun FrontLayer(
                 model.questions.forEach { quiz ->
 
                     Box(modifier.combinedClickable(
-                        onLongClick = { onQuestionLongPressed(!model.expired or model.participants.isNotEmpty(), quiz, model.id) },
+                        onLongClick = { onQuestionLongPressed(!model.expired or model.participants.isEmpty(), quiz, model.id) },
                         onClick = { onQuestionPressed(quiz.id) })) {
                         Divider(thickness = (0.5).dp)
 

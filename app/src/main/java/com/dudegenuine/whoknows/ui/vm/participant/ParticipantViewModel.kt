@@ -28,12 +28,12 @@ class ParticipantViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IParticipantViewModel {
 
     override fun initParticipant(participant: Participant) {
-        _state.value = ResourceState(participant = participant)
+        onStateChange(ResourceState(participant = participant))
     }
 
     override fun postParticipant(participant: Participant) {
         if (participant.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -45,7 +45,7 @@ class ParticipantViewModel
 
     override fun getParticipant(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -55,7 +55,7 @@ class ParticipantViewModel
 
     override fun patchParticipant(id: String, current: Participant) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -67,7 +67,7 @@ class ParticipantViewModel
 
     override fun deleteParticipant(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -79,7 +79,7 @@ class ParticipantViewModel
 
     override fun getParticipants(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 

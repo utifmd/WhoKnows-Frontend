@@ -15,25 +15,27 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 class ProfileEvent(
     val router: NavHostController,
     val onSignOutClicked: () -> Unit): IProfileEvent {
-    private val profileEditor = Screen.Home.Setting.ProfileEditor
 
-    override fun onPicturePressed(fileId: String) {
-        router.navigate(Screen.Home.Preview.withArgs(fileId))}
+    override fun onPicturePressed(fileId: String?) {
+        if(fileId.isNullOrBlank()) return
+
+        router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
+    }
 
     override fun onFullNamePressed(it: String){
-        router.navigate(profileEditor.withArgs(NAME, it))}
+        router.navigate(Screen.Home.Setting.ProfileEditor.routeWithArgs(NAME, it))}
 
     override fun onPhonePressed(it: String){
-        router.navigate(profileEditor.withArgs(PHONE, it))}
+        router.navigate(Screen.Home.Setting.ProfileEditor.routeWithArgs(PHONE, it))}
 
     override fun onEmailPressed(it: String){
-        router.navigate(profileEditor.withArgs(EMAIL, it))}
+        router.navigate(Screen.Home.Setting.ProfileEditor.routeWithArgs(EMAIL, it))}
 
     override fun onUsernamePressed(it: String){
-        router.navigate(profileEditor.withArgs(USERNAME, it))}
+        router.navigate(Screen.Home.Setting.ProfileEditor.routeWithArgs(USERNAME, it))}
 
     override fun onPasswordPressed(it: String){
-        router.navigate(profileEditor.withArgs(PASSWORD, it))}
+        router.navigate(Screen.Home.Setting.ProfileEditor.routeWithArgs(PASSWORD, it))}
 
     override fun onSignOutPressed() { onSignOutClicked() }
 }

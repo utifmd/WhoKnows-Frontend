@@ -11,7 +11,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.whoknows.infrastructure.common.Constants
 import com.dudegenuine.whoknows.ui.compose.component.misc.ImageViewer
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.DiscoverScreen
@@ -19,7 +18,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.SettingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.SummaryScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventHome
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.ProfileEvent
-import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel
+import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel.Companion.PREVIEW_FILE_ID
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -37,22 +36,14 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalCoilApi
 fun NavGraphBuilder.homeNavGraph(
     router: NavHostController,
-    modifier: Modifier = Modifier,
-    initial: Screen,
+    modifier: Modifier = Modifier, //initial: Screen,
     viewModel: UserViewModel) {
 
     navigation(
         route = Screen.Home.route,
-        startDestination = initial.route) {
+        startDestination = Screen.Home.Discover.route) {
 
-        composable(
-            route = Screen.Home.Summary.route) {
-
-            SummaryScreen(
-                eventHome = RoomEventHome(router)
-            )
-        }
-
+        discoverGraph(router)
         composable(
             route = Screen.Home.Discover.route) {
 
@@ -61,6 +52,16 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
 
+        summaryGraph(router)
+        composable(
+            route = Screen.Home.Summary.route) {
+
+            SummaryScreen(
+                eventHome = RoomEventHome(router)
+            )
+        }
+
+        settingGraph(router)
         composable(
             route = Screen.Home.Setting.route) {
 
@@ -73,13 +74,15 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
 
+        val preview = Screen.Home.Preview
         composable(
-            route = Screen.Home.Preview.withArgs("{${IFileViewModel.PREVIEW_FILE_ID}}"),
-            deepLinks = listOf( navDeepLink { uriPattern = "${Constants.BASE_CLIENT_URL}/who-knows/image-viewer/{${IFileViewModel.PREVIEW_FILE_ID}}" })) { entry ->
+            route = preview.routeWithArgs("{$PREVIEW_FILE_ID}"),
+            deepLinks = listOf( navDeepLink {
+                uriPattern = preview.uriWithArgs("{$PREVIEW_FILE_ID}") })) { entry ->
 
             ImageViewer(
                 onBackPressed = router::popBackStack,
-                fileId = entry.arguments?.getString(IFileViewModel.PREVIEW_FILE_ID) ?: "bacd3011-8aa5-4742-bf3f-be65ddefbc83"
+                fileId = entry.arguments?.getString(PREVIEW_FILE_ID) ?: "bacd3011-8aa5-4742-bf3f-be65ddefbc83"
             )
         }
     }

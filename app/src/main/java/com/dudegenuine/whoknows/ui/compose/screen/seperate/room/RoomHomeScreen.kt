@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.dudegenuine.whoknows.R
@@ -66,13 +65,14 @@ fun RoomHomeScreen(
                         }
                     }
                 }
-                items(5) {
+                item {
                     LazyStatePaging(
-                        items = lazyPagingRooms, height = 130.dp, width = null)
-                }
-                with (lazyPagingRooms) {
-                    if (loadState.append is LoadState.NotLoading)
-                        if(itemCount < 1) item { ErrorScreen(message = "No results", isDanger = false, isSnack = true) }
+                        vertical = Arrangement.spacedBy(8.dp),
+                        items = lazyPagingRooms,
+                        height = 130.dp,
+                        width = null,
+                        repeat = 5
+                    )
                 }
             }
         }

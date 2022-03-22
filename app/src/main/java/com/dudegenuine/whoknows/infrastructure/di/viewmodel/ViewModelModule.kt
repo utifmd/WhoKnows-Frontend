@@ -50,10 +50,12 @@ object ViewModelModule: IViewModelModule {
     @ViewModelScoped
     override fun provideMainActivityViewModel(
         messagingUseCaseModule: IMessageUseCaseModule,
+        notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
-        savedStateHandle: SavedStateHandle): IActivityViewModel {
+        savedStateHandle: SavedStateHandle
+    ): IActivityViewModel {
 
-        return ActivityViewModel(messagingUseCaseModule, userUseCaseModule, savedStateHandle)
+        return ActivityViewModel(messagingUseCaseModule, notifier, userUseCaseModule, savedStateHandle)
     }
 
     @Provides
@@ -117,8 +119,10 @@ object ViewModelModule: IViewModelModule {
     @ViewModelScoped
     override fun provideNotificationViewModel(
         case: INotificationUseCaseModule,
-        savedStateHandle: SavedStateHandle): INotificationViewModel {
-        return NotificationViewModel(case, savedStateHandle)
+        caseUser: IUserUseCaseModule,
+        savedStateHandle: SavedStateHandle
+    ): INotificationViewModel {
+        return NotificationViewModel(case, caseUser, savedStateHandle)
     }
 
 

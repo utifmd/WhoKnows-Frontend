@@ -78,7 +78,7 @@ fun ProfileScreen(
                         onChangePressed = { launcher.launch("image/*") },
                         onCheckPressed = viewModel::onUploadProfile,
                         onPreviewPressed = {
-                            val fileId = state.user?.profileUrl?.substringAfterLast("/") ?: ""
+                            val fileId = state.user?.profileUrl?.substringAfterLast("/")
                             event.onPicturePressed(fileId)
                         }
 
@@ -112,19 +112,19 @@ fun ProfileScreen(
                             key = stringResource(R.string.full_name),
                             editable = isOwn,
                             value =  state.user?.let { it.fullName.ifBlank { "Not Set" } } ?: "",
-                            onValuePressed = { state.user?.let { event.onFullNamePressed(it.fullName) } })
+                            onValuePressed = { state.user?.let { event.onFullNamePressed(it.fullName.ifBlank { "Not Set" }) } })
 
                         FieldTag(
                             key = stringResource(R.string.phone_number),
                             editable = isOwn,
                             value = state.user?.let { it.phone.ifBlank { "Not Set" } } ?: "",
-                            onValuePressed = { state.user?.let { event.onPhonePressed(it.phone) } })
+                            onValuePressed = { state.user?.let { event.onPhonePressed(it.phone.ifBlank { "Not Set" }) } })
 
                         FieldTag(
                             key = stringResource(R.string.username),
                             editable = false,
                             value = state.user?.username ?: "",
-                            onValuePressed = { state.user?.let { event.onUsernamePressed(it.username) }})
+                            onValuePressed = { state.user?.let { event.onUsernamePressed(it.username.ifBlank { "Not Set" }) }})
 
                         FieldTag(
                             key = stringResource(R.string.email),

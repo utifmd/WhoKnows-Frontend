@@ -20,6 +20,6 @@ class RoomEventHome(
     }
 
     override fun onRoomItemSelected(id: String) {
-        router.navigate(Screen.Home.Summary.RoomDetail.withArgs(id, OWN_IS_TRUE))
+        router.navigate(Screen.Home.Summary.RoomDetail.routeWithArgs(id, OWN_IS_TRUE))
     }
 }

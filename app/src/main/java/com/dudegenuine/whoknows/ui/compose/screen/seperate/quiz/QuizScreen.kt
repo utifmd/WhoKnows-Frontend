@@ -68,7 +68,7 @@ fun QuizScreen(
 private fun Body(
     modifier: Modifier = Modifier,
     model: Quiz,
-    onPicturePressed: (String) -> Unit,
+    onPicturePressed: (String?) -> Unit,
     content: @Composable () -> Unit){
     val backgroundColor = MaterialTheme.colors.onSurface.copy(
         alpha = if(MaterialTheme.colors.isLight) 0.04f else 0.06f)

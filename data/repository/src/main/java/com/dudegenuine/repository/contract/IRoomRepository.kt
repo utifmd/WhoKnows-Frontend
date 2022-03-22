@@ -36,5 +36,5 @@ interface IRoomRepository {
     val currentUserId: () -> String
     val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
-    val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver
+    val timerReceived: ((Double, Boolean) -> Unit) -> BroadcastReceiver
 }

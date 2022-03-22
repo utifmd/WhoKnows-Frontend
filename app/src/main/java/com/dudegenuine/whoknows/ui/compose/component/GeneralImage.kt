@@ -25,7 +25,7 @@ fun GeneralImage(
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-    data: Any, onPressed: ((String) -> Unit)? = null,
+    data: Any, onPressed: ((String?) -> Unit)? = null,
     placeholder: @Composable () -> Unit) {
     val painter = rememberImagePainter(data = data)
 
@@ -41,6 +41,7 @@ fun GeneralImage(
                 modifier = modifier.fillMaxSize()
             )
             else -> {
+                val fileId = if (data is String) data.substringAfterLast("/") else null
                 Image(
                     painter = painter,
                     contentDescription = contentDescription,
@@ -49,7 +50,9 @@ fun GeneralImage(
                     alpha = alpha,
                     colorFilter = colorFilter,
                     modifier = if(onPressed != null) modifier.fillMaxSize().clickable(
-                        onClick = { onPressed.invoke((data as String).substringAfterLast("/")) }
+                        onClick = {
+                            onPressed.invoke(fileId)
+                        }
                     ) else modifier.fillMaxSize()
                 )
 

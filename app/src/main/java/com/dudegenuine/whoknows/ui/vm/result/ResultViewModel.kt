@@ -39,7 +39,7 @@ class ResultViewModel
 
     override fun postResult(result: Result) {
         if (result.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -51,7 +51,7 @@ class ResultViewModel
 
     override fun getResult(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -61,7 +61,7 @@ class ResultViewModel
 
     private fun getResult(roomId: String, userId: String) {
         if (roomId.isBlank() or userId.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -71,7 +71,7 @@ class ResultViewModel
 
     override fun patchResult(id: String, current: Result) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -83,7 +83,7 @@ class ResultViewModel
 
     override fun deleteResult(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -93,7 +93,7 @@ class ResultViewModel
 
     override fun getResults(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 

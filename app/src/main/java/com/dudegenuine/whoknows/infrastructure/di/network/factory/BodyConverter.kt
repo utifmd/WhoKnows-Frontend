@@ -19,9 +19,8 @@ import java.nio.charset.Charset
 class BodyConverter<T>(
     private val gson: Gson,
     private val type: Type,
-    private val typeAdapter: TypeAdapter<T>
-): Converter<ResponseBody, T> {
-     private val TAG: String = javaClass.simpleName
+    private val typeAdapter: TypeAdapter<T>): Converter<ResponseBody, T> {
+    private val TAG: String = javaClass.simpleName
 
     @Throws(IOException::class)
     override fun convert(body: ResponseBody): T? {

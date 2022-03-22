@@ -19,6 +19,7 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 interface IViewModelModule {
     fun provideMainActivityViewModel(
         messagingUseCaseModule: IMessageUseCaseModule,
+        notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): IActivityViewModel
 
@@ -55,6 +56,7 @@ interface IViewModelModule {
 
     fun provideNotificationViewModel(
         case: INotificationUseCaseModule,
+        caseUser: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): INotificationViewModel
 
     fun provideFileViewModel(

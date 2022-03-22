@@ -24,5 +24,5 @@ interface IRoomUseCaseModule {
     val currentUserId: () -> String
     val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
-    val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver
+    val onTimerReceived: ((Double, Boolean) -> Unit) -> BroadcastReceiver
 }

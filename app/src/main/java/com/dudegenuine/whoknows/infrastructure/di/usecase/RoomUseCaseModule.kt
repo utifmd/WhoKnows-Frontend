@@ -12,46 +12,46 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseM
 class RoomUseCaseModule(
     private val repository: IRoomRepository,
 
-    override val postRoom: PostRoom =
-        PostRoom(repository),
+    override val postRoom:
+        PostRoom = PostRoom(repository),
 
-    override val getRoom: GetRoom =
-        GetRoom(repository),
+    override val getRoom:
+        GetRoom = GetRoom(repository),
 
-    override val patchRoom: PatchRoom =
-        PatchRoom(repository),
+    override val patchRoom:
+        PatchRoom = PatchRoom(repository),
 
-    override val deleteRoom: DeleteRoom =
-        DeleteRoom(repository),
+    override val deleteRoom:
+        DeleteRoom = DeleteRoom(repository),
 
-    override val getRooms: GetRooms =
-        GetRooms(repository),
+    override val getRooms:
+        GetRooms = GetRooms(repository),
 
-    override val getBoarding: GetBoarding =
-        GetBoarding(repository),
+    override val getBoarding:
+        GetBoarding = GetBoarding(repository),
 
-    override val postBoarding: PostBoarding =
-        PostBoarding(repository),
+    override val postBoarding:
+        PostBoarding = PostBoarding(repository),
 
-    override val patchBoarding: PatchBoarding =
-        PatchBoarding(repository),
+    override val patchBoarding:
+        PatchBoarding = PatchBoarding(repository),
 
-    override val deleteBoarding: DeleteBoarding =
-        DeleteBoarding(repository),
+    override val deleteBoarding:
+        DeleteBoarding = DeleteBoarding(repository),
 
-    override val currentToken: () -> String =
-        repository.currentToken,
+    override val currentToken: () ->
+        String = repository.currentToken,
 
-    override val currentUserId: () -> String =
-        repository.currentUserId,
+    override val currentUserId: () ->
+        String = repository.currentUserId,
 
-    override val currentRunningTime: () -> String =
-        repository.currentRunningTime,
+    override val currentRunningTime: () ->
+        String = repository.currentRunningTime,
 
-    override val setClipboard: (String, String) -> Unit =
-        repository.setClipboard,
+    override val setClipboard: (String, String) ->
+        Unit = repository.setClipboard,
 
-    override val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver =
-        repository.onTimerThick
+    override val onTimerReceived: ((Double, Boolean) -> Unit) ->
+        BroadcastReceiver = repository.timerReceived
 
 ): IRoomUseCaseModule

@@ -1,12 +1,11 @@
 package com.dudegenuine.repository
 
 import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import androidx.paging.PagingSource
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.model.Room
@@ -26,36 +25,29 @@ import javax.inject.Inject
 class RoomRepository
     @Inject constructor(
     private val service: IRoomService,
+    private val receiver: IReceiverFactory,
     private val local: ICurrentBoardingDao,
     private val mapper: IRoomDataMapper,
     private val prefs: IPreferenceManager,
     private val clip: IClipboardManager): IRoomRepository {
     private val TAG: String = javaClass.simpleName
 
-    override val onTimerThick: ((Double, Boolean) -> Unit) -> BroadcastReceiver = { onTime ->
-        object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-                val time = intent.getDoubleExtra(ITimerService.INITIAL_TIME_KEY, 0.0)
-                val finished = intent.getBooleanExtra(ITimerService.TIME_UP_KEY, false)
-
-                onTime(time, finished)
-            }
-        }
-    }
+    override val timerReceived: ((Double, Boolean) -> Unit) ->
+        BroadcastReceiver = receiver.timerReceived
 
     override val setClipboard: (String, String) -> Unit = clip::applyPlainText
 
     override val currentToken: () -> String =
-        { prefs.read(IMessagingRepository.MESSAGING_TOKEN) }
+        { prefs.readString(IMessagingRepository.MESSAGING_TOKEN) }
 
     override val currentUserId: () -> String =
-        { prefs.read(CURRENT_USER_ID) }
+        { prefs.readString(CURRENT_USER_ID) }
 
     override val currentRunningTime: () -> String =
-        { prefs.read(ITimerService.INITIAL_TIME_KEY) }
+        { prefs.readString(ITimerService.INITIAL_TIME_KEY) }
 
     override val currentParticipant: () -> String =
-        { prefs.read(CURRENT_PARTICIPANT_ID) }
+        { prefs.readString(CURRENT_PARTICIPANT_ID) }
 
     override suspend fun create(room: Room): Room = mapper.asRoom(
         service.create(mapper.asEntity(room)))

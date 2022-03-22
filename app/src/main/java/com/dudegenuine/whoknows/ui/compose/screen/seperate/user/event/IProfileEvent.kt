@@ -10,7 +10,7 @@ interface IProfileEvent {
     fun onUsernamePressed(it: String){}
     fun onPasswordPressed(it: String){}
     fun onBackPressed(){}
-    fun onPicturePressed(fileId: String){}
+    fun onPicturePressed(fileId: String?){}
     fun onSignOutPressed(){}
 
     companion object {

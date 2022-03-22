@@ -103,7 +103,7 @@ class RoomViewModel
     private fun onPreBoarding(roomId: String) {
         Log.d(TAG, "onPreBoarding: triggered")
         if (roomId.isBlank())
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
 
         caseRoom.getRoom(roomId).onEach { res ->
             onResourceSucceed(res, ::onInitBoarding)
@@ -128,7 +128,7 @@ class RoomViewModel
                 },
                 onError = {
                     onCloseBoarding()
-                    _state.value = ResourceState(error = it)
+                    onStateChange(ResourceState(error = it))
                 }
             )
         }.launchIn(viewModelScope)
@@ -148,7 +148,7 @@ class RoomViewModel
         }
 
         if (quizzes.isEmpty()) {
-            _state.value = ResourceState(error = NO_QUESTION)
+            onStateChange(ResourceState(error = NO_QUESTION))
             return
         }
 
@@ -244,7 +244,7 @@ class RoomViewModel
     val timerServiceReceiver: (
         Room.RoomState.BoardingQuiz) -> BroadcastReceiver = { roomState ->
 
-        caseRoom.onTimerThick { time, finished ->
+        caseRoom.onTimerReceived { time, finished ->
             formState.onTimerChange(time)
             if (finished) onPreResult(roomState)
         }
@@ -254,13 +254,13 @@ class RoomViewModel
         val model = formState.room.copy(userId = currentUserId)
 
         if (!formState.isPostValid || currentUserId.isBlank()) {
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
 
             return
         }
 
         if (formState.desc.text.length > 225){
-            _state.value = ResourceState(error = DESC_TOO_LONG)
+            onStateChange(ResourceState(error = DESC_TOO_LONG))
 
             return
         }
@@ -278,7 +278,7 @@ class RoomViewModel
 
     override fun postRoom(room: Room) {
         if (room.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -290,7 +290,7 @@ class RoomViewModel
 
     override fun getRoom(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -300,7 +300,7 @@ class RoomViewModel
 
     override fun patchRoom(id: String, current: Room) {
         if (id.isBlank() || current.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
         }
 
         current.apply { updatedAt = Date() }
@@ -312,12 +312,12 @@ class RoomViewModel
     fun expireRoom(current: Room, onSucceed: (Room) -> Unit) {
         val model = current.copy(expired = true, updatedAt = Date())
         if (model.id.isBlank() || model.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
         }
 
         caseRoom.patchRoom(model.id, model)
             .onEach{ res -> onResourceSucceed(res) {
-                _state.value = ResourceState(room = it)
+                onStateChange(ResourceState(room = it))
 
                 onSucceed(it)
             }}
@@ -326,7 +326,7 @@ class RoomViewModel
 
     override fun deleteRoom(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -336,7 +336,7 @@ class RoomViewModel
 
     fun deleteRoom(roomId: String, onSucceed: (String) -> Unit) {
         if (roomId.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -388,7 +388,7 @@ class RoomViewModel
 
     override fun getRooms(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
         }
 
         caseRoom.getRooms(page, size)
@@ -396,7 +396,7 @@ class RoomViewModel
     }
 
     override fun getMessaging(keyName: String, onSucceed: (String) -> Unit) {
-        if (keyName.isBlank()) _state.value = ResourceState(error = DONT_EMPTY)
+        if (keyName.isBlank()) onStateChange(ResourceState(error = DONT_EMPTY))
 
         caseMessaging.getMessaging(keyName)
             .onEach { res -> onResourceStateless(res, onSucceed) }
@@ -408,7 +408,7 @@ class RoomViewModel
         val model = messaging.copy()
 
         if (model.operation.isBlank() or model.keyName.isBlank() or model.tokens.isEmpty())
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
 
         caseMessaging.createMessaging(model)
             .onEach { res -> onResourceStateless(res, onSucceed) }
@@ -420,7 +420,7 @@ class RoomViewModel
         val model = messaging.copy()
 
         if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty()) {
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
 
             return
         }
@@ -437,7 +437,7 @@ class RoomViewModel
         val model = messaging.copy()
 
         if (model.title.isBlank() or model.body.isBlank() or model.to.isBlank())
-            _state.value = ResourceState(error = PUSH_NOT_SENT)
+            onStateChange(ResourceState(error = PUSH_NOT_SENT))
 
         caseMessaging.pushMessaging(model)
             .onEach { res -> onResourceStateless(res, onSucceed) }//(::onResource)
@@ -464,7 +464,7 @@ class RoomViewModel
 
     override fun patchBoarding(state: Room.RoomState.BoardingQuiz) {
         if (state.quizzes.isEmpty() or state.roomId.isEmpty() or state.userId.isEmpty() or state.participantId.isEmpty())
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
 
         caseRoom.patchBoarding(state)
             .onEach(::onResource).launchIn(viewModelScope)
@@ -472,7 +472,7 @@ class RoomViewModel
 
     override fun postBoarding(state: Room.RoomState.BoardingQuiz, onSucceed: (String) -> Unit) {
         if (state.quizzes.isEmpty() or state.roomId.isEmpty() or state.userId.isEmpty() or state.participantId.isEmpty())
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
 
         caseRoom.postBoarding(state)
             .onEach { res -> onResourceStateless(res, onSucceed) }

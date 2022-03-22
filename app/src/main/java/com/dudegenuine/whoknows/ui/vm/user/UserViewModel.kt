@@ -16,6 +16,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 import com.dudegenuine.whoknows.ui.compose.state.UserState
 import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.ResourceState
+import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.CHECK_CONN
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
@@ -43,7 +44,7 @@ class UserViewModel
     @Inject lateinit var share: IShareLauncher
 
     private val TAG = javaClass.simpleName
-    private val messagingToken = caseMessaging.onMessagingTokenized()
+    private val currentToken = caseMessaging.onMessagingTokenized()
 
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
@@ -59,9 +60,11 @@ class UserViewModel
     private fun onPreRegisterGroupToken(currentUser: User) {
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
+        val unread = currentUser.notifications.count { !it.seen }
 
+        caseUser.onChangeCurrentBadge(unread)
         concatenate(joined, owned).forEach { roomId ->
-            onRegisterToken(messagingToken, roomId)
+            onRegisterToken(currentToken, roomId)
         }
     }
 
@@ -69,8 +72,9 @@ class UserViewModel
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
 
+        caseUser.onChangeCurrentBadge(0)
         concatenate(joined, owned).forEach { roomId ->
-            onUnregisterToken(messagingToken, roomId)
+            onUnregisterToken(currentToken, roomId)
         }
     }
 
@@ -78,12 +82,13 @@ class UserViewModel
         val model: User? = state.user
 
         if (formState.profileImage.isEmpty() || model == null){
-            _state.value = ResourceState(error = DONT_EMPTY)
-
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
         model.let { user ->
+            val fileId = user.profileUrl.substringAfterLast("/")
+
             fileCase.uploadFile(formState.profileImage)
                 .onEach { res -> onResourceSucceed(res) { file ->
                         val fresh = user.copy(profileUrl = file.url)
@@ -92,7 +97,7 @@ class UserViewModel
                         patchUser(id = fresh.id, freshUser = fresh)
                     }
                 }
-                .flatMapMerge { fileCase.deleteFile(user.profileUrl) }
+                .flatMapMerge { fileCase.deleteFile(fileId) }
                 .launchIn(viewModelScope)
         }
     }
@@ -100,7 +105,7 @@ class UserViewModel
     fun onUpdateUser(fieldKey: String?, fieldValue: String, onSucceed: (User) -> Unit) {
 
         if (fieldValue.isBlank() || state.user == null){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
         }
 
         state.user?.let { model ->
@@ -162,7 +167,12 @@ class UserViewModel
     override fun signInUser() {
         val model = formState.loginModel
         if (!formState.isLoginValid.value){
-            _authState.value = ResourceState.Auth(error = DONT_EMPTY)
+            onAuthStateChange(ResourceState.Auth(error = DONT_EMPTY))
+            return
+        }
+
+        if (currentToken.isBlank()){
+            onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
 
@@ -174,7 +184,12 @@ class UserViewModel
     override fun signUpUser() {
         val model = formState.regisModel
         if (!formState.isRegisValid.value){
-            _authState.value = ResourceState.Auth(error = DONT_EMPTY)
+            onAuthStateChange(ResourceState.Auth(error = DONT_EMPTY))
+            return
+        }
+
+        if (currentToken.isBlank()){
+            onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
 
@@ -184,20 +199,26 @@ class UserViewModel
     }
 
     override fun signOutUser() {
-        getUser(caseUser.currentUserId()) { freshUser ->
-            caseUser.signOutUser()
-                .onEach { res -> onAuth(res, null) {
-                    onPreUnregisterGroupToken(freshUser)
 
-                    _authState.value = ResourceState.Auth()
-                }}
+        if (currentToken.isBlank()){
+            onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
+            return
+        }
+
+        getUser(caseUser.currentUserId()) { freshUser ->
+
+            caseUser.signOutUser()
+                .onEach { res -> onAuth(res,
+                    onSignedOut = {
+                        onPreUnregisterGroupToken(freshUser)
+                        onAuthStateChange(ResourceState.Auth()) })}
                 .launchIn(viewModelScope)
         }
     }
 
     override fun postUser(user: User) {
         if (user.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -212,7 +233,7 @@ class UserViewModel
 
     override fun getUser(id: String) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
         caseUser.getUser(id)
@@ -221,7 +242,7 @@ class UserViewModel
 
     override fun getUser(id: String, onSucceed: (User) -> Unit) {
         if (id.isBlank()){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -232,7 +253,7 @@ class UserViewModel
 
     override fun patchUser(id: String, freshUser: User) {
         if (id.isBlank() || freshUser.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -244,7 +265,7 @@ class UserViewModel
 
     override fun patchUser(freshUser: User, onSucceed: (User) -> Unit) {
         if (freshUser.id.isBlank() || freshUser.isPropsBlank){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -256,7 +277,7 @@ class UserViewModel
 
     override fun deleteUser(id: String) {
         if (id.isBlank()) {
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -266,7 +287,7 @@ class UserViewModel
 
     override fun getUsers(page: Int, size: Int) {
         if (size == 0){
-            _state.value = ResourceState(error = DONT_EMPTY)
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 

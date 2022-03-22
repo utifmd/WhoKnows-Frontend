@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
+import android.content.BroadcastReceiver
 import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.usecase.messaging.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
@@ -30,4 +31,16 @@ class MessageUseCaseModule(repository: IMessagingRepository): IMessageUseCaseMod
 
     override val onMessagingTokenRefresh: (String) -> Unit =
         repository.onMessagingTokenRefresh
+
+    override val currentBadgeStatus: () -> Boolean =
+        repository.currentBadgeStatus
+
+    override val onBadgeStatusRefresh: (Boolean) -> Unit =
+        repository.onBadgeStatusRefresh
+
+    override val onInternetReceived: (onConnected: (String) -> Unit) ->
+        BroadcastReceiver = repository.onNetworkReceived
+
+    override val onTokenReceived: (onTokenized: (String) -> Unit) ->
+        BroadcastReceiver = repository.onTokenReceived
 }

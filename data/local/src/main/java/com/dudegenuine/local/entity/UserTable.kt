@@ -3,6 +3,7 @@ package com.dudegenuine.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.RoomCensored
 import java.util.*
@@ -46,4 +47,7 @@ data class UserTable(
 
     @ColumnInfo(name = "rooms")
     val rooms: List<RoomCensored>,
+
+    @ColumnInfo(name = "notifications")
+    val notifications: List<Notification>,
 )

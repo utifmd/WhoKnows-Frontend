@@ -1,5 +1,6 @@
 package com.dudegenuine.repository.contract
 
+import android.content.BroadcastReceiver
 import com.dudegenuine.model.Messaging
 import okhttp3.ResponseBody
 
@@ -21,4 +22,10 @@ interface IMessagingRepository {
 
     val onMessagingTokenized: () -> String
     val onMessagingTokenRefresh: (String) -> Unit
+
+    val currentBadgeStatus: () -> Boolean
+    val onBadgeStatusRefresh: (Boolean) -> Unit
+
+    val onNetworkReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
+    val onTokenReceived: (onTokenized: (String) -> Unit) -> BroadcastReceiver
 }

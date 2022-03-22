@@ -41,7 +41,10 @@ data class UserEntity (
     val participants: List<ParticipantEntity>,
 
     @SerializedName("rooms")
-    val rooms: List<RoomCensoredEntity>){
+    val rooms: List<RoomCensoredEntity>,
+
+    @SerializedName("notifications")
+    val notifications: List<NotificationEntity>){
 
     data class LoginRequest(val payload: String, val password: String)
 }

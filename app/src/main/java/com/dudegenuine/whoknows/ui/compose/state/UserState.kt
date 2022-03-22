@@ -16,28 +16,7 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 sealed class UserState {
-    /*data class CurrentState(val freshUser: User): UserState()
-    data class ChangerState(val currentUser: User? = null, val fieldKey: String? = null): UserState(){
-        val selectedFieldValue = when(fieldKey) {
-            NAME -> currentUser?.fullName
-            PHONE -> currentUser?.phone
-            EMAIL -> currentUser?.email
-            else -> "No value"
-        }
-
-        val model: User get() = mutableStateOf(
-            currentUser?.copy() ?: User(
-                "USR-${UUID.randomUUID()}","", "", "", "", "", "", Date(), Date()
-            )
-        ).value
-    }
-    data class Auth(
-        val loading: Boolean = false,
-        val error: String = ""): UserState()*/
-
-
     class FormState: UserState() {
-
         private val _payload = mutableStateOf(TextFieldValue(""))
         val payload: TextFieldValue
             get() = _payload.value
@@ -57,16 +36,16 @@ sealed class UserState {
         val isLoginValid: State<Boolean>
             get() = mutableStateOf(
                 payload.text.isNotBlank() &&
-                password.text.isNotBlank()
+                        password.text.isNotBlank()
             )
 
         val isRegisValid: State<Boolean>
             get() = mutableStateOf( /*fullName.text.isNotBlank() &&*/ /*phone.text.isNotBlank() &&*/
                 payload.text.isNotBlank() &&
-                Patterns.EMAIL_ADDRESS.matcher(payload.text).matches() &&
-                password.text.isNotBlank() &&
-                rePassword.text.isNotBlank() &&
-                password.text == rePassword.text
+                        Patterns.EMAIL_ADDRESS.matcher(payload.text).matches() &&
+                        password.text.isNotBlank() &&
+                        rePassword.text.isNotBlank() &&
+                        password.text == rePassword.text
             )
 
         val loginModel: Map<String, String>
@@ -75,7 +54,8 @@ sealed class UserState {
                 User.PASSWORD to password.text
             )
 
-        val regisModel: User get() = mutableStateOf(
+        val regisModel: User
+            get() = mutableStateOf(
             User(
                 "USR-${UUID.randomUUID()}",
                 "",
@@ -87,7 +67,8 @@ sealed class UserState {
                 Date(),
                 null,
                 emptyList(),
-                emptyList()
+                emptyList(),
+                emptyList(),
             )
         ).value
 
@@ -159,4 +140,23 @@ sealed class UserState {
             _email.value = TextFieldValue(it)
         }*/
     }
+
+    /*data class CurrentState(val freshUser: User): UserState()
+    data class ChangerState(val currentUser: User? = null, val fieldKey: String? = null): UserState(){
+        val selectedFieldValue = when(fieldKey) {
+            NAME -> currentUser?.fullName
+            PHONE -> currentUser?.phone
+            EMAIL -> currentUser?.email
+            else -> "No value"
+        }
+
+        val model: User get() = mutableStateOf(
+            currentUser?.copy() ?: User(
+                "USR-${UUID.randomUUID()}","", "", "", "", "", "", Date(), Date()
+            )
+        ).value
+    }
+    data class Auth(
+        val loading: Boolean = false,
+        val error: String = ""): UserState()*/
 }

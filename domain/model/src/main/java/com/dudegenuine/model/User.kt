@@ -19,7 +19,8 @@ data class User (
     var createdAt: Date,
     var updatedAt: Date?,
     var participants: List<Participant>,
-    var rooms: List<RoomCensored>): Serializable {
+    var rooms: List<RoomCensored>,
+    var notifications: List<Notification>): Serializable {
 
     val isPropsBlank: Boolean =
         /*fullName.isBlank() ||*/ email.isBlank() || /*phone.isBlank() ||*/

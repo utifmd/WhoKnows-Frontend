@@ -1,6 +1,9 @@
 package com.dudegenuine.repository
 
+import android.content.BroadcastReceiver
 import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE_STATUS
+import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.remote.mapper.contract.IMessagingDataMapper
 import com.dudegenuine.remote.service.contract.IMessagingService
@@ -15,7 +18,8 @@ import okhttp3.ResponseBody
 class MessagingRepository(
     private val service: IMessagingService,
     private val mapper: IMessagingDataMapper,
-    private val pref: IPreferenceManager): IMessagingRepository {
+    private val pref: IPreferenceManager,
+    private val receiver: IReceiverFactory): IMessagingRepository {
     private val TAG: String = javaClass.simpleName
 
     override suspend fun get(keyName: String): Messaging.Getter.Response {
@@ -48,9 +52,21 @@ class MessagingRepository(
         )
     }
 
-    override val onMessagingTokenized: () -> String =
-        { pref.read(MESSAGING_TOKEN) }
+    override val onNetworkReceived: (onConnected: (String) -> Unit) ->
+        BroadcastReceiver = receiver.networkReceived
 
-    override val onMessagingTokenRefresh: (String) -> Unit =
-        { pref.write(MESSAGING_TOKEN, it) }
+    override val onTokenReceived: (onTokenized: (String) -> Unit) ->
+        BroadcastReceiver = receiver.tokenReceived
+
+    override val onMessagingTokenized: () ->
+        String = { pref.readString(MESSAGING_TOKEN) }
+
+    override val onMessagingTokenRefresh: (String) ->
+        Unit = { pref.write(MESSAGING_TOKEN, it) }
+
+    override val currentBadgeStatus: () ->
+        Boolean = { pref.readBoolean(CURRENT_NOTIFICATION_BADGE_STATUS) }
+
+    override val onBadgeStatusRefresh: (Boolean) ->
+        Unit = { pref.write(CURRENT_NOTIFICATION_BADGE_STATUS, it) }
 }

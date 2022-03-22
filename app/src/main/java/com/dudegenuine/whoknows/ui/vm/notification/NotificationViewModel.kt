@@ -1,11 +1,13 @@
 package com.dudegenuine.whoknows.ui.vm.notification
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Notification
-import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.NotificationState
 import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.ResourceState
@@ -24,32 +26,38 @@ import javax.inject.Inject
 class NotificationViewModel
     @Inject constructor(
     private val caseNotify: INotificationUseCaseModule,
+    private val caseUser: IUserUseCaseModule,
     private val savedState: SavedStateHandle): BaseViewModel(), INotificationViewModel {
     private val TAG = javaClass.simpleName
     private val currentUserId = caseNotify.currentUserId()
+    private val currentBadge = caseNotify.currentBadge()
 
     private val _formState = mutableStateOf(NotificationState.FormState())
     val formState = _formState.value
 
     init { getNotifications(currentUserId, 0, Int.MAX_VALUE) }
 
-    val badge = caseNotify.currentBadge()
-    val onStateValueChange: (ResourceState) -> Unit = { _state.value = it }
+    private var badge by mutableStateOf(currentBadge)
 
-    fun onNotificationPressed(notification: Notification) {
+    /*fun onNotifierIncrease() {
+        badge -= 1
+
+        caseNotify.onChangeCurrentBadge(badge)
+        Log.d(TAG, "onNotifierIncrease: $badge")
+    }*/
+
+    fun onNotificationDecrease(notification: Notification) {
         val model = notification.copy(seen = true)
+        badge -= 1
 
         patchNotification(model) {
-            val badgeNumeric = if(badge.isNotBlank()) badge.toInt() else 0
-            val result = badgeNumeric -1
-
-            caseNotify.onCurrentBadgeChange(result.toString())
+            caseNotify.onChangeCurrentBadge(badge)
         }
     }
 
     override fun postNotification(notification: Notification) {
         if (notification.isPropsBlank) {
-            onStateValueChange(ResourceState(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -61,7 +69,7 @@ class NotificationViewModel
         notification: Notification, onSuccess: (Notification) -> Unit) {
 
         if (notification.isPropsBlank) {
-            onStateValueChange(ResourceState(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -72,7 +80,7 @@ class NotificationViewModel
 
     override fun getNotification(id: String) {
         if (id.isBlank()){
-            onStateValueChange(ResourceState(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -82,7 +90,7 @@ class NotificationViewModel
 
     override fun deleteNotification(id: String) {
         if (id.isBlank()){
-            onStateValueChange(ResourceState(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -92,7 +100,7 @@ class NotificationViewModel
 
     override fun getNotifications(page: Int, size: Int) {
         if (size <= 0){
-            onStateValueChange(ResourceState(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
@@ -102,18 +110,17 @@ class NotificationViewModel
 
     override fun getNotifications(recipientId: String, page: Int, size: Int) {
         if (size < 1){
-            onStateValueChange(ResourceState(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
         caseNotify.getNotifications(recipientId, page, size)
-            .onEach { res ->
+            .onEach(::onResource).launchIn(viewModelScope)
+            /*.onEach { res ->
                 if (res is Resource.Success){
                     val badges = res.data?.count { !it.seen } ?: 0
-                    caseNotify.onCurrentBadgeChange(badges.toString())
+                    caseNotify.onChangeCurrentBadge(badges)
                 }
-            }
-            .onEach(::onResource)
-            .launchIn(viewModelScope)
+            }*/
     }
 }

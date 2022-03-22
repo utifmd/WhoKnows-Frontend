@@ -1,12 +1,9 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -44,7 +41,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
 import com.dudegenuine.whoknows.ui.theme.ColorBronze
 import com.dudegenuine.whoknows.ui.theme.ColorGold
 import com.dudegenuine.whoknows.ui.theme.ColorSilver
-import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
+import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.participant.ParticipantViewModel
 import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
@@ -57,6 +54,8 @@ import kotlinx.coroutines.FlowPreview
  * Tue, 22 Feb 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 @ExperimentalCoroutinesApi
 @FlowPreview
 @ExperimentalCoilApi
@@ -67,7 +66,7 @@ fun FeedScreen(modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     scrollState: ScrollState = rememberScrollState(),
     vmQuiz: QuizViewModel = hiltViewModel(),
-    vmNotification: NotificationViewModel = hiltViewModel(),
+    vmMain: ActivityViewModel = hiltViewModel(),
     vmParticipant: ParticipantViewModel = hiltViewModel(),
     vmRoom: RoomViewModel = hiltViewModel(),
     onJoinButtonPressed: () -> Unit, onNotificationPressed: () -> Unit) {
@@ -82,9 +81,11 @@ fun FeedScreen(modifier: Modifier = Modifier,
             GeneralTopBar(
                 title = "Discovery",
                 tails = Icons.Filled.Notifications,
-                tailsTint = if(vmNotification.badge.isNotBlank() && vmNotification.badge != "0")
-                    MaterialTheme.colors.error else null,
-                onTailPressed = onNotificationPressed,
+                tailsTint = if(vmMain.isNotify) MaterialTheme.colors.error else null,
+                onTailPressed = {
+                    vmMain.onTurnNotifierOn(false)
+                    onNotificationPressed()
+                },
             )
         },
         scaffoldState = scaffoldState){
@@ -92,8 +93,8 @@ fun FeedScreen(modifier: Modifier = Modifier,
         SwipeRefresh(swipeRefreshState, onRefresh = {
             lazyParticipants.refresh()
             lazyQuizzes.refresh()
-            lazyRooms.refresh()
-        }) {
+            lazyRooms.refresh() }) {
+
             Box(modifier.verticalScroll(scrollState)){
 
                 Column(modifier.padding(12.dp),
@@ -135,7 +136,7 @@ private fun BodyParticipant(
             )
         }
 
-        item { LazyStatePaging(items = lazyParticipants, times = 3) }
+        item { LazyStatePaging(items = lazyParticipants, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
     }
 }
 
@@ -153,7 +154,7 @@ private fun BodyRoom(
             )
         }
 
-        item { LazyStatePaging(items = lazyRooms, times = 3) }
+        item { LazyStatePaging(items = lazyRooms, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
     }
 
     Box(modifier.fillMaxWidth(),
@@ -217,7 +218,7 @@ private fun BodyQuiz(
             }
         }
 
-        item { LazyStatePaging(items = lazyQuizzes, times = 3) }
+        item { LazyStatePaging(items = lazyQuizzes, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
     }
 }
 

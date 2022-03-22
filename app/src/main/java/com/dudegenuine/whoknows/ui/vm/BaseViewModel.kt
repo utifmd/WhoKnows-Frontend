@@ -1,9 +1,29 @@
 package com.dudegenuine.whoknows.ui.vm
 
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.DrawerState
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.dudegenuine.model.*
+import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
+import com.dudegenuine.whoknows.ui.compose.screen.LoadBoxScreen
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * Wed, 08 Dec 2021
@@ -12,13 +32,46 @@ import com.dudegenuine.model.*
 abstract class BaseViewModel: ViewModel() {
     private val TAG: String = javaClass.simpleName
 
-    protected val _state = mutableStateOf(ResourceState())
+    private val _state = mutableStateOf(ResourceState())
     val state: ResourceState
         get() = _state.value
 
-    protected val _authState = mutableStateOf(ResourceState.Auth())
+    private val _authState = mutableStateOf(ResourceState.Auth())
     val authState: ResourceState.Auth
         get() = _authState.value
+
+    private val _snackMessage = MutableSharedFlow<String>()
+    val snackMessage: SharedFlow<String>
+        get() = _snackMessage.asSharedFlow()
+
+    private val _snackBarHostState by mutableStateOf(SnackbarHostState())
+    val scaffoldState by mutableStateOf(
+        ScaffoldState(DrawerState(
+            DrawerValue.Closed), _snackBarHostState))
+
+    /*init { observeSnackBar() }
+
+    private fun observeSnackBar(){
+        with (scaffoldState.snackbarHostState) {
+            viewModelScope.launch {
+                snackMessage.collectLatest { message ->
+                    showSnackbar(message)
+                }
+            }
+        }
+    }*/
+
+    fun onStateChange(fresh: ResourceState){
+        _state.value = fresh
+    }
+
+    fun onAuthStateChange(fresh: ResourceState.Auth){
+        _authState.value = fresh
+    }
+
+    suspend fun onShowSnackBar(message: String){
+        _snackMessage.emit(message)
+    }
 
     protected fun<T> onResource(resource: Resource<T>){
         onResourceSucceed(resource){ data ->
@@ -121,7 +174,7 @@ abstract class BaseViewModel: ViewModel() {
     }
 
     protected fun<T> onAuth(
-        resources: Resource<T>, onSucceed: ((User) -> Unit)? = null, onSignedOut: () -> Unit){
+        resources: Resource<T>, onSucceed: ((User) -> Unit)? = null, onSignedOut: (() -> Unit)? = null){
         when(resources){
             is Resource.Success -> {
 
@@ -132,12 +185,14 @@ abstract class BaseViewModel: ViewModel() {
                         ResourceState(user = it)
                     }
 
-                    is String -> ResourceState( // user signed out
-                        user = null,
-                        error = resources.message
-                            ?: "An unexpected error occurred."
+                    is String -> {
+                        onSignedOut?.invoke()
 
-                    ).also { onSignedOut() }
+                        ResourceState( // user signed out
+                            user = null,
+                            error = resources.message ?: "An unexpected error occurred."
+                        )
+                    }
 
                     else -> ResourceState()
                 }
@@ -156,5 +211,44 @@ abstract class BaseViewModel: ViewModel() {
                 )
             }
         }
+    }
+
+    @Composable
+    fun <T: Any> LazyStatePaging(
+        modifier: Modifier = Modifier,
+        height: Dp = 125.dp, width: Dp? = 246.dp,
+        items: LazyPagingItems<T>,
+        vertical: Arrangement.Vertical? = null,
+        horizontal: Arrangement.Horizontal? = null, repeat: Int){
+
+        with(items) { when {
+            loadState.append is LoadState.Loading ||
+                    loadState.refresh is LoadState.Loading -> when {
+                vertical != null -> Column(verticalArrangement = vertical) {
+                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
+                }
+
+                horizontal != null -> Row(horizontalArrangement = horizontal) {
+                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
+                }
+
+                else -> LoadBoxScreen(height = height, width = width)
+            }
+            loadState.append is LoadState.Error ||
+                    loadState.refresh is LoadState.Error -> {
+                val e = loadState.refresh as LoadState.Error
+
+                ErrorScreen(
+                    modifier.clickable(onClick = ::refresh),
+                    message = e.error.localizedMessage ?: "refresh",
+                    isSnack = true
+                )
+            }
+            loadState.refresh is LoadState.NotLoading ||
+                    loadState.append is LoadState.NotLoading -> {
+                if (items.itemCount < 1) ErrorScreen(modifier,
+                    message = "No result.", isDanger = false)
+            }
+        }}
     }
 }

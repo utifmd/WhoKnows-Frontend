@@ -1,12 +1,9 @@
 package com.dudegenuine.remote.mapper
 
 import com.dudegenuine.local.entity.UserTable
-import com.dudegenuine.model.Participant
-import com.dudegenuine.model.RoomCensored
-import com.dudegenuine.model.User
+import com.dudegenuine.model.*
 import com.dudegenuine.model.User.Companion.PASSWORD
 import com.dudegenuine.model.User.Companion.PAYLOAD
-import com.dudegenuine.model.UserCensored
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.*
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
@@ -34,7 +31,9 @@ class UserDataMapper
             participants = user.participants
                 .map(::asEntity),
             rooms = user.rooms
-                .map(::asRoomCensoredEntity)
+                .map(::asRoomCensoredEntity),
+            notifications = user.notifications
+                .map(::asNotifierEntity)
         )
     }
 
@@ -52,7 +51,9 @@ class UserDataMapper
             participants = entity.participants
                 .map(::asParticipant),
             rooms = entity.rooms
-                .map(::asRoomCensored)
+                .map(::asRoomCensored),
+            notifications = entity.notifications
+                .map(::asNotification)
         )
     }
 
@@ -93,7 +94,7 @@ class UserDataMapper
     }
 
     override fun asUser(userTable: UserTable): User {
-        return userTable.let {User(
+        return userTable.let { User(
             id = it.userId,
             fullName = it.fullName,
             email = it.email,
@@ -104,7 +105,8 @@ class UserDataMapper
             createdAt = userTable.createdAt, //Date(it.createdAt),
             updatedAt = userTable.updatedAt, //it.updatedAt?.let { date -> Date(date) },
             participants = userTable.participants,
-            rooms = userTable.rooms
+            rooms = userTable.rooms,
+            notifications = userTable.notifications
         )}
     }
 
@@ -120,7 +122,8 @@ class UserDataMapper
             createdAt = user.createdAt,//.time,
             updatedAt = user.updatedAt,//?.time
             participants = user.participants,
-            rooms = user.rooms
+            rooms = user.rooms,
+            notifications = user.notifications
         )
     }
 
@@ -151,6 +154,34 @@ class UserDataMapper
             entity.updatedAt,
             entity.user?.
                 let(::asUserCensored)
+        )
+    }
+
+    override fun asNotifierEntity(notification: Notification): NotificationEntity {
+        return NotificationEntity(
+            notificationId = notification.notificationId,
+            userId = notification.userId,
+            roomId = notification.roomId,
+            event = notification.event,
+            seen = notification.seen,
+            recipientId = notification.recipientId,
+            createdAt = notification.createdAt,
+            updatedAt = notification.updatedAt,
+            sender = null,
+        )
+    }
+
+    override fun asNotification(entity: NotificationEntity): Notification {
+        return Notification(
+            notificationId = entity.notificationId,
+            userId = entity.userId,
+            roomId = entity.roomId,
+            event = entity.event,
+            seen = entity.seen,
+            recipientId = entity.recipientId,
+            createdAt = entity.createdAt,
+            updatedAt = entity.updatedAt,
+            sender = null,
         )
     }
 

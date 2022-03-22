@@ -20,7 +20,9 @@ class GetUser
     private val repository: IUserRepository) {
     private val TAG: String = javaClass.simpleName
 
-    operator fun invoke(id: String): Flow<Resource<User>> = flow {
+    operator fun invoke(id: String):
+            Flow<Resource<User>> = flow {
+
         try {
             emit(Resource.Loading())
 
@@ -33,12 +35,16 @@ class GetUser
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
         } catch (e: IOException){
             emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: IllegalStateException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION))
         } catch (e: Exception){
             emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
     }
 
-    operator fun invoke(): Flow<Resource<User>> = flow {
+    operator fun invoke():
+            Flow<Resource<User>> = flow {
+
         try {
             emit(Resource.Loading())
             val localUser = repository.load()

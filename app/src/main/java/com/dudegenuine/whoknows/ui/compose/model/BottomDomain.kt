@@ -25,23 +25,22 @@ data class BottomDomain (
         val listItem: (Int) -> Set<BottomDomain> = { fresh ->
             mutableSetOf(
                 BottomDomain(
-                    name = BottomDomain.SUMMARY,
-                    route = Screen.Home.Summary.route,
-                    icon = Icons.Default.Summarize
-                ),
-                BottomDomain(
-                    name = BottomDomain.DISCOVER,
+                    name = DISCOVER,
                     route = Screen.Home.Discover.route,
                     icon = Icons.Default.Explore,
                     badge = fresh
                 ),
                 BottomDomain(
-                    name = BottomDomain.SETTING,
+                    name = SUMMARY,
+                    route = Screen.Home.Summary.route,
+                    icon = Icons.Default.Summarize
+                ),
+                BottomDomain(
+                    name = SETTING,
                     route = Screen.Home.Setting.route,
                     icon = Icons.Default.Settings
                 )
             )
         }
     }
-
 }

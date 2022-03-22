@@ -65,7 +65,7 @@ fun FieldTag(
 
                     if (editable) {
                         Icon(
-                            imageVector = Icons.Default.ChevronRight,
+                            imageVector = Icons.Filled.ChevronRight,
                             contentDescription = null
                         )
                     }

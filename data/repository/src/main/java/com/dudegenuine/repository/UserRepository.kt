@@ -1,9 +1,12 @@
 package com.dudegenuine.repository
 
+import android.content.BroadcastReceiver
+import android.content.SharedPreferences
 import android.util.Log
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.local.service.contract.ICurrentUserDao
 import com.dudegenuine.model.User
@@ -23,12 +26,27 @@ class UserRepository
     private val service: IUserService,
     private val local: ICurrentUserDao,
     private val prefs: IPreferenceManager,
-    private val mapper: IUserDataMapper): IUserRepository {
+    private val mapper: IUserDataMapper,
+    private val receiver: IReceiverFactory): IUserRepository {
     private val TAG = javaClass.simpleName
 
-    override val currentUserId: () -> String = {
-        prefs.read(CURRENT_USER_ID)
-    }
+    override val currentUserId: () ->
+        String = { prefs.readString(CURRENT_USER_ID) }
+
+    override val currentBadge: () ->
+        Int = { prefs.readInt(CURRENT_NOTIFICATION_BADGE) }
+
+    override val onChangeCurrentBadge: (Int) ->
+        Unit = { prefs.write(CURRENT_NOTIFICATION_BADGE, it) }
+
+    override val registerPrefsListener: (
+        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.register
+
+    override val unregisterPrefsListener: (
+        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.unregister
+
+    override val networkReceived: (onConnected: (String) -> Unit) ->
+        BroadcastReceiver = receiver.networkReceived
 
     override suspend fun create(user: User): User {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
@@ -105,6 +123,5 @@ class UserRepository
         else local.delete()
 
         prefs.write(CURRENT_USER_ID, "")
-        prefs.write(CURRENT_NOTIFICATION_BADGE, "")
     }
 }

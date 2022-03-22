@@ -15,6 +15,6 @@ interface INotificationUseCaseModule {
     val deleteNotification: DeleteNotification
     val getNotifications: GetNotifications
 
-    val currentBadge: () -> String
-    val onCurrentBadgeChange: (String) -> Unit
+    val currentBadge: () -> Int
+    val onChangeCurrentBadge: (Int) -> Unit
 }

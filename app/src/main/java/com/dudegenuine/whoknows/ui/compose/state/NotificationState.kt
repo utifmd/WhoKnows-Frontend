@@ -9,7 +9,7 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 sealed class NotificationState() {
-    class FormState(): NotificationState() {
+    class FormState: NotificationState() {
         val initialModel: Notification = mutableStateOf(Notification(
             "NTF-${UUID.randomUUID()}",
             "",
@@ -20,12 +20,5 @@ sealed class NotificationState() {
             Date(),
             null,
             null)).value
-
-        /*private val _badge = mutableStateOf(0)
-        val badge = _badge.value
-
-        fun onBadgeChange(fresh: Int){
-            _badge.value = fresh
-        }*/
     }
 }

@@ -24,5 +24,6 @@ sealed class Resource<T> (
         const val HTTP_EXCEPTION = "An expected http exception error occurred."
         const val HTTP_FAILURE_EXCEPTION = "Server response failure."
         const val THROWABLE_EXCEPTION = "An expected error occurred."
+        const val ILLEGAL_STATE_EXCEPTION = "An expected error occurred."
     }
 }

@@ -3,7 +3,6 @@ package com.dudegenuine.whoknows.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -15,8 +14,10 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.MainScreen
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
+@ExperimentalCoroutinesApi
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalCoilApi
@@ -26,7 +27,8 @@ import kotlinx.coroutines.FlowPreview
 @AndroidEntryPoint
 class MainActivity: ComponentActivity() {
     private val TAG = javaClass.simpleName
-    private val mainVm: ActivityViewModel by viewModels()
+    private val vmMain: ActivityViewModel by viewModels()
+    
 
     companion object {
         const val INITIAL_DATA_KEY = "initial_data_key"
@@ -40,24 +42,31 @@ class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mainVm.apply { registerReceiver(
-                messagingServiceReceiver, messagingServiceAction) }
+        with(vmMain) {
+            registerReceiver(messagingServiceReceiver, messagingServiceAction)
+            registerReceiver(networkServiceReceiver, networkServiceAction)
+            registerPrefsListener()
+        }
 
         onIntention()
     }
 
     private fun onIntention() {
-        val data = intent.getStringExtra(INITIAL_DATA_KEY) ?: ""
+        setContent { MainScreen(vmMain = vmMain) }
 
-        setContent { MainScreen(initialPassed = data) }
+        /*val data = intent.getStringExtra(INITIAL_DATA_KEY) ?: ""
+        //, initialPassed = data,
 
-        if(data.isNotBlank()) Log.d(TAG, "initial data key: $data")
+        if(data.isNotBlank()) Log.d(TAG, "initial data key: $data")*/
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        mainVm.messagingServiceReceiver
-            .apply(::unregisterReceiver)
+        with (vmMain) {
+            messagingServiceReceiver.apply(::unregisterReceiver)
+            networkServiceReceiver.apply(::unregisterReceiver)
+            unregisterPrefsListener()
+        }
     }
 }
