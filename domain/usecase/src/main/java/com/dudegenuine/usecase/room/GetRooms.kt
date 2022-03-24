@@ -21,7 +21,7 @@ class GetRooms
     @Inject constructor(
     private val repository: IRoomRepository) {
 
-    operator fun invoke(size: Int): Flow<PagingData<Room>> {
+    operator fun invoke(size: Int): Flow<PagingData<Room.Complete>> {
         val config = PagingConfig(size,
             enablePlaceholders = true, maxSize = 200)
 
@@ -30,7 +30,7 @@ class GetRooms
         return pager.flow
     }
 
-    operator fun invoke(page: Int, size: Int): Flow<Resource<List<Room>>> = flow {
+    operator fun invoke(page: Int, size: Int): Flow<Resource<List<Room.Complete>>> = flow {
         try {
             emit(Resource.Loading())
             val rooms = repository.list(page, size)
@@ -47,7 +47,7 @@ class GetRooms
         }
     }
 
-    operator fun invoke(userId: String, size: Int): Flow<PagingData<Room>> {
+    operator fun invoke(userId: String, size: Int): Flow<PagingData<Room.Complete>> {
         val config = PagingConfig(size,
             enablePlaceholders = true, maxSize = 200)
 

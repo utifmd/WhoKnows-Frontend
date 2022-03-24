@@ -21,7 +21,7 @@ class GetUser
     private val TAG: String = javaClass.simpleName
 
     operator fun invoke(id: String):
-            Flow<Resource<User>> = flow {
+            Flow<Resource<User.Complete>> = flow {
 
         try {
             emit(Resource.Loading())
@@ -43,7 +43,7 @@ class GetUser
     }
 
     operator fun invoke():
-            Flow<Resource<User>> = flow {
+            Flow<Resource<User.Complete>> = flow {
 
         try {
             emit(Resource.Loading())

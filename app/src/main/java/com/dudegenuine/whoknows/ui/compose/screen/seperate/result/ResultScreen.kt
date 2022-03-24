@@ -20,7 +20,7 @@ import com.dudegenuine.whoknows.R
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    state: Room.RoomState.BoardingResult,
+    state: Room.State.BoardingResult,
     // onSharePressed: () -> Unit,
     onDonePressed: (() -> Unit)? = null) {
 

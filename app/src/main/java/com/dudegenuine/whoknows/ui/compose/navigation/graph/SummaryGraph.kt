@@ -20,7 +20,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomCreatorScree
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomRoutedPreBoardingScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ONBOARD_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.OWN_IS_FALSE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.OWN_IS_TRUE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
@@ -49,7 +49,8 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalFoundationApi
 fun NavGraphBuilder.summaryGraph(
     router: NavHostController) {
-    //context: Context, //val service = Intent(context, TimerService::class.java)
+    val profile = Screen.Home.Summary.RoomDetail.ProfileDetail
+    val roomDetail = Screen.Home.Summary.RoomDetail
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route) {
@@ -76,7 +77,6 @@ fun NavGraphBuilder.summaryGraph(
         )
     }
 
-    val roomDetail = Screen.Home.Summary.RoomDetail
     composable(
         route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
         deepLinks = listOf( navDeepLink {
@@ -85,38 +85,28 @@ fun NavGraphBuilder.summaryGraph(
         RoomDetail(
             onBackPressed = router::popBackStack,
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
-            eventRouter = RoomEventDetail(router = router)) /*{ time ->
-
-            service.putExtra(ITimerService.INITIAL_TIME_KEY, time)
-                .apply(context::startService)
-        }*/
+            eventRouter = RoomEventDetail(router = router))
     }
 
     composable(
-        route = Screen.Home.Summary.OnBoarding.routeWithArgs("{${IRoomEvent.ONBOARD_ROOM_ID_SAVED_KEY}}")){
+        route = Screen.Home.Summary.OnBoarding.routeWithArgs("{$ONBOARD_ROOM_ID_SAVED_KEY}")){
         val event = object: IRoomEventBoarding {
 
             override fun onDoneResultPressed() {
                 val screen = Screen.Home.Summary.route
 
-                with (router) {
-                    //popBackStack()
-
-                    navigate(screen) {
-                        popUpTo(screen) { inclusive = true }
-                    }
+                router.navigate(screen) {
+                    popUpTo(screen) { inclusive = true }
                 }
             }
         }
 
-        RoomRoutedPreBoardingScreen(event)/*{
-            context.stopService(service)
-        }*/
+        RoomRoutedPreBoardingScreen(event)
     }
 
     composable(
         route = Screen.Home.Summary.RoomDetail.QuizCreator.routeWithArgs(
-            "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")){
+            "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")) {
 
         QuizCreatorScreen(onBackPressed = router::popBackStack) { quiz ->
             val screen = Screen.Home.Summary.RoomDetail.routeWithArgs(
@@ -126,10 +116,6 @@ fun NavGraphBuilder.summaryGraph(
                 repeat (2){ popBackStack() }
 
                 navigate(screen)
-
-                /*navigate(screen) {
-                    popUpTo(screen) { inclusive = true }
-                }*/
             }
         }
     }
@@ -143,6 +129,7 @@ fun NavGraphBuilder.summaryGraph(
             override fun onDeletePressed() { router.popBackStack() }
             override fun onPicturePressed(fileId: String?) {
                 if (fileId.isNullOrBlank()) return
+
                 router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
             }
         }
@@ -154,7 +141,6 @@ fun NavGraphBuilder.summaryGraph(
         )
     }
 
-    val profile = Screen.Home.Summary.RoomDetail.ProfileDetail
     composable(
         route = profile.routeWithArgs("{$USER_ID_SAVED_KEY}"),
         deepLinks = listOf( navDeepLink {

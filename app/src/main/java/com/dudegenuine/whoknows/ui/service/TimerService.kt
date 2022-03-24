@@ -20,6 +20,8 @@ import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.activity.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import java.util.*
 import javax.inject.Inject
 
@@ -27,6 +29,8 @@ import javax.inject.Inject
  * Wed, 09 Feb 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
+@ExperimentalCoroutinesApi
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalCoilApi
@@ -104,13 +108,13 @@ class TimerService: ITimerService() {
     }
 
     private fun onStartTimerForeground(flags: Int){
-        val activityIntent: Intent = MainActivity.createIntent(this, TIME_RUNNING)
+        val activityIntent: Intent = MainActivity.createInstance(this, TIME_RUNNING)
             .apply { addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) }
 
         val pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, flags)
 
         val actionIntent = NotificationCompat.Action.Builder(
-            R.drawable.ic_baseline_task_24, "Go Back", pendingIntent).build()
+            R.drawable.ic_baseline_task_24, "Go back", pendingIntent).build()
 
         val builder = notifier.onBuilt(CHANNEL_ID_TIMER, IMPORTANCE_DEFAULT)
 

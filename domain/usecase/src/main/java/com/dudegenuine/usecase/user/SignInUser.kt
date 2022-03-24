@@ -17,7 +17,7 @@ import javax.inject.Inject
 class SignInUser
     @Inject constructor(
         private val repository: IUserRepository) {
-        operator fun invoke(params: Map<String, String>): Flow<Resource<User>> = flow {
+        operator fun invoke(params: Map<String, String>): Flow<Resource<User.Complete>> = flow {
             try {
                 emit(Resource.Loading())
                 val signedInUser = repository.signIn(params)

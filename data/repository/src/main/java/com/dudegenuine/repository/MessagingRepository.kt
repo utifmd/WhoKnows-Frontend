@@ -58,10 +58,10 @@ class MessagingRepository(
     override val onTokenReceived: (onTokenized: (String) -> Unit) ->
         BroadcastReceiver = receiver.tokenReceived
 
-    override val onMessagingTokenized: () ->
+    override val currentToken: () ->
         String = { pref.readString(MESSAGING_TOKEN) }
 
-    override val onMessagingTokenRefresh: (String) ->
+    override val onTokenRefresh: (String) ->
         Unit = { pref.write(MESSAGING_TOKEN, it) }
 
     override val currentBadgeStatus: () ->

@@ -13,8 +13,7 @@ import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.ITimerService.Companion.TIME_ACTION
 import com.dudegenuine.local.api.ITimerService.Companion.asString
-import com.dudegenuine.model.PossibleAnswer
-import com.dudegenuine.model.QuizActionType
+import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
@@ -33,24 +32,26 @@ import kotlinx.coroutines.FlowPreview
 fun RoomBoardingScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel,
-    state: Room.RoomState.BoardingQuiz,
-    onAction: (Int, QuizActionType) -> Unit,
+    state: Room.State.BoardingQuiz,
+    onAction: (Int, Quiz.Action.Type) -> Unit,
     onPrevPressed: () -> Unit,
     onNextPressed: () -> Unit,
     onDonePressed: () -> Unit) {
     val context = LocalContext.current
 
     val scaffoldState = rememberBackdropScaffoldState(
-        BackdropValue.Concealed)
+        initialValue = BackdropValue.Concealed,
+        snackbarHostState = viewModel.snackHostState
+    )
 
     val boardingState = remember(state.currentQuestionIdx) {
         state.quizzes[state.currentQuestionIdx]
     }
 
     val onPreNextPressed: () -> Unit = {
-        state.let (
-            if (boardingState.showPrevious) viewModel::patchBoarding
-            else viewModel::postBoarding)
+        state.let(viewModel::postBoarding
+            /*if (boardingState.showPrevious) viewModel::patchBoarding
+            else viewModel::postBoarding*/)
         onNextPressed()
     }
 
@@ -60,8 +61,10 @@ fun RoomBoardingScreen(
         context.registerReceiver(
             broadcast, viewModel.timerServiceAction)
 
-        onDispose { context.
-            unregisterReceiver(broadcast) }
+        onDispose {
+            viewModel.patchBoarding(state)
+            context.unregisterReceiver(broadcast)
+        }
     }
 
     BackdropScaffold(
@@ -139,13 +142,13 @@ fun RoomBoardingScreen(
                             answer = chosenAnswer
                             enableNext = true
                             isCorrect = when(quiz.answer) {
-                                is PossibleAnswer.SingleChoice -> {
-                                    val singleChoice = quiz.answer as PossibleAnswer.SingleChoice
+                                is Quiz.Answer.Possible.SingleChoice -> {
+                                    val singleChoice = quiz.answer as Quiz.Answer.Possible.SingleChoice
 
                                     chosenAnswer.answer == singleChoice.answer
                                 }
-                                is PossibleAnswer.MultipleChoice -> {
-                                    val multipleChoice = quiz.answer as PossibleAnswer.MultipleChoice
+                                is Quiz.Answer.Possible.MultipleChoice -> {
+                                    val multipleChoice = quiz.answer as Quiz.Answer.Possible.MultipleChoice
 
                                     chosenAnswer.answers == multipleChoice.answers
                                 }

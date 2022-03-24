@@ -31,9 +31,9 @@ fun GeneralBottomBar(
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(modifier,
-        backgroundColor = if (darkTheme) MaterialTheme.colors.primary
+        backgroundColor = if (darkTheme) MaterialTheme.colors.background
             else MaterialTheme.colors.onPrimary,
-        contentColor = if (darkTheme) MaterialTheme.colors.onPrimary
+        contentColor = if (darkTheme) MaterialTheme.colors.onBackground
             else MaterialTheme.colors.primary,
         elevation = 3.dp) {
 
@@ -43,7 +43,7 @@ fun GeneralBottomBar(
 
             BottomNavigationItem(
                 selected = isSelected,
-                onClick = /*{ onItemPressed(screen) }*/ {
+                onClick = {
                     controller.navigate(screen.route) {
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations
@@ -55,40 +55,46 @@ fun GeneralBottomBar(
                         // reselecting the same screen
                         launchSingleTop = true
                         // Restore state when reselecting a previously selected screen
-                        /*restoreState = true*/
+                        restoreState = true
                     }
 
                     onPressed(screen)
                 },
                 icon = {
                     Column(horizontalAlignment = CenterHorizontally) {
-                        if (screen.badge > 0) {
-                            BadgedBox(badge = {
-                                Surface(
-                                    color = MaterialTheme.colors.error,
-                                    shape = CircleShape) {
-
-                                    Text(screen.badge.toString(),
-                                        modifier = modifier.padding(3.dp),
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.W500,
-                                        color = MaterialTheme.colors.onError)}}) {
-
-                                Icon(screen.icon, contentDescription = screen.name)
-                            }
-                        } else {
-                            Icon(screen.icon,
-                                contentDescription = screen.name
-                            )
-                        }
+                        if (screen.badge > 0) GeneralBadgeBox(screen)
+                        else Icon(screen.icon, contentDescription = null)
 
                         Text(screen.name,
                             textAlign = TextAlign.Center,
                             fontSize = 10.sp
-                        ) // if (isSelected)
+                        )
                     }
                 }
             )
         }
     }
+}
+@Composable
+private fun GeneralBadgeBox(screen: BottomDomain,
+    modifier: Modifier = Modifier){
+
+    BadgedBox(
+        modifier = modifier.padding(top = 8.dp),
+        badge = {
+            Surface(
+                color = MaterialTheme.colors.error,
+                shape = CircleShape) {
+
+                Text(screen.badge.toString(),
+                    modifier = modifier.padding(2.dp),
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colors.onError)
+            }
+        },
+        content = {
+            Icon(screen.icon, contentDescription = screen.name)
+        }
+    )
 }

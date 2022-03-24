@@ -38,10 +38,11 @@ fun NavGraphBuilder.homeNavGraph(
     router: NavHostController,
     modifier: Modifier = Modifier, //initial: Screen,
     viewModel: UserViewModel) {
+    val preview = Screen.Home.Preview
 
     navigation(
         route = Screen.Home.route,
-        startDestination = Screen.Home.Discover.route) {
+        startDestination = Screen.Home.Summary.route) {
 
         discoverGraph(router)
         composable(
@@ -74,7 +75,6 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
 
-        val preview = Screen.Home.Preview
         composable(
             route = preview.routeWithArgs("{$PREVIEW_FILE_ID}"),
             deepLinks = listOf( navDeepLink {

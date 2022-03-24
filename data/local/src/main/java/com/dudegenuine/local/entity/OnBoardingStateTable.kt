@@ -2,7 +2,7 @@ package com.dudegenuine.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import com.dudegenuine.model.Answer
+import com.dudegenuine.model.Quiz
 
 /**
  * Mon, 21 Feb 2022
@@ -29,7 +29,7 @@ data class OnBoardingStateTable(
     val enableNext: Boolean,
 
     @ColumnInfo(name = "answer")
-    val answer: Answer?,
+    val answer: Quiz.Answer.Exact?,
 
     @ColumnInfo(name = "isCorrect")
     val isCorrect: Boolean,

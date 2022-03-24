@@ -16,22 +16,22 @@ class QuizRepository
     private val service: IQuizService,
     private val mapper: IQuizDataMapper): IQuizRepository {
 
-    override suspend fun create(quiz: Quiz): Quiz =
+    override suspend fun create(quiz: Quiz.Complete): Quiz.Complete =
         mapper.asQuiz(service.create(mapper.asEntity(quiz)))
 
-    override suspend fun read(id: String): Quiz =
+    override suspend fun read(id: String): Quiz.Complete =
         mapper.asQuiz(service.read(id))
 
-    override suspend fun update(id: String, quiz: Quiz): Quiz =
+    override suspend fun update(id: String, quiz: Quiz.Complete): Quiz.Complete =
         mapper.asQuiz(service.update(id, mapper.asEntity(quiz)))
 
     override suspend fun delete(id: String) =
         service.delete(id)
 
-    override suspend fun list(page: Int, size: Int): List<Quiz> =
+    override suspend fun list(page: Int, size: Int): List<Quiz.Complete> =
         mapper.asQuestions(service.list(page, size))
 
-    override fun page(batchSize: Int): PagingSource<Int, Quiz> =
+    override fun page(batchSize: Int): PagingSource<Int, Quiz.Complete> =
         mapper.asPagingSource { pageNumber ->
             list(pageNumber, batchSize)
         }

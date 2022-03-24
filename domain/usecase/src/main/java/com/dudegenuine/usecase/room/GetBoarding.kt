@@ -18,7 +18,7 @@ class GetBoarding
     @Inject constructor(
     private val repository: IRoomRepository) {
 
-    operator fun invoke(): Flow<Resource<Room.RoomState.BoardingQuiz>> = flow {
+    operator fun invoke(): Flow<Resource<Room.State.BoardingQuiz>> = flow {
         try {
             emit(Resource.Loading())
 

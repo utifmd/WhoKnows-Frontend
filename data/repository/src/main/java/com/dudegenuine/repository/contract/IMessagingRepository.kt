@@ -20,8 +20,8 @@ interface IMessagingRepository {
     suspend fun remove(messaging: Messaging): ResponseBody
     suspend fun push(messaging: Messaging): ResponseBody
 
-    val onMessagingTokenized: () -> String
-    val onMessagingTokenRefresh: (String) -> Unit
+    val currentToken: () -> String //currentToken
+    val onTokenRefresh: (String) -> Unit //onTokenRefresh
 
     val currentBadgeStatus: () -> Boolean
     val onBadgeStatusRefresh: (Boolean) -> Unit

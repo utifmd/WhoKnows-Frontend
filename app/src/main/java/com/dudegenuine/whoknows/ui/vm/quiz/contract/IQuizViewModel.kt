@@ -12,9 +12,9 @@ interface IQuizViewModel: IFileViewModel {
         const val BATCH_SIZE = 2
     }
 
-    fun postQuiz(quiz: Quiz)
+    fun postQuiz(quiz: Quiz.Complete)
     fun getQuiz(id: String)
-    fun patchQuiz(id: String, current: Quiz)
+    fun patchQuiz(id: String, current: Quiz.Complete)
     fun deleteQuiz(id: String)
     fun getQuestions(page: Int, size: Int)
 }

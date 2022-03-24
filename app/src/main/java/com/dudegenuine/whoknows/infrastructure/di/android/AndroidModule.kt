@@ -19,12 +19,16 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Singleton
 
 /**
  * Fri, 03 Dec 2021
  * WhoKnows by utifmd
  **/
+@FlowPreview
+@ExperimentalCoroutinesApi
 @Module
 @ExperimentalCoilApi
 @ExperimentalFoundationApi

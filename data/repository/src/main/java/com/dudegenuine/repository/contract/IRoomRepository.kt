@@ -17,20 +17,20 @@ interface IRoomRepository {
         const val CURRENT_PARTICIPANT_ID = "current_participant_id"
     }
 
-    suspend fun create(room: Room): Room
-    suspend fun read(id: String): Room
-    suspend fun update(id: String, room: Room): Room
+    suspend fun create(room: Room.Complete): Room.Complete
+    suspend fun read(id: String): Room.Complete
+    suspend fun update(id: String, room: Room.Complete): Room.Complete
     suspend fun delete(id: String)
-    suspend fun list(page: Int, size: Int): List<Room>
-    suspend fun list(userId: String, page: Int, size: Int): List<Room>
+    suspend fun list(page: Int, size: Int): List<Room.Complete>
+    suspend fun list(userId: String, page: Int, size: Int): List<Room.Complete>
 
-    suspend fun load(participantId: String? = null): Room.RoomState.BoardingQuiz
-    suspend fun save(boarding: Room.RoomState.BoardingQuiz)
-    suspend fun replace(boarding: Room.RoomState.BoardingQuiz)
+    suspend fun load(participantId: String? = null): Room.State.BoardingQuiz
+    suspend fun save(boarding: Room.State.BoardingQuiz)
+    suspend fun replace(boarding: Room.State.BoardingQuiz)
     suspend fun unload()/*(participantId: String)*/
 
-    fun page(batchSize: Int): PagingSource<Int, Room>
-    fun page(userId: String, batchSize: Int): PagingSource<Int, Room>
+    fun page(batchSize: Int): PagingSource<Int, Room.Complete>
+    fun page(userId: String, batchSize: Int): PagingSource<Int, Room.Complete>
 
     val currentToken: () -> String
     val currentUserId: () -> String

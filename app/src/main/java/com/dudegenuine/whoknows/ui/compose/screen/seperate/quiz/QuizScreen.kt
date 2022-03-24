@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.model.Answer
-import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.ui.compose.component.GeneralCardView
@@ -67,7 +65,7 @@ fun QuizScreen(
 @Composable
 private fun Body(
     modifier: Modifier = Modifier,
-    model: Quiz,
+    model: Quiz.Complete,
     onPicturePressed: (String?) -> Unit,
     content: @Composable () -> Unit){
     val backgroundColor = MaterialTheme.colors.onSurface.copy(
@@ -131,8 +129,8 @@ private fun Body(
 private fun PrivateBody (
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
-    model: Quiz,
-    answer: Answer?,
+    model: Quiz.Complete,
+    answer: Quiz.Answer.Exact?,
     stateCompose: IQuizPrivateState,
     scrollState: ScrollState = rememberScrollState()) {
 
@@ -143,12 +141,12 @@ private fun PrivateBody (
 
         Body(modifier, model, stateCompose.event::onPicturePressed){
             when(model.answer) {
-                is PossibleAnswer.SingleChoice -> SingleChoiceQuestion(
+                is Quiz.Answer.Possible.SingleChoice -> SingleChoiceQuestion(
                     options = model.options,
                     answer = answer,
                     onAnswerSelected = stateCompose.event::onAnswerSelected
                 )
-                is PossibleAnswer.MultipleChoice -> MultipleChoiceQuestion(
+                is Quiz.Answer.Possible.MultipleChoice -> MultipleChoiceQuestion(
                     options = model.options,
                     answer = answer,
                     onAnswerSelected = stateCompose.event::onAnswerSelected
@@ -189,16 +187,16 @@ private fun PublicBody (
 
                 Body(modifier, model, stateCompose.event::onPicturePressed){
                     when(model.answer){
-                        is PossibleAnswer.SingleChoice ->
+                        is Quiz.Answer.Possible.SingleChoice ->
                             FieldTag(
                                 key = "Answer",
                                 editable = false,
-                                value = (model.answer as PossibleAnswer.SingleChoice).answer)
-                        is PossibleAnswer.MultipleChoice ->
+                                value = (model.answer as Quiz.Answer.Possible.SingleChoice).answer)
+                        is Quiz.Answer.Possible.MultipleChoice ->
                             FieldTag(
                                 key = "Answers",
                                 editable = false,
-                                value = (model.answer as PossibleAnswer.MultipleChoice)
+                                value = (model.answer as Quiz.Answer.Possible.MultipleChoice)
                                     .answers.joinToString(", "))
                         else -> return@Body
                     }

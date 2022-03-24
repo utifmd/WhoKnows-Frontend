@@ -53,7 +53,7 @@ class QuizViewModel
             ?.let(this::getQuiz)
     }
 
-    fun onPostPressed(onSucceed: (Quiz) -> Unit) {
+    fun onPostPressed(onSucceed: (Quiz.Complete) -> Unit) {
         val model = formState.postModel
         Log.d(TAG, "onPostPressed: triggered")
 
@@ -90,7 +90,7 @@ class QuizViewModel
         }
     }
 
-    private fun postQuiz(quiz: Quiz, onSucceed: (Quiz) -> Unit) {
+    private fun postQuiz(quiz: Quiz.Complete, onSucceed: (Quiz.Complete) -> Unit) {
         if (quiz.roomId.isBlank() || quiz.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
@@ -101,7 +101,7 @@ class QuizViewModel
             .launchIn(viewModelScope)
     }
 
-    override fun postQuiz(quiz: Quiz) {
+    override fun postQuiz(quiz: Quiz.Complete) {
         if (quiz.roomId.isBlank() || quiz.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
@@ -121,7 +121,7 @@ class QuizViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun patchQuiz(id: String, current: Quiz) {
+    override fun patchQuiz(id: String, current: Quiz.Complete) {
         if (id.isBlank() || current.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return

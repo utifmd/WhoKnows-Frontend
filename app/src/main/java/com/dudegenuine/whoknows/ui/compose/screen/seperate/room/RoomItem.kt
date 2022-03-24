@@ -30,7 +30,7 @@ import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 fun RoomItem(
     modifier: Modifier = Modifier,
     censored: Boolean = false,
-    state: Room, onPressed: (() -> Unit)? = null) {
+    state: Room.Complete, onPressed: (() -> Unit)? = null) {
 
     val desc: String = state.description
         .replace("\n", "").trim()

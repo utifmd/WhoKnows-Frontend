@@ -14,8 +14,8 @@ interface IMessageUseCaseModule {
     val addMessaging: AddMessaging
     val removeMessaging: RemoveMessaging
 
-    val onMessagingTokenized: () -> String
-    val onMessagingTokenRefresh: (String) -> Unit
+    val currentToken: () -> String
+    val onTokenRefresh: (String) -> Unit
     val currentBadgeStatus: () -> Boolean
     val onBadgeStatusRefresh: (Boolean) -> Unit
     val onInternetReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver

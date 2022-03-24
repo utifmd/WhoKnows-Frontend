@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.R
@@ -44,7 +43,7 @@ fun QuizCreatorScreen(
     modifier: Modifier = Modifier,
     viewModel: QuizViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
-    onSucceed: (Quiz) -> Unit) {
+    onSucceed: (Quiz.Complete) -> Unit) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -52,7 +51,7 @@ fun QuizCreatorScreen(
     val formState = viewModel.formState
 
     val scrollState = rememberScrollState()
-    val selectedType = remember { mutableStateOf(strOf<PossibleAnswer.SingleChoice>()) }
+    val selectedType = remember { mutableStateOf(strOf<Quiz.Answer.Possible.SingleChoice>()) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { formState.onResultImage(context, it) }
@@ -113,8 +112,8 @@ fun QuizCreatorScreen(
 
                     GeneralButtonGroup(
                         buttons = setOf(
-                            strOf<PossibleAnswer.SingleChoice>(),
-                            strOf<PossibleAnswer.MultipleChoice>()
+                            strOf<Quiz.Answer.Possible.SingleChoice>(),
+                            strOf<Quiz.Answer.Possible.MultipleChoice>()
                         ),
                         value = selectedType.value,
                         onValueChange = {
@@ -129,14 +128,14 @@ fun QuizCreatorScreen(
                     }
 
                     when(selectedType.value){
-                        strOf<PossibleAnswer.SingleChoice>() ->
+                        strOf<Quiz.Answer.Possible.SingleChoice>() ->
                             SingleChoiceQuestion(
                                 options = formState.options,
                                 answer = formState.currentAnswer,
                                 onAnswerSelected = formState::onAnsweredSingle
                             )
 
-                        strOf<PossibleAnswer.MultipleChoice>() ->
+                        strOf<Quiz.Answer.Possible.MultipleChoice>() ->
                             MultipleChoiceQuestion(
                                 options = formState.options,
                                 answer = formState.currentAnswer,

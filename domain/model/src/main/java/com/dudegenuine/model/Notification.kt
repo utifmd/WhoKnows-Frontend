@@ -15,7 +15,7 @@ data class Notification(
     val recipientId: String,
     val createdAt: Date,
     val updatedAt: Date?,
-    val sender: UserCensored?){
+    val sender: User.Censored?){
 
     val isPropsBlank: Boolean = notificationId.isBlank() || userId.isBlank() ||
             roomId.isBlank() || event.isBlank() || recipientId.isBlank()

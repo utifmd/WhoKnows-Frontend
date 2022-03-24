@@ -18,7 +18,7 @@ class GetUsers
     @Inject constructor(
 
     private val repository: IUserRepository) {
-    operator fun invoke(page: Int, size: Int): Flow<Resource<List<User>>> = flow {
+    operator fun invoke(page: Int, size: Int): Flow<Resource<List<User.Complete>>> = flow {
         try {
             emit(Resource.Loading())
 

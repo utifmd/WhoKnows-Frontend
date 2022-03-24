@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event
 
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Quiz
-import com.dudegenuine.model.QuizActionType
 import com.dudegenuine.model.Room
 
 /**
@@ -31,14 +30,14 @@ interface IRoomEventHome: IRoomEvent {
 
 interface IRoomEventDetail: IRoomEvent {
     fun onParticipantLongPressed(expired: Boolean, participant: Participant){}
-    fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz, roomId: String){}
+    fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String){}
     fun onRoomRetailPressed(roomId: String){}
-    fun onCloseRoomPressed(room: Room){}
+    fun onCloseRoomPressed(room: Room.Complete){}
     fun onShareRoomPressed(roomId: String){}
     fun onDeleteRoomPressed(roomId: String){}
     fun onDeleteRoomSucceed(roomId: String){}
     fun onNewRoomQuizPressed(roomId: String, owner: String){}
-    fun onJoinRoomDirectlyPressed(room: Room/*roomId: String*/){}
+    fun onJoinRoomDirectlyPressed(room: Room.Complete/*roomId: String*/){}
     fun onBoardingRoomPressed(roomId: String){}
     fun onParticipantItemPressed(userId: String){}
     fun onQuestionItemPressed(quizId: String){}
@@ -46,7 +45,7 @@ interface IRoomEventDetail: IRoomEvent {
 }
 
 interface IRoomEventBoarding: IRoomEvent {
-    fun onAction(index: Int, type: QuizActionType) {}
+    fun onAction(index: Int, type: Quiz.Action.Type) {}
     fun onBackPressed() {}
     fun onPrevPressed() {}
     fun onNextPressed() {}

@@ -17,7 +17,7 @@ import javax.inject.Inject
 class PatchQuiz
     @Inject constructor(
     private val repository: IQuizRepository) {
-        operator fun invoke(id: String, current: Quiz): Flow<Resource<Quiz>> = flow {
+        operator fun invoke(id: String, current: Quiz.Complete): Flow<Resource<Quiz.Complete>> = flow {
             try {
                 emit(Resource.Loading())
                 val quiz = repository.update(id, current)

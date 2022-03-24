@@ -1,9 +1,13 @@
 package com.dudegenuine.whoknows.ui.vm.user
 
+import android.content.IntentFilter
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.User
@@ -42,10 +46,9 @@ class UserViewModel
     private val fileCase: IFileUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
     @Inject lateinit var share: IShareLauncher
-
     private val TAG = javaClass.simpleName
-    private val currentToken = caseMessaging.onMessagingTokenized()
 
+    private var token by mutableStateOf(caseMessaging.currentToken())
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
         get() = _formState.value
@@ -57,29 +60,38 @@ class UserViewModel
         else getUser()
     }
 
-    private fun onPreRegisterGroupToken(currentUser: User) {
+    val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
+    val messagingServiceReceiver = caseMessaging.onTokenReceived(::onMessagingTokenChange)
+
+    private fun onMessagingTokenChange(fresh: String){
+        Log.d(TAG, "onMessagingTokenChange: $fresh")
+        token = fresh
+        caseMessaging.onTokenRefresh(fresh) //MESSAGING_TOKEN
+    }
+
+    private fun onPreRegisterGroupToken(currentUser: User.Complete) {
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
         val unread = currentUser.notifications.count { !it.seen }
 
         caseUser.onChangeCurrentBadge(unread)
         concatenate(joined, owned).forEach { roomId ->
-            onRegisterToken(currentToken, roomId)
+            onRegisterToken(token, roomId)
         }
     }
 
-    private fun onPreUnregisterGroupToken(currentUser: User) {
+    private fun onPreUnregisterGroupToken(currentUser: User.Complete) {
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
 
         caseUser.onChangeCurrentBadge(0)
         concatenate(joined, owned).forEach { roomId ->
-            onUnregisterToken(currentToken, roomId)
+            onUnregisterToken(token, roomId)
         }
     }
 
     fun onUploadProfile() {
-        val model: User? = state.user
+        val model: User.Complete? = state.user
 
         if (formState.profileImage.isEmpty() || model == null){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -102,7 +114,7 @@ class UserViewModel
         }
     }
 
-    fun onUpdateUser(fieldKey: String?, fieldValue: String, onSucceed: (User) -> Unit) {
+    fun onUpdateUser(fieldKey: String?, fieldValue: String, onSucceed: (User.Complete) -> Unit) {
 
         if (fieldValue.isBlank() || state.user == null){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -171,7 +183,7 @@ class UserViewModel
             return
         }
 
-        if (currentToken.isBlank()){
+        if (token.isBlank()){
             onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
@@ -188,7 +200,7 @@ class UserViewModel
             return
         }
 
-        if (currentToken.isBlank()){
+        if (token.isBlank()){
             onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
@@ -200,7 +212,7 @@ class UserViewModel
 
     override fun signOutUser() {
 
-        if (currentToken.isBlank()){
+        if (token.isBlank()){
             onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
@@ -216,7 +228,7 @@ class UserViewModel
         }
     }
 
-    override fun postUser(user: User) {
+    override fun postUser(user: User.Complete) {
         if (user.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
@@ -240,7 +252,7 @@ class UserViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun getUser(id: String, onSucceed: (User) -> Unit) {
+    override fun getUser(id: String, onSucceed: (User.Complete) -> Unit) {
         if (id.isBlank()){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
@@ -251,7 +263,7 @@ class UserViewModel
             .launchIn(viewModelScope)
     }
 
-    override fun patchUser(id: String, freshUser: User) {
+    override fun patchUser(id: String, freshUser: User.Complete) {
         if (id.isBlank() || freshUser.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
@@ -263,7 +275,7 @@ class UserViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun patchUser(freshUser: User, onSucceed: (User) -> Unit) {
+    override fun patchUser(freshUser: User.Complete, onSucceed: (User.Complete) -> Unit) {
         if (freshUser.id.isBlank() || freshUser.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return

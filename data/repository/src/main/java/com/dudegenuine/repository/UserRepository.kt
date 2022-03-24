@@ -48,13 +48,13 @@ class UserRepository
     override val networkReceived: (onConnected: (String) -> Unit) ->
         BroadcastReceiver = receiver.networkReceived
 
-    override suspend fun create(user: User): User {
+    override suspend fun create(user: User.Complete): User.Complete {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
 
         return remoteUser.also { save(mapper.asUserTable(it)) }
     }
 
-    override suspend fun read(id: String): User {
+    override suspend fun read(id: String): User.Complete {
         val remoteUser = mapper.asUser(service.read(id))
 
         if (id == currentUserId())
@@ -65,7 +65,7 @@ class UserRepository
         return remoteUser
     }
 
-    override suspend fun update(id: String, user: User): User {
+    override suspend fun update(id: String, user: User.Complete): User.Complete {
         val remoteUser = mapper.asUser(service.update(id, mapper.asEntity(user)))
 
         return remoteUser.also { replace(mapper.asUserTable(it)) }
@@ -77,11 +77,11 @@ class UserRepository
         unload(id)
     }
 
-    override suspend fun list(page: Int, size: Int): List<User> = mapper.asUsers(
+    override suspend fun list(page: Int, size: Int): List<User.Complete> = mapper.asUsers(
         service.list(page, size)
     )
 
-    override suspend fun signIn(params: Map<String, String>): User {
+    override suspend fun signIn(params: Map<String, String>): User.Complete {
         val remoteUser = mapper.asUser(service.signIn(mapper.asLogin(params)))
 
         return remoteUser.also { save(mapper.asUserTable(it)) }
@@ -106,7 +106,7 @@ class UserRepository
         Log.d(TAG, "replace: triggered")
     }
 
-    override suspend fun load(userId: String?): User {
+    override suspend fun load(userId: String?): User.Complete {
         val finalId = userId ?: currentUserId()
         val currentUser = local.read(finalId)
 

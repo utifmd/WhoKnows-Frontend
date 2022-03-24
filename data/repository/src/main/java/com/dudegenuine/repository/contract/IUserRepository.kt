@@ -10,15 +10,15 @@ import com.dudegenuine.model.User
  * WhoKnows by utifmd
  **/
 interface IUserRepository {
-    suspend fun create(user: User): User
-    suspend fun read(id: String): User
-    suspend fun update(id: String, user: User): User
+    suspend fun create(user: User.Complete): User.Complete
+    suspend fun read(id: String): User.Complete
+    suspend fun update(id: String, user: User.Complete): User.Complete
     suspend fun delete(id: String)
-    suspend fun list(page: Int, size: Int): List<User>
-    suspend fun signIn(params: Map<String, String>): User
+    suspend fun list(page: Int, size: Int): List<User.Complete>
+    suspend fun signIn(params: Map<String, String>): User.Complete
     suspend fun signOut(): String
 
-    suspend fun load(userId: String? = null): User
+    suspend fun load(userId: String? = null): User.Complete
     suspend fun save(userTable: UserTable)
     suspend fun replace(userTable: UserTable)
     suspend fun unload(userId: String)

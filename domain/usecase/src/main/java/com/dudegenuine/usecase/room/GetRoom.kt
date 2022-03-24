@@ -19,7 +19,7 @@ class GetRoom
     private val repository: IRoomRepository) {
     private val TAG: String = javaClass.simpleName
 
-    operator fun invoke(id: String): Flow<Resource<Room>> = flow {
+    operator fun invoke(id: String): Flow<Resource<Room.Complete>> = flow {
         try {
             emit(Resource.Loading())
 

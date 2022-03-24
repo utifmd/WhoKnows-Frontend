@@ -2,7 +2,7 @@ package com.dudegenuine.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import com.dudegenuine.model.UserCensored
+import com.dudegenuine.model.User
 import java.util.*
 
 /**
@@ -39,5 +39,5 @@ data class QuizTable(
     var updatedAt: Date?,
 
     @ColumnInfo(name = "user")
-    var user: UserCensored?
+    var user: User.Censored?
 )

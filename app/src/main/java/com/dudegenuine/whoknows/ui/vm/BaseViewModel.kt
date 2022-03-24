@@ -44,7 +44,10 @@ abstract class BaseViewModel: ViewModel() {
     val snackMessage: SharedFlow<String>
         get() = _snackMessage.asSharedFlow()
 
-    private val _snackBarHostState by mutableStateOf(SnackbarHostState())
+    private val _snackHostState = mutableStateOf(SnackbarHostState())
+    val snackHostState = _snackHostState.value
+
+    private val _snackBarHostState by mutableStateOf(snackHostState)
     val scaffoldState by mutableStateOf(
         ScaffoldState(DrawerState(
             DrawerValue.Closed), _snackBarHostState))
@@ -60,6 +63,20 @@ abstract class BaseViewModel: ViewModel() {
             }
         }
     }*/
+
+    /*private val _sharedFlow =
+          MutableSharedFlow<NavTarget>(extraBufferCapacity = 1)
+        val sharedFlow = _sharedFlow.asSharedFlow()
+
+        fun navigateTo(navTarget: NavTarget) {
+            _sharedFlow.tryEmit(navTarget)
+        }
+
+        enum class NavTarget(val label: String) {
+
+            Home("home"),
+            Detail("detail")
+        }*/
 
     fun onStateChange(fresh: ResourceState){
         _state.value = fresh
@@ -79,9 +96,9 @@ abstract class BaseViewModel: ViewModel() {
                 val payload = data as List<*>
 
                 val initialState = ResourceState(
-                    users = payload.filterIsInstance<User>(),
-                    rooms = payload.filterIsInstance<Room>(),
-                    questions = payload.filterIsInstance<Quiz>(),
+                    users = payload.filterIsInstance<User.Complete>(),
+                    rooms = payload.filterIsInstance<Room.Complete>(),
+                    questions = payload.filterIsInstance<Quiz.Complete>(),
                     results = payload.filterIsInstance<Result>(),
                     participants = payload.filterIsInstance<Participant>(),
                     notifications = payload.filterIsInstance<Notification>(),
@@ -99,9 +116,11 @@ abstract class BaseViewModel: ViewModel() {
                     pagedRooms =
                 )
             } */else _state.value = when(data) {
-                is User -> ResourceState(user = data as User)
-                is Room -> ResourceState(room = data as Room)
-                is Quiz -> ResourceState(quiz = data as Quiz)
+                is User.Complete -> ResourceState(user = data as User.Complete)
+                is User.Censored -> ResourceState(userCensored = data as User.Censored)
+                is Room.Complete -> ResourceState(room = data as Room.Complete)
+                is Room.Censored -> ResourceState(roomCensored = data as Room.Censored)
+                is Quiz.Complete -> ResourceState(quiz = data as Quiz.Complete)
                 is Participant -> ResourceState(participant = data as Participant)
                 is Notification -> ResourceState(notification = data as Notification)
                 is Result -> ResourceState(result = data as Result)
@@ -155,7 +174,7 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User) -> Unit) {
+    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User.Complete) -> Unit) {
         onAuth(resources, onSucceed) {
 
             _authState.value = ResourceState.Auth()
@@ -174,12 +193,12 @@ abstract class BaseViewModel: ViewModel() {
     }
 
     protected fun<T> onAuth(
-        resources: Resource<T>, onSucceed: ((User) -> Unit)? = null, onSignedOut: (() -> Unit)? = null){
+        resources: Resource<T>, onSucceed: ((User.Complete) -> Unit)? = null, onSignedOut: (() -> Unit)? = null){
         when(resources){
             is Resource.Success -> {
 
                 _state.value = when(resources.data) {
-                    is User -> (resources.data as User).let {
+                    is User.Complete -> (resources.data as User.Complete).let {
                         onSucceed?.invoke(it)
 
                         ResourceState(user = it)

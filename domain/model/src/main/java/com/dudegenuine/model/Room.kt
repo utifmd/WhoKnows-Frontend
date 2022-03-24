@@ -5,48 +5,58 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import java.io.Serializable
 import java.util.*
 
 /**
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
-data class Room(
-    val id: String,
-    val userId: String,
-    var minute: Int,
-    var title: String,
-    var description: String,
-    var expired: Boolean, /*var private: Boolean,*/
-    var createdAt: Date,
-    var updatedAt: Date?,
-    var questions: List<Quiz>,
-    var participants: List<Participant>
-): Serializable {
-    val isPropsBlank: Boolean =
-        minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
-
-    sealed class RoomState {
-        object CurrentRoom: RoomState() //{ var currentUserId by mutableStateOf("") }
+object Room {
+    data class Censored(
+        val roomId: String,
+        val userId: String,
+        val minute: Int,
+        val title: String,
+        val description: String,
+        val expired: Boolean,
+    )
+    
+    data class Complete(
+        val id: String,
+        val userId: String,
+        var minute: Int,
+        var title: String,
+        var description: String,
+        var expired: Boolean,
+        var createdAt: Date,
+        var updatedAt: Date?,
+        var questions: List<Quiz.Complete>,
+        var participants: List<Participant>) {
+        val isPropsBlank: Boolean =
+            minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
+    
+    }
+    
+    sealed class State {
+        object CurrentRoom: State() //{ var currentUserId by mutableStateOf("") }
 
         data class BoardingQuiz(
             val participantId: String,
-            val participant: UserCensored,
+            val participant: User.Censored,
             val roomId: String,
             val userId: String,
             val roomTitle: String,
             val roomDesc: String,
             val roomMinute: Int,
-            val quizzes: List<OnBoardingState>): RoomState() {
+            val quizzes: List<OnBoardingState>): State() {
             var currentQuestionIdx by mutableStateOf(0) //var duration: Double = (room.minute.toFloat() * 60).toDouble()
         }
 
         data class BoardingResult(
             val title: String,
-            val data: Result?): RoomState()
+            val data: Result?): State()
 
-        class FormState: RoomState() {
+        class FormState: State() {
             private val _roomId = mutableStateOf("")
             val roomId: String
                 get() = _roomId.value
@@ -73,11 +83,10 @@ data class Room(
                             desc.text.isNotBlank() &&
                             minute.text.isNotBlank()).value
 
-            val room: Room
-                get() = mutableStateOf(Room(
-                    id = "ROM-${UUID.randomUUID()}", userId = "",
-                    minute = if(minute.text.isBlank()) 0 else minute.text.toInt(), title = title.text, description = desc.text,
-                    expired = false, questions = emptyList(), participants = emptyList(), createdAt = Date(), updatedAt = null )).value
+            val room: Complete get() = mutableStateOf(Complete(
+                id = "ROM-${UUID.randomUUID()}", userId = "",
+                minute = if(minute.text.isBlank()) 0 else minute.text.toInt(), title = title.text, description = desc.text,
+                expired = false, questions = emptyList(), participants = emptyList(), createdAt = Date(), updatedAt = null)).value
 
             val notification: Notification get() = mutableStateOf(Notification(
                 notificationId = "NTF-${UUID.randomUUID()}",
@@ -85,7 +94,7 @@ data class Room(
 
             val result: Result = mutableStateOf(Result(
                 resultId = "RSL-${UUID.randomUUID()}",
-                roomId = "", /*participantId = "", */userId = "", correctQuiz = emptyList(), wrongQuiz = emptyList(), score = 0,
+                roomId = "", /*participantId = "",*/ userId = "", correctQuiz = emptyList(), wrongQuiz = emptyList(), score = 0,
                 createdAt = Date(),
                 updatedAt = null, user = null)).value
 
@@ -125,13 +134,13 @@ data class Room(
 
         @Stable
         class OnBoardingState(
-            val quiz: Quiz,
+            val quiz: Quiz.Complete,
             val questionIndex: Int,
             val totalQuestionsCount: Int,
             val showPrevious: Boolean,
             val showDone: Boolean) {
             var enableNext by mutableStateOf(false)
-            var answer by mutableStateOf<Answer?>(null)
+            var answer by mutableStateOf<Quiz.Answer.Exact?>(null)
             var isCorrect by mutableStateOf(false)
         }
     }

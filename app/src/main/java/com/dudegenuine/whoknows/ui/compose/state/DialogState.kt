@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-data class ModalDialog(
+data class DialogState(
     val about: String? = null,
     val opened: Boolean = false,
     val event: (() -> Unit)? = null){

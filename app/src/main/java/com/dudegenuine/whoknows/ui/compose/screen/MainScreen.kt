@@ -14,6 +14,7 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.MainNavigation
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.theme.WhoKnowsTheme
+import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,21 +35,19 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier, //initialPassed: String,
-    vmMain: ActivityViewModel = hiltViewModel(),
+    vmMain: BaseViewModel = hiltViewModel(),
     vmUser: UserViewModel = hiltViewModel()) {
     val router = rememberNavController()
 
     LaunchedEffect(vmMain.snackMessage) {
         with (vmMain.scaffoldState.snackbarHostState) {
-            vmMain.snackMessage.collectLatest { message ->
-                showSnackbar(message)
-            }
+            vmMain.snackMessage.collectLatest { showSnackbar(it) }
         }
     }
 
     WhoKnowsTheme {
         HomeScreen(modifier.fillMaxSize(),
-            vmMain = vmMain,
+            vmMain = vmMain as ActivityViewModel,
             router = router,
             enabled = vmUser.state.user != null,
             content = {

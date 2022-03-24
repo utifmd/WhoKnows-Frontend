@@ -25,6 +25,7 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.NO_QUESTION
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.PUSH_NOT_SENT
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.ALREADY_JOINED
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.DEFAULT_BATCH_ROOM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,17 +61,17 @@ class RoomViewModel
     private val currentToken = caseRoom.currentToken()
     private val currentRunningTime = caseRoom.currentRunningTime()
 
-    private val _uiState = MutableLiveData<Room.RoomState>()
-    val uiState: LiveData<Room.RoomState>
+    private val _uiState = MutableLiveData<Room.State>()
+    val uiState: LiveData<Room.State>
         get() = _uiState
 
-    private val _formState = mutableStateOf(Room.RoomState.FormState())
-    val formState: Room.RoomState.FormState
+    private val _formState = mutableStateOf(Room.State.FormState())
+    val formState: Room.State.FormState
         get() = _formState.value
 
     init {
         onUiStateValueChange(
-            Room.RoomState.CurrentRoom)
+            Room.State.CurrentRoom)
 
         onDetailRouted()
         onBoardRouted()
@@ -78,8 +79,7 @@ class RoomViewModel
     }
 
     private fun onDetailRouted(){
-        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(this::getRoom)
-        //else getRooms(currentUserId, DEFAULT_BATCH_ROOM)
+        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(this::getRoom) //else getRooms(currentUserId, DEFAULT_BATCH_ROOM)
     }
 
     private fun onBoardRouted() {
@@ -90,11 +90,9 @@ class RoomViewModel
 
     private fun onBoardStored() {
         getBoarding { roomState ->
-            if (currentRunningTime.isNotBlank()) currentRunningTime.let {
-                val time = it.toDouble()
-                formState.onTimerChange(time)
-
-                if (time <= 0.0) onPreResult(roomState) //is finished
+            if (currentRunningTime.isNotBlank()) currentRunningTime.let { time ->
+                formState.onTimerChange(time.toDouble())
+                if (time.toDouble() <= 0.0) onPreResult(roomState) //is finished
             }
             onUiStateValueChange(roomState)
         }
@@ -110,7 +108,7 @@ class RoomViewModel
         }.launchIn(viewModelScope)
     }
 
-    private fun onInitBoarding(room: Room) {
+    private fun onInitBoarding(room: Room.Complete) {
         Log.d(TAG, "onInitBoarding: triggered")
 
         val model = formState.participant.copy(
@@ -126,19 +124,20 @@ class RoomViewModel
 
                     onBoarding(room, it.id)
                 },
-                onError = {
+                onError = { error ->
                     onCloseBoarding()
-                    onStateChange(ResourceState(error = it))
+                    onStateChange(ResourceState(error = ALREADY_JOINED))
+                    viewModelScope.launch { onShowSnackBar(error) }
                 }
             )
         }.launchIn(viewModelScope)
     }
 
-    private fun onBoarding(room: Room, ppnId: String){
+    private fun onBoarding(room: Room.Complete, ppnId: String){
         Log.d(TAG, "onBoarding: triggered")
         val quizzes = room.questions.mapIndexed { index, quiz ->
 
-            Room.RoomState.OnBoardingState(
+            Room.State.OnBoardingState(
                 quiz = quiz,
                 questionIndex = index +1,
                 totalQuestionsCount = room.questions.size,
@@ -153,24 +152,24 @@ class RoomViewModel
         }
 
         getCurrentUser { user ->
-            val roomState = Room.RoomState.BoardingQuiz(
+            val roomState = Room.State.BoardingQuiz(
                 participantId = ppnId,
-                participant = user.let { UserCensored(
-                    it.id, it.fullName, it.username, it.profileUrl) },
                 userId = room.userId,
                 roomId = room.id,
                 roomTitle = room.title,
                 roomDesc = room.description,
                 roomMinute = room.minute,
-                quizzes = quizzes
+                quizzes = quizzes,
+                participant = user.let { User.Censored(it.id,
+                    it.fullName, it.username, it.profileUrl) }
             )
-            postBoarding(roomState) { onUiStateValueChange(roomState) } //_uiState.value = roomState
 
             Log.d(TAG, "onBoarding by: ${roomState.participant.username}")
+            postBoarding(roomState) { onUiStateValueChange(roomState) } //_uiState.value = roomState
         }
     }
 
-    fun onPreResult(boardingState: Room.RoomState.BoardingQuiz) {
+    fun onPreResult(boardingState: Room.State.BoardingQuiz) {
         val questioners = boardingState.quizzes
         val correct = questioners.count { it.isCorrect }
         val resultScore: Float = correct.toFloat() / questioners.size.toFloat() * 100
@@ -184,15 +183,15 @@ class RoomViewModel
            score = resultScore.toInt())
 
        val modelNotification = formState.notification.copy(
-            userId = currentUserId,
-            roomId = boardingState.roomId,
-            event = event,
-            recipientId = boardingState.userId)
+           userId = currentUserId,
+           roomId = boardingState.roomId,
+           event = event,
+           recipientId = boardingState.userId)
 
        val modelMessaging = Messaging.Pusher(
-            largeIcon = boardingState.participant.profileUrl,
-            title = boardingState.roomTitle,
-            body = event, to = "")
+           largeIcon = boardingState.participant.profileUrl,
+           title = boardingState.roomTitle,
+           body = event, to = "")
 
        timer.stop()
        Log.d(TAG, "onPreResult: triggered")
@@ -208,28 +207,25 @@ class RoomViewModel
             caseResult.postResult(modelResult),
             caseNotification.postNotification(modelNotification))
             .flattenMerge()
-            .onEach { onResource(it) }
-            .onCompletion {
+            .onStart {
+                val finish = Room.State.BoardingResult(roomTitle, modelResult)
+                _uiState.postValue(finish) }
+            .onCompletion { Log.d(TAG, "finally: triggered")
                 deleteBoarding { Log.d(TAG, "delete boarding: $it") }
                 getMessaging(modelResult.roomId) { groupKey ->
                     addMessaging(Messaging.GroupAdder(
                         key = groupKey, keyName = modelResult.roomId, tokens = listOf(caseRoom.currentToken()))) {
-
-                        pushMessaging(modelMessaging.copy(to = groupKey))
-                            { Log.d(TAG, "pushMessaging: triggered") }
+                        pushMessaging(modelMessaging.copy(to = groupKey)) { Log.d(TAG, "pushMessaging: triggered") }
                     }
-                }
-                _uiState.postValue(
-                    Room.RoomState.BoardingResult(roomTitle, modelResult))
-                Log.d(TAG, "finally: triggered") }
+                }}
             .launchIn(viewModelScope)
     }
 
     fun onCloseBoarding() {
-        onUiStateValueChange(Room.RoomState.CurrentRoom) //_uiState.value = Room.RoomState.CurrentRoom
+        onUiStateValueChange(Room.State.CurrentRoom) //_uiState.value = Room.RoomState.CurrentRoom
     }
 
-    private fun onUiStateValueChange(roomState: Room.RoomState){
+    private fun onUiStateValueChange(roomState: Room.State){
         _uiState.value = roomState
     }
 
@@ -240,9 +236,8 @@ class RoomViewModel
     }
 
     val timerServiceAction = IntentFilter(ITimerService.TIME_ACTION)
-
     val timerServiceReceiver: (
-        Room.RoomState.BoardingQuiz) -> BroadcastReceiver = { roomState ->
+        Room.State.BoardingQuiz) -> BroadcastReceiver = { roomState ->
 
         caseRoom.onTimerReceived { time, finished ->
             formState.onTimerChange(time)
@@ -250,7 +245,7 @@ class RoomViewModel
         }
     }
 
-    fun onCreatePressed(onSucceed: (Room) -> Unit) {
+    fun onCreatePressed(onSucceed: (Room.Complete) -> Unit) {
         val model = formState.room.copy(userId = currentUserId)
 
         if (!formState.isPostValid || currentUserId.isBlank()) {
@@ -276,7 +271,7 @@ class RoomViewModel
         }
     }
 
-    override fun postRoom(room: Room) {
+    override fun postRoom(room: Room.Complete) {
         if (room.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
@@ -298,7 +293,7 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun patchRoom(id: String, current: Room) {
+    override fun patchRoom(id: String, current: Room.Complete) {
         if (id.isBlank() || current.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
         }
@@ -309,7 +304,7 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    fun expireRoom(current: Room, onSucceed: (Room) -> Unit) {
+    fun expireRoom(current: Room.Complete, onSucceed: (Room.Complete) -> Unit) {
         val model = current.copy(expired = true, updatedAt = Date())
         if (model.id.isBlank() || model.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -366,7 +361,7 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
-    fun deleteQuestion(quiz: Quiz, onSucceed: () -> Unit) {
+    fun deleteQuestion(quiz: Quiz.Complete, onSucceed: () -> Unit) {
         val deleteFiles = quiz.images.map {
             val fileId = it.substringAfterLast("/")
             caseFile.deleteFile(fileId)
@@ -379,10 +374,10 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
-    override val rooms: Flow<PagingData<Room>> =
+    override val rooms: Flow<PagingData<Room.Complete>> =
         caseRoom.getRooms(DEFAULT_BATCH_ROOM).cachedIn(viewModelScope)
 
-    override val roomsOwner: Flow<PagingData<Room>> =
+    override val roomsOwner: Flow<PagingData<Room.Complete>> =
         caseRoom.getRooms(currentUserId, DEFAULT_BATCH_ROOM)
             .cachedIn(viewModelScope)
 
@@ -444,13 +439,13 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
-    private fun getCurrentUser(onSucceed: (User) -> Unit) {
+    private fun getCurrentUser(onSucceed: (User.Complete) -> Unit) {
         caseUser.getUser()
             .onEach{ res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
 
-    override fun getBoarding(onSucceed: (Room.RoomState.BoardingQuiz) -> Unit) {
+    override fun getBoarding(onSucceed: (Room.State.BoardingQuiz) -> Unit) {
         caseRoom.getBoarding()
             .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
@@ -462,7 +457,7 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
-    override fun patchBoarding(state: Room.RoomState.BoardingQuiz) {
+    override fun patchBoarding(state: Room.State.BoardingQuiz) {
         if (state.quizzes.isEmpty() or state.roomId.isEmpty() or state.userId.isEmpty() or state.participantId.isEmpty())
             onStateChange(ResourceState(error = DONT_EMPTY))
 
@@ -470,7 +465,7 @@ class RoomViewModel
             .onEach(::onResource).launchIn(viewModelScope)
     }
 
-    override fun postBoarding(state: Room.RoomState.BoardingQuiz, onSucceed: (String) -> Unit) {
+    override fun postBoarding(state: Room.State.BoardingQuiz, onSucceed: (String) -> Unit) {
         if (state.quizzes.isEmpty() or state.roomId.isEmpty() or state.userId.isEmpty() or state.participantId.isEmpty())
             onStateChange(ResourceState(error = DONT_EMPTY))
 

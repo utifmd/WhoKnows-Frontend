@@ -16,7 +16,7 @@ data class Result (
     var score: Int?,
     var createdAt: Date,
     var updatedAt: Date?,
-    val user: UserCensored?){
+    val user: User.Censored?){
 
     val isPropsBlank: Boolean = roomId.isBlank() || //participantId.isBlank() ||
             userId.isBlank() /*||

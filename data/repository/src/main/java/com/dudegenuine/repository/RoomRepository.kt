@@ -49,48 +49,48 @@ class RoomRepository
     override val currentParticipant: () -> String =
         { prefs.readString(CURRENT_PARTICIPANT_ID) }
 
-    override suspend fun create(room: Room): Room = mapper.asRoom(
+    override suspend fun create(room: Room.Complete): Room.Complete = mapper.asRoom(
         service.create(mapper.asEntity(room)))
 
-    override suspend fun read(id: String): Room = mapper.asRoom(
+    override suspend fun read(id: String): Room.Complete = mapper.asRoom(
         service.read(id))
 
-    override suspend fun update(id: String, room: Room): Room = mapper.asRoom(
+    override suspend fun update(id: String, room: Room.Complete): Room.Complete = mapper.asRoom(
         service.update(id, mapper.asEntity(room)))
 
     override suspend fun delete(id: String) =
         service.delete(id)
 
-    override suspend fun list(page: Int, size: Int): List<Room> = mapper.asRooms(
+    override suspend fun list(page: Int, size: Int): List<Room.Complete> = mapper.asRooms(
         service.list(page, size))
 
-    override suspend fun list(userId: String, page: Int, size: Int): List<Room> = mapper.asRooms(
+    override suspend fun list(userId: String, page: Int, size: Int): List<Room.Complete> = mapper.asRooms(
         service.list(userId, page, size))
 
-    override fun page(batchSize: Int): PagingSource<Int, Room> =
+    override fun page(batchSize: Int): PagingSource<Int, Room.Complete> =
         mapper.asPagingSource { page ->
             list(page, batchSize)
         }
 
-    override fun page(userId: String, batchSize: Int): PagingSource<Int, Room> =
+    override fun page(userId: String, batchSize: Int): PagingSource<Int, Room.Complete> =
         mapper.asPagingSource { page ->
             list(userId, page, batchSize)
         }
 
-    override suspend fun load(participantId: String?): Room.RoomState.BoardingQuiz {
+    override suspend fun load(participantId: String?): Room.State.BoardingQuiz {
         val model = participantId ?: currentParticipant()
         val currentBoarding = local.read(model) ?: throw HttpFailureException(NOT_FOUND)
 
         return mapper.asBoardingQuiz(currentBoarding)
     }
 
-    override suspend fun save(boarding: Room.RoomState.BoardingQuiz) {
+    override suspend fun save(boarding: Room.State.BoardingQuiz) {
         local.create(mapper.asBoardingQuizTable(boarding)).also {
             prefs.write(CURRENT_PARTICIPANT_ID, boarding.participantId)
         }
     }
 
-    override suspend fun replace(boarding: Room.RoomState.BoardingQuiz) {
+    override suspend fun replace(boarding: Room.State.BoardingQuiz) {
         local.update(mapper.asBoardingQuizTable(boarding))
     }
 

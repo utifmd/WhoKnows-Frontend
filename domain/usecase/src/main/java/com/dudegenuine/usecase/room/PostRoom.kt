@@ -18,7 +18,7 @@ class PostRoom
     @Inject constructor(
     private val repository: IRoomRepository) {
 
-    operator fun invoke(body: Room): Flow<Resource<Room>> = flow {
+    operator fun invoke(body: Room.Complete): Flow<Resource<Room.Complete>> = flow {
         try {
             emit(Resource.Loading())
             val room = repository.create(body)

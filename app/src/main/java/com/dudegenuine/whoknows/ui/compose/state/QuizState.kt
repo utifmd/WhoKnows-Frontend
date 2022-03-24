@@ -6,8 +6,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.input.TextFieldValue
-import com.dudegenuine.model.Answer
-import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil
 import java.util.*
@@ -32,8 +30,8 @@ sealed class QuizState {
         private val _userId = mutableStateOf("")
         val userId: String get() = _userId.value
 
-        private val _currentAnswer = mutableStateOf<Answer?>(null)
-        val currentAnswer: Answer?
+        private val _currentAnswer = mutableStateOf<Quiz.Answer.Exact?>(null)
+        val currentAnswer: Quiz.Answer.Exact?
             get() = _currentAnswer.value
 
         private val _options = mutableStateListOf<String>()
@@ -44,8 +42,8 @@ sealed class QuizState {
         val images: List<ByteArray>
             get() = _images
 
-        private val _selectedAnswer = mutableStateOf<PossibleAnswer?>(null)
-        private val selectedAnswer: PossibleAnswer?
+        private val _selectedAnswer = mutableStateOf<Quiz.Answer.Possible?>(null)
+        private val selectedAnswer: Quiz.Answer.Possible?
             get() = _selectedAnswer.value
 
         private val setOfAnswers = mutableSetOf<String>()
@@ -88,19 +86,19 @@ sealed class QuizState {
             _currentOption.value = TextFieldValue(it)
         }
 
-        fun onSelectedAnswerValue (it: PossibleAnswer?) {
+        fun onSelectedAnswerValue (it: Quiz.Answer.Possible?) {
             _selectedAnswer.value = it
         }
 
         fun onAnsweredSingle (newAnswer: String) {
-            onSelectedAnswerValue(PossibleAnswer.SingleChoice(newAnswer))
+            onSelectedAnswerValue(Quiz.Answer.Possible.SingleChoice(newAnswer))
         }
 
         fun onAnsweredMultiple (newAnswer: String, selected :Boolean) {
             if (selected) setOfAnswers.add(newAnswer)
             else setOfAnswers.remove(newAnswer)
 
-            onSelectedAnswerValue(PossibleAnswer.MultipleChoice(setOfAnswers))
+            onSelectedAnswerValue(Quiz.Answer.Possible.MultipleChoice(setOfAnswers))
         }
 
         fun onImagesRemoveAt (it: Int) {
@@ -115,9 +113,9 @@ sealed class QuizState {
             _userId.value = it
         }
 
-        val postModel: Quiz
+        val postModel: Quiz.Complete
             get() = mutableStateOf(
-                Quiz(
+                Quiz.Complete(
                     "QIZ-${UUID.randomUUID()}",
                     roomId = roomId,
                     createdBy = userId,

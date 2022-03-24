@@ -1,8 +1,6 @@
 package com.dudegenuine.remote.mapper
 
 import androidx.paging.PagingSource
-import com.dudegenuine.model.Answer
-import com.dudegenuine.model.PossibleAnswer
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.ResourcePaging
 import com.dudegenuine.model.common.ImageUtil.strOf
@@ -23,7 +21,7 @@ class QuizDataMapper
         private val mapperUser: IUserDataMapper): IQuizDataMapper {
     val TAG: String = strOf<QuizDataMapper>()
 
-    override fun asEntity(quiz: Quiz): QuizEntity {
+    override fun asEntity(quiz: Quiz.Complete): QuizEntity {
         val strAnswer = gson.toJson(quiz.answer)
 
         return QuizEntity(
@@ -33,32 +31,32 @@ class QuizDataMapper
         )
     }
 
-    override fun asQuiz(entity: QuizEntity): Quiz {
-        val result = Quiz(entity.quizId, entity.roomId, entity.images,
+    override fun asQuiz(entity: QuizEntity): Quiz.Complete {
+        val result = Quiz.Complete(entity.quizId, entity.roomId, entity.images,
             entity.question, entity.options, null, entity.createdBy, entity.createdAt, entity.updatedAt,
             entity.user?.let(mapperUser::asUserCensored))
 
-        val possibility: Answer = gson.fromJson(entity.answer, Answer::class.java)
+        val exactAnswer: Quiz.Answer.Exact = gson.fromJson(entity.answer, Quiz.Answer.Exact::class.java)
 
-        return when(possibility.type){
-            strOf<PossibleAnswer.SingleChoice>() -> result.apply {
-                answer = PossibleAnswer.SingleChoice(possibility.answer ?: "")
+        return when(exactAnswer.type){
+            strOf<Quiz.Answer.Possible.SingleChoice>() -> result.apply {
+                answer = Quiz.Answer.Possible.SingleChoice(exactAnswer.answer ?: "")
             }
-            strOf<PossibleAnswer.MultipleChoice>() -> result.apply {
-                answer = PossibleAnswer.MultipleChoice(possibility.answers ?: emptySet())
+            strOf<Quiz.Answer.Possible.MultipleChoice>() -> result.apply {
+                answer = Quiz.Answer.Possible.MultipleChoice(exactAnswer.answers ?: emptySet())
             } /*val itemType = object : TypeToken<List<String>>(){ }.type val data: List<String> = gson.fromJson(entity.answer, itemType)*/ //            strOf<PossibleAnswer.Slider>() -> {} //            strOf<PossibleAnswer.Action>() -> {}
             else -> { result }
         }
     }
 
-    override fun asQuiz(response: Response<QuizEntity>): Quiz {
+    override fun asQuiz(response: Response<QuizEntity>): Quiz.Complete {
         return when(response.data){
             is QuizEntity -> asQuiz(response.data)
             else -> throw IllegalStateException()
         }
     }
 
-    override fun asQuestions(response: Response<List<QuizEntity>>): List<Quiz> {
+    override fun asQuestions(response: Response<List<QuizEntity>>): List<Quiz.Complete> {
         return when(response.data){
             is List<*> -> {
                 val questions = response.data.filterIsInstance<QuizEntity>()
@@ -70,6 +68,6 @@ class QuizDataMapper
     }
 
     override fun asPagingSource(
-        onEvent: suspend (Int) -> List<Quiz>):PagingSource<Int, Quiz> =
+        onEvent: suspend (Int) -> List<Quiz.Complete>):PagingSource<Int, Quiz.Complete> =
         ResourcePaging(onEvent)
 }

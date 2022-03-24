@@ -35,7 +35,7 @@ class NotificationViewModel
     private val _formState = mutableStateOf(NotificationState.FormState())
     val formState = _formState.value
 
-    init { getNotifications(currentUserId, 0, Int.MAX_VALUE) }
+    init { getNotifications() }
 
     private var badge by mutableStateOf(currentBadge)
 
@@ -45,6 +45,10 @@ class NotificationViewModel
         caseNotify.onChangeCurrentBadge(badge)
         Log.d(TAG, "onNotifierIncrease: $badge")
     }*/
+
+    fun getNotifications(){
+        getNotifications(currentUserId, 0, Int.MAX_VALUE)
+    }
 
     fun onNotificationDecrease(notification: Notification) {
         val model = notification.copy(seen = true)

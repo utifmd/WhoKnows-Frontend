@@ -34,15 +34,15 @@ fun <T: Any> LazyStatePaging(
         }
         loadState.append is LoadState.Error ||
                 loadState.refresh is LoadState.Error -> {
-            val e = loadState.refresh as LoadState.Error
 
-            ErrorScreen(modifier.clickable(onClick = ::refresh),
-                message = e.error.localizedMessage ?: "refresh", isSnack = true)
+            ErrorScreen(modifier.clickable(onClick = ::refresh), isSnack = true,
+                message = (loadState.refresh as LoadState.Error).error.localizedMessage ?: "refresh")
         }
-        loadState.refresh is LoadState.NotLoading ||
-                loadState.append is LoadState.NotLoading -> {
+        loadState.source.refresh is LoadState.NotLoading ||
+                loadState.source.append is LoadState.NotLoading -> {
+
             if (items.itemCount < 1) ErrorScreen(modifier,
-                message = "No result.", isDanger = false)
+                message = "No result.", isDanger = false, isSnack = true)
         }
     }}
 }

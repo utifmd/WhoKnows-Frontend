@@ -1,8 +1,10 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -64,7 +66,6 @@ import kotlinx.coroutines.FlowPreview
 @Composable
 fun FeedScreen(modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
-    scrollState: ScrollState = rememberScrollState(),
     vmQuiz: QuizViewModel = hiltViewModel(),
     vmMain: ActivityViewModel = hiltViewModel(),
     vmParticipant: ParticipantViewModel = hiltViewModel(),
@@ -95,20 +96,34 @@ fun FeedScreen(modifier: Modifier = Modifier,
             lazyQuizzes.refresh()
             lazyRooms.refresh() }) {
 
-            Box(modifier.verticalScroll(scrollState)){
-
-                Column(modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)){
-
-                    Header(modifier,"Most popular class${if(lazyRooms.itemCount > 1)"es" else ""}", Icons.Filled.Class, true)
-                    BodyRoom(modifier, lazyRooms, onJoinButtonPressed)
-
-                    Header(modifier, "Random question${if(lazyQuizzes.itemCount > 1)"\'s" else ""}", Icons.Filled.Shuffle)
-                    BodyQuiz(modifier, lazyQuizzes)
-
-                    Header(modifier,"Most active participant${if(lazyParticipants.itemCount > 1)"\'s" else ""}", Icons.Filled.TrendingUp)
-                    BodyParticipant(modifier, lazyParticipants)
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(12.dp)){
+                item {
+                    Header(
+                        modifier,
+                        "Most popular class${if (lazyRooms.itemCount > 1) "es" else ""}",
+                        Icons.Filled.Class,
+                        true
+                    )
                 }
+                item { BodyRoom(modifier, lazyRooms, onJoinButtonPressed) }
+                item {
+                    Header(
+                        modifier,
+                        "Random question${if (lazyQuizzes.itemCount > 1) "\'s" else ""}",
+                        Icons.Filled.Shuffle
+                    )
+                }
+                item { BodyQuiz(modifier, lazyQuizzes) }
+                item {
+                    Header(
+                        modifier,
+                        "Most active participant${if (lazyParticipants.itemCount > 1) "\'s" else ""}",
+                        Icons.Filled.TrendingUp
+                    )
+                }
+                item { BodyParticipant(modifier, lazyParticipants) }
             }
         }
     }
@@ -143,7 +158,7 @@ private fun BodyParticipant(
 @FlowPreview
 @Composable
 private fun BodyRoom(
-    modifier: Modifier, lazyRooms: LazyPagingItems<Room>, onJoinButtonPressed: () -> Unit){
+    modifier: Modifier, lazyRooms: LazyPagingItems<Room.Complete>, onJoinButtonPressed: () -> Unit){
 
     LazyRow(modifier.padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -172,7 +187,7 @@ private fun BodyRoom(
 
 @Composable
 private fun BodyQuiz(
-    modifier: Modifier, lazyQuizzes: LazyPagingItems<Quiz>){
+    modifier: Modifier, lazyQuizzes: LazyPagingItems<Quiz.Complete>){
 
     LazyRow(modifier.padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {

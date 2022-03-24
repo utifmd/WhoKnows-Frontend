@@ -21,13 +21,13 @@ class GetQuestions
     @Inject constructor(
     private val repository: IQuizRepository) {
 
-        operator fun invoke(size: Int): Flow<PagingData<Quiz>> = Pager(
+        operator fun invoke(size: Int): Flow<PagingData<Quiz.Complete>> = Pager(
             PagingConfig(size,
                 enablePlaceholders = true, maxSize = 200))
 
             { repository.page(size) }.flow
 
-        operator fun invoke(page: Int, size: Int): Flow<Resource<List<Quiz>>> = flow {
+        operator fun invoke(page: Int, size: Int): Flow<Resource<List<Quiz.Complete>>> = flow {
             try {
                 emit(Resource.Loading())
 

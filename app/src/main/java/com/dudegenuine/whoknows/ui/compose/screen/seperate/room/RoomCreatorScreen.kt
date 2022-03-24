@@ -21,18 +21,20 @@ import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Tue, 11 Jan 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalCoroutinesApi
 @Composable
 fun RoomCreatorScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
-    onSucceed: (Room) -> Unit){
+    onSucceed: (Room.Complete) -> Unit){
 
     val state = viewModel.state
     val formState = viewModel.formState
@@ -62,7 +64,7 @@ fun RoomCreatorScreen(
 @Composable
 private fun Body(
     resourceState: ResourceState,
-    formState: Room.RoomState.FormState){
+    formState: Room.State.FormState){
     val focusManager = LocalFocusManager.current
     var isExpand by remember { mutableStateOf(false) }
 

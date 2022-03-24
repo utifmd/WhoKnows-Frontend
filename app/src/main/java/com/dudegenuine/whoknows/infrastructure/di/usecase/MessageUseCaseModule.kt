@@ -26,11 +26,11 @@ class MessageUseCaseModule(repository: IMessagingRepository): IMessageUseCaseMod
     override val removeMessaging: RemoveMessaging =
         RemoveMessaging(repository)
 
-    override val onMessagingTokenized: () -> String =
-        repository.onMessagingTokenized
+    override val currentToken: () -> String =
+        repository.currentToken
 
-    override val onMessagingTokenRefresh: (String) -> Unit =
-        repository.onMessagingTokenRefresh
+    override val onTokenRefresh: (String) -> Unit =
+        repository.onTokenRefresh
 
     override val currentBadgeStatus: () -> Boolean =
         repository.currentBadgeStatus

@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ui.vm.participant.contract
 
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Room
-import kotlinx.coroutines.Job
 
 /**
  * Thu, 09 Dec 2021
@@ -20,8 +19,8 @@ interface IParticipantViewModel {
     fun deleteParticipant(id: String){}
     fun getParticipants(page: Int, size: Int){}
 
-    fun getBoarding(onSucceed: (Room.RoomState.BoardingQuiz) -> Unit){}
+    fun getBoarding(onSucceed: (Room.State.BoardingQuiz) -> Unit){}
     fun deleteBoarding(onSucceed: (String) -> Unit){}
-    fun postBoarding(state: Room.RoomState.BoardingQuiz){}
-    fun patchBoarding(state: Room.RoomState.BoardingQuiz){}
+    fun postBoarding(state: Room.State.BoardingQuiz){}
+    fun patchBoarding(state: Room.State.BoardingQuiz){}
 }

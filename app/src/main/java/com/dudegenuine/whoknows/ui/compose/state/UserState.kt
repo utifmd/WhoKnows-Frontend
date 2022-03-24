@@ -50,27 +50,27 @@ sealed class UserState {
 
         val loginModel: Map<String, String>
             get() = mutableStateMapOf(
-                User.PAYLOAD to payload.text,
-                User.PASSWORD to password.text
+                User.Complete.PAYLOAD to payload.text,
+                User.Complete.PASSWORD to password.text
             )
 
-        val regisModel: User
+        val regisModel: User.Complete
             get() = mutableStateOf(
-            User(
-                "USR-${UUID.randomUUID()}",
-                "",
-                payload.text,
-                "",
-                payload.text.substringBefore("@"),
-                password.text,
-                "",
-                Date(),
-                null,
-                emptyList(),
-                emptyList(),
-                emptyList(),
-            )
-        ).value
+                User.Complete(
+                    "USR-${UUID.randomUUID()}",
+                    "",
+                    payload.text,
+                    "",
+                    payload.text.substringBefore("@"),
+                    password.text,
+                    "",
+                    Date(),
+                    null,
+                    emptyList(),
+                    emptyList(),
+                    emptyList(),
+                )
+            ).value
 
         val onUsernameChange: (text: String) -> Unit = {
             _payload.value = TextFieldValue(it)
@@ -91,72 +91,5 @@ sealed class UserState {
                 _profileImage.value = scaledImage
             }
         }
-
-        /*class Navigator {
-            private val _sharedFlow =
-              MutableSharedFlow<NavTarget>(extraBufferCapacity = 1)
-            val sharedFlow = _sharedFlow.asSharedFlow()
-
-            fun navigateTo(navTarget: NavTarget) {
-                _sharedFlow.tryEmit(navTarget)
-            }
-
-            enum class NavTarget(val label: String) {
-
-                Home("home"),
-                Detail("detail")
-            }
-        }*/
-
-        /*private val _fullName = mutableStateOf(TextFieldValue(""))
-        val fullName: TextFieldValue
-            get() = _fullName.value
-
-        private val _phone = mutableStateOf(TextFieldValue(""))
-        val phone: TextFieldValue
-            get() = _phone.value
-
-        private val _email = mutableStateOf(TextFieldValue(""))
-        val email: TextFieldValue
-            get() = _email.value
-
-        val onFullNameChange: (text: String) -> Unit = {
-            _fullName.value = TextFieldValue(it)
-        }
-
-        val onPhoneChange: (text: String) -> Unit = {
-            _phone.value = TextFieldValue(it)
-        }
-
-        val onProfileUrlChange: (text: String) -> Unit = {
-            _profileUrl.value = it
-        }
-
-        private val _profileImage = mutableStateOf(byteArrayOf())
-        val profileImage: ByteArray
-            get() = _profileImage.value
-
-        val onEmailChange: (text: String) -> Unit = {
-            _email.value = TextFieldValue(it)
-        }*/
     }
-
-    /*data class CurrentState(val freshUser: User): UserState()
-    data class ChangerState(val currentUser: User? = null, val fieldKey: String? = null): UserState(){
-        val selectedFieldValue = when(fieldKey) {
-            NAME -> currentUser?.fullName
-            PHONE -> currentUser?.phone
-            EMAIL -> currentUser?.email
-            else -> "No value"
-        }
-
-        val model: User get() = mutableStateOf(
-            currentUser?.copy() ?: User(
-                "USR-${UUID.randomUUID()}","", "", "", "", "", "", Date(), Date()
-            )
-        ).value
-    }
-    data class Auth(
-        val loading: Boolean = false,
-        val error: String = ""): UserState()*/
 }

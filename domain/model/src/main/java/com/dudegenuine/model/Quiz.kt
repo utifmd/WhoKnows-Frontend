@@ -7,53 +7,60 @@ import java.util.*
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
-data class Quiz(
-    val id: String,
-    var roomId: String,
-    var images: List<String>,
-    var question: String,
-    var options: List<String>,
-    var answer: PossibleAnswer?,
-    var createdBy: String,
-    var createdAt: Date,
-    var updatedAt: Date?,
-    val user: UserCensored?) {
+object Quiz {
+    data class Complete(
+        val id: String,
+        var roomId: String,
+        var images: List<String>,
+        var question: String,
+        var options: List<String>,
+        var answer: Answer.Possible?,
+        var createdBy: String,
+        var createdAt: Date,
+        var updatedAt: Date?,
+        val user: User.Censored?) {
 
-    val isPropsBlank: Boolean = roomId.isBlank() ||
+        val isPropsBlank: Boolean = roomId.isBlank() ||
             question.isBlank() || options.isEmpty() ||
             createdBy.isBlank() // answer.isBlank() ||
-}
+    }
 
-enum class QuizActionType { PICK_DATE, TAKE_PHOTO, SELECT_CONTACT }
+    object Answer {
+        sealed class Possible(val type: String) {
+            data class SingleChoice(val answer: String): Possible(strOf<SingleChoice>())
+            data class MultipleChoice(val answers: Set<String>): Possible(strOf<MultipleChoice>())
+            data class Action(val answer: Quiz.Action.Result): Possible(strOf<Action>())
+            data class Slider(val answer: Float): Possible(strOf<Slider>())
+        }
 
-sealed class QuizActionResult {
-    data class Date(val date: String): QuizActionResult()
-    data class Photo(val uri: String): QuizActionResult()
-    data class Contact(val contact: String): QuizActionResult()
-}
+        data class Exact(
+            val type: String,
+            val answer: String? = null,
+            val answers: Set<String>? = null
+        )
+    }
 
-sealed class PossibleAnswer(val type: String) {
-    data class SingleChoice(val answer: String): PossibleAnswer(strOf<SingleChoice>())
-    data class MultipleChoice(val answers: Set<String>): PossibleAnswer(strOf<MultipleChoice>())
-    data class Action(val answer: QuizActionResult): PossibleAnswer(strOf<Action>())
-    data class Slider(val answer: Float): PossibleAnswer(strOf<Slider>())
-}
+    object Option {
+        sealed class Possible {
+            data class SingleChoice(val options: List<String>): Possible()
+            data class MultipleChoice(val options: List<String>): Possible()
+            data class Action(val label: Int, val actionType: Quiz.Action.Type): Possible()
+            data class Slider(
+                val range: ClosedFloatingPointRange<Float>,
+                val steps: String,
+                val startText: String,
+                val endText: String,
+                val defaultValue: Float = range.start): Possible()
+        }
+    }
 
-data class Answer(
-    val type: String,
-    val answer: String? = null,
-    val answers: Set<String>? = null
-)
+    object Action {
+        enum class Type { PICK_DATE, TAKE_PHOTO, SELECT_CONTACT }
 
-sealed class PossibleOption {
-    data class SingleChoice(val options: List<String>): PossibleOption()
-    data class MultipleChoice(val options: List<String>): PossibleOption()
-    data class Action(val label: Int, val actionType: QuizActionType): PossibleOption()
-    data class Slider(
-        val range: ClosedFloatingPointRange<Float>,
-        val steps: String,
-        val startText: String,
-        val endText: String,
-        val defaultValue: Float = range.start
-    ): PossibleOption()
+        sealed class Result {
+            data class Date(val date: String): Result()
+            data class Photo(val uri: String): Result()
+            data class Contact(val contact: String): Result()
+        }
+    }
 }

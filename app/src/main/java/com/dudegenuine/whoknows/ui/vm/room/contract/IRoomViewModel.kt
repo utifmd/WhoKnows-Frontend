@@ -13,16 +13,17 @@ import kotlinx.coroutines.flow.Flow
 interface IRoomViewModel: IParticipantViewModel, IMessagingViewModel {
     companion object {
         const val DEFAULT_BATCH_ROOM = 5
+        const val ALREADY_JOINED = "Sorry, you already joined the class."
     }
 
-    fun postRoom(room: Room)
+    fun postRoom(room: Room.Complete)
     fun getRoom(id: String)
-    fun patchRoom(id: String, current: Room)
+    fun patchRoom(id: String, current: Room.Complete)
     fun deleteRoom(id: String)
     fun getRooms(page: Int, size: Int)
 
-    val rooms: Flow<PagingData<Room>>
-    val roomsOwner: Flow<PagingData<Room>>
+    val rooms: Flow<PagingData<Room.Complete>>
+    val roomsOwner: Flow<PagingData<Room.Complete>>
 
-    fun postBoarding(state: Room.RoomState.BoardingQuiz, onSucceed: (String) -> Unit)
+    fun postBoarding(state: Room.State.BoardingQuiz, onSucceed: (String) -> Unit)
 }

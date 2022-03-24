@@ -5,8 +5,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.Room
+import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
@@ -36,14 +38,13 @@ fun ResultDetail(
             if (state.loading) LoadingScreen()
 
             state.result?.let { result ->
-                val resultState = Room.RoomState.BoardingResult(
+                val resultState = Room.State.BoardingResult(
                     result.user?.fullName ?: "Unknown", result) //"Joined by: ${result.user?.fullName ?: "Unknown"}", result)
 
                 ResultScreen(modifier, state = resultState)
             }
-
             if (state.error.isNotBlank())
-                ErrorScreen(message = state.error)
+                ErrorScreen(message = stringResource(R.string.join_on_progress))
         }
     )
 }

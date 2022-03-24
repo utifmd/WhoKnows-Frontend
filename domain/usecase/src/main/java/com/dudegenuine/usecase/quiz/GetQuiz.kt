@@ -17,7 +17,7 @@ import javax.inject.Inject
 class GetQuiz
     @Inject constructor(
     private val repository: IQuizRepository) {
-    operator fun invoke(id: String): Flow<Resource<Quiz>> = flow {
+    operator fun invoke(id: String): Flow<Resource<Quiz.Complete>> = flow {
         try {
             emit(Resource.Loading())
             val quiz = repository.read(id)

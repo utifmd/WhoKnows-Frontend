@@ -17,6 +17,8 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.notification.NotificationItem
 import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.FlowPreview
 import okhttp3.internal.http.toHttpDateString
 
@@ -33,8 +35,8 @@ fun NotificationScreen(
     vmNotifier: NotificationViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     onDetailRoomPressed: (Participant) -> Unit, onBackPressed: () -> Unit) {
-    val stateNotifier = vmNotifier.state
-    val stateUser = vmUser.state
+    val swipeRefreshState = rememberSwipeRefreshState(
+        vmNotifier.state.loading || vmUser.state.loading)
 
     Scaffold(modifier,
         scaffoldState = scaffoldState,
@@ -47,48 +49,52 @@ fun NotificationScreen(
         },
 
         content = {
-            if (stateNotifier.loading || stateUser.loading) LoadingScreen()
-            LazyColumn(
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                content = {
-                    stateUser.user?.let { user ->
-                        if (user.participants.isNotEmpty()) {
-                            if (user.participants.isNotEmpty()) item {
-                                Text("Recently participation${if (user.participants.size > 1) "\'s" else ""}")
-                            }
-                            item {
-                                LazyRow(modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            SwipeRefresh(swipeRefreshState, onRefresh = {
+                vmUser.state.user?.id?.let(vmUser::getUser)
+                vmNotifier.getNotifications() }) {
 
-                                    user.participants.forEach { participant ->
-                                        item {
-                                            OutlinedButton(onClick = { onDetailRoomPressed(participant) }) {
-                                                Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
-                                                Spacer(modifier.size(ButtonDefaults.IconSize))
-                                                Text(participant.createdAt.toHttpDateString())
+                LazyColumn(
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    content = {
+                        vmUser.state.user?.let { user ->
+                            if (user.participants.isNotEmpty()) {
+                                if (user.participants.isNotEmpty()) item {
+                                    Text("Recently participation${if (user.participants.size > 1) "\'s" else ""}")
+                                }
+                                item {
+                                    LazyRow(modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+
+                                        user.participants.forEach { participant ->
+                                            item {
+                                                OutlinedButton(onClick = { onDetailRoomPressed(participant) }) {
+                                                    Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
+                                                    Spacer(modifier.size(ButtonDefaults.IconSize))
+                                                    Text(participant.createdAt.toHttpDateString())
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    stateNotifier.notifications?.let { notifications ->
-                        if (notifications.isNotEmpty()) item {
-                            Spacer(modifier.size(ButtonDefaults.IconSize))
-                            Text("Recently event${ if(notifications.size > 1)"\'s" else ""}")
-                        }
+                        vmNotifier.state.notifications?.let { notifications ->
+                            if (notifications.isNotEmpty()) item {
+                                Spacer(modifier.size(ButtonDefaults.IconSize))
+                                Text("Recently event${ if(notifications.size > 1)"\'s" else ""}")
+                            }
 
-                        notifications.forEach { model ->
-                            item { NotificationItem(model = model) { vmNotifier.onNotificationDecrease(model) } }
+                            notifications.forEach { model ->
+                                item { NotificationItem(model = model) { vmNotifier.onNotificationDecrease(model) } }
+                            }
                         }
                     }
-                }
-            )
-            if (stateNotifier.error.isNotBlank())
-                ErrorScreen(message = stateNotifier.error, isDanger = false)
+                )
+                if (vmNotifier.state.error.isNotBlank())
+                    ErrorScreen(message = vmNotifier.state.error, isDanger = false)
+            }
         }
     )
 }

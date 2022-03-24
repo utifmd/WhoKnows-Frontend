@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.dudegenuine.model.Answer
+import com.dudegenuine.model.Quiz
 
 /**
  * Mon, 27 Dec 2021
@@ -22,7 +22,7 @@ import com.dudegenuine.model.Answer
 fun SingleChoiceQuestion(
     modifier: Modifier = Modifier,
     options: List<String>,
-    answer: Answer?,
+    answer: Quiz.Answer.Exact?,
     onAnswerSelected: (String) -> Unit,
 ) {
     val selected = answer?.answer

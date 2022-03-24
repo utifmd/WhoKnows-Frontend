@@ -1,7 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract
 
-import com.dudegenuine.model.Answer
-import com.dudegenuine.model.QuizActionType
+import com.dudegenuine.model.Quiz
 
 /**
  * Mon, 31 Jan 2022
@@ -12,8 +11,8 @@ interface IQuizEvent {
 }
 
 interface IQuizPrivateEvent: IQuizEvent {
-    fun onAnswer(answer: Answer){}
-    fun onAction(id: Int, type: QuizActionType){}
+    fun onAnswer(answer: Quiz.Answer.Exact){}
+    fun onAction(id: Int, type: Quiz.Action.Type){}
 
     fun onAnswerSelected(freshAnswer: String){}
     fun onAnswerSelected(freshAnswer: String, selected: Boolean){}

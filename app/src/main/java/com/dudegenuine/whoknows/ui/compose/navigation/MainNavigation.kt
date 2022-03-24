@@ -38,6 +38,6 @@ fun MainNavigation(
         navController = controller){
 
         authNavGraph(controller, viewModel = viewModel)
-        homeNavGraph(controller, viewModel = viewModel/*, initial = if (initialPassed == MESSAGE_INTENT *//*TIME_RUNNING*//*) Screen.Home.Discover else Screen.Home.Summary*/)
+        homeNavGraph(controller, viewModel = viewModel) /*, initial = if (initialPassed == MESSAGE_INTENT *//*TIME_RUNNING*//*) Screen.Home.Discover else Screen.Home.Summary)*/
     }
 }

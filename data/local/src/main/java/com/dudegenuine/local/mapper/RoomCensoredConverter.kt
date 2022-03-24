@@ -1,7 +1,7 @@
 package com.dudegenuine.local.mapper
 
 import androidx.room.TypeConverter
-import com.dudegenuine.model.RoomCensored
+import com.dudegenuine.model.Room
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -11,13 +11,13 @@ import com.google.gson.reflect.TypeToken
  **/
 object RoomCensoredConverter {
     @TypeConverter
-    fun fromJson(data: String?): List<RoomCensored?>?{
-        val type = object: TypeToken<List<RoomCensored?>?>(){}.type
+    fun fromJson(data: String?): List<Room.Censored?>?{
+        val type = object: TypeToken<List<Room.Censored?>?>(){}.type
 
         return Gson().fromJson(data, type)
     }
     @TypeConverter
-    fun toJson(data: List<RoomCensored>?): String?{
+    fun toJson(data: List<Room.Censored>?): String?{
 
         return Gson().toJson(data)
     }

@@ -28,7 +28,7 @@ fun RoomRoutedPreBoardingScreen(
     val uiState = viewModel.uiState.observeAsState().value
     val state = viewModel.state
 
-    val composeEvent: (Room.RoomState.BoardingQuiz) -> IRoomEventBoarding = { boardingState ->
+    val composeEvent: (Room.State.BoardingQuiz) -> IRoomEventBoarding = { boardingState ->
         object : IRoomEventBoarding {
             override fun onPrevPressed() { boardingState.currentQuestionIdx -=1 }
             override fun onNextPressed() { boardingState.currentQuestionIdx +=1 }
@@ -37,7 +37,7 @@ fun RoomRoutedPreBoardingScreen(
     }
 
     when {
-        uiState is Room.RoomState.BoardingQuiz -> RoomBoardingScreen(
+        uiState is Room.State.BoardingQuiz -> RoomBoardingScreen(
             state = uiState,
             viewModel = viewModel,
             onAction = event::onAction,
@@ -45,7 +45,7 @@ fun RoomRoutedPreBoardingScreen(
             onNextPressed = { composeEvent(uiState).onNextPressed() },
             onDonePressed = { composeEvent(uiState).onDonePressed() }
         )
-        uiState is Room.RoomState.BoardingResult -> ResultScreen(
+        uiState is Room.State.BoardingResult -> ResultScreen(
             state = uiState,
             onDonePressed = event::onDoneResultPressed
         )

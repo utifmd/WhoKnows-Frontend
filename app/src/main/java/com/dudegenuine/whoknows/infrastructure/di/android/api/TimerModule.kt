@@ -10,11 +10,15 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.ITimerLauncher
 import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.whoknows.ui.service.TimerService
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 /**
  * Tue, 08 Mar 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalCoroutinesApi
+@FlowPreview
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi

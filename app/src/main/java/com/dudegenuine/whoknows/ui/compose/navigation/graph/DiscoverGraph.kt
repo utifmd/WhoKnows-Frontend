@@ -29,11 +29,11 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalCoilApi
 fun NavGraphBuilder.discoverGraph(
     router: NavHostController){
-
     val notification = Screen.Home.Discover.Notification
+
     composable(
         route = notification.route,
-        deepLinks = listOf( navDeepLink { uriPattern = notification.uriPattern })){
+        deepLinks = listOf(navDeepLink{ uriPattern = notification.uriPattern })){
 
         NotificationScreen(
             onBackPressed = router::popBackStack,

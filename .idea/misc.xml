@@ -30,6 +30,7 @@
         <entry key="app/src/main/res/drawable/ic_outline_fact_check_24.xml" value="0.1325" />
         <entry key="app/src/main/res/drawable/ic_outline_timer_24.xml" value="0.1325" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1325" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
       </map>
     </option>
   </component>

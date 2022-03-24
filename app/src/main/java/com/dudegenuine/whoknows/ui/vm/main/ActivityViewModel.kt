@@ -46,40 +46,40 @@ class ActivityViewModel
     private val caseNotifier: INotificationUseCaseModule,
     private val caseUser: IUserUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IActivityViewModel {
+    companion object { const val TOPIC_COMMON = "common" }
 
-    companion object { const val TOPIC_COMMON = "common" } //"/topics/common"
     private val TAG: String = javaClass.simpleName
-
-    private val messaging: FirebaseMessaging =
-        FirebaseMessaging.getInstance()
-
+    private val messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
     private val currentUserId = caseUser.currentUserId()
-    private val currentToken = caseMessaging.onMessagingTokenized()
-    private val isTokenized = currentToken.isNotBlank()
 
+    var token by mutableStateOf(caseMessaging.currentToken())
     var badge by mutableStateOf(caseUser.currentBadge())
     var isNotify by mutableStateOf(caseMessaging.currentBadgeStatus())
 
     init {
         messagingSubscribeTopic()
 
-        if (!isTokenized) messagingInitToken()
-        else Log.d(TAG, "local store token: $currentToken")
+        if (token.isBlank()) messagingInitToken()
+        else Log.d(TAG, "currentToken: $token")
 
         getNotifications(currentUserId)
     }
 
     val networkServiceAction = IntentFilter(IReceiverFactory.ACTION_CONNECTIVITY_CHANGE)
     val networkServiceReceiver = caseMessaging.onInternetReceived { message ->
-        if (!isTokenized and message.isNotBlank()) messagingInitToken()
+        if (message.isNotBlank()) if(token.isBlank()) messagingInitToken()
 
         viewModelScope.launch { onShowSnackBar(message) }
     }
-
     val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
-    val messagingServiceReceiver = caseMessaging.onTokenReceived { token ->
-        onRefreshToken(token)
-        caseMessaging.onMessagingTokenRefresh(token)
+    val messagingServiceReceiver = caseMessaging.onTokenReceived {
+        onMessagingTokenChange(it)
+        onPreRegisterToken(it)
+    }
+
+    private fun onMessagingTokenChange(fresh: String){
+        token = fresh
+        caseMessaging.onTokenRefresh(fresh) //MESSAGING_TOKEN
     }
 
     private fun messagingSubscribeTopic() {
@@ -89,23 +89,18 @@ class ActivityViewModel
         }
     }
 
-    private fun messagingInitToken(){
-        messaging.token.addOnCompleteListener { task ->
-            Log.d(TAG, "messagingInitToken: triggered")
-
-            if (!task.isSuccessful) {
-                Log.d(TAG, "messagingInitToken: ${task.exception?.localizedMessage}")
-
-                return@addOnCompleteListener
-            }
-
-            val token = task.result
-            caseMessaging.onMessagingTokenRefresh(token)
+    private fun messagingInitToken() {
+        messaging.token.addOnCompleteListener { task -> when {
+            task.isSuccessful -> onMessagingTokenChange(task.result)
+            task.isCanceled -> Log.d(TAG, "task.isCanceled: ${task.exception?.localizedMessage}")
+            task.isComplete -> Log.d(TAG, "task.isComplete: triggered")
+            else -> Log.d(TAG, "task.else: ${task.exception?.cause?.localizedMessage}") }
         }
+        Log.d(TAG, "messagingInitToken: triggered")
     }
 
-    private fun onRefreshToken(token: String) {
-        Log.d(TAG, "onRefreshToken: $token")
+    private fun onPreRegisterToken(token: String) {
+        Log.d(TAG, "onPreRegisterToken: $token")
 
         getJoinedOwnedRoomIds { roomIds -> roomIds
             .forEach { onRegisterToken(it, token) } //Log.d(TAG, "getJoinedRoomIds: ${roomIds.joinToString(" ~> ")}")
@@ -128,7 +123,7 @@ class ActivityViewModel
         getMessaging(roomId) { notifyKey ->
             val model = Messaging.GroupAdder(roomId, listOf(token), notifyKey)
 
-            addMessaging(model) { Log.d(TAG, "addTokenByNotifyKeyName: $it") }
+            addMessaging(model) { Log.d(TAG, "onRegisterToken: $it") }
         }
     }
 
@@ -151,8 +146,7 @@ class ActivityViewModel
 
         caseNotifier.getNotifications(userId, 0, Int.MAX_VALUE)
             .onEach { res -> onResourceStateless(res) { notifiers ->
-                val counter = notifiers.count { !it.seen }
-                //Log.d(TAG, "counter: $counter badge: $badge")
+                val counter = notifiers.count { !it.seen } //Log.d(TAG, "counter: $counter badge: $badge")
 
                 if (counter > 0) onTurnNotifierOn(true)
                 caseUser.onChangeCurrentBadge(counter) }} //onBadgeChange(counter)

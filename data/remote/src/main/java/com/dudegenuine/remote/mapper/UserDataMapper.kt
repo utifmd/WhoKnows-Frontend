@@ -1,9 +1,12 @@
 package com.dudegenuine.remote.mapper
 
 import com.dudegenuine.local.entity.UserTable
-import com.dudegenuine.model.*
-import com.dudegenuine.model.User.Companion.PASSWORD
-import com.dudegenuine.model.User.Companion.PAYLOAD
+import com.dudegenuine.model.Notification
+import com.dudegenuine.model.Participant
+import com.dudegenuine.model.Room
+import com.dudegenuine.model.User
+import com.dudegenuine.model.User.Complete.Companion.PASSWORD
+import com.dudegenuine.model.User.Complete.Companion.PAYLOAD
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.*
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
@@ -17,7 +20,7 @@ import javax.inject.Inject
 class UserDataMapper
     @Inject constructor(val gson: Gson): IUserDataMapper {
 
-    override fun asEntity(user: User): UserEntity {
+    override fun asEntity(user: User.Complete): UserEntity {
         return UserEntity(
             userId = user.id,
             fullName = user.fullName,
@@ -37,8 +40,8 @@ class UserDataMapper
         )
     }
 
-    override fun asUser(entity: UserEntity): User {
-        return User(
+    override fun asUser(entity: UserEntity): User.Complete {
+        return User.Complete(
             id = entity.userId,
             fullName = entity.fullName,
             username = entity.username,
@@ -57,22 +60,22 @@ class UserDataMapper
         )
     }
 
-    override fun asUser(response: Response<UserEntity>): User {
+    override fun asUser(response: Response<UserEntity>): User.Complete {
         return when(response.data){
             is UserEntity -> asUser(response.data)
             else -> throw HttpFailureException(response.data.toString())
         }
     }
 
-    override fun asUser(json: String): User {
+    override fun asUser(json: String): User.Complete {
 
-        val adapter = gson.getAdapter(User::class.java)
+        val adapter = gson.getAdapter(User.Complete::class.java)
 
         return adapter.fromJson(json)
     }
 
-    override fun asUsers(response: Response<List<UserEntity>>): List<User> {
-        val list = mutableListOf<User>()
+    override fun asUsers(response: Response<List<UserEntity>>): List<User.Complete> {
+        val list = mutableListOf<User.Complete>()
 
         when(response.data){
             is List<*> -> response.data.filterIsInstance<UserEntity>().forEach {
@@ -93,8 +96,8 @@ class UserDataMapper
         )
     }
 
-    override fun asUser(userTable: UserTable): User {
-        return userTable.let { User(
+    override fun asUser(userTable: UserTable): User.Complete {
+        return userTable.let { User.Complete(
             id = it.userId,
             fullName = it.fullName,
             email = it.email,
@@ -110,7 +113,7 @@ class UserDataMapper
         )}
     }
 
-    override fun asUserTable(user: User): UserTable {
+    override fun asUserTable(user: User.Complete): UserTable {
         return UserTable(
             userId = user.id,
             fullName = user.fullName,
@@ -185,7 +188,7 @@ class UserDataMapper
         )
     }
 
-    override fun asUserCensoredEntity(user: UserCensored): UserCensoredEntity {
+    override fun asUserCensoredEntity(user: User.Censored): UserCensoredEntity {
         return UserCensoredEntity(
             userId = user.userId,
             fullName = user.fullName,
@@ -194,8 +197,8 @@ class UserDataMapper
         )
     }
 
-    override fun asUserCensored(entity: UserCensoredEntity): UserCensored {
-        return UserCensored(
+    override fun asUserCensored(entity: UserCensoredEntity): User.Censored {
+        return User.Censored(
             userId = entity.userId,
             fullName = entity.fullName,
             username = entity.username,
@@ -203,7 +206,7 @@ class UserDataMapper
         )
     }
 
-    override fun asRoomCensoredEntity(room: RoomCensored): RoomCensoredEntity {
+    override fun asRoomCensoredEntity(room: Room.Censored): RoomCensoredEntity {
         return RoomCensoredEntity(
             roomId = room.roomId,
             userId = room.userId,
@@ -214,8 +217,8 @@ class UserDataMapper
         )
     }
 
-    override fun asRoomCensored(entity: RoomCensoredEntity): RoomCensored {
-        return RoomCensored(
+    override fun asRoomCensored(entity: RoomCensoredEntity): Room.Censored {
+        return Room.Censored(
             roomId = entity.roomId,
             userId = entity.userId,
             minute = entity.minute,

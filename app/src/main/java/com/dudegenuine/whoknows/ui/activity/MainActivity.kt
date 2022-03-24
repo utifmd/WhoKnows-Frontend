@@ -13,6 +13,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.MainScreen
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -25,39 +26,20 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalFoundationApi
 @FlowPreview
 @AndroidEntryPoint
-class MainActivity: ComponentActivity() {
-    private val TAG = javaClass.simpleName
+class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleName
     private val vmMain: ActivityViewModel by viewModels()
-    
-
-    companion object {
-        const val INITIAL_DATA_KEY = "initial_data_key"
-
-        fun createIntent(context: Context, data: String): Intent {
-            return Intent(context, MainActivity::class.java)
-                .apply { putExtra(INITIAL_DATA_KEY, data) }
-        }
-    }
+    private val vmUser: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         with(vmMain) {
+            registerPrefsListener()
             registerReceiver(messagingServiceReceiver, messagingServiceAction)
             registerReceiver(networkServiceReceiver, networkServiceAction)
-            registerPrefsListener()
+            registerReceiver(vmUser.messagingServiceReceiver, vmUser.messagingServiceAction)
+            setContent { MainScreen(vmMain = this, vmUser = vmUser) }
         }
-
-        onIntention()
-    }
-
-    private fun onIntention() {
-        setContent { MainScreen(vmMain = vmMain) }
-
-        /*val data = intent.getStringExtra(INITIAL_DATA_KEY) ?: ""
-        //, initialPassed = data,
-
-        if(data.isNotBlank()) Log.d(TAG, "initial data key: $data")*/
     }
 
     override fun onDestroy() {
@@ -68,5 +50,14 @@ class MainActivity: ComponentActivity() {
             networkServiceReceiver.apply(::unregisterReceiver)
             unregisterPrefsListener()
         }
+    }
+
+    companion object {
+        private const val INITIAL_DATA_KEY = "initial_data_key"
+
+        fun createInstance(context: Context, data: String):
+            Intent = Intent(context, MainActivity::class.java).apply {
+                putExtra(INITIAL_DATA_KEY, data)
+            }
     }
 }

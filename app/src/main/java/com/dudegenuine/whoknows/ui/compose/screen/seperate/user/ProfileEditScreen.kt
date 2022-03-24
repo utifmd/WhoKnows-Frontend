@@ -28,7 +28,7 @@ fun ProfileEditScreen(
     fieldKey: String?,
     fieldValue: String?,
     viewModel: UserViewModel = hiltViewModel(),
-    onBackPressed: () -> Unit, onSucceed: (User) -> Unit) {
+    onBackPressed: () -> Unit, onSucceed: (User.Complete) -> Unit) {
     var field by remember { mutableStateOf( fieldValue ?: "" ) }
     val onSubmitPressed: () -> Unit = {
         viewModel.onUpdateUser(fieldKey, field, onSucceed) }

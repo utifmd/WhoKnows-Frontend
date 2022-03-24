@@ -57,6 +57,7 @@ class ReceiverFactory: IReceiverFactory {
                 else -> DISCONNECTED
             }
         } else {
+            @Suppress("DEPRECATION")
             connectivityManager.run {
                 connectivityManager.activeNetworkInfo?.run {
                     result = when (type) {

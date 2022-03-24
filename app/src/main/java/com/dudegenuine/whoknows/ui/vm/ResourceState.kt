@@ -12,15 +12,18 @@ data class ResourceState(
     val message: String = "", //Error? = null,
     val error: String = "", //Error? = null,
 
-    val user: User? = null,
-    val users: List<User>? = null,
+    val user: User.Complete? = null,
+    val userCensored: User.Censored? = null,
+    val users: List<User.Complete>? = null,
+    val usersCensored: List<User.Censored>? = null,
 
-    val room: Room? = null,
-    val rooms: List<Room>? = null,
-    //val pagedRooms: LazyPagingItems<Room>? = null,
+    val room: Room.Complete? = null,
+    val roomCensored: Room.Censored? = null,
+    val rooms: List<Room.Complete>? = null,
+    val roomsCensored: List<Room.Censored>? = null,
 
-    val quiz: Quiz? = null,
-    val questions: List<Quiz>? = null,
+    val quiz: Quiz.Complete? = null,
+    val questions: List<Quiz.Complete>? = null,
 
     val result: Result? = null,
     val results: List<Result>? = null,

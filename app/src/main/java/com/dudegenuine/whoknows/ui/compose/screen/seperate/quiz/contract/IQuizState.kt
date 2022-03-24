@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract
 
-import com.dudegenuine.model.Answer
 import com.dudegenuine.model.Quiz
 
 /**
@@ -15,8 +14,8 @@ interface IQuizState {
 
 
 interface IQuizPrivateState: IQuizState {
-    val model: Quiz
-    val answer: Answer?
+    val model: Quiz.Complete
+    val answer: Quiz.Answer.Exact?
     val event: IQuizPrivateEvent
 }
 

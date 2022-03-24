@@ -37,4 +37,5 @@
     <string name="participate_the_class">partisipasi kelas</string>
     <string name="delete_class">hapus kelas</string>
     <string name="delete_question">hapus pertanyaan</string>
+    <string name="join_on_progress">Participant doesn\'t finished the test yet.</string>
 </resources>

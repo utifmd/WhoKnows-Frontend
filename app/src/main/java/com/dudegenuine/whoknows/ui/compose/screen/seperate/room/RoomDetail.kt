@@ -30,7 +30,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
-import com.dudegenuine.whoknows.ui.compose.state.ModalDialog
+import com.dudegenuine.whoknows.ui.compose.state.DialogState
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,8 +58,8 @@ fun RoomDetail(
     val state = viewModel.state
     val context =  LocalContext.current
 
-    var modalDialog by remember { mutableStateOf(ModalDialog()) }
-    val onModalDismissed: () -> Unit = { modalDialog = ModalDialog() }
+    var modalDialog by remember { mutableStateOf(DialogState()) }
+    val onModalDismissed: () -> Unit = { modalDialog = DialogState() }
     val toggle: () -> Unit = {
         coroutineScope.launch {
             if(scaffoldState.isRevealed) scaffoldState.conceal()
@@ -69,23 +69,23 @@ fun RoomDetail(
     val eventCompose = object: IRoomEventDetail {
         override fun onShareRoomPressed(roomId: String) { viewModel.onSharePressed(roomId) }
         override fun onParticipantLongPressed(expired: Boolean, participant: Participant) {
-            modalDialog = ModalDialog(context.getString(R.string.delete_participant), true, if(!expired) {
+            modalDialog = DialogState(context.getString(R.string.delete_participant), true, if(!expired) {
                 { viewModel.deleteParticipation(participant) { eventRouter.onRoomRetailPressed(participant.roomId) } }} else null)
         }
-        override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz, roomId: String) {
-            modalDialog = ModalDialog(context.getString(R.string.delete_question), true, if(enabled) {
+        override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String) {
+            modalDialog = DialogState(context.getString(R.string.delete_question), true, if(enabled) {
                 { viewModel.deleteQuestion(quiz) { eventRouter.onRoomRetailPressed(roomId) }}} else null)
         }
-        override fun onCloseRoomPressed(room: Room) {
-            modalDialog = ModalDialog(context.getString(R.string.close_the_class), true) {
+        override fun onCloseRoomPressed(room: Room.Complete) {
+            modalDialog = DialogState(context.getString(R.string.close_the_class), true) {
                 viewModel.expireRoom(room) { toggle() } }
         }
-        override fun onJoinRoomDirectlyPressed(room: Room) {
-            modalDialog = ModalDialog(context.getString(R.string.participate_the_class), true, if (viewModel.currentUserId.isNotBlank()) {{
+        override fun onJoinRoomDirectlyPressed(room: Room.Complete) {
+            modalDialog = DialogState(context.getString(R.string.participate_the_class), true, if (viewModel.currentUserId.isNotBlank()) {{
                 eventRouter.onBoardingRoomPressed(room.id); toggle() }} else null)
         }
         override fun onDeleteRoomPressed(roomId: String) {
-            modalDialog = ModalDialog(context.getString(R.string.delete_class), true) {
+            modalDialog = DialogState(context.getString(R.string.delete_class), true) {
                 viewModel.deleteRoom(roomId) { eventRouter.onDeleteRoomSucceed(it) }
             }
         }
@@ -152,7 +152,7 @@ fun RoomDetail(
 @Composable
 private fun BackLayer(
     modifier: Modifier = Modifier,
-    model: Room,
+    model: Room.Complete,
     isOwn: Boolean,
     evenCompose: IRoomEventDetail,
     evenRouter: IRoomEventDetail) {
@@ -221,10 +221,10 @@ private fun BackLayer(
 private fun FrontLayer(
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
-    model: Room, currentUserId: String,
+    model: Room.Complete, currentUserId: String,
     isOwn: Boolean,
     onQuestionPressed: (String) -> Unit,
-    onQuestionLongPressed: (enabled: Boolean, quiz: Quiz, roomId: String) -> Unit,
+    onQuestionLongPressed: (enabled: Boolean, quiz: Quiz.Complete, roomId: String) -> Unit,
     onProfileSelected: (String) -> Unit,
     onProfileLongPressed: (Participant) -> Unit,
     onResultSelected: (String, String) -> Unit) {
@@ -305,7 +305,7 @@ private fun FrontLayer(
                 model.questions.forEach { quiz ->
 
                     Box(modifier.combinedClickable(
-                        onLongClick = { onQuestionLongPressed(!model.expired or model.participants.isEmpty(), quiz, model.id) },
+                        onLongClick = { onQuestionLongPressed(!model.expired and model.participants.isEmpty(), quiz, model.id) },
                         onClick = { onQuestionPressed(quiz.id) })) {
                         Divider(thickness = (0.5).dp)
 
