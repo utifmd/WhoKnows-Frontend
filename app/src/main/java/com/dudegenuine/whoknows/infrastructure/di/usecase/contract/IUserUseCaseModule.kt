@@ -18,6 +18,7 @@ interface IUserUseCaseModule {
     val patchUser: PatchUser
     val deleteUser: DeleteUser
     val getUsers: GetUsers
+    val getUsersParticipation: GetUsersParticipation
 
     val onNetworkReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
 

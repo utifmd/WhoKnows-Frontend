@@ -35,8 +35,8 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 fun NavGraphBuilder.homeNavGraph(
-    router: NavHostController,
     modifier: Modifier = Modifier, //initial: Screen,
+    router: NavHostController,
     viewModel: UserViewModel) {
     val preview = Screen.Home.Preview
 
@@ -48,7 +48,7 @@ fun NavGraphBuilder.homeNavGraph(
         composable(
             route = Screen.Home.Discover.route) {
 
-            DiscoverScreen(
+            DiscoverScreen(modifier,
                 router = router
             )
         }

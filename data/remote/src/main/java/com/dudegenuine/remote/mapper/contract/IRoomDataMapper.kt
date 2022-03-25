@@ -7,7 +7,6 @@ import com.dudegenuine.local.entity.QuizTable
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.remote.entity.Response
-import com.dudegenuine.remote.entity.RoomCensoredEntity
 import com.dudegenuine.remote.entity.RoomEntity
 
 /**
@@ -15,11 +14,11 @@ import com.dudegenuine.remote.entity.RoomEntity
  * WhoKnows by utifmd
  **/
 interface IRoomDataMapper {
-    fun asEntity(room: Room.Complete): RoomEntity
-    fun asRoom(entity: RoomEntity): Room.Complete
+    fun asEntity(room: Room.Complete): RoomEntity.Complete
+    fun asRoom(entity: RoomEntity.Complete): Room.Complete
     fun asRoom(json: String): Room.Complete
-    fun asRoom(response: Response<RoomEntity>): Room.Complete
-    fun asRooms(response: Response<List<RoomEntity>>): List<Room.Complete>
+    fun asRoom(response: Response<RoomEntity.Complete>): Room.Complete
+    fun asRooms(response: Response<List<RoomEntity.Complete>>): List<Room.Complete>
 
     fun asBoardingQuizTable(boarding: Room.State.BoardingQuiz): BoardingQuizTable
     fun asBoardingQuiz(table: BoardingQuizTable): Room.State.BoardingQuiz
@@ -30,8 +29,8 @@ interface IRoomDataMapper {
     fun asQuizTable(quiz: Quiz.Complete): QuizTable
     fun asQuiz(table: QuizTable): Quiz.Complete
 
-    fun asRoomCensoredEntity(room: Room.Censored): RoomCensoredEntity
-    fun asRoomCensored(entity: RoomCensoredEntity): Room.Censored
+    fun asRoomCensoredEntity(room: Room.Censored): RoomEntity.Censored
+    fun asRoomCensored(entity: RoomEntity.Censored): Room.Censored
 
     fun asPagingSource(onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete>
 }

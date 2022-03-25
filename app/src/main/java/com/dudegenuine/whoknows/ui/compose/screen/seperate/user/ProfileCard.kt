@@ -1,5 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -22,17 +24,21 @@ import com.dudegenuine.whoknows.ui.theme.SmoothBackground
  * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
-
+@ExperimentalFoundationApi
 @ExperimentalCoilApi
 @Composable
 fun ProfileCard(
     modifier: Modifier = Modifier,
     colorBorder: Color? = null,
-    name: String,
-    desc: String,
-    data: String) {
+    name: String, desc: String, data: String,
+    onPressed: (() -> Unit)? = null,
+    onLongPressed: (() -> Unit)? = null) {
 
-    GeneralCardView(colorBorder = colorBorder) {
+    GeneralCardView(modifier.combinedClickable(
+            enabled = onPressed != null && onLongPressed != null,
+            onClick = { onPressed?.invoke() },
+            onLongClick = onLongPressed),
+        colorBorder = colorBorder) {
         Row(modifier.padding(8.dp)) {
             Surface(modifier.size(50.dp),
                 shape = CircleShape,
@@ -43,14 +49,20 @@ fun ProfileCard(
                     contentScale = ContentScale.Crop,
                     placeholder = {
                         Icon(Icons.Default.Person,
-                            modifier = modifier.fillMaxSize().padding(4.dp),
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(4.dp),
                             tint = MaterialTheme.colors.secondaryVariant, contentDescription = null
                         )
                     }
                 )
             }
 
-            Column(modifier.fillMaxHeight().align(Alignment.CenterVertically).padding(horizontal = 8.dp)) {
+            Column(
+                modifier
+                    .fillMaxHeight()
+                    .align(Alignment.CenterVertically)
+                    .padding(horizontal = 8.dp)) {
                 Text(name, fontWeight = FontWeight.Bold)
 
                 CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {

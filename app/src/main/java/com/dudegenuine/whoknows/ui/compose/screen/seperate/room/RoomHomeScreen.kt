@@ -59,7 +59,7 @@ fun RoomHomeScreen(
                 items(lazyPagingRooms) {
                     it?.let { room ->
                         RoomItem(
-                            state = room){
+                            state = room) {
 
                             event.onRoomItemSelected(room.id)
                         }

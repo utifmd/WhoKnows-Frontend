@@ -9,7 +9,6 @@ import com.dudegenuine.model.ResourcePaging
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.Response
-import com.dudegenuine.remote.entity.RoomCensoredEntity
 import com.dudegenuine.remote.entity.RoomEntity
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
 import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
@@ -29,8 +28,8 @@ class RoomDataMapper
     private val mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
     private val TAG: String = javaClass.simpleName
 
-    override fun asEntity(room: Room.Complete): RoomEntity {
-        return RoomEntity(
+    override fun asEntity(room: Room.Complete): RoomEntity.Complete {
+        return RoomEntity.Complete(
             room.id,
             room.userId,
             room.minute,
@@ -46,7 +45,7 @@ class RoomDataMapper
         )
     }
 
-    override fun asRoom(entity: RoomEntity): Room.Complete {
+    override fun asRoom(entity: RoomEntity.Complete): Room.Complete {
         return Room.Complete(
             entity.roomId,
             entity.userid,
@@ -65,18 +64,18 @@ class RoomDataMapper
 
     override fun asRoom(json: String): Room.Complete = gson.fromJson(json, Room.Complete::class.java)
 
-    override fun asRoom(response: Response<RoomEntity>): Room.Complete {
+    override fun asRoom(response: Response<RoomEntity.Complete>): Room.Complete {
         return when(response.data){
-            is RoomEntity -> asRoom(response.data)
+            is RoomEntity.Complete -> asRoom(response.data)
             else -> throw IllegalStateException()
         }
     }
 
-    override fun asRooms(response: Response<List<RoomEntity>>): List<Room.Complete> {
+    override fun asRooms(response: Response<List<RoomEntity.Complete>>): List<Room.Complete> {
         return when(response.data){
             is List<*> -> {
                 val entities = response.data
-                    .filterIsInstance<RoomEntity>()
+                    .filterIsInstance<RoomEntity.Complete>()
 
                 entities.map { asRoom(it) }
             }
@@ -189,8 +188,8 @@ class RoomDataMapper
         }
     }
 
-    override fun asRoomCensoredEntity(room: Room.Censored): RoomCensoredEntity {
-        return RoomCensoredEntity(
+    override fun asRoomCensoredEntity(room: Room.Censored): RoomEntity.Censored {
+        return RoomEntity.Censored(
             roomId = room.roomId,
             userId = room.userId,
             minute = room.minute,
@@ -200,7 +199,7 @@ class RoomDataMapper
         )
     }
 
-    override fun asRoomCensored(entity: RoomCensoredEntity): Room.Censored {
+    override fun asRoomCensored(entity: RoomEntity.Censored): Room.Censored {
         return Room.Censored(
             roomId = entity.roomId,
             userId = entity.userId,

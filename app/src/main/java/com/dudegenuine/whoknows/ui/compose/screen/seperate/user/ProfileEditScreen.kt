@@ -1,6 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
+import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import kotlinx.coroutines.FlowPreview
 
@@ -46,14 +47,19 @@ fun ProfileEditScreen(
                         fieldValue != field &&
                         !viewModel.state.loading)}) { padding ->
 
-        Box(modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+        Column(modifier.fillMaxSize()
+            .padding(padding)
+            .padding(16.dp)) {
+
             GeneralTextField(
                 label = fieldKey ?: "No label",
                 value = field,
                 tails = if(field.isNotBlank()) Icons.Filled.Close else null,
                 onValueChange = { field = it },
-                onTailPressed = { field = "" }
-            )
+                onTailPressed = { field = "" })
+
+            if (viewModel.state.error.isNotBlank())
+                ErrorScreen(message = viewModel.state.error)
         }
     }
 

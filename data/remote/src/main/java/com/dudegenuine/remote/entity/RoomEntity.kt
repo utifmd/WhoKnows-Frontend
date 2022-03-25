@@ -7,34 +7,56 @@ import java.util.*
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
-data class RoomEntity(
-    @SerializedName("roomId")// @SerializedName("roomId")
-    val roomId: String,
+object RoomEntity {
+    data class Censored (
+        @SerializedName("roomId")
+        val roomId: String,
 
-    @SerializedName("userId")
-    val userid: String,
+        @SerializedName("userId")
+        val userId: String,
 
-    @SerializedName("minute")
-    val minute: Int,
+        @SerializedName("minute")
+        val minute: Int,
 
-    @SerializedName("title")
-    val title: String,
+        @SerializedName("title")
+        val title: String,
 
-    @SerializedName("description")
-    val description: String,
+        @SerializedName("description")
+        val description: String,
 
-    @SerializedName("expired")
-    val expired: Boolean,
+        @SerializedName("expired")
+        val expired: Boolean
+    )
 
-    @SerializedName("createdAt")
-    val createdAt: Date,
+    data class Complete (
+        @SerializedName("roomId")// @SerializedName("roomId")
+        val roomId: String,
 
-    @SerializedName("updatedAt")
-    val updatedAt: Date?,
+        @SerializedName("userId")
+        val userid: String,
 
-    @SerializedName("questions")
-    val questions: List<QuizEntity>,
+        @SerializedName("minute")
+        val minute: Int,
 
-    @SerializedName("participants")
-    val participants: List<ParticipantEntity>
-)
+        @SerializedName("title")
+        val title: String,
+
+        @SerializedName("description")
+        val description: String,
+
+        @SerializedName("expired")
+        val expired: Boolean,
+
+        @SerializedName("createdAt")
+        val createdAt: Date,
+
+        @SerializedName("updatedAt")
+        val updatedAt: Date?,
+
+        @SerializedName("questions")
+        val questions: List<QuizEntity>,
+
+        @SerializedName("participants")
+        val participants: List<ParticipantEntity>
+    )
+}

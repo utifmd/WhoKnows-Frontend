@@ -2,6 +2,7 @@ package com.dudegenuine.repository.contract
 
 import android.content.BroadcastReceiver
 import android.content.SharedPreferences
+import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.User
 
@@ -15,6 +16,7 @@ interface IUserRepository {
     suspend fun update(id: String, user: User.Complete): User.Complete
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): List<User.Complete>
+    suspend fun listOrderByParticipant(page: Int, size: Int): List<User.Censored>
     suspend fun signIn(params: Map<String, String>): User.Complete
     suspend fun signOut(): String
 
@@ -22,6 +24,8 @@ interface IUserRepository {
     suspend fun save(userTable: UserTable)
     suspend fun replace(userTable: UserTable)
     suspend fun unload(userId: String)
+
+    fun page(batchSize: Int): PagingSource<Int, User.Censored>
 
     val currentUserId: () -> String
     val networkReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver

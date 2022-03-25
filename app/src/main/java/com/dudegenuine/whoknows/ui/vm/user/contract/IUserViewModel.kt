@@ -1,7 +1,10 @@
 package com.dudegenuine.whoknows.ui.vm.user.contract
 
+import androidx.paging.PagingData
+import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.ui.vm.notification.contract.IMessagingViewModel
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Sat, 04 Dec 2021
@@ -20,6 +23,8 @@ interface IUserViewModel: IMessagingViewModel { //: IFilePresenter {
     fun patchUser(freshUser: User.Complete, onSucceed: (User.Complete) -> Unit)
     fun deleteUser(id: String)
     fun getUsers(page: Int, size: Int)
+
+    val participants: Flow<PagingData<User.Censored>>
 
     companion object {
         const val USER_ID_SAVED_KEY = "is_own_saved_user"

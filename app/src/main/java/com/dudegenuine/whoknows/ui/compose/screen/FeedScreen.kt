@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -31,11 +31,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import androidx.paging.compose.itemsIndexed
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
+import com.dudegenuine.model.User
 import com.dudegenuine.model.common.ViewUtil.timeAgo
-import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.LazyStatePaging
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomItem
@@ -44,9 +43,9 @@ import com.dudegenuine.whoknows.ui.theme.ColorBronze
 import com.dudegenuine.whoknows.ui.theme.ColorGold
 import com.dudegenuine.whoknows.ui.theme.ColorSilver
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
-import com.dudegenuine.whoknows.ui.vm.participant.ParticipantViewModel
 import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,17 +64,15 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalAnimationApi
 @Composable
 fun FeedScreen(modifier: Modifier = Modifier,
-    scaffoldState: ScaffoldState = rememberScaffoldState(),
     vmQuiz: QuizViewModel = hiltViewModel(),
     vmMain: ActivityViewModel = hiltViewModel(),
-    vmParticipant: ParticipantViewModel = hiltViewModel(),
+    vmUser: UserViewModel = hiltViewModel(),
     vmRoom: RoomViewModel = hiltViewModel(),
     onJoinButtonPressed: () -> Unit, onNotificationPressed: () -> Unit) {
-    val lazyParticipants = vmParticipant.participants.collectAsLazyPagingItems()
+    val lazyParticipants = vmUser.participants.collectAsLazyPagingItems()
     val lazyRooms = vmRoom.rooms.collectAsLazyPagingItems()
     val lazyQuizzes = vmQuiz.questions.collectAsLazyPagingItems()
     val isRefreshing by remember { mutableStateOf(false) }
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
 
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -89,14 +86,16 @@ fun FeedScreen(modifier: Modifier = Modifier,
                 },
             )
         },
-        scaffoldState = scaffoldState){
+        scaffoldState = vmMain.scaffoldState){
 
-        SwipeRefresh(swipeRefreshState, onRefresh = {
-            lazyParticipants.refresh()
-            lazyQuizzes.refresh()
-            lazyRooms.refresh() }) {
+        SwipeRefresh(rememberSwipeRefreshState(isRefreshing),
+            onRefresh = {
+                lazyParticipants.refresh()
+                lazyQuizzes.refresh()
+                lazyRooms.refresh() }) {
 
             LazyColumn(
+                state = rememberLazyListState(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(12.dp)){
                 item {
@@ -129,10 +128,11 @@ fun FeedScreen(modifier: Modifier = Modifier,
     }
 }
 
+@ExperimentalFoundationApi
 @ExperimentalCoilApi
 @Composable
 private fun BodyParticipant(
-    modifier: Modifier, lazyParticipants: LazyPagingItems<Participant>){
+    modifier: Modifier, lazyParticipants: LazyPagingItems<User.Censored>){
 
     LazyRow(modifier.padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -145,9 +145,9 @@ private fun BodyParticipant(
                     2 -> ColorBronze
                     else -> null
                 },
-                name = item.user?.fullName ?: stringResource(R.string.unknown),
-                desc = (item.user?.username ?: stringResource(R.string.unknown)).padStart(1, '@'),
-                data = item.user?.profileUrl ?: ""
+                name = item.fullName,
+                desc = item.username.padStart(1, '@'),
+                data = item.profileUrl
             )
         }
 
@@ -160,7 +160,7 @@ private fun BodyParticipant(
 private fun BodyRoom(
     modifier: Modifier, lazyRooms: LazyPagingItems<Room.Complete>, onJoinButtonPressed: () -> Unit){
 
-    LazyRow(modifier.padding(vertical = 6.dp),
+    LazyRow(modifier.padding(vertical = 6.dp), state = rememberLazyListState(),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
 
         items(lazyRooms){ room ->
@@ -190,6 +190,7 @@ private fun BodyQuiz(
     modifier: Modifier, lazyQuizzes: LazyPagingItems<Quiz.Complete>){
 
     LazyRow(modifier.padding(vertical = 6.dp),
+        state = rememberLazyListState(),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
 
         items(lazyQuizzes) { item ->

@@ -17,18 +17,18 @@ interface RoomService: IRoomService {
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
     @POST(ENDPOINT)
     override suspend fun create(
-        @Body entity: RoomEntity): Response<RoomEntity>
+        @Body entity: RoomEntity.Complete): Response<RoomEntity.Complete>
 
     @Headers(API_KEY, ACCEPT)
     @GET("${ENDPOINT}/{userId}")
     override suspend fun read(
-        @Path("userId") id: String): Response<RoomEntity>
+        @Path("userId") id: String): Response<RoomEntity.Complete>
 
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
     @PUT("${ENDPOINT}/{userId}")
     override suspend fun update(
         @Path("userId") id: String,
-        @Body entity: RoomEntity): Response<RoomEntity>
+        @Body entity: RoomEntity.Complete): Response<RoomEntity.Complete>
 
     @Headers(API_KEY, ACCEPT)
     @DELETE("${ENDPOINT}/{userId}")
@@ -39,12 +39,12 @@ interface RoomService: IRoomService {
     @GET(ENDPOINT)
     override suspend fun list(
         @Query("page") page: Int,
-        @Query("size") size: Int): Response<List<RoomEntity>>
+        @Query("size") size: Int): Response<List<RoomEntity.Complete>>
 
     @Headers(API_KEY, ACCEPT)
     @GET("${ENDPOINT}/owner/{userId}")
     override suspend fun list(
         @Path("userId") userId: String,
         @Query("page") page: Int,
-        @Query("size") size: Int): Response<List<RoomEntity>>
+        @Query("size") size: Int): Response<List<RoomEntity.Complete>>
 }

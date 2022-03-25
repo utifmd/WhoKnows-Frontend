@@ -53,6 +53,5 @@ interface NotificationService: INotificationService {
     override suspend fun list(
         @Path("recipientId") recipientId: String,
         @Query("page") page: Int,
-        @Query("size") size: Int
-    ): Response<List<NotificationEntity>>
+        @Query("size") size: Int): Response<List<NotificationEntity>>
 }

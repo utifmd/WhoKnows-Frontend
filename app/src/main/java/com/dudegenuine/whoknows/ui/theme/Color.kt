@@ -19,8 +19,13 @@ val ColorBronze = Color(0xFFBF360C)
 
 val SmoothBackground = Color.Black.copy(alpha = 0.04f)
 
-val ShimmerColorShades = listOf(
+val LightShimmerColorShades = listOf(
     SmoothBackground,
     Color.LightGray.copy(0.5f),
     SmoothBackground
+)
+val DarkShimmerColorShades = listOf(
+    Color.Gray.copy(0.5f),
+    SmoothBackground,
+    Color.Gray.copy(0.5f),
 )

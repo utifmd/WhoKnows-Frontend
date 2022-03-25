@@ -8,12 +8,12 @@ import com.dudegenuine.remote.entity.RoomEntity
  * WhoKnows by utifmd
  **/
 interface IRoomService {
-    suspend fun create(entity: RoomEntity): Response<RoomEntity>
-    suspend fun read(id: String): Response<RoomEntity>
-    suspend fun update(id: String, entity: RoomEntity): Response<RoomEntity>
+    suspend fun create(entity: RoomEntity.Complete): Response<RoomEntity.Complete>
+    suspend fun read(id: String): Response<RoomEntity.Complete>
+    suspend fun update(id: String, entity: RoomEntity.Complete): Response<RoomEntity.Complete>
     suspend fun delete(id: String)
-    suspend fun list(page: Int, size: Int): Response<List<RoomEntity>>
-    suspend fun list(userId: String, page: Int, size: Int): Response<List<RoomEntity>>
+    suspend fun list(page: Int, size: Int): Response<List<RoomEntity.Complete>>
+    suspend fun list(userId: String, page: Int, size: Int): Response<List<RoomEntity.Complete>>
 
     companion object {
         const val API_KEY = "X-Api-Key: utif.pages.dev"

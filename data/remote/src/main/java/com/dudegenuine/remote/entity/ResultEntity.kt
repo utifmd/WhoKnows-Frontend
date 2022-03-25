@@ -34,5 +34,5 @@ data class ResultEntity (
     val updatedAt: Date?,
 
     @SerializedName("user")
-    val user: UserCensoredEntity?,
+    val user: UserEntity.Censored?,
 )

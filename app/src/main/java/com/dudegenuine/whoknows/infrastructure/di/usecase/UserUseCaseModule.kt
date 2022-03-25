@@ -31,6 +31,9 @@ class UserUseCaseModule(
     override val getUsers:
         GetUsers = GetUsers(repository),
 
+    override val getUsersParticipation:
+        GetUsersParticipation = GetUsersParticipation(repository),
+
     override val signOutUser:
         SignOutUser = SignOutUser(repository),
 

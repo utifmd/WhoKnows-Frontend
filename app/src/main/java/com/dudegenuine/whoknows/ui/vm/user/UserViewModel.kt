@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.model.Messaging
@@ -296,6 +297,10 @@ class UserViewModel
         caseUser.deleteUser(id)
             .onEach(this::onResource).launchIn(viewModelScope)
     }
+
+    override val participants = caseUser
+        .getUsersParticipation(DEFAULT_BUFFER_SIZE)
+        .cachedIn(viewModelScope)
 
     override fun getUsers(page: Int, size: Int) {
         if (size == 0){

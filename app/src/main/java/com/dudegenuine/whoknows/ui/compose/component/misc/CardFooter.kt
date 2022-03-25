@@ -26,7 +26,7 @@ fun CardFooter(
         verticalAlignment = Alignment.CenterVertically) {
 
         Icon(
-            tint = color ?: MaterialTheme.colors.onSurface,
+            tint = color ?: MaterialTheme.colors.onBackground,
             imageVector = icon, contentDescription = null)
 
         Spacer(
@@ -34,7 +34,7 @@ fun CardFooter(
 
         Text(
             text = text,
-            color = color ?: MaterialTheme.colors.onSurface,
+            color = color ?: MaterialTheme.colors.onBackground,
             style = MaterialTheme.typography.caption,
             overflow = TextOverflow.Ellipsis
         )

@@ -7,44 +7,57 @@ import java.util.*
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
+object UserEntity{
+    data class Censored(
+        @SerializedName("userId")
+        val userId: String,
 
-data class UserEntity (
+        @SerializedName("fullName")
+        val fullName: String,
 
-    @SerializedName("userId")// @SerializedName("userId")
-    val userId: String,
+        @SerializedName("username")
+        val username: String,
 
-    @SerializedName("fullName")
-    val fullName: String,
+        @SerializedName("profileUrl")
+        val profileUrl: String,
+    )
 
-    @SerializedName("email")
-    val email: String,
+    data class Complete (
+        @SerializedName("userId")// @SerializedName("userId")
+        val userId: String,
 
-    @SerializedName("phone")
-    val phone: String,
+        @SerializedName("fullName")
+        val fullName: String,
 
-    @SerializedName("username")
-    val username: String,
+        @SerializedName("email")
+        val email: String,
 
-    @SerializedName("password")
-    val password: String,
+        @SerializedName("phone")
+        val phone: String,
 
-    @SerializedName("profileUrl")
-    val profileUrl: String,
+        @SerializedName("username")
+        val username: String,
 
-    @SerializedName("createdAt")
-    val createdAt: Date,
+        @SerializedName("password")
+        val password: String,
 
-    @SerializedName("updatedAt")
-    val updatedAt: Date?,
+        @SerializedName("profileUrl")
+        val profileUrl: String,
 
-    @SerializedName("participants")
-    val participants: List<ParticipantEntity>,
+        @SerializedName("createdAt")
+        val createdAt: Date,
 
-    @SerializedName("rooms")
-    val rooms: List<RoomCensoredEntity>,
+        @SerializedName("updatedAt")
+        val updatedAt: Date?,
 
-    @SerializedName("notifications")
-    val notifications: List<NotificationEntity>){
+        @SerializedName("participants")
+        val participants: List<ParticipantEntity>,
 
-    data class LoginRequest(val payload: String, val password: String)
+        @SerializedName("rooms")
+        val rooms: List<RoomEntity.Censored>,
+
+        @SerializedName("notifications")
+        val notifications: List<NotificationEntity>){
+
+    }
 }

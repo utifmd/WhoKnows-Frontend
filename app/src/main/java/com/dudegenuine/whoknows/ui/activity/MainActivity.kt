@@ -46,9 +46,10 @@ class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleNa
         super.onDestroy()
 
         with (vmMain) {
+            unregisterPrefsListener()
+            unregisterReceiver(vmUser.messagingServiceReceiver)
             messagingServiceReceiver.apply(::unregisterReceiver)
             networkServiceReceiver.apply(::unregisterReceiver)
-            unregisterPrefsListener()
         }
     }
 
@@ -56,8 +57,8 @@ class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleNa
         private const val INITIAL_DATA_KEY = "initial_data_key"
 
         fun createInstance(context: Context, data: String):
-            Intent = Intent(context, MainActivity::class.java).apply {
-                putExtra(INITIAL_DATA_KEY, data)
-            }
+                Intent = Intent(context, MainActivity::class.java).apply {
+            putExtra(INITIAL_DATA_KEY, data)
+        }
     }
 }

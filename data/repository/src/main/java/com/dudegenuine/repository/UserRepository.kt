@@ -3,6 +3,7 @@ package com.dudegenuine.repository
 import android.content.BroadcastReceiver
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.paging.PagingSource
 import com.dudegenuine.local.api.IPreferenceManager
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
@@ -80,6 +81,14 @@ class UserRepository
     override suspend fun list(page: Int, size: Int): List<User.Complete> = mapper.asUsers(
         service.list(page, size)
     )
+
+    override suspend fun listOrderByParticipant(page: Int, size: Int): List<User.Censored> = mapper.asUsersCensored(
+        service.listOrderByParticipant(page, size)
+    )
+
+    override fun page(batchSize: Int): PagingSource<Int, User.Censored> = mapper.asPagingSource { page ->
+        listOrderByParticipant(page, batchSize)
+    }
 
     override suspend fun signIn(params: Map<String, String>): User.Complete {
         val remoteUser = mapper.asUser(service.signIn(mapper.asLogin(params)))

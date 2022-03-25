@@ -7,6 +7,10 @@ import java.util.*
  * WhoKnows by utifmd
  **/
 sealed class User {
+    data class Signer(
+        val payload: String,
+        val password: String
+    )
     data class Censored(
         val userId: String,
         val fullName: String,

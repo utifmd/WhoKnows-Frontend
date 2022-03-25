@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -13,7 +14,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.dudegenuine.whoknows.ui.theme.ShimmerColorShades
+import com.dudegenuine.whoknows.ui.theme.DarkShimmerColorShades
+import com.dudegenuine.whoknows.ui.theme.LightShimmerColorShades
 
 /**
  * Sat, 15 Jan 2022
@@ -36,7 +38,8 @@ fun LoadingScreen(
 }
 
 @Composable
-private fun Shimmer(content: @Composable (Brush) -> Unit){
+private fun Shimmer(
+    dark: Boolean = isSystemInDarkTheme(), content: @Composable (Brush) -> Unit){
     val transition = rememberInfiniteTransition()
     val transitionAnim by transition.animateFloat(
         initialValue = 0f,
@@ -51,7 +54,7 @@ private fun Shimmer(content: @Composable (Brush) -> Unit){
     )
 
     val brush = Brush.linearGradient(
-        colors = ShimmerColorShades,
+        colors = if (dark) DarkShimmerColorShades else LightShimmerColorShades,
         start = Offset(10f, 10f),
         end = Offset(transitionAnim, transitionAnim)
     )
@@ -67,20 +70,34 @@ fun LoadBoxScreen(
 
     Shimmer { brush ->
         Column(
-            if (width != null) modifier.height(height).width(width)
-            else modifier.height(height).fillMaxWidth()
+            if (width != null) modifier
+                .height(height)
+                .width(width)
+            else modifier
+                .height(height)
+                .fillMaxWidth()
         ) {
 
             if (times != null) repeat(times) { idx ->
-                Spacer(modifier.fillMaxWidth()
-                    .size(height).background(brush,
-                        shape = MaterialTheme.shapes.small))
+                Spacer(
+                    modifier
+                        .fillMaxWidth()
+                        .size(height)
+                        .background(
+                            brush,
+                            shape = MaterialTheme.shapes.small
+                        ))
 
                 if (idx <= times) Spacer(modifier.size(8.dp))
 
-            } else Spacer(modifier.fillMaxWidth()
-                .size(height).background(brush,
-                    shape = MaterialTheme.shapes.small)
+            } else Spacer(
+                modifier
+                    .fillMaxWidth()
+                    .size(height)
+                    .background(
+                        brush,
+                        shape = MaterialTheme.shapes.small
+                    )
             )
         }
     }

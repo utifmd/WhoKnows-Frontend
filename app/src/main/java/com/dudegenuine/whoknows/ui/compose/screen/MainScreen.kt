@@ -55,17 +55,17 @@ fun MainScreen(
                 if (vmUser.state.loading) LoadingScreen()
 
                 if (vmUser.state.user != null) {
-                    MainNavigation(
+                    MainNavigation(modifier,
                         controller = router,
-                        destination = Screen.Home.route //, initialPassed = initialPassed
+                        destination = Screen.Home.route
                     )
                 }
 
                 if (vmUser.state.error.isNotBlank()) {
-                    MainNavigation(
+                    MainNavigation(modifier,
                         viewModel = vmUser,
                         controller = router,
-                        destination = Screen.Auth.route //, initialPassed = initialPassed
+                        destination = Screen.Auth.route
                     )
                 }
             }

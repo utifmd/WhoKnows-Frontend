@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
@@ -24,9 +25,10 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalCoilApi
 @Composable
 fun DiscoverScreen(
+    modifier: Modifier = Modifier,
     router: NavHostController) {
 
-    FeedScreen(
+    FeedScreen(modifier,
         onJoinButtonPressed = {
             router.navigate(Screen.Home.Discover.RoomFinder.route)
         },

@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,6 +29,7 @@ import kotlinx.coroutines.FlowPreview
 @FlowPreview
 @Composable
 fun MainNavigation(
+    modifier: Modifier = Modifier,
     controller: NavHostController, // initialPassed: String,
     destination: String,
     viewModel: UserViewModel = hiltViewModel()) {
@@ -38,6 +40,6 @@ fun MainNavigation(
         navController = controller){
 
         authNavGraph(controller, viewModel = viewModel)
-        homeNavGraph(controller, viewModel = viewModel) /*, initial = if (initialPassed == MESSAGE_INTENT *//*TIME_RUNNING*//*) Screen.Home.Discover else Screen.Home.Summary)*/
+        homeNavGraph(modifier, controller, viewModel = viewModel) /*, initial = if (initialPassed == MESSAGE_INTENT *//*TIME_RUNNING*//*) Screen.Home.Discover else Screen.Home.Summary)*/
     }
 }

@@ -33,5 +33,5 @@ data class NotificationEntity(
     val updatedAt: Date?,
 
     @SerializedName("sender")
-    val sender: UserCensoredEntity?
+    val sender: UserEntity.Censored?
 )

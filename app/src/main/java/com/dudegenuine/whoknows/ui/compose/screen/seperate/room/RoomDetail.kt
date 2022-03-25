@@ -173,8 +173,8 @@ private fun BackLayer(
             Text(
                 color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
 
-                text = if (isOwn) "Add New Question"
-                    else "Join This Room"
+                text = if (isOwn) stringResource(R.string.add_new_question)
+                    else stringResource(R.string.join_the_room)
             )
         }
 
@@ -186,7 +186,7 @@ private fun BackLayer(
 
                 Text(
                     color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
-                    text = "Invite with a link"
+                    text = stringResource(R.string.invite_w_a_link)
                 )
             }
 
@@ -197,7 +197,7 @@ private fun BackLayer(
 
                 Text(
                     color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
-                    text = "Close This Room"
+                    text = stringResource(R.string.close_the_room)
                 )
             }
 
@@ -208,7 +208,7 @@ private fun BackLayer(
 
                 Text(
                     color =  if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
-                    text = "Delete Permanently"
+                    text = stringResource(R.string.delete_permanent)
                 )
             }
         }
@@ -269,24 +269,29 @@ private fun FrontLayer(
         )
 
         if (model.participants.isNotEmpty()) {
-            LazyRow(modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            LazyRow(modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)) {
 
-                model.participants.forEach { participant ->
+                model.participants
+                    .sortedByDescending { it.userId == currentUserId }
+                    .forEach { participant ->
+
                     item {
-                        ProfileCard(
-                            modifier = modifier.combinedClickable(
-                                onLongClick = { if (isOwn) onProfileLongPressed(participant) },
-                                onClick = {
-                                    if (isOwn || participant.userId == currentUserId)
-                                        onResultSelected(participant.roomId, participant.userId)
-                                    else  onProfileSelected(participant.userId)
-                                }
-                            ),
+                        ProfileCard(modifier,
                             name = participant.user?.fullName ?: "".ifBlank {
                                 stringResource(R.string.unknown) },
                             desc = timeAgo(participant.createdAt),
-                            data = participant.user?.profileUrl ?: ""
+                            data = participant.user?.profileUrl ?: "",
+                            onPressed = {
+                                if (isOwn || participant.userId == currentUserId)
+                                    onResultSelected(participant.roomId, participant.userId)
+                                else  onProfileSelected(participant.userId)
+                            },
+                            onLongPressed = {
+                                if (isOwn) onProfileLongPressed(participant)
+                            }
                         )
                     }
                 }

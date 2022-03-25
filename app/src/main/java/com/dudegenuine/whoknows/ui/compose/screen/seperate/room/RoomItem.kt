@@ -7,10 +7,7 @@ import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.QuestionAnswer
-import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -76,9 +73,9 @@ fun RoomItem(
                     verticalAlignment = Alignment.CenterVertically) {
 
                     CardFooter(
-                        icon = Icons.Default.AccessTime,
-                        text = if (!state.expired) "Opened at ${timeAgo(state.createdAt)}"
-                        else "Closed at ${state.updatedAt?.let { timeAgo(it) }}"
+                        icon = if (!state.expired) Icons.Default.LockOpen else Icons.Default.Lock,
+                        text = if (!state.expired) "Opened ${timeAgo(state.createdAt)}"
+                            else "Closed ${state.updatedAt?.let { timeAgo(it) }}"
                     )
 
                     Row(Modifier) {

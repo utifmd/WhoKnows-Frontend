@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper.contract
 
+import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Participant
@@ -12,12 +13,17 @@ import com.dudegenuine.remote.entity.*
  * WhoKnows by utifmd
  **/
 interface IUserDataMapper {
-    fun asEntity(user: User.Complete): UserEntity
-    fun asUser(entity: UserEntity): User.Complete
-    fun asUser(response: Response<UserEntity>): User.Complete
+    fun asEntity(user: User.Complete): UserEntity.Complete
+    fun asUser(entity: UserEntity.Complete): User.Complete
+    fun asUser(response: Response<UserEntity.Complete>): User.Complete
     fun asUser(json: String): User.Complete
-    fun asUsers(response: Response<List<UserEntity>>): List<User.Complete>
-    fun asLogin(params: Map<String, String>): UserEntity.LoginRequest
+    fun asUsers(response: Response<List<UserEntity.Complete>>): List<User.Complete>
+    fun asEntityCensored(user: User.Censored): UserEntity.Censored
+    //fun asUserCensored(entity: UserEntity.Complete): User.Censored
+    //fun asUserCensored(response: Response<UserEntity.Complete>): User.Censored
+    //fun asUserCensored(json: String): User.Censored
+    fun asUsersCensored(response: Response<List<UserEntity.Censored>>): List<User.Censored>
+    fun asLogin(params: Map<String, String>): User.Signer
 
     /*fun asUserOrNull(currentUser: CurrentUser?): User?*/
     fun asUserTable(user: User.Complete): UserTable
@@ -29,9 +35,11 @@ interface IUserDataMapper {
     fun asNotifierEntity(notification: Notification): NotificationEntity
     fun asNotification(entity: NotificationEntity): Notification
 
-    fun asUserCensoredEntity(user: User.Censored): UserCensoredEntity
-    fun asUserCensored(entity: UserCensoredEntity): User.Censored
+    fun asUserCensoredEntity(user: User.Censored): UserEntity.Censored
+    fun asUserCensored(entity: UserEntity.Censored): User.Censored
 
-    fun asRoomCensoredEntity(room: Room.Censored): RoomCensoredEntity
-    fun asRoomCensored(entity: RoomCensoredEntity): Room.Censored
+    fun asRoomCensoredEntity(room: Room.Censored): RoomEntity.Censored
+    fun asRoomCensored(entity: RoomEntity.Censored): Room.Censored
+
+    fun asPagingSource(onEvent: suspend (Int) -> List<User.Censored>): PagingSource<Int, User.Censored>
 }
