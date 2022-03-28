@@ -11,7 +11,7 @@ data class Notification(
     val userId: String,
     val roomId: String,
     val event: String,
-    val seen: Boolean,
+    var seen: Boolean,
     val recipientId: String,
     val createdAt: Date,
     val updatedAt: Date?,

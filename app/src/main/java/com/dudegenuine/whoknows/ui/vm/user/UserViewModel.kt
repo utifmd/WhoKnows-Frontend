@@ -11,6 +11,7 @@ import androidx.paging.cachedIn
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.model.Messaging
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.common.Constants
@@ -27,9 +28,7 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import java.util.*
 import javax.inject.Inject
 
@@ -50,6 +49,7 @@ class UserViewModel
     private val TAG = javaClass.simpleName
 
     private var token by mutableStateOf(caseMessaging.currentToken())
+    private var currentUserId by mutableStateOf(caseUser.currentUserId())
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
         get() = _formState.value
@@ -57,8 +57,8 @@ class UserViewModel
     init {
         val navigated = savedStateHandle.get<String>(USER_ID_SAVED_KEY)
 
-        if (navigated != null) navigated.let(this::getUser)
-        else getUser()
+        navigated?.let(this::getUser) ?: getUser()
+        if (currentUserId.isNotBlank()) getUser(currentUserId)
     }
 
     val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
@@ -75,20 +75,23 @@ class UserViewModel
         val owned = currentUser.rooms.map { it.roomId }
         val unread = currentUser.notifications.count { !it.seen }
 
-        caseUser.onChangeCurrentBadge(unread)
-        concatenate(joined, owned).forEach { roomId ->
-            onRegisterToken(token, roomId)
-        }
+        concatenate(joined, owned).asFlow()
+            .flatMapConcat(::onRegisterMessaging)
+            .onStart { caseUser.onChangeCurrentBadge(unread) }
+            .launchIn(viewModelScope)
     }
 
     private fun onPreUnregisterGroupToken(currentUser: User.Complete) {
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
 
-        caseUser.onChangeCurrentBadge(0)
-        concatenate(joined, owned).forEach { roomId ->
-            onUnregisterToken(token, roomId)
-        }
+        concatenate(joined, owned).asFlow()
+            .onStart {
+                onAuthStateChange(ResourceState.Auth())
+                caseUser.onChangeCurrentBadge(0)
+            }
+            .flatMapConcat(::onUnregisterMessaging)
+            .launchIn(viewModelScope)
     }
 
     fun onUploadProfile() {
@@ -150,25 +153,21 @@ class UserViewModel
         }
     }
 
-    private fun onRegisterToken(token: String, notifyKeyName: String){
-        getMessaging(notifyKeyName){ notifyKey ->
-            val model = Messaging.GroupAdder(
-                key = notifyKey,
-                keyName = notifyKeyName,
-                tokens = listOf(token)
-            )
-
-            addMessaging(model) {
-                Log.d(TAG, "added: $it")
+    private fun onRegisterMessaging(roomId: String): Flow<Resource<out Any>> {
+        return caseMessaging.getMessaging(roomId)
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+                val register = Messaging.GroupAdder(roomId, listOf(token), key)
+                caseMessaging.addMessaging(register)
             }
         }
     }
 
-    private fun onUnregisterToken(token: String, notifyKeyName: String) {
-        getMessaging(notifyKeyName) { notifyKey ->
-            val model = Messaging.GroupRemover(notifyKeyName, listOf(token), notifyKey)
-
-            removeMessaging(model) { Log.d(TAG, "removed: $it") }
+    private fun onUnregisterMessaging(roomId: String): Flow<Resource<out Any>> {
+        return caseMessaging.getMessaging(roomId)
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+                val remover = Messaging.GroupRemover(roomId, listOf(token), key)
+                caseMessaging.removeMessaging(remover)
+            }
         }
     }
 
@@ -222,9 +221,8 @@ class UserViewModel
 
             caseUser.signOutUser()
                 .onEach { res -> onAuth(res,
-                    onSignedOut = {
-                        onPreUnregisterGroupToken(freshUser)
-                        onAuthStateChange(ResourceState.Auth()) })}
+                    onSignedOut = { onPreUnregisterGroupToken(freshUser) }
+                )}
                 .launchIn(viewModelScope)
         }
     }

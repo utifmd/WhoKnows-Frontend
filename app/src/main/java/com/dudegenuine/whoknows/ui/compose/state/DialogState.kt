@@ -7,7 +7,8 @@ import androidx.compose.runtime.setValue
 data class DialogState(
     val about: String? = null,
     val opened: Boolean = false,
-    val event: (() -> Unit)? = null){
+    val onDismissed: (() -> Unit)? = null,
+    val onSubmitted: (() -> Unit)? = null){
 
     var button by mutableStateOf(about?.split(" ")?.get(0))
     var title by mutableStateOf("Konfirmasi $about")

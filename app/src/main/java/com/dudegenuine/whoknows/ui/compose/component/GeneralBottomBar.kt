@@ -27,7 +27,7 @@ fun GeneralBottomBar(
     modifier: Modifier = Modifier,
     items: Set<BottomDomain>,
     darkTheme: Boolean = isSystemInDarkTheme(),
-    controller: NavController, onPressed: (BottomDomain) -> Unit) {
+    controller: NavController, onPressed: ((BottomDomain) -> Unit)? = null) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(modifier,
@@ -58,7 +58,7 @@ fun GeneralBottomBar(
                         restoreState = true
                     }
 
-                    onPressed(screen)
+                    onPressed?.invoke(screen)
                 },
                 icon = {
                     Column(horizontalAlignment = CenterHorizontally) {

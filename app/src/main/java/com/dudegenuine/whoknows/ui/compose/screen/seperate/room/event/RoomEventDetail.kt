@@ -42,20 +42,22 @@ class RoomEventDetail(
             route = Screen.Home.Summary.RoomDetail.QuizDetail.routeWithArgs(quizId))
     }
 
-    override fun onDeleteRoomSucceed(roomId: String) {
+    override fun onBackPressed() {
+        router.popBackStack()
+    }
+
+    override fun onDeleteRoomSucceed() {
         router.navigate(Screen.Home.Summary.route){
-            popUpTo(Screen.Home.Summary.route){
-                inclusive = true
-            }
+            popUpTo(Screen.Home.Summary.route){ inclusive = true }
         }
     }
 
-    override fun onRoomRetailPressed(roomId: String) {
+    /*override fun onRoomDetailPressed(roomId: String) {
         router.apply {
             popBackStack()
             navigate(Screen.Home.Summary.RoomDetail.routeWithArgs(
                 roomId, IRoomEvent.OWN_IS_TRUE)
             )
         }
-    }
+    }*/
 }

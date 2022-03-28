@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.Notification
+import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.NotificationState
@@ -14,14 +15,15 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.notification.contract.INotificationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 /**
  * Thu, 10 Feb 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @HiltViewModel
 class NotificationViewModel
     @Inject constructor(
@@ -29,8 +31,8 @@ class NotificationViewModel
     private val caseUser: IUserUseCaseModule,
     private val savedState: SavedStateHandle): BaseViewModel(), INotificationViewModel {
     private val TAG = javaClass.simpleName
-    private val currentUserId = caseNotify.currentUserId()
     private val currentBadge = caseNotify.currentBadge()
+    val currentUserId = caseNotify.currentUserId()
 
     private val _formState = mutableStateOf(NotificationState.FormState())
     val formState = _formState.value
@@ -46,17 +48,28 @@ class NotificationViewModel
         Log.d(TAG, "onNotifierIncrease: $badge")
     }*/
 
-    fun getNotifications(){
-        getNotifications(currentUserId, 0, Int.MAX_VALUE)
+    fun getNotifications() {
+        if(currentUserId.isNotBlank())
+            getNotifications(currentUserId, 0, Int.MAX_VALUE)
     }
 
-    fun onNotificationDecrease(notification: Notification) {
-        val model = notification.copy(seen = true)
-        badge -= 1
+    fun onReadNotification(notification: Notification, onStart: () -> Unit) {
+        val updateNotifier = if (!notification.seen)
+            caseNotify.patchNotification(notification.copy(seen = true))
+                .onStart {
+                    badge -= 1
+                    caseNotify.onChangeCurrentBadge(badge)}
+                .onCompletion { getNotifications() }
+        else emptyFlow()
 
-        patchNotification(model) {
+        flowOf(updateNotifier)
+            .flattenMerge()
+            .onStart { onStart() }
+            .launchIn(viewModelScope)
+
+        /*patchNotification(model) {
             caseNotify.onChangeCurrentBadge(badge)
-        }
+        }*/
     }
 
     override fun postNotification(notification: Notification) {
@@ -99,7 +112,11 @@ class NotificationViewModel
         }
 
         caseNotify.deleteNotification(id)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach { res ->
+                if(res is Resource.Success) // onStateChange(state.copy(notifications = state.notifications?.filter { it.notificationId != id }))
+                    getNotifications()
+            }
+            .launchIn(viewModelScope)
     }
 
     override fun getNotifications(page: Int, size: Int) {

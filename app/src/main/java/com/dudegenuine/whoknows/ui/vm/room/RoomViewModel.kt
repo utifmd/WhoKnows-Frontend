@@ -23,7 +23,6 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DESC_TOO_LONG
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.NO_QUESTION
-import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.PUSH_NOT_SENT
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.ALREADY_JOINED
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.DEFAULT_BATCH_ROOM
@@ -79,7 +78,7 @@ class RoomViewModel
     }
 
     private fun onDetailRouted(){
-        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(this::getRoom) //else getRooms(currentUserId, DEFAULT_BATCH_ROOM)
+        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(this::getRoom)
     }
 
     private fun onBoardRouted() {
@@ -127,7 +126,7 @@ class RoomViewModel
                 onError = { error ->
                     onCloseBoarding()
                     onStateChange(ResourceState(error = ALREADY_JOINED))
-                    viewModelScope.launch { onShowSnackBar(error) }
+                    onShowSnackBar(error)
                 }
             )
         }.launchIn(viewModelScope)
@@ -188,36 +187,34 @@ class RoomViewModel
            event = event,
            recipientId = boardingState.userId)
 
-       val modelMessaging = Messaging.Pusher(
+       val modelPushMessaging = Messaging.Pusher(
            largeIcon = boardingState.participant.profileUrl,
            title = boardingState.roomTitle,
            body = event, to = "")
+
+        val modelAddMessaging = Messaging.GroupAdder(
+            key = "",
+            keyName = modelResult.roomId,
+            tokens = listOf(caseRoom.currentToken())
+        )
 
        timer.stop()
        Log.d(TAG, "onPreResult: triggered")
 
        onResult(boardingState.roomTitle,
-           modelResult, modelNotification, modelMessaging)
+           modelResult, modelNotification, modelAddMessaging, modelPushMessaging)
     }
 
-    private fun onResult(roomTitle: String,
-        modelResult: Result, modelNotification: Notification, modelMessaging: Messaging.Pusher){
+    private fun onResult(roomTitle: String, result: Result,
+        notification: Notification, register: Messaging.GroupAdder, pusher: Messaging.Pusher){
 
         flowOf(
-            caseResult.postResult(modelResult),
-            caseNotification.postNotification(modelNotification))
+            caseRoom.deleteBoarding(),
+            caseResult.postResult(result),
+            caseNotification.postNotification(notification))
             .flattenMerge()
-            .onStart {
-                val finish = Room.State.BoardingResult(roomTitle, modelResult)
-                _uiState.postValue(finish) }
-            .onCompletion { Log.d(TAG, "finally: triggered")
-                deleteBoarding { Log.d(TAG, "delete boarding: $it") }
-                getMessaging(modelResult.roomId) { groupKey ->
-                    addMessaging(Messaging.GroupAdder(
-                        key = groupKey, keyName = modelResult.roomId, tokens = listOf(caseRoom.currentToken()))) {
-                        pushMessaging(modelMessaging.copy(to = groupKey)) { Log.d(TAG, "pushMessaging: triggered") }
-                    }
-                }}
+            .onStart { _uiState.postValue(Room.State.BoardingResult(roomTitle, result)) }
+            .flatMapLatest { registerPushMessaging(result.roomId, register, pusher) }
             .launchIn(viewModelScope)
     }
 
@@ -269,6 +266,72 @@ class RoomViewModel
                 .onEach { res -> onResourceSucceed(res, onSucceed) }
                 .launchIn(viewModelScope)
         }
+    }
+
+    fun onDeleteRoomPressed(roomId: String, onDeleted: () -> Unit) {
+        if (roomId.isBlank()){
+            onStateChange(ResourceState(error = DONT_EMPTY))
+            return
+        }
+
+        flowOf(
+            caseRoom.deleteRoom(roomId),
+            caseMessaging.getMessaging(roomId)
+                .flatMapConcat { res -> onResourceFlow(res) { key ->
+                    val remover = Messaging.GroupRemover(roomId, listOf(currentToken), key)
+                    caseMessaging.removeMessaging(remover) }})
+            .flattenMerge()
+            .flatMapLatest { onDeleted(); rooms.retry() }
+            .launchIn(viewModelScope)
+    }
+
+    fun onDeleteQuestionPressed(quiz: Quiz.Complete) {
+        val fileIds = quiz.images.map { it.substringAfterLast("/") }
+
+        flowOf(
+            caseQuiz.deleteQuiz(quiz.id),
+            fileIds.asFlow()
+                .flatMapConcat { caseFile.deleteFile(it) })
+            .flattenMerge()
+            .flatMapLatest { caseRoom.getRoom(quiz.roomId) }
+            .onEach(::onResource)
+            .launchIn(viewModelScope)
+    }
+
+    fun onDeleteParticipantPressed(participant: Participant) = viewModelScope.launch {
+        val room = state.room?.copy() ?: let {
+            val message = "invalid current class"
+            onStateChange(ResourceState(message = message))
+            Log.d(TAG, message)
+            return@launch
+        }
+
+        flowOf(
+            caseParticipant.deleteParticipant(participant.id),
+            caseResult.deleteResult(participant.roomId, participant.userId),
+            unregisterMessaging(room, participant))
+            .flattenMerge()
+            .flatMapLatest { caseRoom.getRoom(participant.roomId) }
+            .onEach(::onResource)
+            .launchIn(viewModelScope)
+    }
+
+    private fun unregisterMessaging(room: Room.Complete, participant: Participant): Flow<Resource<out Any>> {
+        val event = "${participant.user?.fullName} just removed by admin of ${room.title} class"
+        val notifier = formState.notification.copy(
+            userId = currentUserId, roomId = participant.roomId,
+            event = event, recipientId = participant.userId)
+        val remover = Messaging.GroupRemover(participant.roomId, listOf(currentToken), "key")
+        val pusher = Messaging.Pusher(room.title, event, participant.user?.profileUrl ?: "", "key")
+
+        return flowOf(
+            caseNotification.postNotification(notifier),
+            caseMessaging.getMessaging(participant.roomId)
+                .flatMapConcat { res -> onResourceFlow(res) { key ->
+                    caseMessaging.pushMessaging(pusher.copy(to = key)) }}
+                .flatMapLatest { res -> onResourceFlow(res){ key ->
+                    caseMessaging.removeMessaging(remover.copy(key = key)) }})
+            .flattenMerge()
     }
 
     override fun postRoom(room: Room.Complete) {
@@ -329,51 +392,6 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    fun deleteRoom(roomId: String, onSucceed: (String) -> Unit) {
-        if (roomId.isBlank()){
-            onStateChange(ResourceState(error = DONT_EMPTY))
-            return
-        }
-
-        caseRoom.deleteRoom(roomId)
-            .onEach { res -> onResourceSucceed(res) {
-
-                getMessaging(roomId) { groupKey ->
-                    val group = Messaging.GroupRemover(roomId, listOf(currentToken), groupKey)
-
-                    removeMessaging(group) { Log.d(TAG, "deleted: group $it") }
-                }
-                onSucceed(roomId)
-            }}
-            .launchIn(viewModelScope)
-    }
-
-    fun deleteParticipation(
-        participant: Participant, onSucceed: () -> Unit) = viewModelScope.launch {
-
-        flowOf(
-            caseParticipant.deleteParticipant(participant.id),
-            caseNotification.deleteNotification(participant.roomId, participant.userId),
-            caseResult.deleteResult(participant.roomId, participant.userId))
-            .flattenMerge()
-            .onEach(::onResource)
-            .onCompletion { onSucceed() }
-            .launchIn(viewModelScope)
-    }
-
-    fun deleteQuestion(quiz: Quiz.Complete, onSucceed: () -> Unit) {
-        val deleteFiles = quiz.images.map {
-            val fileId = it.substringAfterLast("/")
-            caseFile.deleteFile(fileId)
-        }
-
-        flowOf(deleteFiles.merge(), caseQuiz.deleteQuiz(quiz.id))
-            .flattenMerge()
-            .onEach(::onResource)
-            .onCompletion { onSucceed() }
-            .launchIn(viewModelScope)
-    }
-
     override val rooms: Flow<PagingData<Room.Complete>> =
         caseRoom.getRooms(DEFAULT_BATCH_ROOM).cachedIn(viewModelScope)
 
@@ -390,12 +408,24 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun getMessaging(keyName: String, onSucceed: (String) -> Unit) {
-        if (keyName.isBlank()) onStateChange(ResourceState(error = DONT_EMPTY))
+    /*val pushMessaging: (String, Messaging.Pusher) -> Flow<Resource<String>> = { roomId, pusher ->
+        caseMessaging.getMessaging(roomId).flatMapConcat { res -> onResourceFlow(res) { to ->
+            caseMessaging.pushMessaging(pusher.copy(to = to))
+        }}
+    }*/
 
-        caseMessaging.getMessaging(keyName)
-            .onEach { res -> onResourceStateless(res, onSucceed) }
-            .launchIn(viewModelScope)
+    val registerPushMessaging: (String, Messaging.GroupAdder, Messaging.Pusher) ->
+        Flow<Resource<String>> = { roomId, register, pusher ->
+
+        caseMessaging.getMessaging(roomId)
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+
+            caseMessaging.addMessaging(register.copy(key = key))
+                .flatMapConcat { onResourceFlow(it) {
+
+                caseMessaging.pushMessaging(pusher.copy(to = key))}
+            }}
+        }
     }
 
     override fun createMessaging(
@@ -422,20 +452,6 @@ class RoomViewModel
 
         caseMessaging.addMessaging(model)
             .onEach { res -> onResourceStateless(res, onSucceed) } //(::onResource)
-            .launchIn(viewModelScope)
-
-        Log.d(TAG, "addMessagingGroupMember: triggered")
-    }
-
-    override fun pushMessaging(
-        messaging: Messaging.Pusher, onSucceed: (String) -> Unit) {
-        val model = messaging.copy()
-
-        if (model.title.isBlank() or model.body.isBlank() or model.to.isBlank())
-            onStateChange(ResourceState(error = PUSH_NOT_SENT))
-
-        caseMessaging.pushMessaging(model)
-            .onEach { res -> onResourceStateless(res, onSucceed) }//(::onResource)
             .launchIn(viewModelScope)
     }
 

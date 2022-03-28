@@ -46,7 +46,10 @@ fun LoginScreen(
     val authState = viewModel.authState
     val formState = viewModel.formState
 
-    Column(modifier.padding(16.dp).verticalScroll(scrollState),
+    Column(
+        modifier
+            .padding(16.dp)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
 

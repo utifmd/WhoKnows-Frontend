@@ -37,7 +37,7 @@ fun MainNavigation(
     NavHost(
         route = Screen.ROOT_ROUTE,
         startDestination = destination,
-        navController = controller){
+        navController = controller) {
 
         authNavGraph(controller, viewModel = viewModel)
         homeNavGraph(modifier, controller, viewModel = viewModel) /*, initial = if (initialPassed == MESSAGE_INTENT *//*TIME_RUNNING*//*) Screen.Home.Discover else Screen.Home.Summary)*/

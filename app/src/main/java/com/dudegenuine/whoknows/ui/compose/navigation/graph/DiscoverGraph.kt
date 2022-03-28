@@ -37,6 +37,9 @@ fun NavGraphBuilder.discoverGraph(
 
         NotificationScreen(
             onBackPressed = router::popBackStack,
+            onPressed = { roomId, userId ->
+                router.navigate(
+                    route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(roomId, userId)) },
             onDetailRoomPressed = {
                 router.navigate(
                     route = Screen.Home.Discover.RoomDetail.routeWithArgs(it.roomId)

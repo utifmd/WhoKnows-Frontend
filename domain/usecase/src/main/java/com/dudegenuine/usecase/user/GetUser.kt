@@ -24,10 +24,11 @@ class GetUser
             Flow<Resource<User.Complete>> = flow {
 
         try {
-            emit(Resource.Loading())
+            val localUser = repository.load()
+            emit(Resource.Loading(localUser))
 
-            val user = repository.read(id)
-            emit(Resource.Success(user))
+            val remoteUser = repository.read(id)
+            emit(Resource.Success(remoteUser))
 
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

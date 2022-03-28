@@ -52,8 +52,7 @@ fun ProfileScreen(
     val swipeRefreshState = rememberSwipeRefreshState(state.loading)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = { viewModel.formState.onImageValueChange(it, context) }
-    )
+        onResult = { viewModel.formState.onImageValueChange(it, context) })
 
     Scaffold(modifier.fillMaxSize(),
         topBar = {

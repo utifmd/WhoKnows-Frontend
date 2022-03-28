@@ -16,24 +16,23 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.model.Messaging
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.vm.BaseViewModel
-import com.dudegenuine.whoknows.ui.vm.ResourceState
-import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 /**
  * Fri, 11 Feb 2022
  * WhoKnows by utifmd
  **/
+@FlowPreview
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -69,12 +68,13 @@ class ActivityViewModel
     val networkServiceReceiver = caseMessaging.onInternetReceived { message ->
         if (message.isNotBlank()) if(token.isBlank()) messagingInitToken()
 
-        viewModelScope.launch { onShowSnackBar(message) }
+        onShowSnackBar(message)
     }
     val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
-    val messagingServiceReceiver = caseMessaging.onTokenReceived {
-        onMessagingTokenChange(it)
-        onPreRegisterToken(it)
+    val messagingServiceReceiver = caseMessaging.onTokenReceived { token ->
+        token.apply (::onMessagingTokenChange)
+
+        if (currentUserId.isNotBlank()) onPreRegisterToken(token)
     }
 
     private fun onMessagingTokenChange(fresh: String){
@@ -90,20 +90,24 @@ class ActivityViewModel
     }
 
     private fun messagingInitToken() {
-        messaging.token.addOnCompleteListener { task -> when {
-            task.isSuccessful -> onMessagingTokenChange(task.result)
-            task.isCanceled -> Log.d(TAG, "task.isCanceled: ${task.exception?.localizedMessage}")
-            task.isComplete -> Log.d(TAG, "task.isComplete: triggered")
-            else -> Log.d(TAG, "task.else: ${task.exception?.cause?.localizedMessage}") }
+        with (messaging.token) {
+            addOnSuccessListener {
+                Log.d(TAG, "Success: $it") }
+            addOnCanceledListener {
+                Log.d(TAG, "Canceled: triggered") }
+            addOnFailureListener {
+                Log.d(TAG, "Failure: ${it.localizedMessage}")
+            }
         }
-        Log.d(TAG, "messagingInitToken: triggered")
     }
 
     private fun onPreRegisterToken(token: String) {
         Log.d(TAG, "onPreRegisterToken: $token")
 
-        getJoinedOwnedRoomIds { roomIds -> roomIds
-            .forEach { onRegisterToken(it, token) } //Log.d(TAG, "getJoinedRoomIds: ${roomIds.joinToString(" ~> ")}")
+        getJoinedOwnedRoomIds { roomIds ->
+            roomIds.asFlow()
+                .flatMapConcat(::onRegisterMessaging)
+                .launchIn(viewModelScope)
         }
     }
 
@@ -119,11 +123,13 @@ class ActivityViewModel
             .launchIn(viewModelScope)
     }
 
-    private fun onRegisterToken(roomId: String, token: String) {
-        getMessaging(roomId) { notifyKey ->
-            val model = Messaging.GroupAdder(roomId, listOf(token), notifyKey)
 
-            addMessaging(model) { Log.d(TAG, "onRegisterToken: $it") }
+    private fun onRegisterMessaging(roomId: String): Flow<Resource<out Any>> {
+        return caseMessaging.getMessaging(roomId)
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+                val register = Messaging.GroupAdder(roomId, listOf(token), key)
+                caseMessaging.addMessaging(register)
+            }
         }
     }
 
@@ -160,24 +166,4 @@ class ActivityViewModel
     }
 
     private fun onBadgeChange(fresh: Int){ badge = fresh }
-
-    override fun getMessaging(keyName: String, onSucceed: (String) -> Unit) {
-        if (keyName.isBlank()) onStateChange(ResourceState(error = DONT_EMPTY))
-
-        caseMessaging.getMessaging(keyName)
-            .onEach { res -> onResourceStateless(res, onSucceed) }
-            .launchIn(viewModelScope)
-    }
-
-    override fun addMessaging(
-        messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
-        val model = messaging.copy()
-
-        if (model.keyName.isBlank() or model.key.isBlank() or model.tokens.isEmpty())
-            onStateChange(ResourceState(error = DONT_EMPTY))
-
-        caseMessaging.createMessaging(model)
-            .onEach { res -> onResourceStateless(res, onSucceed) }
-            .launchIn(viewModelScope)
-    }
 }

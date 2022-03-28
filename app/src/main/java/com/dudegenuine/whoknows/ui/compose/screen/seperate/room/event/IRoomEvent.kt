@@ -29,13 +29,14 @@ interface IRoomEventHome: IRoomEvent {
 }
 
 interface IRoomEventDetail: IRoomEvent {
-    fun onParticipantLongPressed(expired: Boolean, participant: Participant){}
+    fun onBackPressed(){}
+    fun onParticipantLongPressed(enabled: Boolean, participant: Participant){}
     fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String){}
-    fun onRoomRetailPressed(roomId: String){}
+    //fun onRoomDetailPressed(roomId: String){}
     fun onCloseRoomPressed(room: Room.Complete){}
     fun onShareRoomPressed(roomId: String){}
-    fun onDeleteRoomPressed(roomId: String){}
-    fun onDeleteRoomSucceed(roomId: String){}
+    fun onDeleteRoomPressed(enabled: Boolean, roomId: String){}
+    fun onDeleteRoomSucceed(){}
     fun onNewRoomQuizPressed(roomId: String, owner: String){}
     fun onJoinRoomDirectlyPressed(room: Room.Complete/*roomId: String*/){}
     fun onBoardingRoomPressed(roomId: String){}

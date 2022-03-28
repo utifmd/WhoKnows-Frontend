@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,6 +18,7 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralBottomBar
 import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Mon, 24 Jan 2022
@@ -35,7 +37,14 @@ fun HomeScreen(
     enabled: Boolean = false,
     vmMain: ActivityViewModel = hiltViewModel(),
     content: @Composable () -> Unit) {
+    val snackHostState = vmMain.scaffoldState.snackbarHostState
 
+    LaunchedEffect(snackHostState) {
+        vmMain.snackMessage.collectLatest {
+            snackHostState.showSnackbar(it)
+        }
+    }
+    
     Scaffold(modifier,
         scaffoldState = vmMain.scaffoldState,
         content = { padding ->
@@ -47,11 +56,8 @@ fun HomeScreen(
             if (enabled) {
                 GeneralBottomBar(
                     items = vmMain.badge.let(BottomDomain.listItem),
-                    controller = router) { _ ->
-//                    scope.launch {
-//                        scaffoldState.snackbarHostState.showSnackbar(item.name)
-//                    }
-                }
+                    controller = router
+                )
             }
         }
     )

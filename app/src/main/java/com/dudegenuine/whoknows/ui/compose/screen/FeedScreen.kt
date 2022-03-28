@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -64,6 +63,7 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalAnimationApi
 @Composable
 fun FeedScreen(modifier: Modifier = Modifier,
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
     vmQuiz: QuizViewModel = hiltViewModel(),
     vmMain: ActivityViewModel = hiltViewModel(),
     vmUser: UserViewModel = hiltViewModel(),
@@ -73,6 +73,7 @@ fun FeedScreen(modifier: Modifier = Modifier,
     val lazyRooms = vmRoom.rooms.collectAsLazyPagingItems()
     val lazyQuizzes = vmQuiz.questions.collectAsLazyPagingItems()
     val isRefreshing by remember { mutableStateOf(false) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
 
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -86,16 +87,14 @@ fun FeedScreen(modifier: Modifier = Modifier,
                 },
             )
         },
-        scaffoldState = vmMain.scaffoldState){
+        scaffoldState = scaffoldState){
 
-        SwipeRefresh(rememberSwipeRefreshState(isRefreshing),
-            onRefresh = {
-                lazyParticipants.refresh()
-                lazyQuizzes.refresh()
-                lazyRooms.refresh() }) {
+        SwipeRefresh(swipeRefreshState, onRefresh = {
+            lazyParticipants.refresh()
+            lazyQuizzes.refresh()
+            lazyRooms.refresh() }) {
 
-            LazyColumn(
-                state = rememberLazyListState(),
+            LazyColumn(modifier,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(12.dp)){
                 item {
@@ -145,7 +144,11 @@ private fun BodyParticipant(
                     2 -> ColorBronze
                     else -> null
                 },
-                name = item.fullName,
+                name = "${when (index) {
+                    0 -> "#1"
+                    1 -> "#2"
+                    2 -> "#3"
+                    else -> ""}} ${item.fullName}",
                 desc = item.username.padStart(1, '@'),
                 data = item.profileUrl
             )
@@ -160,7 +163,7 @@ private fun BodyParticipant(
 private fun BodyRoom(
     modifier: Modifier, lazyRooms: LazyPagingItems<Room.Complete>, onJoinButtonPressed: () -> Unit){
 
-    LazyRow(modifier.padding(vertical = 6.dp), state = rememberLazyListState(),
+    LazyRow(modifier.padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
 
         items(lazyRooms){ room ->
@@ -190,7 +193,6 @@ private fun BodyQuiz(
     modifier: Modifier, lazyQuizzes: LazyPagingItems<Quiz.Complete>){
 
     LazyRow(modifier.padding(vertical = 6.dp),
-        state = rememberLazyListState(),
         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
 
         items(lazyQuizzes) { item ->

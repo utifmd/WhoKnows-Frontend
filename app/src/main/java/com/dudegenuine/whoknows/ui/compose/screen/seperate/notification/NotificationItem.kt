@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.notification
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -12,6 +13,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,20 +28,23 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
  * Thu, 10 Feb 2022
  * WhoKnows by utifmd
  **/
+@ExperimentalFoundationApi
 @ExperimentalCoilApi
 @Composable
 fun NotificationItem(
-    modifier: Modifier = Modifier,
-    model: Notification, onItemPressed: () -> Unit) {
+    modifier: Modifier = Modifier, model: Notification,
+    onItemLongPressed: () -> Unit, onItemPressed: () -> Unit) {
     var isSeen by remember { mutableStateOf(model.seen) }
 
-    Row(
-        modifier = modifier.fillMaxWidth().clickable(
-            enabled = !isSeen){
-            isSeen = true
+    Row(modifier.fillMaxWidth().clipToBounds()
+        .combinedClickable(
+            onLongClick = onItemLongPressed,
+            onClick = {
+                isSeen = true
 
-            onItemPressed()
-        },
+                onItemPressed()
+            }
+        ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
 
@@ -49,6 +55,7 @@ fun NotificationItem(
             GeneralImage(
                 modifier = modifier.fillMaxSize(),
                 data = model.sender?.profileUrl ?: "",
+                contentScale = ContentScale.Crop,
                 placeholder = {
                     Icon(
                         modifier = modifier
@@ -63,7 +70,7 @@ fun NotificationItem(
         }
 
         Column {
-            Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" @"+ model.event,
+            Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" - "+ model.event,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = if (!isSeen) MaterialTheme.colors.secondaryVariant

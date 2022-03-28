@@ -1,7 +1,6 @@
 package com.dudegenuine.whoknows.ui.vm.user.contract
 
 import androidx.paging.PagingData
-import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.ui.vm.notification.contract.IMessagingViewModel
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +15,7 @@ interface IUserViewModel: IMessagingViewModel { //: IFilePresenter {
     fun signUpUser()
     fun signOutUser()
     fun postUser(user: User.Complete)
-    fun getUser()
+    fun getUser(){}
     fun getUser(id: String)
     fun getUser(id: String, onSucceed: (User.Complete) -> Unit)
     fun patchUser(id: String, freshUser: User.Complete)

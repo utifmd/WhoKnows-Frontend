@@ -136,9 +136,43 @@ class MessagingService: FirebaseMessagingService() {
             setContentText(body)
             setAutoCancel(true)
 
-            if (largeIcon != null) scope.launch {
+            if (largeIcon.isNullOrBlank()) notify(build())
+            else scope.launch {
                 getBitmapAsync(this@MessagingService, largeIcon) { setLargeIcon(it); notify(build()) }
-            } else notify(build())
+            }
         }
     }
 }
+
+/*
+//GET https://fcm.googleapis.com/fcm/notification?notification_key_name=ROM-1001
+//POST
+{
+    "operation": "create",
+    "notification_key_name": "TEST-ROM",
+    "registration_ids": ["cBOpf7kEQuCyup70DcfGKX:APA91bF8y10huDQJPBINrp9vfzk8ZzdvWe6PWMpqIebxYFCLaAm19Xcmz82UkSmsC70syLFdwYwJN8v7kLAC2rKbW40JoI16KNictf9qyGnVe74oqpiXorDaZ5MwQ3nSiwdcnZbyQ4Da"]
+}
+//POST
+{
+    "operation": "add",
+    "notification_key_name": "TEST-ROM",
+    "notification_key": "APA91bH_KBq4P88tY7r5alA8-yojPecp_QMcmDmJQVhwIStsTr_K3q0N3NEJI31tTz55EE9NT9_ekSeqSmRBMPcF_LT8-S_c0YzFvGgtqtr7j2QoV7bJl7w",
+    "registration_ids": ["cBOpf7kEQuCyup70DcfGKX:APA91bF8y10huDQJPBINrp9vfzk8ZzdvWe6PWMpqIebxYFCLaAm19Xcmz82UkSmsC70syLFdwYwJN8v7kLAC2rKbW40JoI16KNictf9qyGnVe74oqpiXorDaZ5MwQ3nSiwdcnZbyQ4Da"]
+}
+//POST
+{
+    "operation": "remove",
+    "notification_key_name": "TEST-ROM",
+    "notification_key": "APA91bH_KBq4P88tY7r5alA8-yojPecp_QMcmDmJQVhwIStsTr_K3q0N3NEJI31tTz55EE9NT9_ekSeqSmRBMPcF_LT8-S_c0YzFvGgtqtr7j2QoV7bJl7w",
+    "registration_ids": ["cBOpf7kEQuCyup70DcfGKX:APA91bF8y10huDQJPBINrp9vfzk8ZzdvWe6PWMpqIebxYFCLaAm19Xcmz82UkSmsC70syLFdwYwJN8v7kLAC2rKbW40JoI16KNictf9qyGnVe74oqpiXorDaZ5MwQ3nSiwdcnZbyQ4Da"]
+}
+//POST
+{
+    "data": {
+        "title": "Specific Target Messaging",
+        "body": "Click send to get a response lorem ipsum.",
+        "largeIcon": ""
+    },
+    "to": "APA91bH_KBq4P88tY7r5alA8-yojPecp_QMcmDmJQVhwIStsTr_K3q0N3NEJI31tTz55EE9NT9_ekSeqSmRBMPcF_LT8-S_c0YzFvGgtqtr7j2QoV7bJl7w"
+}
+*/

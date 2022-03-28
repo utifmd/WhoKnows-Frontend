@@ -37,21 +37,16 @@ fun RoomItem(
             enabled = onPressed != null,
             onClick = { onPressed?.invoke() })) {
 
-        Column(
-            modifier = modifier.padding(12.dp)) {
-
-            Text(
-                text = state.title,
+        Column(modifier.padding(12.dp)) {
+            Text(state.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.h6)
 
-            Spacer(
-                modifier = modifier.height(8.dp))
+            Spacer(modifier.height(8.dp))
 
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                Text(
-                    text = desc,
+                Text(desc,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.body2

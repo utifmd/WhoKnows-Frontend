@@ -1,29 +1,17 @@
 package com.dudegenuine.whoknows.ui.vm
 
 import android.util.Log
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material.DrawerState
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHostState
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
+import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.*
-import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
-import com.dudegenuine.whoknows.ui.compose.screen.LoadBoxScreen
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 /**
  * Wed, 08 Dec 2021
@@ -52,6 +40,21 @@ abstract class BaseViewModel: ViewModel() {
         ScaffoldState(DrawerState(
             DrawerValue.Closed), _snackBarHostState))
 
+    fun onStateChange(fresh: ResourceState){
+        _state.value = fresh
+    }
+
+    fun onAuthStateChange(fresh: ResourceState.Auth){
+        _authState.value = fresh
+    }
+
+    fun onShowSnackBar(message: String){
+        viewModelScope.launch {
+            _snackMessage.emit(message)
+        }
+    }
+
+
     /*init { observeSnackBar() }
 
     private fun observeSnackBar(){
@@ -77,19 +80,6 @@ abstract class BaseViewModel: ViewModel() {
             Home("home"),
             Detail("detail")
         }*/
-
-    fun onStateChange(fresh: ResourceState){
-        _state.value = fresh
-    }
-
-    fun onAuthStateChange(fresh: ResourceState.Auth){
-        _authState.value = fresh
-    }
-
-    suspend fun onShowSnackBar(message: String){
-        _snackMessage.emit(message)
-    }
-
     protected fun<T> onResource(resource: Resource<T>){
         onResourceSucceed(resource){ data ->
             if (data is List<*>) {
@@ -106,7 +96,7 @@ abstract class BaseViewModel: ViewModel() {
                 )
 
                 _state.value = if(payload.isEmpty())
-                    initialState.copy(error = "No result.")
+                    ResourceState(error = "No result.")
                 else initialState
 
             } /*else if (data is PagingData<*>) {
@@ -152,9 +142,13 @@ abstract class BaseViewModel: ViewModel() {
             }
             is Resource.Loading -> {
                 Log.d(TAG, "Resource.Loading..")
-                _state.value = state.copy(
-                    loading = true
-                )
+                _state.value = ResourceState(loading = true)
+
+                resources.data?.let {
+                    Log.d(TAG, "Resource.Loading.. already got data")
+                    onSuccess(it) //resources.data?.let()
+                    _state.value = ResourceState(loading = false)
+                }
             }
         }
     }
@@ -167,17 +161,14 @@ abstract class BaseViewModel: ViewModel() {
             is Resource.Error -> resources.message?.let(onError)
             is Resource.Loading -> {
                 Log.d(TAG, "Resource.Loading..")
-                _state.value = ResourceState(
-                    loading = true
-                )
+                _state.value = ResourceState(loading = true)
+
+                resources.data?.let {
+                    Log.d(TAG, "Resource.Loading.. already got data")
+                    onSuccess(it) //resources.data?.let()
+                    _state.value = ResourceState(loading = false)
+                }
             }
-        }
-    }
-
-    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User.Complete) -> Unit) {
-        onAuth(resources, onSucceed) {
-
-            _authState.value = ResourceState.Auth()
         }
     }
 
@@ -187,8 +178,48 @@ abstract class BaseViewModel: ViewModel() {
             Log.d(TAG, "onResourceStateless: success")
         }
 
+        if (resources is Resource.Loading){
+            Log.d(TAG, "Resource.Loading..")
+
+            resources.data?.let {
+                Log.d(TAG, "Resource.Loading.. already got data")
+                onSucceed?.invoke(it) //resources.data?.let()
+            }
+        }
         if (resources is Resource.Error){
             Log.d(TAG, "onResourceError: ${resources.message}")
+        }
+    }
+
+    protected fun<T> onResourceFlow(
+        resources: Resource<T>, onSucceed: (T) -> Flow<Resource<T>>): Flow<Resource<T>> {
+        return when(resources) {
+            is Resource.Success -> {
+                Log.d(TAG, "onResourceFLow: success")
+                resources.data?.let { onSucceed.invoke(it) } ?: emptyFlow()
+            }
+            is Resource.Loading -> {
+                Log.d(TAG, "onResourceFLow: loading..")
+                _state.value = ResourceState(loading = true)
+
+                resources.data?.let {
+                    Log.d(TAG, "onResourceFLow: loading already got data")
+                    _state.value = ResourceState(loading = false)
+                    onSucceed.invoke(it)
+                } ?: emptyFlow()
+            }
+            is Resource.Error -> {
+                Log.d(TAG, "onResourceFlowError: ${resources.message}")
+                _state.value = ResourceState(loading = false)
+                emptyFlow()
+            }
+        }
+    }
+
+    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User.Complete) -> Unit) {
+        onAuth(resources, onSucceed) {
+
+            _authState.value = ResourceState.Auth()
         }
     }
 
@@ -230,44 +261,5 @@ abstract class BaseViewModel: ViewModel() {
                 )
             }
         }
-    }
-
-    @Composable
-    fun <T: Any> LazyStatePaging(
-        modifier: Modifier = Modifier,
-        height: Dp = 125.dp, width: Dp? = 246.dp,
-        items: LazyPagingItems<T>,
-        vertical: Arrangement.Vertical? = null,
-        horizontal: Arrangement.Horizontal? = null, repeat: Int){
-
-        with(items) { when {
-            loadState.append is LoadState.Loading ||
-                    loadState.refresh is LoadState.Loading -> when {
-                vertical != null -> Column(verticalArrangement = vertical) {
-                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
-                }
-
-                horizontal != null -> Row(horizontalArrangement = horizontal) {
-                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
-                }
-
-                else -> LoadBoxScreen(height = height, width = width)
-            }
-            loadState.append is LoadState.Error ||
-                    loadState.refresh is LoadState.Error -> {
-                val e = loadState.refresh as LoadState.Error
-
-                ErrorScreen(
-                    modifier.clickable(onClick = ::refresh),
-                    message = e.error.localizedMessage ?: "refresh",
-                    isSnack = true
-                )
-            }
-            loadState.refresh is LoadState.NotLoading ||
-                    loadState.append is LoadState.NotLoading -> {
-                if (items.itemCount < 1) ErrorScreen(modifier,
-                    message = "No result.", isDanger = false)
-            }
-        }}
     }
 }

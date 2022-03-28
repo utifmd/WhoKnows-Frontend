@@ -58,8 +58,7 @@ fun RoomDetail(
     val state = viewModel.state
     val context =  LocalContext.current
 
-    var modalDialog by remember { mutableStateOf(DialogState()) }
-    val onModalDismissed: () -> Unit = { modalDialog = DialogState() }
+    var dialogState by remember { mutableStateOf(DialogState()) }
     val toggle: () -> Unit = {
         coroutineScope.launch {
             if(scaffoldState.isRevealed) scaffoldState.conceal()
@@ -68,26 +67,21 @@ fun RoomDetail(
     }
     val eventCompose = object: IRoomEventDetail {
         override fun onShareRoomPressed(roomId: String) { viewModel.onSharePressed(roomId) }
-        override fun onParticipantLongPressed(expired: Boolean, participant: Participant) {
-            modalDialog = DialogState(context.getString(R.string.delete_participant), true, if(!expired) {
-                { viewModel.deleteParticipation(participant) { eventRouter.onRoomRetailPressed(participant.roomId) } }} else null)
-        }
-        override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String) {
-            modalDialog = DialogState(context.getString(R.string.delete_question), true, if(enabled) {
-                { viewModel.deleteQuestion(quiz) { eventRouter.onRoomRetailPressed(roomId) }}} else null)
-        }
-        override fun onCloseRoomPressed(room: Room.Complete) {
-            modalDialog = DialogState(context.getString(R.string.close_the_class), true) {
-                viewModel.expireRoom(room) { toggle() } }
-        }
         override fun onJoinRoomDirectlyPressed(room: Room.Complete) {
-            modalDialog = DialogState(context.getString(R.string.participate_the_class), true, if (viewModel.currentUserId.isNotBlank()) {{
-                eventRouter.onBoardingRoomPressed(room.id); toggle() }} else null)
-        }
-        override fun onDeleteRoomPressed(roomId: String) {
-            modalDialog = DialogState(context.getString(R.string.delete_class), true) {
-                viewModel.deleteRoom(roomId) { eventRouter.onDeleteRoomSucceed(it) }
-            }
+            dialogState = DialogState(context.getString(R.string.participate_the_class), true, { dialogState = DialogState() }, if (viewModel.currentUserId.isNotBlank()) {
+                { eventRouter.onBoardingRoomPressed(room.id); toggle() }} else null) }
+        override fun onParticipantLongPressed(enabled: Boolean, participant: Participant) {
+            dialogState = DialogState(context.getString(R.string.delete_participant), true, { dialogState = DialogState() }, if(enabled) {
+                { viewModel.onDeleteParticipantPressed(participant) }} else null) }
+        override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String) {
+            dialogState = DialogState(context.getString(R.string.delete_question), true, { dialogState = DialogState() }, if(enabled) {
+                { viewModel.onDeleteQuestionPressed(quiz) }} else null) }
+        override fun onCloseRoomPressed(room: Room.Complete) {
+            dialogState = DialogState(context.getString(R.string.close_the_class), true, { dialogState = DialogState() })
+                { viewModel.expireRoom(room) { toggle() }} }
+        override fun onDeleteRoomPressed(enabled: Boolean, roomId: String) {
+            dialogState = DialogState(context.getString(R.string.delete_class), true, { dialogState = DialogState() }, if (enabled) {
+                { viewModel.onDeleteRoomPressed(roomId, eventRouter::onDeleteRoomSucceed) }} else null)
         }
     }
 
@@ -121,7 +115,7 @@ fun RoomDetail(
                     model = model, isOwn = isOwn,
                     currentUserId = viewModel.currentUserId,
                     onProfileSelected = eventRouter::onParticipantItemPressed,
-                    onProfileLongPressed = { eventCompose.onParticipantLongPressed(model.expired, it) },
+                    onProfileLongPressed = { eventCompose.onParticipantLongPressed(!model.expired, it) },
                     onQuestionPressed = eventRouter::onQuestionItemPressed,
                     onQuestionLongPressed = eventCompose::onQuestionLongPressed,
                     onResultSelected = eventRouter::onResultPressed
@@ -132,15 +126,16 @@ fun RoomDetail(
 
     if (state.loading) LoadingScreen(modifier)
     if (state.error.isNotBlank()) ErrorScreen(modifier, message = state.error)
-    if (modalDialog.opened) with (modalDialog) {
+    if (dialogState.opened) with (dialogState) {
         AlertDialog(
             modifier = modifier.padding(horizontal = 24.dp),
-            onDismissRequest = onModalDismissed,
+            onDismissRequest = { onDismissed?.invoke() },
             title = { Text(title) },
             text = { Text(text) },
             confirmButton = {
-                TextButton({ event?.invoke(); onModalDismissed() },
-                    enabled = event != null) {
+                TextButton(
+                    { onSubmitted?.invoke(); onDismissed?.invoke() },
+                    enabled = onSubmitted != null) {
 
                     Text((button ?: "submit").replaceFirstChar { it.uppercase() })
                 }
@@ -193,22 +188,23 @@ private fun BackLayer(
             TextButton(
                 enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = { evenCompose.onCloseRoomPressed(model) }) {
+                onClick = { evenCompose.onDeleteRoomPressed(
+                    model.participants.isEmpty() &&
+                            model.questions.all { it.images.isEmpty() }, model.id) }) {
 
-                Text(
-                    color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
-                    text = stringResource(R.string.close_the_room)
+                Text(stringResource(R.string.delete_permanent),
+                    color =  if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
                 )
             }
 
             TextButton(
                 enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = { evenCompose.onDeleteRoomPressed(model.id) }) {
+                onClick = { evenCompose.onCloseRoomPressed(model) }) {
 
                 Text(
-                    color =  if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
-                    text = stringResource(R.string.delete_permanent)
+                    color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
+                    text = stringResource(R.string.close_the_room)
                 )
             }
         }
@@ -231,28 +227,31 @@ private fun FrontLayer(
     val scrollState = rememberScrollState()
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = contentModifier
+        contentModifier
             .fillMaxSize()
-            .verticalScroll(scrollState)) {
+            .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-        Spacer(
-            modifier = modifier.height(36.dp))
+        Spacer(modifier.height(36.dp))
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = modifier
+            modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)) {
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
-            Text(
-                text = model.title,
+            Text(model.title,
                 style = MaterialTheme.typography.h4)
 
             CardFooter(
                 text = model.createdAt.toHttpDateString(),
-                icon = Icons.Default.CalendarToday,
+                icon = Icons.Filled.CalendarToday,
             )
+
+            /*CardFooter(
+                text = model.user.username,
+                icon = Icons.Filled.VpnKey,
+            )*/
 
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                 Text(model.description, style = MaterialTheme.typography.body2)
@@ -260,8 +259,7 @@ private fun FrontLayer(
         }
         
         Spacer(modifier.size(ButtonDefaults.IconSize))
-        CardFooter(
-            modifier = modifier.padding(horizontal = 24.dp),
+        CardFooter(modifier.padding(horizontal = 24.dp),
             text = "${model.participants.size} " +
                     if (model.participants.size > 1)
                         "Participant\'s" else "Participant",
@@ -269,9 +267,10 @@ private fun FrontLayer(
         )
 
         if (model.participants.isNotEmpty()) {
-            LazyRow(modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+            LazyRow(
+                modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)) {
 
                 model.participants
