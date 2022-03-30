@@ -14,18 +14,14 @@ import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.local.api.ITimerLauncher
 import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.model.*
-import com.dudegenuine.whoknows.infrastructure.common.Constants.BASE_CLIENT_URL
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ONBOARD_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
-import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DESC_TOO_LONG
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.NO_QUESTION
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
-import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.ALREADY_JOINED
-import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel.Companion.DEFAULT_BATCH_ROOM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -51,7 +47,7 @@ class RoomViewModel
     private val caseParticipant: IParticipantUseCaseModule,
     private val caseQuiz: IQuizUseCaseModule,
     private val caseResult: IResultUseCaseModule,
-    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IRoomViewModel {
+    private val savedStateHandle: SavedStateHandle): IRoomViewModel() {
     @Inject lateinit var timer: ITimerLauncher
     @Inject lateinit var share: IShareLauncher
 
@@ -227,7 +223,7 @@ class RoomViewModel
     }
 
     fun onSharePressed(roomId: String) { //caseRoom.setClipboard("Room ID", roomId)
-        val data = "$BASE_CLIENT_URL/who-knows/room/$roomId"
+        val data = "${BuildConfig.BASE_CLIENT_URL}/who-knows/room/$roomId"
 
         share.launch(data)
     }
@@ -367,7 +363,7 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    fun expireRoom(current: Room.Complete, onSucceed: (Room.Complete) -> Unit) {
+    fun expireRoom(current: Room.Complete/*, onSucceed: (Room.Complete) -> Unit*/) {
         val model = current.copy(expired = true, updatedAt = Date())
         if (model.id.isBlank() || model.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -377,7 +373,7 @@ class RoomViewModel
             .onEach{ res -> onResourceSucceed(res) {
                 onStateChange(ResourceState(room = it))
 
-                onSucceed(it)
+                //onSucceed(it)
             }}
             .launchIn(viewModelScope)
     }
@@ -392,12 +388,13 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override val rooms: Flow<PagingData<Room.Complete>> =
+    override val rooms: Flow<PagingData<Room.Censored>> =
         caseRoom.getRooms(DEFAULT_BATCH_ROOM).cachedIn(viewModelScope)
 
     override val roomsOwner: Flow<PagingData<Room.Complete>> =
-        caseRoom.getRooms(currentUserId, DEFAULT_BATCH_ROOM)
-            .cachedIn(viewModelScope)
+        if(currentUserId.isNotBlank())
+            caseRoom.getRooms(currentUserId, DEFAULT_BATCH_ROOM)
+                .cachedIn(viewModelScope) else emptyFlow()
 
     override fun getRooms(page: Int, size: Int) {
         if (size == 0){

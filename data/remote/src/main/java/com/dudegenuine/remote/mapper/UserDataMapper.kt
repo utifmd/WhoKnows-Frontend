@@ -234,6 +234,10 @@ class UserDataMapper
             title = room.title,
             description = room.description,
             expired = room.expired,
+            usernameOwner = room.usernameOwner,
+            fullNameOwner = room.fullNameOwner,
+            questionSize = room.questionSize,
+            participantSize = room.participantSize,
         )
     }
 
@@ -245,6 +249,10 @@ class UserDataMapper
             title = entity.title,
             description = entity.description,
             expired = entity.expired,
+            usernameOwner = entity.usernameOwner,
+            fullNameOwner = entity.fullNameOwner,
+            questionSize = entity.questionSize,
+            participantSize = entity.participantSize,
         )
     }
 }

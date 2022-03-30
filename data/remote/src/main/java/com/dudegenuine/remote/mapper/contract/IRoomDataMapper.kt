@@ -31,6 +31,8 @@ interface IRoomDataMapper {
 
     fun asRoomCensoredEntity(room: Room.Censored): RoomEntity.Censored
     fun asRoomCensored(entity: RoomEntity.Censored): Room.Censored
+    fun asRoomsCensored(response: Response<List<RoomEntity.Censored>>): List<Room.Censored>
 
-    fun asPagingSource(onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete>
+    fun asPagingCompleteSource(onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete>
+    fun asPagingCensoredSource(onEvent: suspend (Int) -> List<Room.Censored>): PagingSource<Int, Room.Censored>
 }

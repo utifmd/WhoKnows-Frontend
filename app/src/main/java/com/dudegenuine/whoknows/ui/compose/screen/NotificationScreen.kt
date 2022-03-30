@@ -113,7 +113,7 @@ fun NotificationScreen(
                     }
                 )
                 if (vmNotifier.state.error.isNotBlank())
-                    ErrorScreen(message = vmNotifier.state.error, isDanger = false)
+                    ErrorScreen(modifier, message = vmNotifier.state.error, isDanger = false)
                 if (dialogState.opened) with (dialogState) {
                     AlertDialog(
                         modifier = modifier.padding(horizontal = 24.dp),

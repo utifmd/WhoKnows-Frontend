@@ -13,6 +13,7 @@ import com.dudegenuine.remote.entity.RoomEntity
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
 import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
+import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class RoomDataMapper
     @Inject constructor(
     private val gson: Gson,
+    private val mapperUser: IUserDataMapper,
     private val mapperQuiz: IQuizDataMapper,
     private val mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
     private val TAG: String = javaClass.simpleName
@@ -38,10 +40,12 @@ class RoomDataMapper
             room.expired,
             room.createdAt,
             room.updatedAt,
+            room.user
+                ?.let(mapperUser::asUserCensoredEntity),
             room.questions
-                .map { mapperQuiz.asEntity(it) },
+                .map(mapperQuiz::asEntity),
             room.participants
-                .map { mapperParticipant.asEntity(it) },
+                .map(mapperParticipant::asEntity),
         )
     }
 
@@ -55,6 +59,7 @@ class RoomDataMapper
             entity.expired,
             entity.createdAt,
             entity.updatedAt,
+            entity.user?.let(mapperUser::asUserCensored),
             entity.questions
                 .map { mapperQuiz.asQuiz(it) },
             entity.participants
@@ -196,6 +201,10 @@ class RoomDataMapper
             title = room.title,
             description = room.description,
             expired = room.expired,
+            usernameOwner = room.usernameOwner,
+            fullNameOwner = room.fullNameOwner,
+            questionSize = room.questionSize,
+            participantSize = room.participantSize,
         )
     }
 
@@ -207,10 +216,31 @@ class RoomDataMapper
             title = entity.title,
             description = entity.description,
             expired = entity.expired,
+            usernameOwner = entity.usernameOwner,
+            fullNameOwner = entity.fullNameOwner,
+            questionSize = entity.questionSize,
+            participantSize = entity.participantSize,
         )
     }
 
-    override fun asPagingSource(
+    override fun asRoomsCensored(response: Response<List<RoomEntity.Censored>>): List<Room.Censored> {
+        return when(response.data){
+            is List<*> -> {
+                val entities = response.data
+                    .filterIsInstance<RoomEntity.Censored>()
+
+                entities.map { asRoomCensored(it) }
+            }
+            else -> throw IllegalStateException()
+        }
+    }
+
+    override fun asPagingCompleteSource(
         onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete> =
         ResourcePaging(onEvent)
+
+    override fun asPagingCensoredSource(
+        onEvent: suspend (Int) -> List<Room.Censored>): PagingSource<Int, Room.Censored> {
+        return ResourcePaging(onEvent)
+    }
 }

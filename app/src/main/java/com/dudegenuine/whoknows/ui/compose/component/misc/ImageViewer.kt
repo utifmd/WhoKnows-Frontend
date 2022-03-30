@@ -18,7 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.whoknows.infrastructure.common.Constants.BASE_URL
+import com.dudegenuine.whoknows.BuildConfig
 import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
 import com.dudegenuine.whoknows.ui.vm.file.FileViewModel
 
@@ -51,7 +51,7 @@ fun ImageViewer(fileId: String,
                         }
                     }
                 },
-            data = "$BASE_URL/files/$fileId",
+            data = "${BuildConfig.BASE_URL}/files/$fileId",
             contentScale = ContentScale.FillWidth){
 
             Box(modifier.fillMaxSize(),

@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.ui.vm.user.contract
 
 import androidx.paging.PagingData
 import com.dudegenuine.model.User
+import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.notification.contract.IMessagingViewModel
 import kotlinx.coroutines.flow.Flow
 
@@ -9,21 +10,21 @@ import kotlinx.coroutines.flow.Flow
  * Sat, 04 Dec 2021
  * WhoKnows by utifmd
  **/
-interface IUserViewModel: IMessagingViewModel { //: IFilePresenter {
+abstract class IUserViewModel: IMessagingViewModel, BaseViewModel() { //: IFilePresenter {
     //fun signInUser(loginRequest: LoginRequest)
-    fun signInUser()
-    fun signUpUser()
-    fun signOutUser()
-    fun postUser(user: User.Complete)
-    fun getUser(){}
-    fun getUser(id: String)
-    fun getUser(id: String, onSucceed: (User.Complete) -> Unit)
-    fun patchUser(id: String, freshUser: User.Complete)
-    fun patchUser(freshUser: User.Complete, onSucceed: (User.Complete) -> Unit)
-    fun deleteUser(id: String)
-    fun getUsers(page: Int, size: Int)
+    open fun signInUser(){}
+    open fun signUpUser(){}
+    open fun signOutUser(){}
+    open fun postUser(user: User.Complete){}
+    open fun getUser(){}
+    open fun getUser(id: String){}
+    open fun getUser(id: String, onSucceed: (User.Complete) -> Unit){}
+    open fun patchUser(id: String, freshUser: User.Complete){}
+    open fun patchUser(freshUser: User.Complete, onSucceed: (User.Complete) -> Unit){}
+    open fun deleteUser(id: String){}
+    open fun getUsers(page: Int, size: Int){}
 
-    val participants: Flow<PagingData<User.Censored>>
+    abstract val participants: Flow<PagingData<User.Censored>>
 
     companion object {
         const val USER_ID_SAVED_KEY = "is_own_saved_user"

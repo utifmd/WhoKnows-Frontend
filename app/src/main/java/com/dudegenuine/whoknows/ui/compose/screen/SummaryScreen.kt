@@ -6,9 +6,10 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomStatedPreBoardingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventHome
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
@@ -24,13 +25,16 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun SummaryScreen(
+fun SummaryScreen(props: IMainProps) {
     //context: Context,
-    eventHome: IRoomEventHome) {
+    //val lazyPagingRooms = viewModel.roomsOwner.collectAsLazyPagingItems()
+//    lazyPagingRooms: LazyPagingItems<Room.Complete>,
+//    eventHome: IRoomEventHome) {
     //val service = Intent(context, TimerService::class.java)
 
     RoomStatedPreBoardingScreen(
-        eventHome = eventHome,
+        props = props,
+        eventHome = RoomEventHome(props.router),
         eventBoarding = object: IRoomEventBoarding { })/*{
 
         //context.stopService(service)

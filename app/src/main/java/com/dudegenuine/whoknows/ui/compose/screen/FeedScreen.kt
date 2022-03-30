@@ -5,14 +5,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,27 +23,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import androidx.paging.compose.itemsIndexed
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
-import com.dudegenuine.model.common.ViewUtil.timeAgo
+import com.dudegenuine.model.common.ViewUtil
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.LazyStatePaging
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomItem
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
 import com.dudegenuine.whoknows.ui.theme.ColorBronze
 import com.dudegenuine.whoknows.ui.theme.ColorGold
 import com.dudegenuine.whoknows.ui.theme.ColorSilver
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
-import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
-import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,18 +57,21 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
-fun FeedScreen(modifier: Modifier = Modifier,
+fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
-    vmQuiz: QuizViewModel = hiltViewModel(),
-    vmMain: ActivityViewModel = hiltViewModel(),
-    vmUser: UserViewModel = hiltViewModel(),
-    vmRoom: RoomViewModel = hiltViewModel(),
+    listState: LazyListState = rememberLazyListState(),
     onJoinButtonPressed: () -> Unit, onNotificationPressed: () -> Unit) {
-    val lazyParticipants = vmUser.participants.collectAsLazyPagingItems()
-    val lazyRooms = vmRoom.rooms.collectAsLazyPagingItems()
-    val lazyQuizzes = vmQuiz.questions.collectAsLazyPagingItems()
-    val isRefreshing by remember { mutableStateOf(false) }
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+    val vmMain = props.vmMain as ActivityViewModel
+
+    val swipeRefreshState = rememberSwipeRefreshState(
+        vmMain.pagingLoading(props.participantsPager) ||
+            vmMain.pagingLoading(props.roomsPager) || vmMain.pagingLoading(props.quizzesPager))
+
+    val onRefresh: () -> Unit = {
+        props.participantsPager.refresh()
+        props.roomsPager.refresh()
+        props.quizzesPager.refresh()
+    }
 
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -87,41 +85,23 @@ fun FeedScreen(modifier: Modifier = Modifier,
                 },
             )
         },
-        scaffoldState = scaffoldState){
-
-        SwipeRefresh(swipeRefreshState, onRefresh = {
-            lazyParticipants.refresh()
-            lazyQuizzes.refresh()
-            lazyRooms.refresh() }) {
-
+        scaffoldState = scaffoldState) {
+        SwipeRefresh(swipeRefreshState, onRefresh) {
+            
             LazyColumn(modifier,
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(12.dp)){
+                contentPadding = PaddingValues(12.dp)) {
+
+                item { BodyRoom(modifier, swipeRefreshState.isRefreshing, props.roomsPager, onJoinButtonPressed) }
+                item { BodyQuiz(modifier, swipeRefreshState.isRefreshing, props.quizzesPager) }
+                item { BodyParticipant(modifier, swipeRefreshState.isRefreshing, props.participantsPager) }
+
                 item {
-                    Header(
-                        modifier,
-                        "Most popular class${if (lazyRooms.itemCount > 1) "es" else ""}",
-                        Icons.Filled.Class,
-                        true
-                    )
+                    LazyStatePaging(
+                        items = props.ownerRoomsPager,
+                        repeat = 5, height = 130.dp, width = null)
                 }
-                item { BodyRoom(modifier, lazyRooms, onJoinButtonPressed) }
-                item {
-                    Header(
-                        modifier,
-                        "Random question${if (lazyQuizzes.itemCount > 1) "\'s" else ""}",
-                        Icons.Filled.Shuffle
-                    )
-                }
-                item { BodyQuiz(modifier, lazyQuizzes) }
-                item {
-                    Header(
-                        modifier,
-                        "Most active participant${if (lazyParticipants.itemCount > 1) "\'s" else ""}",
-                        Icons.Filled.TrendingUp
-                    )
-                }
-                item { BodyParticipant(modifier, lazyParticipants) }
             }
         }
     }
@@ -131,124 +111,170 @@ fun FeedScreen(modifier: Modifier = Modifier,
 @ExperimentalCoilApi
 @Composable
 private fun BodyParticipant(
-    modifier: Modifier, lazyParticipants: LazyPagingItems<User.Censored>){
+    modifier: Modifier, isRefreshing: Boolean, lazyParticipants: LazyPagingItems<User.Censored>){
 
-    LazyRow(modifier.padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Body(modifier, "Most active participant${if (lazyParticipants.itemCount > 1) "\'s" else ""}",
+        Icons.Filled.TrendingUp) {
 
-        itemsIndexed(lazyParticipants) { index, item ->
-            if (item != null) ProfileCard(modifier.fillMaxWidth(),
-                colorBorder = when (index) {
-                    0 -> ColorGold
-                    1 -> ColorSilver
-                    2 -> ColorBronze
-                    else -> null
-                },
-                name = "${when (index) {
-                    0 -> "#1"
-                    1 -> "#2"
-                    2 -> "#3"
-                    else -> ""}} ${item.fullName}",
-                desc = item.username.padStart(1, '@'),
-                data = item.profileUrl
-            )
+        LazyRow(modifier.padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (isRefreshing) items(3) {
+                LoadBoxScreen(height = 130.dp, width = 246.dp)
+            }
+
+            itemsIndexed(lazyParticipants) { index, item ->
+                if (item != null) ProfileCard(modifier.fillMaxWidth(),
+                    colorBorder = when (index) {
+                        0 -> ColorGold
+                        1 -> ColorSilver
+                        2 -> ColorBronze
+                        else -> null
+                    },
+                    name = "${when (index) {
+                        0 -> "#1"
+                        1 -> "#2"
+                        2 -> "#3"
+                        else -> ""}} ${item.fullName}",
+                    desc = item.username.padStart(1, '@'),
+                    data = item.profileUrl
+                )
+            }
+
+            // item { LazyStatePaging(items = lazyParticipants, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
         }
-
-        item { LazyStatePaging(items = lazyParticipants, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
     }
 }
 
 @FlowPreview
 @Composable
 private fun BodyRoom(
-    modifier: Modifier, lazyRooms: LazyPagingItems<Room.Complete>, onJoinButtonPressed: () -> Unit){
+    modifier: Modifier, isRefreshing: Boolean, lazyRooms: LazyPagingItems<Room.Censored>, onJoinButtonPressed: () -> Unit){
+    Body(modifier, "Most happening class${if (lazyRooms.itemCount > 1) "es" else ""}",
+        Icons.Filled.Class, true) {
 
-    LazyRow(modifier.padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        LazyRow(modifier.padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (isRefreshing) items(3) {
+                LoadBoxScreen(height = 130.dp, width = 246.dp)
+            }
 
-        items(lazyRooms){ room ->
-            if (room != null) RoomItem(modifier.width(246.dp),
-                state = room, censored = true
-            )
+            items(lazyRooms, { it.roomId }){ room ->
+                room?.let {
+                    RoomItem(
+                        modifier.width(246.dp),
+                        model = it
+                    )
+                }
+            } //item { LazyStatePaging(items = lazyRooms, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
         }
 
-        item { LazyStatePaging(items = lazyRooms, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
-    }
+        Box(modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd){
 
-    Box(modifier.fillMaxWidth(),
-        contentAlignment = Alignment.CenterEnd){
-
-        Button(onJoinButtonPressed) {
-            Text("Join with a code")
-            Spacer(modifier.size(4.dp))
-            Icon(Icons.Filled.ArrowForward,
-                contentDescription = null
-            )
+            Button(onJoinButtonPressed, enabled = !isRefreshing) {
+                Text("Join with a code")
+                Spacer(modifier.size(4.dp))
+                Icon(Icons.Filled.ArrowForward,
+                    contentDescription = null
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun BodyQuiz(
-    modifier: Modifier, lazyQuizzes: LazyPagingItems<Quiz.Complete>){
+    modifier: Modifier, isRefreshing: Boolean, lazyQuizzes: LazyPagingItems<Quiz.Complete>){
+    Body(modifier, "Random question${if (lazyQuizzes.itemCount > 1) "\'s" else ""}",
+        Icons.Filled.Shuffle) {
 
-    LazyRow(modifier.padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-
-        items(lazyQuizzes) { item ->
-            item?.let {
-                Row(
-                    modifier
-                        .width(246.dp)
-                        .background(
-                            color = MaterialTheme.colors.onSurface.copy(
-                                alpha = if (MaterialTheme.colors.isLight) 0.04f else 0.06f
-                            ),
-                            shape = MaterialTheme.shapes.small
-                        )) {
-                    val text = buildAnnotatedString {
-                        withStyle(SpanStyle(
-                            fontWeight = FontWeight.SemiBold)) {
-
-                            append(item.user?.fullName ?: "unknown")
-                        }
-
-                        withStyle(SpanStyle(MaterialTheme.colors.onSurface.copy(0.5f),
-                            fontStyle = FontStyle.Italic, fontSize = 11.sp)) {
-
-                            append(" @${item.user?.username ?: "@unknown"}")
-                            append(" ${timeAgo(item.createdAt)}")
-                        }
-
-                        append("\n")
-                        append(item.question)
-                    }
-
-                    Text(text, //style = MaterialTheme.typography.subtitle1, maxLines = 5, overflow = TextOverflow.Ellipsis,
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(
-                                vertical = 24.dp,
-                                horizontal = 16.dp
-                            )
-                    )
-                }
+        LazyRow(modifier.padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (isRefreshing) items(3) {
+                LoadBoxScreen(height = 130.dp, width = 246.dp)
             }
-        }
+            items(lazyQuizzes, { it.id }) { item ->
+                item?.let {
+                    Row(
+                        modifier
+                            .width(246.dp)
+                            .background(
+                                color = MaterialTheme.colors.onSurface.copy(
+                                    alpha = if (MaterialTheme.colors.isLight) 0.04f else 0.06f
+                                ),
+                                shape = MaterialTheme.shapes.small
+                            )) {
+                        val text = buildAnnotatedString {
+                            withStyle(
+                                SpanStyle(
+                                fontWeight = FontWeight.SemiBold)
+                            ) {
 
-        item { LazyStatePaging(items = lazyQuizzes, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
+                                append(item.user?.fullName ?: "unknown")
+                            }
+
+                            withStyle(
+                                SpanStyle(MaterialTheme.colors.onSurface.copy(0.5f),
+                                fontStyle = FontStyle.Italic, fontSize = 11.sp)
+                            ) {
+
+                                append(" @${item.user?.username ?: "@unknown"}")
+                                append(" ${ViewUtil.timeAgo(item.createdAt)}")
+                            }
+
+                            append("\n")
+                            append(item.question)
+                        }
+
+                        Text(text, //style = MaterialTheme.typography.subtitle1, maxLines = 5, overflow = TextOverflow.Ellipsis,
+                            modifier = modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = 24.dp,
+                                    horizontal = 16.dp
+                                )
+                        )
+                    }
+                }
+            } //item { LazyStatePaging(items = lazyQuizzes, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
+        }
     }
 }
 
 @Composable
-private fun Header(modifier: Modifier, title: String, icon: ImageVector, isTop: Boolean = false){
-    if (!isTop) Spacer(modifier.size(ButtonDefaults.IconSize))
+private fun Body(
+    modifier: Modifier, title: String, icon: ImageVector,
+    isTop: Boolean = false, content: @Composable () -> Unit){
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column {
+        if (!isTop) Spacer(modifier.size(ButtonDefaults.IconSize))
 
-        Icon(icon, contentDescription = null)
-        Text(title)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+
+            Icon(icon, contentDescription = null)
+            Text(title)
+        }
+
+        content()
     }
 }
+
+/*LazyColumn(
+    contentPadding = PaddingValues(12.dp),
+    verticalArrangement = Arrangement.spacedBy(4.dp)) {
+
+    item {
+        LazyRow(modifier.padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+
+            items(lazyQuizzes) { item ->
+                item?.let { QuestItem(it) }
+            }
+
+            //item { LazyStatePaging(items = lazyQuizzes, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
+        }
+    }
+}*/

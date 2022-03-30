@@ -88,7 +88,7 @@ fun LoadBoxScreen(
                             shape = MaterialTheme.shapes.small
                         ))
 
-                if (idx <= times) Spacer(modifier.size(8.dp))
+                if (idx <= times) Spacer(modifier.size(4.dp))
 
             } else Spacer(
                 modifier

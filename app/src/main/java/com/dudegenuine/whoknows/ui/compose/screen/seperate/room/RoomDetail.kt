@@ -9,11 +9,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,9 +30,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
-import com.dudegenuine.whoknows.ui.compose.state.DialogState
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
@@ -51,37 +49,16 @@ import okhttp3.internal.http.toHttpDateString
 fun RoomDetail(
     modifier: Modifier = Modifier,
     isOwn: Boolean = false,
-    viewModel: RoomViewModel = hiltViewModel(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    scaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed),
-    eventRouter: IRoomEventDetail, onBackPressed: () -> Unit) {
+    eventDetail: IRoomEventDetail,
+    onBackPressed: () -> Unit,
+    viewModel: RoomViewModel = hiltViewModel()) {
+    val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
+    val coroutineScope = rememberCoroutineScope()
     val state = viewModel.state
-    val context =  LocalContext.current
-
-    var dialogState by remember { mutableStateOf(DialogState()) }
     val toggle: () -> Unit = {
         coroutineScope.launch {
             if(scaffoldState.isRevealed) scaffoldState.conceal()
             else scaffoldState.reveal()
-        }
-    }
-    val eventCompose = object: IRoomEventDetail {
-        override fun onShareRoomPressed(roomId: String) { viewModel.onSharePressed(roomId) }
-        override fun onJoinRoomDirectlyPressed(room: Room.Complete) {
-            dialogState = DialogState(context.getString(R.string.participate_the_class), true, { dialogState = DialogState() }, if (viewModel.currentUserId.isNotBlank()) {
-                { eventRouter.onBoardingRoomPressed(room.id); toggle() }} else null) }
-        override fun onParticipantLongPressed(enabled: Boolean, participant: Participant) {
-            dialogState = DialogState(context.getString(R.string.delete_participant), true, { dialogState = DialogState() }, if(enabled) {
-                { viewModel.onDeleteParticipantPressed(participant) }} else null) }
-        override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String) {
-            dialogState = DialogState(context.getString(R.string.delete_question), true, { dialogState = DialogState() }, if(enabled) {
-                { viewModel.onDeleteQuestionPressed(quiz) }} else null) }
-        override fun onCloseRoomPressed(room: Room.Complete) {
-            dialogState = DialogState(context.getString(R.string.close_the_class), true, { dialogState = DialogState() })
-                { viewModel.expireRoom(room) { toggle() }} }
-        override fun onDeleteRoomPressed(enabled: Boolean, roomId: String) {
-            dialogState = DialogState(context.getString(R.string.delete_class), true, { dialogState = DialogState() }, if (enabled) {
-                { viewModel.onDeleteRoomPressed(roomId, eventRouter::onDeleteRoomSucceed) }} else null)
         }
     }
 
@@ -105,8 +82,7 @@ fun RoomDetail(
                 BackLayer(
                     model = model,
                     isOwn = isOwn,
-                    evenCompose = eventCompose,
-                    evenRouter = eventRouter
+                    eventDetail = eventDetail
                 )
             },
 
@@ -114,11 +90,11 @@ fun RoomDetail(
                 FrontLayer(modifier,
                     model = model, isOwn = isOwn,
                     currentUserId = viewModel.currentUserId,
-                    onProfileSelected = eventRouter::onParticipantItemPressed,
-                    onProfileLongPressed = { eventCompose.onParticipantLongPressed(!model.expired, it) },
-                    onQuestionPressed = eventRouter::onQuestionItemPressed,
-                    onQuestionLongPressed = eventCompose::onQuestionLongPressed,
-                    onResultSelected = eventRouter::onResultPressed
+                    onProfileSelected = eventDetail::onParticipantItemPressed,
+                    onProfileLongPressed = { eventDetail.onParticipantLongPressed(!model.expired, it) },
+                    onQuestionPressed = eventDetail::onQuestionItemPressed,
+                    onQuestionLongPressed = eventDetail::onQuestionLongPressed,
+                    onResultSelected = eventDetail::onResultPressed
                 )
             }
         )
@@ -126,22 +102,6 @@ fun RoomDetail(
 
     if (state.loading) LoadingScreen(modifier)
     if (state.error.isNotBlank()) ErrorScreen(modifier, message = state.error)
-    if (dialogState.opened) with (dialogState) {
-        AlertDialog(
-            modifier = modifier.padding(horizontal = 24.dp),
-            onDismissRequest = { onDismissed?.invoke() },
-            title = { Text(title) },
-            text = { Text(text) },
-            confirmButton = {
-                TextButton(
-                    { onSubmitted?.invoke(); onDismissed?.invoke() },
-                    enabled = onSubmitted != null) {
-
-                    Text((button ?: "submit").replaceFirstChar { it.uppercase() })
-                }
-            }
-        )
-    }
 }
 
 @Composable
@@ -149,8 +109,7 @@ private fun BackLayer(
     modifier: Modifier = Modifier,
     model: Room.Complete,
     isOwn: Boolean,
-    evenCompose: IRoomEventDetail,
-    evenRouter: IRoomEventDetail) {
+    eventDetail: IRoomEventDetail) {
     val enabled = !model.expired
 
     Column(
@@ -162,11 +121,11 @@ private fun BackLayer(
             enabled = enabled,
             modifier = modifier.fillMaxWidth(),
             onClick = {
-                if (isOwn) evenRouter.onNewRoomQuizPressed(model.id, model.userId)
-                else evenCompose.onJoinRoomDirectlyPressed(model ) }) {
+                if (isOwn) eventDetail.onNewRoomQuizPressed(model.id, model.userId)
+                else eventDetail.onJoinRoomDirectlyPressed(model) }) {
 
             Text(
-                color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
+                color = if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
 
                 text = if (isOwn) stringResource(R.string.add_new_question)
                     else stringResource(R.string.join_the_room)
@@ -175,12 +134,12 @@ private fun BackLayer(
 
         if (isOwn) {
             TextButton(
-                enabled = enabled and (model.questions.size >= 3),
+                enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = { evenCompose.onShareRoomPressed(model.id) }) {
+                onClick = { eventDetail.onShareRoomPressed(model) }) {
 
                 Text(
-                    color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
+                    color = if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
                     text = stringResource(R.string.invite_w_a_link)
                 )
             }
@@ -188,22 +147,20 @@ private fun BackLayer(
             TextButton(
                 enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = { evenCompose.onDeleteRoomPressed(
-                    model.participants.isEmpty() &&
-                            model.questions.all { it.images.isEmpty() }, model.id) }) {
+                onClick = { eventDetail.onDeleteRoomPressed(model) }) {
 
                 Text(stringResource(R.string.delete_permanent),
-                    color =  if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
+                    color =  if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
                 )
             }
 
             TextButton(
                 enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = { evenCompose.onCloseRoomPressed(model) }) {
+                onClick = { eventDetail.onCloseRoomPressed(model) }) {
 
                 Text(
-                    color = if (enabled) MaterialTheme.colors.onPrimary else Color.LightGray,
+                    color = if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
                     text = stringResource(R.string.close_the_room)
                 )
             }
@@ -248,10 +205,14 @@ private fun FrontLayer(
                 icon = Icons.Filled.CalendarToday,
             )
 
-            /*CardFooter(
-                text = model.user.username,
-                icon = Icons.Filled.VpnKey,
-            )*/
+            CardFooter(
+                text = "${if (model.expired) "Closed" else "Opened"} by ${
+                    model.user?.fullName ?:
+                    model.user?.username?.padStart(1, '@') ?:
+                    stringResource(R.string.unknown)
+                }",
+                icon = if (model.expired) Icons.Filled.Lock else Icons.Filled.LockOpen,
+            )
 
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                 Text(model.description, style = MaterialTheme.typography.body2)

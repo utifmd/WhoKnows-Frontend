@@ -61,20 +61,24 @@ class RoomRepository
     override suspend fun delete(id: String) =
         service.delete(id)
 
-    override suspend fun list(page: Int, size: Int): List<Room.Complete> = mapper.asRooms(
-        service.list(page, size))
+    override suspend fun listComplete(page: Int, size: Int): List<Room.Complete> {
+        return mapper.asRooms(service.listComplete(page, size))
+    }
 
-    override suspend fun list(userId: String, page: Int, size: Int): List<Room.Complete> = mapper.asRooms(
-        service.list(userId, page, size))
+    override suspend fun listCensored(page: Int, size: Int): List<Room.Censored> =
+        mapper.asRoomsCensored(service.listCensored(page, size))
 
-    override fun page(batchSize: Int): PagingSource<Int, Room.Complete> =
-        mapper.asPagingSource { page ->
-            list(page, batchSize)
+    override suspend fun listComplete(userId: String, page: Int, size: Int): List<Room.Complete> = mapper.asRooms(
+        service.listComplete(userId, page, size))
+
+    override fun page(batchSize: Int): PagingSource<Int, Room.Censored> =
+        mapper.asPagingCensoredSource { page ->
+            listCensored(page, batchSize)
         }
 
     override fun page(userId: String, batchSize: Int): PagingSource<Int, Room.Complete> =
-        mapper.asPagingSource { page ->
-            list(userId, page, batchSize)
+        mapper.asPagingCompleteSource { page ->
+            listComplete(userId, page, batchSize)
         }
 
     override suspend fun load(participantId: String?): Room.State.BoardingQuiz {

@@ -14,18 +14,17 @@ import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.concatenate
+import com.dudegenuine.whoknows.BuildConfig
 import com.dudegenuine.whoknows.infrastructure.common.Constants
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
 import com.dudegenuine.whoknows.ui.compose.state.UserState
-import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.CHECK_CONN
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
-import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -44,7 +43,7 @@ class UserViewModel
     private val caseMessaging: IMessageUseCaseModule,
     private val caseUser: IUserUseCaseModule,
     private val fileCase: IFileUseCaseModule,
-    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IUserViewModel {
+    private val savedStateHandle: SavedStateHandle): IUserViewModel() {
     @Inject lateinit var share: IShareLauncher
     private val TAG = javaClass.simpleName
 
@@ -58,7 +57,7 @@ class UserViewModel
         val navigated = savedStateHandle.get<String>(USER_ID_SAVED_KEY)
 
         navigated?.let(this::getUser) ?: getUser()
-        if (currentUserId.isNotBlank()) getUser(currentUserId)
+        if (currentUserId.isNotBlank()) getUser()
     }
 
     val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
@@ -172,7 +171,7 @@ class UserViewModel
     }
 
     fun onSharePressed(userId: String){
-        val data = "${Constants.BASE_CLIENT_URL}/who-knows/user/$userId"
+        val data = "${BuildConfig.BASE_CLIENT_URL}/who-knows/user/$userId"
         share.launch(data)
     }
 

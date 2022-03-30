@@ -26,11 +26,13 @@ import com.dudegenuine.whoknows.ui.compose.component.misc.CardFooter
 @Composable
 fun RoomItem(
     modifier: Modifier = Modifier,
-    censored: Boolean = false,
-    state: Room.Complete, onPressed: (() -> Unit)? = null) {
+    model: Room, onPressed: (() -> Unit)? = null) {
 
-    val desc: String = state.description
-        .replace("\n", "").trim()
+    val title = if (model is Room.Censored) model.title
+        else (model as Room.Complete).title
+
+    val desc: String = if (model is Room.Censored) model.description
+        else (model as Room.Complete).description.replace("\n", "").trim()
 
     GeneralCardView(
         modifier = modifier.clickable(
@@ -38,7 +40,7 @@ fun RoomItem(
             onClick = { onPressed?.invoke() })) {
 
         Column(modifier.padding(12.dp)) {
-            Text(state.title,
+            Text(title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.h6)
@@ -53,37 +55,39 @@ fun RoomItem(
                 )
             }
 
-            if (censored) {
-                Spacer(modifier.size(16.dp))
-                CardFooter(
-                    icon = Icons.Default.Timer,
-                    text = "${state.minute} minute\'s"
-                )
-            } else {
-                Row(
-                    modifier
+            when (model) {
+                is Room.Censored -> {
+                    Spacer(modifier.size(16.dp))
+                    CardFooter(
+                        icon = Icons.Default.Timer,
+                        text = "${model.minute} minute\'s"
+                    )
+                }
+                is Room.Complete -> {
+                    Row(modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp, bottom = 0.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-
-                    CardFooter(
-                        icon = if (!state.expired) Icons.Default.LockOpen else Icons.Default.Lock,
-                        text = if (!state.expired) "Opened ${timeAgo(state.createdAt)}"
-                            else "Closed ${state.updatedAt?.let { timeAgo(it) }}"
-                    )
-
-                    Row(Modifier) {
-                        CardFooter(
-                            icon = Icons.Default.QuestionAnswer,
-                            text = state.questions.size.toString())
-
-                        Spacer(modifier.width(16.dp))
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
 
                         CardFooter(
-                            icon = Icons.Default.People,
-                            text = state.participants.size.toString()
+                            icon = if (!model.expired) Icons.Default.LockOpen else Icons.Default.Lock,
+                            text = if (!model.expired) "Opened ${timeAgo(model.createdAt)}"
+                                else "Closed ${model.updatedAt?.let { timeAgo(it) }}"
                         )
+
+                        Row(Modifier) {
+                            CardFooter(
+                                icon = Icons.Default.QuestionAnswer,
+                                text = model.questions.size.toString())
+
+                            Spacer(modifier.width(16.dp))
+
+                            CardFooter(
+                                icon = Icons.Default.People,
+                                text = model.participants.size.toString()
+                            )
+                        }
                     }
                 }
             }

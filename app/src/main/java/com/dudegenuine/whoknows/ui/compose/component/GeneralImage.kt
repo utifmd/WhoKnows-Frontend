@@ -15,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
+import com.dudegenuine.whoknows.BuildConfig
 
 @ExperimentalCoilApi
 @Composable
@@ -27,7 +28,6 @@ fun GeneralImage(
     colorFilter: ColorFilter? = null,
     data: Any, onPressed: ((String?) -> Unit)? = null,
     placeholder: @Composable () -> Unit) {
-    val painter = rememberImagePainter(data = data)
 
     Box(modifier.fillMaxSize()) {
         when(data){
@@ -41,7 +41,8 @@ fun GeneralImage(
                 modifier = modifier.fillMaxSize()
             )
             else -> {
-                val fileId = if (data is String) data.substringAfterLast("/") else null
+                val fileId = if (data is String) data.substringAfterLast('/') else null
+                val painter = rememberImagePainter(data = BuildConfig.BASE_URL+"/files/"+fileId)
                 Image(
                     painter = painter,
                     contentDescription = contentDescription,

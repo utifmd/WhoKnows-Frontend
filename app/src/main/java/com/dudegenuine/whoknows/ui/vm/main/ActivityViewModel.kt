@@ -21,7 +21,6 @@ import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
-import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
@@ -44,13 +43,14 @@ class ActivityViewModel
     private val caseMessaging: IMessageUseCaseModule,
     private val caseNotifier: INotificationUseCaseModule,
     private val caseUser: IUserUseCaseModule,
-    private val savedStateHandle: SavedStateHandle): BaseViewModel(), IActivityViewModel {
+    private val savedStateHandle: SavedStateHandle): IActivityViewModel() {
     companion object { const val TOPIC_COMMON = "common" }
 
     private val TAG: String = javaClass.simpleName
     private val messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
     private val currentUserId = caseUser.currentUserId()
 
+    //var isSignedIn by mutableStateOf(currentUserId.isNotBlank())
     var token by mutableStateOf(caseMessaging.currentToken())
     var badge by mutableStateOf(caseUser.currentBadge())
     var isNotify by mutableStateOf(caseMessaging.currentBadgeStatus())
@@ -111,7 +111,7 @@ class ActivityViewModel
         }
     }
 
-    override fun getJoinedOwnedRoomIds(onSucceed: (List<String>) -> Unit) {
+    private fun getJoinedOwnedRoomIds(onSucceed: (List<String>) -> Unit) {
         if (currentUserId.isBlank()) return
 
         caseUser.getUser()
@@ -139,11 +139,18 @@ class ActivityViewModel
     private val onPrefsListener = SharedPreferences
         .OnSharedPreferenceChangeListener { prefs, key ->
 
-        if (key == CURRENT_NOTIFICATION_BADGE) {
-            val preBadge = prefs?.getInt(CURRENT_NOTIFICATION_BADGE, 0)
-            val fresh = preBadge ?: 0
+        when (key) {
+            /*CURRENT_USER_ID -> {
+                val fresh = prefs?.getString(CURRENT_NOTIFICATION_BADGE, "")
 
-            onBadgeChange(fresh)
+                // onIsSignedInChange(!fresh.isNullOrBlank())
+            }*/
+            CURRENT_NOTIFICATION_BADGE -> {
+                val preBadge = prefs?.getInt(CURRENT_NOTIFICATION_BADGE, 0)
+                val fresh = preBadge ?: 0
+
+                onBadgeChange(fresh)
+            }
         }
     }
 
@@ -166,4 +173,5 @@ class ActivityViewModel
     }
 
     private fun onBadgeChange(fresh: Int){ badge = fresh }
+//    private fun onIsSignedInChange(fresh: Boolean){ isSignedIn = fresh }
 }

@@ -9,6 +9,7 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
@@ -26,6 +27,7 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalMaterialApi
 @Composable
 fun RoomStatedPreBoardingScreen(
+    props: IMainProps,
     viewModel: RoomViewModel = hiltViewModel(),
     eventHome: IRoomEventHome,
     eventBoarding: IRoomEventBoarding) {
@@ -54,6 +56,7 @@ fun RoomStatedPreBoardingScreen(
             onDonePressed = { viewModel.onCloseBoarding() }
         )
         uiState is Room.State.CurrentRoom -> RoomHomeScreen(
+            props = props,
             event = eventHome
         )
         state.loading -> LoadingScreen()

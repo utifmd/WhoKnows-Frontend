@@ -11,7 +11,8 @@ import java.util.*
  * Wed, 01 Dec 2021
  * WhoKnows by utifmd
  **/
-object Room {
+sealed class Room {
+
     data class Censored(
         val roomId: String,
         val userId: String,
@@ -19,19 +20,23 @@ object Room {
         val title: String,
         val description: String,
         val expired: Boolean,
-    )
+        val usernameOwner: String,
+        val fullNameOwner: String,
+        val questionSize: Int,
+        val participantSize: Int): Room()
     
     data class Complete(
         val id: String,
         val userId: String,
         var minute: Int,
-        var title: String,
-        var description: String,
+        val title: String,
+        val description: String,
         var expired: Boolean,
         var createdAt: Date,
         var updatedAt: Date?,
+        val user: User.Censored?,
         var questions: List<Quiz.Complete>,
-        var participants: List<Participant>) {
+        var participants: List<Participant>): Room() {
         val isPropsBlank: Boolean =
             minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
     
@@ -86,7 +91,7 @@ object Room {
             val room: Complete get() = mutableStateOf(Complete(
                 id = "ROM-${UUID.randomUUID()}", userId = "",
                 minute = if(minute.text.isBlank()) 0 else minute.text.toInt(), title = title.text, description = desc.text,
-                expired = false, questions = emptyList(), participants = emptyList(), createdAt = Date(), updatedAt = null)).value
+                expired = false, questions = emptyList(), participants = emptyList(), createdAt = Date(), updatedAt = null, user = null)).value
 
             val notification: Notification get() = mutableStateOf(Notification(
                 notificationId = "NTF-${UUID.randomUUID()}",
@@ -124,7 +129,11 @@ object Room {
             }
 
             fun onRoomIdChange(id: String) {
-                _roomId.value = id
+                var fresh = id
+                if (id.contains(BuildConfig.BASE_CLIENT_URL)){
+                    fresh = id.substringAfterLast('/')
+                }
+                _roomId.value = fresh
             }
 
             fun onTimerChange(time: Double){

@@ -21,11 +21,11 @@ val SmoothBackground = Color.Black.copy(alpha = 0.04f)
 
 val LightShimmerColorShades = listOf(
     SmoothBackground,
-    Color.LightGray.copy(0.5f),
+    Color.LightGray,
     SmoothBackground
 )
 val DarkShimmerColorShades = listOf(
-    Color.Gray.copy(0.5f),
+    Color.DarkGray,
     SmoothBackground,
-    Color.Gray.copy(0.5f),
+    Color.DarkGray,
 )

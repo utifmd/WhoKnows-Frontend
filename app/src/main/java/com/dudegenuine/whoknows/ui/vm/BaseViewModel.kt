@@ -7,9 +7,13 @@ import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.dudegenuine.model.*
+import com.dudegenuine.whoknows.ui.compose.state.DialogState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -35,6 +39,10 @@ abstract class BaseViewModel: ViewModel() {
     private val _snackHostState = mutableStateOf(SnackbarHostState())
     val snackHostState = _snackHostState.value
 
+    /*private val _dialogState = mutableStateOf(DialogState())
+    val dialogState = _dialogState.value*/
+    var dialogState by mutableStateOf<DialogState?>(null)
+
     private val _snackBarHostState by mutableStateOf(snackHostState)
     val scaffoldState by mutableStateOf(
         ScaffoldState(DrawerState(
@@ -52,6 +60,12 @@ abstract class BaseViewModel: ViewModel() {
         viewModelScope.launch {
             _snackMessage.emit(message)
         }
+    }
+
+    fun onDialogStateChange(state: DialogState){
+        Log.d(TAG, "onDialogStateChange: triggered")
+        dialogState = state
+        //_dialogState.value = state
     }
 
 
@@ -80,6 +94,13 @@ abstract class BaseViewModel: ViewModel() {
             Home("home"),
             Detail("detail")
         }*/
+
+    fun <T: Any> pagingLoading(items: LazyPagingItems<T>): Boolean = mutableStateOf(
+        items.loadState.refresh is LoadState.Loading).value
+
+    fun <T: Any> pagingError(items: LazyPagingItems<T>): Boolean = mutableStateOf(
+        items.loadState.refresh is LoadState.Error).value
+
     protected fun<T> onResource(resource: Resource<T>){
         onResourceSucceed(resource){ data ->
             if (data is List<*>) {
@@ -200,17 +221,17 @@ abstract class BaseViewModel: ViewModel() {
             }
             is Resource.Loading -> {
                 Log.d(TAG, "onResourceFLow: loading..")
-                _state.value = ResourceState(loading = true)
+                //_state.value = ResourceState(loading = true)
 
                 resources.data?.let {
                     Log.d(TAG, "onResourceFLow: loading already got data")
-                    _state.value = ResourceState(loading = false)
+                    //_state.value = ResourceState(loading = false)
                     onSucceed.invoke(it)
                 } ?: emptyFlow()
             }
             is Resource.Error -> {
                 Log.d(TAG, "onResourceFlowError: ${resources.message}")
-                _state.value = ResourceState(loading = false)
+                //_state.value = ResourceState(loading = false)
                 emptyFlow()
             }
         }

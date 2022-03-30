@@ -2,7 +2,7 @@ package com.dudegenuine.whoknows.ui.vm.file
 
 import androidx.lifecycle.SavedStateHandle
 import com.dudegenuine.local.api.IShareLauncher
-import com.dudegenuine.whoknows.infrastructure.common.Constants.BASE_CLIENT_URL
+import com.dudegenuine.whoknows.BuildConfig
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.ui.vm.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +20,7 @@ class FileViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IFileViewModel {
 
     fun onSharePressed(fileId: String){
-        val data = "$BASE_CLIENT_URL/who-knows/image-viewer/$fileId"
+        val data = "${BuildConfig.BASE_CLIENT_URL}/who-knows/image-viewer/$fileId"
         caseShare.launch(data)
     }
 }

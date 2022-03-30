@@ -21,15 +21,16 @@ interface IRoomRepository {
     suspend fun read(id: String): Room.Complete
     suspend fun update(id: String, room: Room.Complete): Room.Complete
     suspend fun delete(id: String)
-    suspend fun list(page: Int, size: Int): List<Room.Complete>
-    suspend fun list(userId: String, page: Int, size: Int): List<Room.Complete>
+    suspend fun listComplete(page: Int, size: Int): List<Room.Complete>
+    suspend fun listCensored(page: Int, size: Int): List<Room.Censored>
+    suspend fun listComplete(userId: String, page: Int, size: Int): List<Room.Complete>
 
     suspend fun load(participantId: String? = null): Room.State.BoardingQuiz
     suspend fun save(boarding: Room.State.BoardingQuiz)
     suspend fun replace(boarding: Room.State.BoardingQuiz)
     suspend fun unload()/*(participantId: String)*/
 
-    fun page(batchSize: Int): PagingSource<Int, Room.Complete>
+    fun page(batchSize: Int): PagingSource<Int, Room.Censored>
     fun page(userId: String, batchSize: Int): PagingSource<Int, Room.Complete>
 
     val currentToken: () -> String

@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
+/*
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
@@ -20,10 +21,12 @@ import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 
+*/
 /**
  * Mon, 24 Jan 2022
  * WhoKnows by utifmd
- **/
+ **//*
+
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @FlowPreview
@@ -61,4 +64,4 @@ fun HomeScreen(
             }
         }
     )
-}
+}*/

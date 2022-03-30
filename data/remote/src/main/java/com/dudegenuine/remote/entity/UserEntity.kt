@@ -57,7 +57,5 @@ object UserEntity{
         val rooms: List<RoomEntity.Censored>,
 
         @SerializedName("notifications")
-        val notifications: List<NotificationEntity>){
-
-    }
+        val notifications: List<NotificationEntity>)
 }

@@ -3,18 +3,22 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.component.misc.LazyStatePaging
-import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -31,21 +35,19 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalFoundationApi
 @Composable
 fun RoomHomeScreen(
+    props: IMainProps,
+    event: IRoomEventHome,
     modifier: Modifier = Modifier,
-    scaffoldState: ScaffoldState = rememberScaffoldState(),
     viewModel: RoomViewModel = hiltViewModel(),
-    event: IRoomEventHome) {
-    val state = viewModel.state
-    val swipeRefreshState = rememberSwipeRefreshState(state.loading)
-    val lazyPagingRooms = viewModel.roomsOwner.collectAsLazyPagingItems()
+    listState: LazyListState = rememberLazyListState()) { //val state = viewModel.state
+    val swipeRefreshState = rememberSwipeRefreshState(
+        viewModel.pagingLoading(props.ownerRoomsPager))
 
     Scaffold(modifier,
-        topBar = { GeneralTopBar(title = "Created class") },
-        scaffoldState = scaffoldState) {
-        SwipeRefresh(swipeRefreshState, onRefresh = { lazyPagingRooms.refresh() }) {
-
-            LazyColumn(
-                modifier = modifier.fillMaxSize(),
+        topBar = { GeneralTopBar(title = "Created class") }) {
+        SwipeRefresh(swipeRefreshState, props.ownerRoomsPager::refresh) {
+            LazyColumn(modifier.fillMaxSize(),
+                state = listState,
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
@@ -56,30 +58,19 @@ fun RoomHomeScreen(
                         onJoinWithACodePressed = event::onJoinRoomWithACodePressed,
                     )
                 }
-                items(lazyPagingRooms) {
-                    it?.let { room ->
-                        RoomItem(
-                            state = room) {
 
-                            event.onRoomItemSelected(room.id)
-                        }
-                    }
-                }
                 item {
                     LazyStatePaging(
+                        items = props.ownerRoomsPager,
                         vertical = Arrangement.spacedBy(8.dp),
-                        items = lazyPagingRooms,
-                        height = 130.dp,
-                        width = null,
-                        repeat = 5
-                    )
+                        repeat = 5, height = 130.dp, width = null)
+                }
+
+                items(props.ownerRoomsPager) { it?.let { room ->
+                    RoomItem(model = room) { event.onRoomItemSelected(room.id) }}
                 }
             }
         }
-
-        if(state.error.isNotBlank()) ErrorScreen(
-            modifier = modifier, message = state.error, isDanger = false
-        )
     }
 }
 

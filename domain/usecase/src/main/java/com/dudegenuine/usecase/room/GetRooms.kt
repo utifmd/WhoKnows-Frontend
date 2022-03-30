@@ -21,7 +21,7 @@ class GetRooms
     @Inject constructor(
     private val repository: IRoomRepository) {
 
-    operator fun invoke(size: Int): Flow<PagingData<Room.Complete>> {
+    operator fun invoke(size: Int): Flow<PagingData<Room.Censored>> {
         val config = PagingConfig(size,
             enablePlaceholders = true, maxSize = 200)
 
@@ -30,10 +30,19 @@ class GetRooms
         return pager.flow
     }
 
+    operator fun invoke(userId: String, size: Int): Flow<PagingData<Room.Complete>> {
+        val config = PagingConfig(size,
+            enablePlaceholders = true, maxSize = 200)
+
+        val pager = Pager(config) { repository.page(userId, size) }
+
+        return pager.flow
+    }
+
     operator fun invoke(page: Int, size: Int): Flow<Resource<List<Room.Complete>>> = flow {
         try {
             emit(Resource.Loading())
-            val rooms = repository.list(page, size)
+            val rooms = repository.listComplete(page, size)
 
             emit(Resource.Success(rooms))
         } catch (e: HttpFailureException){
@@ -45,14 +54,5 @@ class GetRooms
         } catch (e: Exception){
             emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
-    }
-
-    operator fun invoke(userId: String, size: Int): Flow<PagingData<Room.Complete>> {
-        val config = PagingConfig(size,
-            enablePlaceholders = true, maxSize = 200)
-
-        val pager = Pager(config) { repository.page(userId, size) }
-
-        return pager.flow
     }
 }

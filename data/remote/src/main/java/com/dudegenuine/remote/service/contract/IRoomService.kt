@@ -12,8 +12,9 @@ interface IRoomService {
     suspend fun read(id: String): Response<RoomEntity.Complete>
     suspend fun update(id: String, entity: RoomEntity.Complete): Response<RoomEntity.Complete>
     suspend fun delete(id: String)
-    suspend fun list(page: Int, size: Int): Response<List<RoomEntity.Complete>>
-    suspend fun list(userId: String, page: Int, size: Int): Response<List<RoomEntity.Complete>>
+    suspend fun listComplete(page: Int, size: Int): Response<List<RoomEntity.Complete>>
+    suspend fun listCensored(page: Int, size: Int): Response<List<RoomEntity.Censored>>
+    suspend fun listComplete(userId: String, page: Int, size: Int): Response<List<RoomEntity.Complete>>
 
     companion object {
         const val API_KEY = "X-Api-Key: utif.pages.dev"

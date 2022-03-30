@@ -5,11 +5,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizPublicEvent
@@ -47,19 +47,18 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
-fun NavGraphBuilder.summaryGraph(
-    router: NavHostController) {
+fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     val profile = Screen.Home.Summary.RoomDetail.ProfileDetail
     val roomDetail = Screen.Home.Summary.RoomDetail
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route) {
         RoomCreatorScreen(
-            onBackPressed = router::popBackStack,
+            onBackPressed = props.router::popBackStack,
             onSucceed = {
                 val route = Screen.Home.Summary.route
 
-                router.navigate(route){
+                props.router.navigate(route){
                     popUpTo(route) { inclusive = true }
                 }
             }
@@ -69,9 +68,9 @@ fun NavGraphBuilder.summaryGraph(
     composable(
         route = Screen.Home.Summary.RoomFinder.route){
         RoomFinderScreen(
-            onBackPressed = router::popBackStack,
+            onBackPressed = props.router::popBackStack,
             onRoomSelected = { roomId ->
-                router.navigate(
+                props.router.navigate(
                     Screen.Home.Summary.RoomDetail.routeWithArgs(roomId, OWN_IS_FALSE))
             }
         )
@@ -83,9 +82,9 @@ fun NavGraphBuilder.summaryGraph(
             uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") })){ entry ->
 
         RoomDetail(
-            onBackPressed = router::popBackStack,
+            onBackPressed = props.router::popBackStack,
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
-            eventRouter = RoomEventDetail(router = router))
+            eventDetail = RoomEventDetail(props))
     }
 
     composable(
@@ -95,7 +94,7 @@ fun NavGraphBuilder.summaryGraph(
             override fun onDoneResultPressed() {
                 val screen = Screen.Home.Summary.route
 
-                router.navigate(screen) {
+                props.router.navigate(screen) {
                     popUpTo(screen) { inclusive = true }
                 }
             }
@@ -108,11 +107,11 @@ fun NavGraphBuilder.summaryGraph(
         route = Screen.Home.Summary.RoomDetail.QuizCreator.routeWithArgs(
             "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")) {
 
-        QuizCreatorScreen(onBackPressed = router::popBackStack) { quiz ->
+        QuizCreatorScreen(onBackPressed = props.router::popBackStack) { quiz ->
             val screen = Screen.Home.Summary.RoomDetail.routeWithArgs(
                 quiz.roomId, OWN_IS_TRUE)
 
-            with (router) {
+            with (props.router) {
                 repeat (2){ popBackStack() }
 
                 navigate(screen)
@@ -125,12 +124,12 @@ fun NavGraphBuilder.summaryGraph(
             "{$QUIZ_ID_SAVED_KEY}")){
 
         val event = object: IQuizPublicEvent {
-            override fun onBackPressed() { router.popBackStack() }
-            override fun onDeletePressed() { router.popBackStack() }
+            override fun onBackPressed() { props.router.popBackStack() }
+            override fun onDeletePressed() { props.router.popBackStack() }
             override fun onPicturePressed(fileId: String?) {
                 if (fileId.isNullOrBlank()) return
 
-                router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
+                props.router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
             }
         }
 
@@ -147,11 +146,11 @@ fun NavGraphBuilder.summaryGraph(
             uriPattern = profile.uriWithArgs("{$USER_ID_SAVED_KEY}") })){
 
         val event = object: IProfileEvent {
-            override fun onBackPressed() { router.popBackStack() }
+            override fun onBackPressed() { props.router.popBackStack() }
             override fun onPicturePressed(fileId: String?) {
                 if(fileId.isNullOrBlank()) return
 
-                router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
+                props.router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
             }
         }
 
@@ -165,6 +164,6 @@ fun NavGraphBuilder.summaryGraph(
         route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(
             "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}")){
 
-        ResultDetail(onBackPressed = router::popBackStack)
+        ResultDetail(onBackPressed = props.router::popBackStack)
     }
 }

@@ -47,12 +47,13 @@ fun ProfileScreen(
     scrollState: ScrollState = rememberScrollState()){
 
     val state = viewModel.state
-    val byteArray = viewModel.formState.profileImage
+    val formState = viewModel.formState
+    val byteArray = formState.profileImage
     val context = LocalContext.current
     val swipeRefreshState = rememberSwipeRefreshState(state.loading)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = { viewModel.formState.onImageValueChange(it, context) })
+        onResult = { formState.onImageValueChange(it, context) })
 
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -61,104 +62,109 @@ fun ProfileScreen(
                 leads = if (!isOwn) Icons.Filled.ArrowBack else null,
                 onLeadsPressed = if (!isOwn) event::onBackPressed else null,
                 tails = Icons.Filled.MoreVert,
-                onTailPressed = { state.user?.let { viewModel.onSharePressed(it.id) } }
+                onTailPressed = if (state.user != null){
+                    { state.user.id.let(viewModel::onSharePressed) }} else null
             )
         },
 
         content = {
-            SwipeRefresh(swipeRefreshState, onRefresh = { state.user?.let { viewModel.getUser(it.id) } }) {
-                Column(modifier.verticalScroll(scrollState),
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-                    Spacer(modifier.size(12.dp))
+            SwipeRefresh(swipeRefreshState, { state.user?.id?.let(viewModel::getUser) }) {
+                state.user?.let { user ->
+                    val profileUrl = user.profileUrl.substringAfterLast('/')
+                    Column(modifier.verticalScroll(scrollState),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Spacer(modifier.size(12.dp))
 
-                    if (isOwn) GeneralPicture(
-                        data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray)
-                            else state.user?.profileUrl ?: "",
-                        onChangePressed = { launcher.launch("image/*") },
-                        onCheckPressed = viewModel::onUploadProfile,
-                        onPreviewPressed = {
-                            val fileId = state.user?.profileUrl?.substringAfterLast("/")
-                            event.onPicturePressed(fileId)
-                        }
+                        if (isOwn) GeneralPicture(
+                            data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray)
+                                else profileUrl,
+                            onChangePressed = { launcher.launch("image/*") },
+                            onCheckPressed = viewModel::onUploadProfile,
+                            onPreviewPressed = {
+                                val fileId = profileUrl
+                                event.onPicturePressed(fileId)
+                            }
 
-                    ) else GeneralPicture(
-                        data = state.user?.profileUrl ?: "",
-                        onGeneralImagePressed = event::onPicturePressed
-                    )
+                        ) else GeneralPicture(
+                            data = user.profileUrl,
+                            onGeneralImagePressed = event::onPicturePressed
+                        )
 
-                    Spacer(modifier.size(24.dp))
-                    Row {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Filled.Class, tint = MaterialTheme.colors.primary, contentDescription = null)
-                            Text("${state.user?.rooms?.size} class${if((state.user?.rooms?.size ?: 0) > 1)"es" else ""}", fontSize = 11.sp)
-                        }
                         Spacer(modifier.size(24.dp))
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
-                            Text("${state.user?.participants?.size} participation ${if((state.user?.participants?.size ?: 0) > 1)"\'s" else ""}", fontSize = 11.sp)
+                        Row {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Filled.Class, tint = MaterialTheme.colors.primary, contentDescription = null)
+                                Text("${user.rooms.size} class${if(user.rooms.size > 1)"es" else ""}", fontSize = 11.sp)
+                            }
+                            Spacer(modifier.size(24.dp))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
+                                Text("${user.participants.size} participation ${if(user.participants.size > 1)"\'s" else ""}", fontSize = 11.sp)
+                            }
                         }
-                    }
 
-                    Spacer(modifier.size(24.dp))
-                    Column(
-                        contentModifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp, horizontal = 12.dp)
-                            .clip(shape = MaterialTheme.shapes.medium)
-                            .background(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
+                        Spacer(modifier.size(24.dp))
+                        Column(
+                            contentModifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp, horizontal = 12.dp)
+                                .clip(shape = MaterialTheme.shapes.medium)
+                                .background(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
 
-                        FieldTag(
-                            key = stringResource(R.string.full_name),
-                            editable = isOwn,
-                            value =  state.user?.let { it.fullName.ifBlank { "Not Set" } } ?: "",
-                            onValuePressed = { state.user?.let { event.onFullNamePressed(it.fullName.ifBlank { "Not Set" }) } })
+                            FieldTag(
+                                key = stringResource(R.string.full_name),
+                                editable = isOwn,
+                                value = user.let { it.fullName.ifBlank { "Not Set" } },
+                                onValuePressed = { user.let { event.onFullNamePressed(it.fullName.ifBlank { "Not Set" }) } })
 
-                        FieldTag(
-                            key = stringResource(R.string.phone_number),
-                            editable = isOwn,
-                            value = state.user?.let { it.phone.ifBlank { "Not Set" } } ?: "",
-                            onValuePressed = { state.user?.let { event.onPhonePressed(it.phone.ifBlank { "Not Set" }) } })
+                            FieldTag(
+                                key = stringResource(R.string.phone_number),
+                                editable = isOwn,
+                                value = user.let { it.phone.ifBlank { "Not Set" } },
+                                onValuePressed = { user.let { event.onPhonePressed(it.phone.ifBlank { "Not Set" }) } })
 
-                        FieldTag(
-                            key = stringResource(R.string.username),
-                            editable = false,
-                            value = state.user?.username ?: "",
-                            onValuePressed = { state.user?.let { event.onUsernamePressed(it.username.ifBlank { "Not Set" }) }})
+                            FieldTag(
+                                key = stringResource(R.string.username),
+                                editable = false,
+                                value = user.username,
+                                onValuePressed = { user.let { event.onUsernamePressed(it.username.ifBlank { "Not Set" }) }})
 
-                        FieldTag(
-                            key = stringResource(R.string.email),
-                            value = state.user?.email ?: "",
-                            editable = false,
-                            onValuePressed = { state.user?.let { event.onEmailPressed(it.email) } })
+                            FieldTag(
+                                key = stringResource(R.string.email),
+                                value = user.email,
+                                editable = false,
+                                onValuePressed = { user.let { event.onEmailPressed(it.email) } })
 
-                        FieldTag(
-                            key = stringResource(R.string.user_id),
-                            value = state.user?.id ?: "Not set",
-                            editable = false,
-                            onValuePressed = { state.user?.let { event.onPasswordPressed(it.password) }})
+                            FieldTag(
+                                key = stringResource(R.string.user_id),
+                                value = user.id,
+                                editable = false,
+                                onValuePressed = { user.let { event.onPasswordPressed(it.password) }})
 
-                        FieldTag(
-                            key = stringResource(R.string.password),
-                            value = state.user?.password ?: "Not set",
-                            editable = false,
-                            censored = true,
-                            isDivide = false,
-                            onValuePressed = { state.user?.let { event.onPasswordPressed(it.password) }})
-                    }
-
-                    if (isOwn){
-                        Button(event::onSignOutPressed) {
-
-                            Icon(Icons.Default.Logout,
-                                contentDescription = null)
-
-                            Spacer(modifier.size(ButtonDefaults.IconSize))
-                            Text(stringResource(R.string.sign_out))
+                            FieldTag(
+                                key = stringResource(R.string.password),
+                                value = user.password,
+                                editable = false,
+                                censored = true,
+                                isDivide = false,
+                                onValuePressed = { user.let { event.onPasswordPressed(it.password) }})
                         }
-                    }
 
-                    Spacer(modifier.size(12.dp))
+                        if (isOwn){
+                            Button(event::onSignOutPressed) {
+
+                                Icon(Icons.Default.Logout,
+                                    contentDescription = null)
+
+                                Spacer(modifier.size(ButtonDefaults.IconSize))
+                                Text(stringResource(R.string.sign_out))
+                            }
+                        }
+
+                        Spacer(modifier.size(12.dp))
+                    }
                 }
+
                 if (state.error.isNotBlank()) ErrorScreen(message = state.error)
             }
         }

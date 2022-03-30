@@ -32,10 +32,11 @@ object DataMapperModule: IDataMapperModule {
     @Singleton
     override fun provideRoomDataMapper(
         gson: Gson,
+        mapperUser: IUserDataMapper,
         mapperQuiz: IQuizDataMapper,
         mapperParticipant: IParticipantDataMapper
     ): IRoomDataMapper {
-        return RoomDataMapper(gson, mapperQuiz, mapperParticipant)
+        return RoomDataMapper(gson, mapperUser, mapperQuiz, mapperParticipant)
     }
 
     @Provides

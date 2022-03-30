@@ -25,11 +25,23 @@ object RoomEntity {
         val description: String,
 
         @SerializedName("expired")
-        val expired: Boolean
+        val expired: Boolean,
+
+        @SerializedName("usernameOwner")
+        val usernameOwner: String,
+
+        @SerializedName("fullNameOwner")
+        val fullNameOwner: String,
+
+        @SerializedName("questionSize")
+        val questionSize: Int,
+
+        @SerializedName("participantSize")
+        val participantSize: Int
     )
 
     data class Complete (
-        @SerializedName("roomId")// @SerializedName("roomId")
+        @SerializedName("roomId")// @SerializedName("roomId")usernameOwner
         val roomId: String,
 
         @SerializedName("userId")
@@ -52,6 +64,9 @@ object RoomEntity {
 
         @SerializedName("updatedAt")
         val updatedAt: Date?,
+
+        @SerializedName("user")
+        val user: UserEntity.Censored?,
 
         @SerializedName("questions")
         val questions: List<QuizEntity>,

@@ -1,7 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.navigation
 
+import com.dudegenuine.whoknows.BuildConfig
 import com.dudegenuine.model.common.ImageUtil.strOf
-import com.dudegenuine.whoknows.infrastructure.common.Constants.BASE_CLIENT_URL
 
 /**
  * Mon, 17 Jan 2022
@@ -26,12 +26,12 @@ sealed class Screen(
             object RoomCreator: Screen(strOf<Summary>()+strOf<RoomCreator>())
             object RoomDetail: Screen(
                 strOf<Summary>()+strOf<RoomDetail>(),
-                "$BASE_CLIENT_URL/who-knows/room"){
+                "${BuildConfig.BASE_CLIENT_URL}/who-knows/room"){
                 object QuizCreator: Screen(strOf<RoomDetail>()+strOf<QuizCreator>())
                 object QuizDetail: Screen(strOf<RoomDetail>()+strOf<QuizDetail>())
                 object ProfileDetail: Screen(
                     strOf<RoomDetail>()+strOf<ProfileDetail>(),
-                "$BASE_CLIENT_URL/who-knows/user")
+                "${BuildConfig.BASE_CLIENT_URL}/who-knows/user")
                 object ResultDetail: Screen(strOf<RoomDetail>()+strOf<ResultDetail>())
             }
             object OnBoarding: Screen(strOf<Summary>()+strOf<OnBoarding>()){
@@ -42,7 +42,7 @@ sealed class Screen(
         object Discover: Screen(strOf<Home>()+strOf<Discover>()){
             object Notification: Screen(
                 strOf<Discover>()+strOf<Notification>(),
-                "$BASE_CLIENT_URL/who-knows/notifications")
+                "${BuildConfig.BASE_CLIENT_URL}/who-knows/notifications")
             object RoomFinder: Screen(strOf<Discover>()+strOf<RoomFinder>())
             object RoomDetail: Screen(strOf<Discover>()+strOf<RoomDetail>())
             object ProfileDetail: Screen(strOf<Discover>()+strOf<ProfileDetail>())
@@ -54,7 +54,7 @@ sealed class Screen(
 
         object Preview: Screen(
             strOf<Home>()+strOf<Preview>(),
-            "$BASE_CLIENT_URL/who-knows/image-viewer")
+            "${BuildConfig.BASE_CLIENT_URL}/who-knows/image-viewer")
     }
 
     // fun withKey(key: String): String = "$route/$key={$key}"

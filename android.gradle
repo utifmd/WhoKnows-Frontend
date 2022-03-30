@@ -15,11 +15,17 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // buildConfigField "String", "HEADER_API", "\"X-Api-Key: utif.pages.dev\""
+            // buildConfigField "String", "BASE_DEFAULT_API", "\"X-Api-Key: utif.pages.dev\""
+            buildConfigField "String", "BASE_URL", "\"https://who-knows-backend.herokuapp.com\""
+            buildConfigField "String", "BASE_CLIENT_URL", "\"https://utif.pages.dev\""
+            buildConfigField "String", "BASE_FCM_URL", "\"https://fcm.googleapis.com\""
         }
 
         debug {
-            // buildConfigField "String", "HEADER_API", "\"X-Api-Key: utif.pages.dev\""
+            // buildConfigField "String", "BASE_DEFAULT_API", "\"X-Api-Key: utif.pages.dev\""
+            buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:8080\""
+            buildConfigField "String", "BASE_CLIENT_URL", "\"https://utif.pages.dev\""
+            buildConfigField "String", "BASE_FCM_URL", "\"https://fcm.googleapis.com\""
         }
     }
 

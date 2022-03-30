@@ -37,14 +37,21 @@ interface RoomService: IRoomService {
 
     @Headers(API_KEY, ACCEPT)
     @GET(ENDPOINT)
-    override suspend fun list(
+    override suspend fun listComplete(
         @Query("page") page: Int,
         @Query("size") size: Int): Response<List<RoomEntity.Complete>>
 
     @Headers(API_KEY, ACCEPT)
+    @GET(ENDPOINT)
+    override suspend fun listCensored(
+        @Query("page") page: Int,
+        @Query("size") size: Int): Response<List<RoomEntity.Censored>>
+
+    @Headers(API_KEY, ACCEPT)
     @GET("${ENDPOINT}/owner/{userId}")
-    override suspend fun list(
+    override suspend fun listComplete(
         @Path("userId") userId: String,
         @Query("page") page: Int,
         @Query("size") size: Int): Response<List<RoomEntity.Complete>>
+
 }

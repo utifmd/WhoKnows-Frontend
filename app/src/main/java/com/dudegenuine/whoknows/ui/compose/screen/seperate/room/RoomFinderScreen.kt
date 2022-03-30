@@ -6,7 +6,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.InsertInvitation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -59,7 +59,7 @@ fun RoomFinderScreen(
                 GeneralTextField(
                     label = "Enter an invitation code",
                     value = formState.roomId,
-                    leads = Icons.Filled.Security,
+                    leads = Icons.Filled.InsertInvitation,
                     tails = if(formState.roomId.isNotBlank()) Icons.Filled.Close else null,
                     onTailPressed = { formState.onRoomIdChange("") },
                     onValueChange = formState::onRoomIdChange,
@@ -70,7 +70,7 @@ fun RoomFinderScreen(
 
                 viewModel.state.room?.let {
                     RoomItem(
-                        state = it,
+                        model = it,
                         onPressed = { onRoomSelected(it.id) }
                     )
                 }
