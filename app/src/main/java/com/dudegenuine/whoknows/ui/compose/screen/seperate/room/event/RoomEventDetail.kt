@@ -29,9 +29,9 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalCoroutinesApi
 @ExperimentalMaterialApi
 class RoomEventDetail(
-    private val props: IMainProps): IRoomEventDetail {
+    private val props: IMainProps,
+    private val vmRoom: RoomViewModel): IRoomEventDetail {
     private val vmMain = props.vmMain as ActivityViewModel
-    private val vmRoom = props.vmRoom as RoomViewModel
 
     override fun onNewRoomQuizPressed(roomId: String, owner: String) {
         props.router.navigate(
@@ -65,6 +65,7 @@ class RoomEventDetail(
 
     override fun onBackPressed() {
         props.router.popBackStack()
+        //vmRoom.roomsOwner.retry()
     }
 
     override fun onDeleteRoomSucceed() {
@@ -100,8 +101,27 @@ class RoomEventDetail(
         vmMain.onDialogStateChange(dialog)
     }
 
+    override fun onCloseRoomPressed(room: Room.Complete, finished: () -> Unit) {
+        val dialog = DialogState(props.context.getString(R.string.close_the_class)) {
+            if(room.questions.size >= 3) vmRoom.expireRoom(room, finished)
+            else vmMain.onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest)) }
+        vmMain.onDialogStateChange(dialog)
+    }
+
+    override fun onDeleteRoomPressed(room: Room.Complete) {
+        val disclaimer = when {
+            room.participants.isNotEmpty() -> props.context.getString(R.string.there_is_no_participant)
+            room.questions.all { it.images.isNotEmpty() } -> props.context.getString(R.string.there_is_no_quest)
+            else -> null
+        }
+        val accepted = room.participants.isEmpty() && room.questions.all { it.images.isEmpty() }
+        val dialog = DialogState(props.context.getString(R.string.delete_class), disclaimer,
+            onSubmitted = if (accepted) {{ vmRoom.onDeleteRoomPressed(room.id, ::onDeleteRoomSucceed) }} else null)
+        vmMain.onDialogStateChange(dialog)
+    }
+
     override fun onParticipantLongPressed(enabled: Boolean, participant: Participant) {
-        val dialog = DialogState(props.context.getString(R.string.delete_participant),
+        val dialog = DialogState(props.context.getString(R.string.delete_participant), props.context.getString(R.string.allowed_when_class_opened),
             onSubmitted = if(enabled) {{ vmRoom.onDeleteParticipantPressed(participant) }} else null)
         vmMain.onDialogStateChange(dialog)
     }
@@ -109,20 +129,6 @@ class RoomEventDetail(
     override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String) {
         val dialog = DialogState(props.context.getString(R.string.delete_question),
             onSubmitted = if(enabled) {{ vmRoom.onDeleteQuestionPressed(quiz) }} else null)
-        vmMain.onDialogStateChange(dialog)
-    }
-
-    override fun onCloseRoomPressed(room: Room.Complete) {
-        val dialog = DialogState(props.context.getString(R.string.close_the_class)) {
-            if(room.questions.size >= 3) vmRoom.expireRoom(room)
-            else vmMain.onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest)) }
-        vmMain.onDialogStateChange(dialog)
-    }
-
-    override fun onDeleteRoomPressed(room: Room.Complete) {
-        val accepted = room.participants.isEmpty() && room.questions.all { it.images.isEmpty() }
-        val dialog = DialogState(props.context.getString(R.string.delete_class),
-            onSubmitted = if (accepted) {{ vmRoom.onDeleteRoomPressed(room.id, ::onDeleteRoomSucceed) }} else null)
         vmMain.onDialogStateChange(dialog)
     }
 }

@@ -17,5 +17,6 @@ interface IAndroidModule {
     fun provideClipboardManager(context: Context): IClipboardManager
     fun provideTimerLauncher(context: Context): ITimerLauncher
     fun provideShareModule(context: Context): IShareLauncher
+    fun providePrefsFactories(prefs: IPreferenceManager): IPrefsFactory
     fun provideBroadcastReceiverModule(context: Context): IReceiverFactory
 }

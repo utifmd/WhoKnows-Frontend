@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
@@ -27,30 +28,22 @@ import javax.inject.Inject
 @HiltViewModel
 class NotificationViewModel
     @Inject constructor(
+    private val prefsFactory: IPrefsFactory,
     private val caseNotify: INotificationUseCaseModule,
     private val caseUser: IUserUseCaseModule,
     private val savedState: SavedStateHandle): BaseViewModel(), INotificationViewModel {
     private val TAG = javaClass.simpleName
-    private val currentBadge = caseNotify.currentBadge()
-    val currentUserId = caseNotify.currentUserId()
+    private var badge by mutableStateOf(prefsFactory.notificationBadge)
+    val currentUserId get() = prefsFactory.userId
 
     private val _formState = mutableStateOf(NotificationState.FormState())
     val formState = _formState.value
 
     init { getNotifications() }
 
-    private var badge by mutableStateOf(currentBadge)
-
-    /*fun onNotifierIncrease() {
-        badge -= 1
-
-        caseNotify.onChangeCurrentBadge(badge)
-        Log.d(TAG, "onNotifierIncrease: $badge")
-    }*/
-
     fun getNotifications() {
-        if(currentUserId.isNotBlank())
-            getNotifications(currentUserId, 0, Int.MAX_VALUE)
+        if(prefsFactory.userId.isNotBlank())
+            getNotifications(prefsFactory.userId, 0, Int.MAX_VALUE)
     }
 
     fun onReadNotification(notification: Notification, onStart: () -> Unit) {
@@ -58,7 +51,7 @@ class NotificationViewModel
             caseNotify.patchNotification(notification.copy(seen = true))
                 .onStart {
                     badge -= 1
-                    caseNotify.onChangeCurrentBadge(badge)}
+                    onBadgeChange(badge)}
                 .onCompletion { getNotifications() }
         else emptyFlow()
 
@@ -143,5 +136,9 @@ class NotificationViewModel
                     caseNotify.onChangeCurrentBadge(badges)
                 }
             }*/
+    }
+
+    private fun onBadgeChange(fresh: Int){
+        prefsFactory.notificationBadge = fresh
     }
 }

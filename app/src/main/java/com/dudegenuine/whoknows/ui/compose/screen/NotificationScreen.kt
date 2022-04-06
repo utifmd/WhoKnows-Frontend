@@ -8,13 +8,15 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Login
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Participant
+import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.notification.NotificationItem
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
 import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
@@ -32,27 +34,22 @@ import okhttp3.internal.http.toHttpDateString
 @FlowPreview
 @ExperimentalCoilApi
 @Composable
-fun NotificationScreen(
+fun NotificationScreen(props: IMainProps,
     modifier: Modifier = Modifier,
     vmUser: UserViewModel = hiltViewModel(),
     vmNotifier: NotificationViewModel = hiltViewModel(),
     onDetailRoomPressed: (Participant) -> Unit,
     onBackPressed: () -> Unit, onPressed: (String, String) -> Unit) {
-    var dialogState by remember { mutableStateOf(DialogState()) }
     val swipeRefreshState = rememberSwipeRefreshState(
         vmNotifier.state.loading || vmUser.state.loading)
     val onRefresh: () -> Unit = {
         vmNotifier.apply {
             currentUserId.let(vmUser::getUser)
-            getNotifications()
-        }
-    }
-
+            getNotifications() }}
     val onLongPressed: (String) -> Unit = { notId ->
-        dialogState = DialogState("hapus notification", true,
-            onDismissed = { dialogState = DialogState() },
-            onSubmitted = { vmNotifier.deleteNotification(notId) }
-        )
+        val dialog = DialogState(props.context.getString(R.string.delete_notifier),
+            onSubmitted = { vmNotifier.deleteNotification(notId) })
+        props.vmMain.onDialogStateChange(dialog)
     }
 
     Scaffold(modifier,
@@ -114,22 +111,6 @@ fun NotificationScreen(
                 )
                 if (vmNotifier.state.error.isNotBlank())
                     ErrorScreen(modifier, message = vmNotifier.state.error, isDanger = false)
-                if (dialogState.opened) with (dialogState) {
-                    AlertDialog(
-                        modifier = modifier.padding(horizontal = 24.dp),
-                        onDismissRequest = { onDismissed?.invoke() },
-                        title = { Text(title) },
-                        text = { Text(text) },
-                        confirmButton = {
-                            TextButton(
-                                { onSubmitted?.invoke(); onDismissed?.invoke() },
-                                enabled = onSubmitted != null) {
-
-                                Text((button ?: "submit").replaceFirstChar { it.uppercase() })
-                            }
-                        }
-                    )
-                }
             }
         }
     )

@@ -6,6 +6,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import coil.annotation.ExperimentalCoilApi
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
@@ -51,29 +52,32 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideMainActivityViewModel(
+        prefsFactory: IPrefsFactory,
         messagingUseCaseModule: IMessageUseCaseModule,
         notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IActivityViewModel {
 
-        return ActivityViewModel(messagingUseCaseModule, notifier, userUseCaseModule, savedStateHandle)
+        return ActivityViewModel(prefsFactory, messagingUseCaseModule, notifier, userUseCaseModule, savedStateHandle)
     }
 
     @Provides
     @ViewModelScoped
     override fun provideUserViewModel(
+        prefsFactory: IPrefsFactory,
         messaging: IMessageUseCaseModule,
         userUseCase: IUserUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IUserViewModel =
 
-        UserViewModel(messaging, userUseCase, fileCase, savedStateHandle)
+        UserViewModel(prefsFactory, messaging, userUseCase, fileCase, savedStateHandle)
 
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
+        prefsFactory: IPrefsFactory,
         caseFile: IFileUseCaseModule,
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
@@ -84,7 +88,7 @@ object ViewModelModule: IViewModelModule {
         caseResult: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IRoomViewModel {
-        return RoomViewModel(caseMessaging, caseFile, caseNotification,
+        return RoomViewModel(prefsFactory, caseMessaging, caseFile, caseNotification,
             caseRoom, caseUser, caseParticipant, caseQuiz, caseResult, savedStateHandle)
     }
 
@@ -120,11 +124,12 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideNotificationViewModel(
+        prefsFactory: IPrefsFactory,
         case: INotificationUseCaseModule,
         caseUser: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): INotificationViewModel {
-        return NotificationViewModel(case, caseUser, savedStateHandle)
+        return NotificationViewModel(prefsFactory, case, caseUser, savedStateHandle)
     }
 
 

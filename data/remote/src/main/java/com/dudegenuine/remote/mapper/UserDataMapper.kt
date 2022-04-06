@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper
 
+import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.*
@@ -17,6 +18,7 @@ import javax.inject.Inject
  **/
 class UserDataMapper
     @Inject constructor(val gson: Gson): IUserDataMapper {
+    private val TAG: String = javaClass.simpleName
 
     override fun asEntityCensored(user: User.Censored): UserEntity.Censored {
         return UserEntity.Censored(
@@ -104,8 +106,12 @@ class UserDataMapper
         return list
     }
 
-    override fun asPagingSource(onEvent: suspend (Int) -> List<User.Censored>):
-            PagingSource<Int, User.Censored> = ResourcePaging(onEvent)
+    override fun asPagingSource(
+        onEvent: suspend (Int) -> List<User.Censored>): PagingSource<Int, User.Censored> =
+        try { ResourcePaging(onEvent) } catch (e: Exception) {
+            Log.d(TAG, "asPagingResource: ${e.localizedMessage}")
+            ResourcePaging { emptyList() }
+        }
 
     override fun asLogin(params: Map<String, String>): User.Signer {
         val payload = params[PAYLOAD] ?: throw HttpFailureException("incorrect payload")

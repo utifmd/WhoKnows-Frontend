@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.repository.contract
 
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.local.service.contract.ICurrentUserDao
@@ -18,7 +19,7 @@ interface IRepositoryModule {
         service: IUserService,
         local: ICurrentUserDao,
         mapper: IUserDataMapper,
-        pref: IPreferenceManager,
+        prefsFactory: IPrefsFactory,
         receiver: IReceiverFactory): IUserRepository
 
     fun provideRoomRepository(
@@ -26,7 +27,7 @@ interface IRepositoryModule {
         receiver: IReceiverFactory,
         local: ICurrentBoardingDao,
         mapper: IRoomDataMapper,
-        pref: IPreferenceManager,
+        iPrefsFactory: IPrefsFactory,
         clip: IClipboardManager): IRoomRepository
 
     fun provideQuizRepository(
@@ -56,7 +57,6 @@ interface IRepositoryModule {
     fun provideMessagingRepository(
         service: IMessagingService,
         mapper: IMessagingDataMapper,
-        pref: IPreferenceManager,
         receiver: IReceiverFactory
     ): IMessagingRepository
 

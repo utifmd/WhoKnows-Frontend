@@ -17,14 +17,15 @@ abstract class IRoomViewModel: IParticipantViewModel, IMessagingViewModel, BaseV
         const val ALREADY_JOINED = "Sorry, you already joined the class."
     }
 
-    abstract fun postRoom(room: Room.Complete)
-    abstract fun getRoom(id: String)
-    abstract fun patchRoom(id: String, current: Room.Complete)
-    abstract fun deleteRoom(id: String)
-    abstract fun getRooms(page: Int, size: Int)
+    open fun postRoom(room: Room.Complete){}
+    open fun getRoom(id: String){}
+    open fun patchRoom(id: String, current: Room.Complete){}
+    open fun deleteRoom(id: String){}
+    open fun getRooms(page: Int, size: Int){}
 
     abstract val rooms: Flow<PagingData<Room.Censored>>
     abstract val roomsOwner: Flow<PagingData<Room.Complete>>
+    //abstract val roomsOwner:(userId: String) -> Flow<PagingData<Room.Complete>>
 
-    abstract fun postBoarding(state: Room.State.BoardingQuiz, onSucceed: (String) -> Unit)
+    open fun postBoarding(state: Room.State.BoardingQuiz, onSucceed: (String) -> Unit){}
 }

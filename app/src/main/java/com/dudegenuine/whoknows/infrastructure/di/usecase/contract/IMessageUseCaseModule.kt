@@ -13,11 +13,6 @@ interface IMessageUseCaseModule {
     val createMessaging: CreateMessaging
     val addMessaging: AddMessaging
     val removeMessaging: RemoveMessaging
-
-    val currentToken: () -> String
-    val onTokenRefresh: (String) -> Unit
-    val currentBadgeStatus: () -> Boolean
-    val onBadgeStatusRefresh: (Boolean) -> Unit
     val onInternetReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
     val onTokenReceived: (onTokenized: (String) -> Unit) -> BroadcastReceiver
 }

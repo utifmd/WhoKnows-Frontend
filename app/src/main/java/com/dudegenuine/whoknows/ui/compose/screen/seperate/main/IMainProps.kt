@@ -8,17 +8,16 @@ import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.ui.vm.main.IActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
-import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 
 interface IMainProps {
     val context: Context
-    val vmMain: IActivityViewModel
-    val vmUser: IUserViewModel
-    val vmRoom: IRoomViewModel
     val router: NavHostController
-    
+    val vmMain: IActivityViewModel
+    val vmRoom: IRoomViewModel
+    val currentUserId: String
+
+    var ownerRoomsPager: LazyPagingItems<Room.Complete>
     val roomsPager: LazyPagingItems<Room.Censored>
-    val ownerRoomsPager: LazyPagingItems<Room.Complete>
     val participantsPager: LazyPagingItems<User.Censored>
     val quizzesPager: LazyPagingItems<Quiz.Complete>
 }

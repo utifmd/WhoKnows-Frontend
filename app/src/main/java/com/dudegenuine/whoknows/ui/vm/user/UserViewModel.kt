@@ -1,21 +1,17 @@
 package com.dudegenuine.whoknows.ui.vm.user
 
-import android.content.IntentFilter
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.dudegenuine.local.api.IReceiverFactory
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IShareLauncher
+import com.dudegenuine.model.BuildConfig
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.concatenate
-import com.dudegenuine.whoknows.BuildConfig
-import com.dudegenuine.whoknows.infrastructure.common.Constants
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
@@ -40,15 +36,15 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel
     @Inject constructor(
+    private val prefsFactory: IPrefsFactory,
     private val caseMessaging: IMessageUseCaseModule,
     private val caseUser: IUserUseCaseModule,
     private val fileCase: IFileUseCaseModule,
     private val savedStateHandle: SavedStateHandle): IUserViewModel() {
     @Inject lateinit var share: IShareLauncher
     private val TAG = javaClass.simpleName
-
-    private var token by mutableStateOf(caseMessaging.currentToken())
-    private var currentUserId by mutableStateOf(caseUser.currentUserId())
+    //private var token by mutableStateOf(caseMessaging.currentToken())
+    //private var currentUserId by mutableStateOf(caseUser.currentUserId())
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
         get() = _formState.value
@@ -57,17 +53,17 @@ class UserViewModel
         val navigated = savedStateHandle.get<String>(USER_ID_SAVED_KEY)
 
         navigated?.let(this::getUser) ?: getUser()
-        if (currentUserId.isNotBlank()) getUser()
+        if (prefsFactory.userId.isNotBlank()) getUser()
     }
 
-    val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
+    /*val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
     val messagingServiceReceiver = caseMessaging.onTokenReceived(::onMessagingTokenChange)
 
     private fun onMessagingTokenChange(fresh: String){
         Log.d(TAG, "onMessagingTokenChange: $fresh")
-        token = fresh
+        onTokenIdChange(fresh)
         caseMessaging.onTokenRefresh(fresh) //MESSAGING_TOKEN
-    }
+    }*/
 
     private fun onPreRegisterGroupToken(currentUser: User.Complete) {
         val joined = currentUser.participants.map { it.roomId }
@@ -76,7 +72,7 @@ class UserViewModel
 
         concatenate(joined, owned).asFlow()
             .flatMapConcat(::onRegisterMessaging)
-            .onStart { caseUser.onChangeCurrentBadge(unread) }
+            .onStart { onBadgeChange(unread) }
             .launchIn(viewModelScope)
     }
 
@@ -87,7 +83,7 @@ class UserViewModel
         concatenate(joined, owned).asFlow()
             .onStart {
                 onAuthStateChange(ResourceState.Auth())
-                caseUser.onChangeCurrentBadge(0)
+                onBadgeChange(0)
             }
             .flatMapConcat(::onUnregisterMessaging)
             .launchIn(viewModelScope)
@@ -155,7 +151,7 @@ class UserViewModel
     private fun onRegisterMessaging(roomId: String): Flow<Resource<out Any>> {
         return caseMessaging.getMessaging(roomId)
             .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val register = Messaging.GroupAdder(roomId, listOf(token), key)
+                val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
                 caseMessaging.addMessaging(register)
             }
         }
@@ -164,7 +160,7 @@ class UserViewModel
     private fun onUnregisterMessaging(roomId: String): Flow<Resource<out Any>> {
         return caseMessaging.getMessaging(roomId)
             .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val remover = Messaging.GroupRemover(roomId, listOf(token), key)
+                val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
                 caseMessaging.removeMessaging(remover)
             }
         }
@@ -182,7 +178,7 @@ class UserViewModel
             return
         }
 
-        if (token.isBlank()){
+        if (prefsFactory.tokenId.isBlank()){
             onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
@@ -199,7 +195,7 @@ class UserViewModel
             return
         }
 
-        if (token.isBlank()){
+        if (prefsFactory.tokenId.isBlank()){
             onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
@@ -211,13 +207,12 @@ class UserViewModel
 
     override fun signOutUser() {
 
-        if (token.isBlank()){
+        if (prefsFactory.tokenId.isBlank()){
             onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
             return
         }
 
-        getUser(caseUser.currentUserId()) { freshUser ->
-
+        getUser(prefsFactory.userId) { freshUser ->
             caseUser.signOutUser()
                 .onEach { res -> onAuth(res,
                     onSignedOut = { onPreUnregisterGroupToken(freshUser) }
@@ -296,7 +291,8 @@ class UserViewModel
     }
 
     override val participants = caseUser
-        .getUsersParticipation(DEFAULT_BUFFER_SIZE)
+        .getUsersParticipation(DEFAULT_BATCH_PARTICIPANT)
+        .cancellable()
         .cachedIn(viewModelScope)
 
     override fun getUsers(page: Int, size: Int) {
@@ -343,5 +339,17 @@ class UserViewModel
         caseMessaging.pushMessaging(messaging)
             .onEach { res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
+    }
+
+    private fun onUserIdChange(fresh: String) {
+        prefsFactory.userId = fresh
+    }
+
+    private fun onBadgeChange(fresh: Int) {
+        prefsFactory.notificationBadge = fresh
+    }
+
+    private fun onTokenIdChange(fresh: String) {
+        prefsFactory.tokenId = fresh
     }
 }

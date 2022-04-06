@@ -13,7 +13,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
+import com.dudegenuine.local.api.IPrefsFactory
+import com.dudegenuine.local.api.IPrefsFactory.Companion.NOTIFICATION_BADGE
+import com.dudegenuine.local.api.IPrefsFactory.Companion.USER_ID
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Resource
@@ -40,6 +42,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ActivityViewModel
     @Inject constructor(
+    private val prefsFactory: IPrefsFactory,
     private val caseMessaging: IMessageUseCaseModule,
     private val caseNotifier: INotificationUseCaseModule,
     private val caseUser: IUserUseCaseModule,
@@ -48,38 +51,32 @@ class ActivityViewModel
 
     private val TAG: String = javaClass.simpleName
     private val messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
-    private val currentUserId = caseUser.currentUserId()
 
-    //var isSignedIn by mutableStateOf(currentUserId.isNotBlank())
-    var token by mutableStateOf(caseMessaging.currentToken())
-    var badge by mutableStateOf(caseUser.currentBadge())
-    var isNotify by mutableStateOf(caseMessaging.currentBadgeStatus())
+    val userId get() = prefsFactory.userId
+    var isSignedIn by mutableStateOf(userId.isNotBlank())
+    val badge get() = prefsFactory.notificationBadge
 
     init {
         messagingSubscribeTopic()
 
-        if (token.isBlank()) messagingInitToken()
-        else Log.d(TAG, "currentToken: $token")
+        if (prefsFactory.tokenId.isBlank()) messagingInitToken()
+        else Log.d(TAG, "currentToken: ${prefsFactory.tokenId}")
 
-        getNotifications(currentUserId)
+        getNotifications(prefsFactory.userId)
     }
 
     val networkServiceAction = IntentFilter(IReceiverFactory.ACTION_CONNECTIVITY_CHANGE)
     val networkServiceReceiver = caseMessaging.onInternetReceived { message ->
-        if (message.isNotBlank()) if(token.isBlank()) messagingInitToken()
+        if (message.isNotBlank()) if(prefsFactory.tokenId.isBlank()) messagingInitToken()
 
         onShowSnackBar(message)
     }
+
     val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
     val messagingServiceReceiver = caseMessaging.onTokenReceived { token ->
-        token.apply (::onMessagingTokenChange)
+        token.apply (::onTokenIdChange)
 
-        if (currentUserId.isNotBlank()) onPreRegisterToken(token)
-    }
-
-    private fun onMessagingTokenChange(fresh: String){
-        token = fresh
-        caseMessaging.onTokenRefresh(fresh) //MESSAGING_TOKEN
+        if (prefsFactory.userId.isNotBlank()) onPreRegisterToken(token)
     }
 
     private fun messagingSubscribeTopic() {
@@ -92,7 +89,9 @@ class ActivityViewModel
     private fun messagingInitToken() {
         with (messaging.token) {
             addOnSuccessListener {
-                Log.d(TAG, "Success: $it") }
+                Log.d(TAG, "Success: $it")
+                onTokenIdChange(it)
+            }
             addOnCanceledListener {
                 Log.d(TAG, "Canceled: triggered") }
             addOnFailureListener {
@@ -112,7 +111,7 @@ class ActivityViewModel
     }
 
     private fun getJoinedOwnedRoomIds(onSucceed: (List<String>) -> Unit) {
-        if (currentUserId.isBlank()) return
+        if (prefsFactory.userId.isBlank()) return
 
         caseUser.getUser()
             .onEach { res -> onResourceSucceed(res) { usr ->
@@ -127,30 +126,34 @@ class ActivityViewModel
     private fun onRegisterMessaging(roomId: String): Flow<Resource<out Any>> {
         return caseMessaging.getMessaging(roomId)
             .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val register = Messaging.GroupAdder(roomId, listOf(token), key)
+                val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
                 caseMessaging.addMessaging(register)
             }
         }
     }
 
-    fun registerPrefsListener() { caseUser.registerPrefsListener(onPrefsListener) }
-    fun unregisterPrefsListener() { caseUser.unregisterPrefsListener(onPrefsListener) }
+    fun registerPrefsListener() { prefsFactory.manager.register(onPrefsListener) }
+    fun unregisterPrefsListener() { prefsFactory.manager.unregister(onPrefsListener) }
 
     private val onPrefsListener = SharedPreferences
         .OnSharedPreferenceChangeListener { prefs, key ->
 
         when (key) {
-            /*CURRENT_USER_ID -> {
-                val fresh = prefs?.getString(CURRENT_NOTIFICATION_BADGE, "")
+            USER_ID -> {
+                val fresh = prefs?.getString(USER_ID, "")
 
-                // onIsSignedInChange(!fresh.isNullOrBlank())
-            }*/
-            CURRENT_NOTIFICATION_BADGE -> {
-                val preBadge = prefs?.getInt(CURRENT_NOTIFICATION_BADGE, 0)
+                fresh?.let(::onUserIdChange)
+            }
+            NOTIFICATION_BADGE -> {
+                val preBadge = prefs?.getInt(NOTIFICATION_BADGE, 0)
                 val fresh = preBadge ?: 0
 
                 onBadgeChange(fresh)
             }
+        }
+
+        prefs?.all?.forEach {
+            Log.d(TAG, "${it.key}: ${it.value}")
         }
     }
 
@@ -159,19 +162,29 @@ class ActivityViewModel
 
         caseNotifier.getNotifications(userId, 0, Int.MAX_VALUE)
             .onEach { res -> onResourceStateless(res) { notifiers ->
-                val counter = notifiers.count { !it.seen } //Log.d(TAG, "counter: $counter badge: $badge")
-
-                if (counter > 0) onTurnNotifierOn(true)
-                caseUser.onChangeCurrentBadge(counter) }} //onBadgeChange(counter)
+                val counter = notifiers.count { !it.seen }
+                onBadgeChange(counter)
+            }}
             .launchIn(viewModelScope)
     }
 
-    fun onTurnNotifierOn(fresh: Boolean){
+    /*fun onTurnNotifierOn(fresh: Boolean){
         isNotify = fresh
 
         caseMessaging.onBadgeStatusRefresh(fresh)
+    }*/
+
+    private fun onBadgeChange(fresh: Int) {
+        prefsFactory.notificationBadge = fresh
     }
 
-    private fun onBadgeChange(fresh: Int){ badge = fresh }
-//    private fun onIsSignedInChange(fresh: Boolean){ isSignedIn = fresh }
+    private fun onUserIdChange(fresh: String) {
+        isSignedIn = fresh.isNotBlank()
+
+        prefsFactory.userId = fresh
+    }
+
+    private fun onTokenIdChange(fresh: String) {
+        prefsFactory.tokenId = fresh
+    }
 }

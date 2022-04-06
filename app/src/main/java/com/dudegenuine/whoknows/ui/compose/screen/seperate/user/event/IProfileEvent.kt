@@ -11,7 +11,7 @@ interface IProfileEvent {
     fun onPasswordPressed(it: String){}
     fun onBackPressed(){}
     fun onPicturePressed(fileId: String?){}
-    fun onSignOutPressed(){}
+    fun onSignOutPressed(onSubmitted: () -> Unit){}
 
     companion object {
         const val NAME = "Full Name"

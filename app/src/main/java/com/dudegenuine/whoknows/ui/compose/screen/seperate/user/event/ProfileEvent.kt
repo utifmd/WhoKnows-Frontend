@@ -9,7 +9,6 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent.Companion.PHONE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent.Companion.USERNAME
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
-import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import kotlinx.coroutines.FlowPreview
 
 /**
@@ -19,7 +18,6 @@ import kotlinx.coroutines.FlowPreview
 @FlowPreview
 class ProfileEvent(
     private val props: IMainProps): IProfileEvent {
-    val vmUser = props.vmUser as UserViewModel
 
     override fun onPicturePressed(fileId: String?) {
         if(fileId.isNullOrBlank()) return
@@ -42,10 +40,9 @@ class ProfileEvent(
     override fun onPasswordPressed(it: String){
         props.router.navigate(Screen.Home.Setting.ProfileEditor.routeWithArgs(PASSWORD, it))}
 
-    override fun onSignOutPressed() {
-        props.vmMain.onDialogStateChange(
-            DialogState(props.context.getString(R.string.logout_account),
-                true, null, vmUser::signOutUser)
-        )
+    override fun onSignOutPressed(onSubmitted: () -> Unit) {
+        val dialog = DialogState(props.context.getString(R.string.logout_account), onSubmitted = onSubmitted)
+
+        props.vmMain.onDialogStateChange(dialog)
     }
 }

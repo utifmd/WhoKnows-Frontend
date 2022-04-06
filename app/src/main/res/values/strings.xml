@@ -37,8 +37,12 @@
     <string name="invite_w_a_link">Share Invitation Code</string>
     <string name="delete_permanent">Delete The Class</string>
     <string name="close_the_room">Close The Class</string>
-    <string name="not_signed_in_yet_to_join">Anda dapat bergabung dengan mendaftar dan masuk terlebih dahulu</string>
-    <string name="the_owner_itself_to_join">Anda dapat bergabung dengan kelas lain kecuali kelas anda sendiri</string>
-    <string name="already_joined_to_join">Anda sudah pernah bergabung dengan kelas ini</string>
-    <string name="allowed_after_add_3_quest">Anda diperbolehkan setelah menambahkan setidaknya 3 pertanyaan.</string>
+    <string name="not_signed_in_yet_to_join">Pastikan pengguna sudah masuk/daftar</string>
+    <string name="the_owner_itself_to_join">Pengguna dibatasi bergabung dikelas sendiri</string>
+    <string name="already_joined_to_join">Pengguna sudah pernah bergabung</string>
+    <string name="allowed_after_add_3_quest">Setidaknya sudah menambahkan 3 pertanyaan</string>
+    <string name="allowed_when_class_opened">Kelas sudah ditutup.</string>
+    <string name="delete_notifier">hapus notification</string>
+    <string name="there_is_no_participant">Pastikan participant terhapus semua</string>
+    <string name="there_is_no_quest">Pastikan tidak ada pertanyaan yang berisi gambar</string>
 </resources>

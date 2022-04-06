@@ -1,7 +1,5 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
-import android.content.BroadcastReceiver
-import android.content.SharedPreferences
 import com.dudegenuine.repository.contract.IUserRepository
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
@@ -35,22 +33,6 @@ class UserUseCaseModule(
         GetUsersParticipation = GetUsersParticipation(repository),
 
     override val signOutUser:
-        SignOutUser = SignOutUser(repository),
+        SignOutUser = SignOutUser(repository)
 
-    override val currentUserId: () ->
-        String = { repository.currentUserId() },
-
-    override val onNetworkReceived: (onConnected: (String) -> Unit) ->
-        BroadcastReceiver = repository.networkReceived,
-
-    override val onChangeCurrentBadge: (Int) ->
-        Unit = repository.onChangeCurrentBadge,
-
-    override val currentBadge: () ->
-        Int = repository.currentBadge,
-
-    override val registerPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) ->
-        Unit = repository.registerPrefsListener,
-
-    override val unregisterPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) ->
-        Unit = repository.unregisterPrefsListener): IUserUseCaseModule
+): IUserUseCaseModule

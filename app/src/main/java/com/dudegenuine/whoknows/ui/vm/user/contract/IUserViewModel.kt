@@ -28,6 +28,7 @@ abstract class IUserViewModel: IMessagingViewModel, BaseViewModel() { //: IFileP
 
     companion object {
         const val USER_ID_SAVED_KEY = "is_own_saved_user"
+        const val DEFAULT_BATCH_PARTICIPANT = 5
         //const val OWN_USER_TRUE = "true"
     }
 }

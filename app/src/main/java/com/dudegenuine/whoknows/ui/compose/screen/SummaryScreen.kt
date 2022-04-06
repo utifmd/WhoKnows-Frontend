@@ -26,17 +26,10 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalMaterialApi
 @Composable
 fun SummaryScreen(props: IMainProps) {
-    //context: Context,
-    //val lazyPagingRooms = viewModel.roomsOwner.collectAsLazyPagingItems()
-//    lazyPagingRooms: LazyPagingItems<Room.Complete>,
-//    eventHome: IRoomEventHome) {
-    //val service = Intent(context, TimerService::class.java)
 
     RoomStatedPreBoardingScreen(
         props = props,
         eventHome = RoomEventHome(props.router),
-        eventBoarding = object: IRoomEventBoarding { })/*{
-
-        //context.stopService(service)
-    }*/
+        eventBoarding = object: IRoomEventBoarding { },
+    )
 }

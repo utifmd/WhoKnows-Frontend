@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper
 
+import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.ResourcePaging
@@ -69,5 +70,8 @@ class QuizDataMapper
 
     override fun asPagingSource(
         onEvent: suspend (Int) -> List<Quiz.Complete>):PagingSource<Int, Quiz.Complete> =
-        ResourcePaging(onEvent)
+        try { ResourcePaging(onEvent) } catch (e: Exception) {
+            Log.d(TAG, "asPagingResource: ${e.localizedMessage}")
+            ResourcePaging { emptyList() }
+        }
 }

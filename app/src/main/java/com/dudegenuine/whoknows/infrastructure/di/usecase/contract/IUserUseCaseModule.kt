@@ -1,7 +1,5 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
-import android.content.BroadcastReceiver
-import android.content.SharedPreferences
 import com.dudegenuine.usecase.user.*
 
 /**
@@ -9,8 +7,6 @@ import com.dudegenuine.usecase.user.*
  * WhoKnows by utifmd
  **/
 interface IUserUseCaseModule {
-    val currentUserId: () -> String
-
     val signInUser: SignInUser
     val signOutUser: SignOutUser
     val postUser: PostUser
@@ -19,13 +15,4 @@ interface IUserUseCaseModule {
     val deleteUser: DeleteUser
     val getUsers: GetUsers
     val getUsersParticipation: GetUsersParticipation
-
-    val onNetworkReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
-
-    val onChangeCurrentBadge: (Int) -> Unit
-    val currentBadge: () -> Int
-
-    val registerPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) -> Unit
-    val unregisterPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) -> Unit
-
 }

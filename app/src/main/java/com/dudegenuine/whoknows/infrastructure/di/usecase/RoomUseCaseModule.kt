@@ -39,15 +39,6 @@ class RoomUseCaseModule(
     override val deleteBoarding:
         DeleteBoarding = DeleteBoarding(repository),
 
-    override val currentToken: () ->
-        String = repository.currentToken,
-
-    override val currentUserId: () ->
-        String = repository.currentUserId,
-
-    override val currentRunningTime: () ->
-        String = repository.currentRunningTime,
-
     override val setClipboard: (String, String) ->
         Unit = repository.setClipboard,
 

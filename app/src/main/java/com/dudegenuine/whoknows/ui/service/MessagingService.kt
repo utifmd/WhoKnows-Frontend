@@ -20,13 +20,8 @@ import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.INotifyManager
 import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID_COMMON
 import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID_JOINED
-import com.dudegenuine.local.api.IPreferenceManager
-import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
-import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
-import com.dudegenuine.local.api.IReceiverFactory.Companion.ACTION_FCM_TOKEN
-import com.dudegenuine.local.api.IReceiverFactory.Companion.INITIAL_FCM_TOKEN
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.model.common.ImageUtil.getBitmapAsync
-import com.dudegenuine.repository.contract.IMessagingRepository.Companion.MESSAGING_TOKEN
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.activity.MainActivity
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
@@ -53,7 +48,7 @@ class MessagingService: FirebaseMessagingService() {
     private val TAG: String = javaClass.simpleName
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.Main + job)
-    @Inject lateinit var prefs: IPreferenceManager
+    @Inject lateinit var prefsFactory: IPrefsFactory
     @Inject lateinit var notifier: INotifyManager
 
     companion object {
@@ -68,20 +63,22 @@ class MessagingService: FirebaseMessagingService() {
         super.onNewToken(token)
 
         Log.d(TAG, "onNewToken: $token")
-        prefs.write(MESSAGING_TOKEN, token)
+        onTokenIdChange(token)
 
-        Intent(ACTION_FCM_TOKEN)
-            .apply { putExtra(INITIAL_FCM_TOKEN, token) }.apply(::sendBroadcast)
+        //prefs.write(MESSAGING_TOKEN, token)
+        /*Intent(ACTION_FCM_TOKEN)
+            .apply { putExtra(INITIAL_FCM_TOKEN, token) }.apply(::sendBroadcast)*/
     }
+
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        val currentUserId = prefs.readString(CURRENT_USER_ID)
+        //val currentUserId = prefs.readString(CURRENT_USER_ID)
 
         Log.d(TAG, "onMessageReceived: triggered")
         message.notification?.let(::notification)
 
-        if (currentUserId.isBlank()) return
+        if (prefsFactory.userId.isBlank()) return
         notification(message.data)
     }
 
@@ -124,9 +121,10 @@ class MessagingService: FirebaseMessagingService() {
         val title = data["title"] ?: getString(R.string.notify_title)
         val body = data["body"] ?: getString(R.string.notify_body)
         val largeIcon = data["largeIcon"]
-        val currentBadge = prefs.readInt(CURRENT_NOTIFICATION_BADGE)
+        //val currentBadge = prefs.readInt(CURRENT_NOTIFICATION_BADGE)
+        //prefs.write(CURRENT_NOTIFICATION_BADGE, currentBadge +1)
+        onBadgeChange(prefsFactory.notificationBadge +1)
 
-        prefs.write(CURRENT_NOTIFICATION_BADGE, currentBadge +1)
         with (notifier.onBuilt(CHANNEL_ID_JOINED, IMPORTANCE_MAX)) {
             priority = NotificationCompat.PRIORITY_MAX
 
@@ -141,6 +139,14 @@ class MessagingService: FirebaseMessagingService() {
                 getBitmapAsync(this@MessagingService, largeIcon) { setLargeIcon(it); notify(build()) }
             }
         }
+    }
+
+    private fun onTokenIdChange(token: String) {
+        prefsFactory.tokenId = token
+    }
+
+    private fun onBadgeChange(fresh: Int) {
+        prefsFactory.notificationBadge = fresh
     }
 }
 

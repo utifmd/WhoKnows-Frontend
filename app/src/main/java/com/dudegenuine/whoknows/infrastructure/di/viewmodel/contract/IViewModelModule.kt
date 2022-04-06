@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
 import androidx.lifecycle.SavedStateHandle
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel
@@ -18,18 +19,21 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
  **/
 interface IViewModelModule {
     fun provideMainActivityViewModel(
+        prefsFactory: IPrefsFactory,
         messagingUseCaseModule: IMessageUseCaseModule,
         notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): IActivityViewModel
 
     fun provideUserViewModel( /*mapper: IUserDataMapper,*/
+        prefsFactory: IPrefsFactory,
         messaging: IMessageUseCaseModule,
         userUseCase: IUserUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle): IUserViewModel
 
     fun provideRoomViewModel(
+        prefsFactory: IPrefsFactory,
         caseFile: IFileUseCaseModule,
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
@@ -55,6 +59,7 @@ interface IViewModelModule {
         savedStateHandle: SavedStateHandle): IParticipantViewModel
 
     fun provideNotificationViewModel(
+        prefsFactory: IPrefsFactory,
         case: INotificationUseCaseModule,
         caseUser: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): INotificationViewModel

@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
@@ -28,9 +27,9 @@ import kotlinx.coroutines.FlowPreview
 @Composable
 fun RoomStatedPreBoardingScreen(
     props: IMainProps,
-    viewModel: RoomViewModel = hiltViewModel(),
     eventHome: IRoomEventHome,
     eventBoarding: IRoomEventBoarding) {
+    val viewModel: RoomViewModel = props.vmRoom as RoomViewModel
     val uiState = viewModel.uiState.observeAsState().value
     val state = viewModel.state
 
@@ -49,17 +48,16 @@ fun RoomStatedPreBoardingScreen(
             onAction = eventBoarding::onAction,
             onPrevPressed = { composeEvent(uiState).onPrevPressed() },
             onNextPressed = { composeEvent(uiState).onNextPressed() },
-            onDonePressed = { composeEvent(uiState).onDonePressed() }
-        )
+            onDonePressed = { composeEvent(uiState).onDonePressed() })
         uiState is Room.State.BoardingResult -> ResultScreen(
             state = uiState,
-            onDonePressed = { viewModel.onCloseBoarding() }
-        )
-        uiState is Room.State.CurrentRoom -> RoomHomeScreen(
+            onDonePressed = viewModel::onCloseBoarding)
+        state.loading -> LoadingScreen()
+        state.error.isNotBlank() -> ErrorScreen(
+            message = state.error)
+        else -> RoomHomeScreen(
             props = props,
             event = eventHome
         )
-        state.loading -> LoadingScreen()
-        else -> ErrorScreen(message = state.error)
     }
 }

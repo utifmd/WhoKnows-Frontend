@@ -11,12 +11,9 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotification
 class NotificationUseCaseModule(
     repository: INotificationRepository): INotificationUseCaseModule {
 
-    override val currentUserId: () -> String = repository.currentUserId
     override val postNotification: PostNotification = PostNotification(repository)
     override val patchNotification: PatchNotification = PatchNotification(repository)
     override val getNotification: GetNotification = GetNotification(repository)
     override val deleteNotification: DeleteNotification = DeleteNotification(repository)
     override val getNotifications: GetNotifications = GetNotifications(repository)
-    override val currentBadge: () -> Int = repository.currentBadge
-    override val onChangeCurrentBadge: (Int) -> Unit = repository.onChangeCurrentBadge
 }

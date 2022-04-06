@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ fun ErrorScreen(
     message: String,
     isDanger: Boolean = true,
     isSnack: Boolean = false,
+    onPressed: (() -> Unit)? = null,
 ) {
     Box(
         modifier = if(isSnack) Modifier.fillMaxWidth().padding(vertical = 12.dp) else modifier.fillMaxSize(),
@@ -36,6 +38,7 @@ fun ErrorScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
                 .align(Alignment.Center)
+                .clickable(enabled = onPressed != null, onClick =  { onPressed?.invoke() })
         )
     }
 }

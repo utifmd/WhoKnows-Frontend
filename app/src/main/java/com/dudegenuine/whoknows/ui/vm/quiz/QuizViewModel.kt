@@ -21,6 +21,7 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.quiz.contract.IQuizViewModel
 import com.dudegenuine.whoknows.ui.vm.quiz.contract.IQuizViewModel.Companion.BATCH_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.*
@@ -144,6 +145,7 @@ class QuizViewModel
     }
 
     val questions = caseQuiz.getQuestions(BATCH_SIZE)
+        .cancellable()
         .cachedIn(viewModelScope)
 
     override fun getQuestions(page: Int, size: Int) {

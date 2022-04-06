@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.repository
 
 import com.dudegenuine.local.api.IClipboardManager
 import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.service.contract.ICurrentBoardingDao
 import com.dudegenuine.local.service.contract.ICurrentUserDao
@@ -30,10 +31,10 @@ object RepositoryModule: IRepositoryModule {
         service: IUserService,
         local: ICurrentUserDao,
         mapper: IUserDataMapper,
-        pref: IPreferenceManager,
+        prefsFactory: IPrefsFactory,
         receiver: IReceiverFactory
     ): IUserRepository {
-        return UserRepository(service, local, pref, mapper, receiver)
+        return UserRepository(service, local, prefsFactory, mapper, receiver)
     }
 
     @Provides
@@ -43,11 +44,11 @@ object RepositoryModule: IRepositoryModule {
         receiver: IReceiverFactory,
         local: ICurrentBoardingDao,
         mapper: IRoomDataMapper,
-        pref: IPreferenceManager,
+        iPrefsFactory: IPrefsFactory,
         clip: IClipboardManager
     ): IRoomRepository {
 
-        return RoomRepository(service, receiver, local, mapper, pref, clip)
+        return RoomRepository(service, receiver, local, mapper, iPrefsFactory, clip)
     }
 
     @Provides
@@ -95,10 +96,9 @@ object RepositoryModule: IRepositoryModule {
     override fun provideMessagingRepository(
         service: IMessagingService,
         mapper: IMessagingDataMapper,
-        pref: IPreferenceManager,
         receiver: IReceiverFactory): IMessagingRepository {
 
-        return MessagingRepository(service, mapper, pref, receiver)
+        return MessagingRepository(service, mapper, receiver)
     }
 
     @Provides

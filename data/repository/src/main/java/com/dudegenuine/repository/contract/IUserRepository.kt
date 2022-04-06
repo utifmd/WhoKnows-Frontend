@@ -1,7 +1,5 @@
 package com.dudegenuine.repository.contract
 
-import android.content.BroadcastReceiver
-import android.content.SharedPreferences
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.User
@@ -27,14 +25,14 @@ interface IUserRepository {
 
     fun page(batchSize: Int): PagingSource<Int, User.Censored>
 
-    val currentUserId: () -> String
+    /*val currentUserId: () -> String
     val networkReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
 
     val onChangeCurrentBadge: (Int) -> Unit
     val currentBadge: () -> Int
 
     val registerPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) -> Unit
-    val unregisterPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) -> Unit
+    val unregisterPrefsListener: (SharedPreferences.OnSharedPreferenceChangeListener) -> Unit*/
 
     companion object {
         const val NOT_FOUND = "User not found."

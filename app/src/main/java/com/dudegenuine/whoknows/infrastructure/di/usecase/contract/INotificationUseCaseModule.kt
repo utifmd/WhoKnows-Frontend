@@ -7,14 +7,13 @@ import com.dudegenuine.usecase.notification.*
  * WhoKnows by utifmd
  **/
 interface INotificationUseCaseModule {
-    val currentUserId: () -> String
-
     val postNotification: PostNotification
     val patchNotification: PatchNotification
     val getNotification: GetNotification
     val deleteNotification: DeleteNotification
     val getNotifications: GetNotifications
 
+    /*val currentUserId: () -> String
     val currentBadge: () -> Int
-    val onChangeCurrentBadge: (Int) -> Unit
+    val onChangeCurrentBadge: (Int) -> Unit*/
 }

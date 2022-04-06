@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ui.compose.screen
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -38,8 +37,7 @@ fun LoadingScreen(
 }
 
 @Composable
-private fun Shimmer(
-    dark: Boolean = isSystemInDarkTheme(), content: @Composable (Brush) -> Unit){
+private fun Shimmer(content: @Composable (Brush) -> Unit){
     val transition = rememberInfiniteTransition()
     val transitionAnim by transition.animateFloat(
         initialValue = 0f,
@@ -52,9 +50,11 @@ private fun Shimmer(
             RepeatMode.Reverse
         )
     )
-
+    /*MaterialTheme.colors.onSurface.copy(
+        alpha = if (MaterialTheme.colors.isLight) 0.04f else 0.06f)*/
     val brush = Brush.linearGradient(
-        colors = if (dark) DarkShimmerColorShades else LightShimmerColorShades,
+        colors = if (MaterialTheme.colors.isLight) LightShimmerColorShades
+            else DarkShimmerColorShades,
         start = Offset(10f, 10f),
         end = Offset(transitionAnim, transitionAnim)
     )

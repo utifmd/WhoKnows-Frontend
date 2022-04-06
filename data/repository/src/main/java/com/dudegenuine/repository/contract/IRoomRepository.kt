@@ -10,11 +10,8 @@ import com.dudegenuine.model.Room
  * WhoKnows by utifmd
  **/
 interface IRoomRepository {
-    val currentParticipant: () -> String
-
     companion object {
-        const val NOT_FOUND = "Room not found."
-        const val CURRENT_PARTICIPANT_ID = "current_participant_id"
+        const val NOT_FOUND = "Room boarding not found."
     }
 
     suspend fun create(room: Room.Complete): Room.Complete
@@ -25,17 +22,14 @@ interface IRoomRepository {
     suspend fun listCensored(page: Int, size: Int): List<Room.Censored>
     suspend fun listComplete(userId: String, page: Int, size: Int): List<Room.Complete>
 
-    suspend fun load(participantId: String? = null): Room.State.BoardingQuiz
+    suspend fun load(): Room.State.BoardingQuiz
     suspend fun save(boarding: Room.State.BoardingQuiz)
     suspend fun replace(boarding: Room.State.BoardingQuiz)
-    suspend fun unload()/*(participantId: String)*/
+    suspend fun unload()
 
     fun page(batchSize: Int): PagingSource<Int, Room.Censored>
     fun page(userId: String, batchSize: Int): PagingSource<Int, Room.Complete>
 
-    val currentToken: () -> String
-    val currentUserId: () -> String
-    val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
     val timerReceived: ((Double, Boolean) -> Unit) -> BroadcastReceiver
 }

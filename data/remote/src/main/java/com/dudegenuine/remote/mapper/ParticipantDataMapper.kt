@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper
 
+import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.ResourcePaging
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class ParticipantDataMapper
     @Inject constructor(
     private val mapperUser: IUserDataMapper): IParticipantDataMapper {
+    private val TAG: String = javaClass.simpleName
 
     override fun asEntity(participant: Participant): ParticipantEntity {
         return ParticipantEntity(
@@ -55,9 +57,11 @@ class ParticipantDataMapper
     }
 
     override fun asPagingResource(
-        onEvent: suspend (Int) -> List<Participant>): PagingSource<Int, Participant> {
-        return ResourcePaging(onEvent)
-    }
+        onEvent: suspend (Int) -> List<Participant>): PagingSource<Int, Participant> =
+        try { ResourcePaging(onEvent) } catch (e: Exception) {
+            Log.d(TAG, "asPagingResource: ${e.localizedMessage}")
+            ResourcePaging { emptyList() }
+        }
 
     override fun asParticipants(response: Response<List<ParticipantEntity>>): List<Participant> {
         return when(response.data){

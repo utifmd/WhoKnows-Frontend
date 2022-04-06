@@ -82,6 +82,7 @@ fun RoomDetail(
                 BackLayer(
                     model = model,
                     isOwn = isOwn,
+                    toggle = toggle,
                     eventDetail = eventDetail
                 )
             },
@@ -91,7 +92,7 @@ fun RoomDetail(
                     model = model, isOwn = isOwn,
                     currentUserId = viewModel.currentUserId,
                     onProfileSelected = eventDetail::onParticipantItemPressed,
-                    onProfileLongPressed = { eventDetail.onParticipantLongPressed(!model.expired, it) },
+                    onProfileLongPressed = eventDetail::onParticipantLongPressed,
                     onQuestionPressed = eventDetail::onQuestionItemPressed,
                     onQuestionLongPressed = eventDetail::onQuestionLongPressed,
                     onResultSelected = eventDetail::onResultPressed
@@ -108,6 +109,7 @@ fun RoomDetail(
 private fun BackLayer(
     modifier: Modifier = Modifier,
     model: Room.Complete,
+    toggle: () -> Unit,
     isOwn: Boolean,
     eventDetail: IRoomEventDetail) {
     val enabled = !model.expired
@@ -147,7 +149,7 @@ private fun BackLayer(
             TextButton(
                 enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = { eventDetail.onDeleteRoomPressed(model) }) {
+                onClick = { eventDetail.onDeleteRoomPressed(model) } ) {
 
                 Text(stringResource(R.string.delete_permanent),
                     color =  if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
@@ -157,7 +159,7 @@ private fun BackLayer(
             TextButton(
                 enabled = enabled,
                 modifier = modifier.fillMaxWidth(),
-                onClick = { eventDetail.onCloseRoomPressed(model) }) {
+                onClick = { eventDetail.onCloseRoomPressed(model, toggle) }) {
 
                 Text(
                     color = if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
@@ -179,7 +181,7 @@ private fun FrontLayer(
     onQuestionPressed: (String) -> Unit,
     onQuestionLongPressed: (enabled: Boolean, quiz: Quiz.Complete, roomId: String) -> Unit,
     onProfileSelected: (String) -> Unit,
-    onProfileLongPressed: (Participant) -> Unit,
+    onProfileLongPressed: (Boolean, Participant) -> Unit,
     onResultSelected: (String, String) -> Unit) {
     val scrollState = rememberScrollState()
 
@@ -250,7 +252,7 @@ private fun FrontLayer(
                                 else  onProfileSelected(participant.userId)
                             },
                             onLongPressed = {
-                                if (isOwn) onProfileLongPressed(participant)
+                                if (isOwn) onProfileLongPressed(!model.expired, participant)
                             }
                         )
                     }

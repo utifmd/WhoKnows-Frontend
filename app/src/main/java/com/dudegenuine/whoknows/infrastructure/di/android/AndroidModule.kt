@@ -90,6 +90,13 @@ object AndroidModule: IAndroidModule {
 
     @Provides
     @Singleton
+    override fun providePrefsFactories(
+        prefs: IPreferenceManager): IPrefsFactory {
+        return PrefsFactory(prefs)
+    }
+
+    @Provides
+    @Singleton
     override fun provideBroadcastReceiverModule(
         @ApplicationContext context: Context): IReceiverFactory {
         return ReceiverFactory()

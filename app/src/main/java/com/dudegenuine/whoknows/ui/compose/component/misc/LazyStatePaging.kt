@@ -1,10 +1,8 @@
 package com.dudegenuine.whoknows.ui.compose.component.misc
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -20,30 +18,46 @@ fun <T: Any> LazyStatePaging(
     items: LazyPagingItems<T>,
     vertical: Arrangement.Vertical? = null,
     horizontal: Arrangement.Horizontal? = null, repeat: Int){
-    var loading by remember { mutableStateOf(false)  }
+    var loaded by remember { mutableStateOf(false)  }
 
-    with(items) { when {
-        loadState.refresh is LoadState.Loading -> {
-            loading = true
-            when {
-                vertical != null -> Column(verticalArrangement = vertical) {
-                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
+    with(items) {
+        when {
+            loadState.prepend is LoadState.Loading ||
+                    loadState.refresh is LoadState.Loading -> {
+                when {
+                    vertical != null -> Column(verticalArrangement = vertical) {
+                        repeat(repeat) { LoadBoxScreen(height = height, width = width) }
+                    }
+
+                    horizontal != null -> Row(horizontalArrangement = horizontal) {
+                        repeat(repeat) { LoadBoxScreen(height = height, width = width) }
+                    }
+
+                    else -> LoadBoxScreen(height = height, width = width)
                 }
-
-                horizontal != null -> Row(horizontalArrangement = horizontal) {
-                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
+            }
+            loadState.refresh is LoadState.Error ||
+                    loadState.append is LoadState.Error -> {
+                val error = (loadState.refresh as LoadState.Error).error.localizedMessage ?: "Retry"
+                Box(if (width != null) modifier
+                    .height(height)
+                    .width(width) else modifier
+                    .height(height)
+                    .fillMaxWidth(),
+                    contentAlignment = Alignment.Center){
+                    ErrorScreen(message = error, onPressed = items::retry)
                 }
-
-                else -> LoadBoxScreen(height = height, width = width)
+            }
+            loadState.refresh is LoadState.NotLoading && itemCount < 1 -> {
+                Box(if (width != null) modifier
+                    .height(height)
+                    .width(width) else modifier
+                    .height(height)
+                    .fillMaxWidth(),
+                    contentAlignment = Alignment.Center) {
+                    ErrorScreen(onPressed = items::retry, message = "No Result", isDanger = false)
+                }
             }
         }
-        loadState.refresh is LoadState.Error -> {
-            ErrorScreen(modifier.clickable(onClick = ::refresh), isSnack = true, message = (
-                    loadState.refresh as LoadState.Error).error.localizedMessage ?: "refresh")
-        }
-        loading and (loadState.refresh is LoadState.NotLoading) -> {
-            if (items.itemCount < 1) ErrorScreen(modifier,
-                message = "No result.", isDanger = false, isSnack = true)
-        }
-    }}
+    }
 }

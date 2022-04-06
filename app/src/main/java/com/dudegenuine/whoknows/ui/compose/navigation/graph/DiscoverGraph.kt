@@ -4,6 +4,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
@@ -15,6 +16,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
@@ -36,7 +38,7 @@ fun NavGraphBuilder.discoverGraph(props: IMainProps){
         route = notification.route,
         deepLinks = listOf(navDeepLink{ uriPattern = notification.uriPattern })){
 
-        NotificationScreen(
+        NotificationScreen(props,
             onBackPressed = props.router::popBackStack,
             onPressed = { roomId, userId ->
                 props.router.navigate(
@@ -63,11 +65,13 @@ fun NavGraphBuilder.discoverGraph(props: IMainProps){
     composable(
         route = Screen.Home.Discover.RoomDetail.routeWithArgs(
             "{$ROOM_ID_SAVED_KEY}"/*, "{${IRoomEvent.ROOM_IS_OWN}}"*/)){// entry ->
+        val viewModel: RoomViewModel = hiltViewModel()
 
         RoomDetail(
+            viewModel = viewModel, //(props.vmRoom as RoomViewModel),
             onBackPressed = props.router::popBackStack,
             isOwn = false, //entry.arguments?.getString(IRoomEvent.ROOM_IS_OWN) == IRoomEvent.OWN_IS_TRUE,
-            eventDetail = RoomEventDetail(props)
+            eventDetail = RoomEventDetail(props, viewModel)
         )
     }
 }

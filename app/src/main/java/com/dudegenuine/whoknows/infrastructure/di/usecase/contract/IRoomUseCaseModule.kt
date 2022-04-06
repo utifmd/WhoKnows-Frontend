@@ -20,9 +20,6 @@ interface IRoomUseCaseModule {
     val patchBoarding: PatchBoarding
     val deleteBoarding: DeleteBoarding
 
-    val currentToken: () -> String
-    val currentUserId: () -> String
-    val currentRunningTime: () -> String
     val setClipboard: (String, String) -> Unit
     val onTimerReceived: ((Double, Boolean) -> Unit) -> BroadcastReceiver
 }

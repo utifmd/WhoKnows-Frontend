@@ -2,6 +2,7 @@ package com.dudegenuine.model
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.dudegenuine.model.common.validation.HttpFailureException
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -46,14 +47,15 @@ class ResourcePaging<T: Any>(
             nextKey = if (list.isNotEmpty()) pageNumber +1 else null
         )
 
+    } catch (e: HttpFailureException) {
+        LoadResult.Error(Throwable(Resource.HTTP_FAILURE_EXCEPTION))
     } catch (e: IOException) {
         LoadResult.Error(Throwable(Resource.IO_EXCEPTION))
-
     } catch (e: HttpException) {
         LoadResult.Error(e)
     }
 
-    override fun getRefreshKey(state: PagingState<Int, T>): Int? =
+    override fun getRefreshKey(state: PagingState<Int, T>): Int? = // null
         state.anchorPosition?.let {
             state.closestPageToPosition(it)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(it)?.nextKey?.minus(1)

@@ -15,6 +15,5 @@ interface IParticipantDataMapper {
     fun asParticipant(response: Response<ParticipantEntity>): Participant
     fun asParticipants(response: Response<List<ParticipantEntity>>): List<Participant>
 
-    fun asPagingResource(
-        onEvent: suspend (Int) -> List<Participant>): PagingSource<Int, Participant>
+    fun asPagingResource(onEvent: suspend (Int) -> List<Participant>): PagingSource<Int, Participant>
 }

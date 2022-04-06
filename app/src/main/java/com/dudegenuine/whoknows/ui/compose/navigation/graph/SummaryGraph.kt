@@ -4,6 +4,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
@@ -32,6 +33,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -80,11 +82,13 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
         route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
         deepLinks = listOf( navDeepLink {
             uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") })){ entry ->
+        val viewModel: RoomViewModel = hiltViewModel()
 
         RoomDetail(
+            viewModel = viewModel,
             onBackPressed = props.router::popBackStack,
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
-            eventDetail = RoomEventDetail(props))
+            eventDetail = RoomEventDetail(props, viewModel))
     }
 
     composable(

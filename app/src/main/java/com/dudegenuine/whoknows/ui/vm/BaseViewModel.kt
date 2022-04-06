@@ -62,8 +62,8 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    fun onDialogStateChange(state: DialogState){
-        Log.d(TAG, "onDialogStateChange: triggered")
+    fun onDialogStateChange(state: DialogState?){
+        //Log.d(TAG, "onDialogStateChange: triggered")
         dialogState = state
         //_dialogState.value = state
     }
@@ -200,15 +200,15 @@ abstract class BaseViewModel: ViewModel() {
         }
 
         if (resources is Resource.Loading){
-            Log.d(TAG, "Resource.Loading..")
+            Log.d(TAG, "onResourceStateless: Loading..")
 
             resources.data?.let {
-                Log.d(TAG, "Resource.Loading.. already got data")
+                Log.d(TAG, "onResourceStateless: Loading.. already got data")
                 onSucceed?.invoke(it) //resources.data?.let()
             }
         }
         if (resources is Resource.Error){
-            Log.d(TAG, "onResourceError: ${resources.message}")
+            Log.d(TAG, "onResourceStateless: Error ${resources.message}")
         }
     }
 

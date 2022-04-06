@@ -1,12 +1,8 @@
 package com.dudegenuine.repository
 
-import android.content.BroadcastReceiver
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.paging.PagingSource
-import com.dudegenuine.local.api.IPreferenceManager
-import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
-import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.local.service.contract.ICurrentUserDao
@@ -26,12 +22,12 @@ class UserRepository
     @Inject constructor(
     private val service: IUserService,
     private val local: ICurrentUserDao,
-    private val prefs: IPreferenceManager,
+    private val prefsFactory: IPrefsFactory,
     private val mapper: IUserDataMapper,
     private val receiver: IReceiverFactory): IUserRepository {
     private val TAG = javaClass.simpleName
 
-    override val currentUserId: () ->
+    /*override val currentUserId: () ->
         String = { prefs.readString(CURRENT_USER_ID) }
 
     override val currentBadge: () ->
@@ -47,7 +43,7 @@ class UserRepository
         SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.unregister
 
     override val networkReceived: (onConnected: (String) -> Unit) ->
-        BroadcastReceiver = receiver.networkReceived
+        BroadcastReceiver = receiver.networkReceived*/
 
     override suspend fun create(user: User.Complete): User.Complete {
         val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
@@ -58,7 +54,7 @@ class UserRepository
     override suspend fun read(id: String): User.Complete {
         val remoteUser = mapper.asUser(service.read(id))
 
-        if (id == currentUserId())
+        if (id == prefsFactory.userId)
             replace(mapper.asUserTable(remoteUser))
 
         Log.d(TAG, "read: triggered")
@@ -97,7 +93,7 @@ class UserRepository
     }
 
     override suspend fun signOut(): String {
-        val finalId = currentUserId()
+        val finalId = prefsFactory.userId
 
         unload(finalId)
 
@@ -106,7 +102,9 @@ class UserRepository
 
     override suspend fun save(userTable: UserTable) =
         local.create(userTable).also {
-            prefs.write(CURRENT_USER_ID, userTable.userId)
+            onUserIdChange(userTable.userId)
+
+            //prefs.write(CURRENT_USER_ID, userTable.userId)
         }
 
     override suspend fun replace(userTable: UserTable) {
@@ -116,7 +114,7 @@ class UserRepository
     }
 
     override suspend fun load(userId: String?): User.Complete {
-        val finalId = userId ?: currentUserId()
+        val finalId = userId ?: prefsFactory.userId
         val currentUser = local.read(finalId)
 
         if (currentUser != null)
@@ -131,6 +129,11 @@ class UserRepository
         if (currentUser != null) local.delete(currentUser)
         else local.delete()
 
-        prefs.write(CURRENT_USER_ID, "")
+        onUserIdChange("")
+        //prefs.write(CURRENT_USER_ID, "")
+    }
+
+    private fun onUserIdChange(fresh: String){
+        prefsFactory.userId = fresh
     }
 }

@@ -18,14 +18,15 @@ val ColorSilver = Color(0xFFadbbc4)
 val ColorBronze = Color(0xFFBF360C)
 
 val SmoothBackground = Color.Black.copy(alpha = 0.04f)
+//val HardBackground = Color.White.copy(alpha = 0.08f)
 
 val LightShimmerColorShades = listOf(
-    SmoothBackground,
-    Color.LightGray,
-    SmoothBackground
+    Color.Black.copy(alpha = 0.04f),
+    Color.White,
+    Color.Black.copy(alpha = 0.04f),
 )
 val DarkShimmerColorShades = listOf(
-    Color.DarkGray,
-    SmoothBackground,
-    Color.DarkGray,
+    Color.Black.copy(alpha = 0.06f),
+    Color.Black,
+    Color.Black.copy(alpha = 0.06f),
 )

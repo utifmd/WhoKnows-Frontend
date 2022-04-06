@@ -1,13 +1,16 @@
 package com.dudegenuine.remote.mapper
 
+import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.BoardingQuizTable
 import com.dudegenuine.local.entity.OnBoardingStateTable
 import com.dudegenuine.local.entity.QuizTable
 import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.ResourcePaging
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ImageUtil.strOf
+import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
@@ -236,11 +239,24 @@ class RoomDataMapper
     }
 
     override fun asPagingCompleteSource(
-        onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete> =
-        ResourcePaging(onEvent)
+        onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete> = ResourcePaging {
+        try { onEvent(it) } catch (e: HttpFailureException) {
+            Log.d(TAG, "asPagingResource HttpFailureException: ${e.message}")
+            throw HttpFailureException(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION)
+        } catch (e: Exception) {
+            Log.d(TAG, "asPagingResource Exception: ${e.localizedMessage}")
+            throw HttpFailureException(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION)
+        }
+    }
 
     override fun asPagingCensoredSource(
-        onEvent: suspend (Int) -> List<Room.Censored>): PagingSource<Int, Room.Censored> {
-        return ResourcePaging(onEvent)
-    }
+        onEvent: suspend (Int) -> List<Room.Censored>): PagingSource<Int, Room.Censored> = ResourcePaging {
+            try { onEvent(it) } catch (e: HttpFailureException) {
+                Log.d(TAG, "asPagingResource HttpFailureException: ${e.message}")
+                throw HttpFailureException(e.message ?: Resource.HTTP_FAILURE_EXCEPTION)
+            } catch (e: Exception) {
+                Log.d(TAG, "asPagingResource Exception: ${e.localizedMessage}")
+                throw HttpFailureException(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION)
+            }
+        }
 }

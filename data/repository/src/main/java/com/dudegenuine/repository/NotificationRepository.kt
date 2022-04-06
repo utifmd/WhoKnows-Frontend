@@ -1,9 +1,6 @@
 package com.dudegenuine.repository
 
-import android.content.SharedPreferences
 import com.dudegenuine.local.api.IPreferenceManager
-import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_NOTIFICATION_BADGE
-import com.dudegenuine.local.api.IPreferenceManager.Companion.CURRENT_USER_ID
 import com.dudegenuine.model.Notification
 import com.dudegenuine.remote.mapper.contract.INotificationDataMapper
 import com.dudegenuine.remote.service.contract.INotificationService
@@ -55,7 +52,7 @@ class NotificationRepository
         )
     }
 
-    override val currentUserId: () ->
+    /*override val currentUserId: () ->
         String = { prefs.readString(CURRENT_USER_ID) }
 
     override val currentBadge: () ->
@@ -68,5 +65,5 @@ class NotificationRepository
         SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.register
 
     override val unregisterPrefsListener: (
-        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.unregister
+        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.unregister*/
 }

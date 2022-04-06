@@ -14,9 +14,7 @@ class FileRepository
 
 @Inject constructor(
     val service: IFileService,
-    val mapper: IFileDataMapper
-): IFileRepository {
-    //private val TAG = javaClass.simpleName
+    val mapper: IFileDataMapper): IFileRepository {
 
     override suspend fun upload(byteArray: ByteArray): File = mapper.asFile(
         service.uploadFile(mapper.asMultipart(File.FILE, byteArray))

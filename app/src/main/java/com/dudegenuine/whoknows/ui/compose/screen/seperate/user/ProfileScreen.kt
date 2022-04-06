@@ -151,13 +151,10 @@ fun ProfileScreen(
                         }
 
                         if (isOwn){
-                            Button(event::onSignOutPressed) {
-
-                                Icon(Icons.Default.Logout,
-                                    contentDescription = null)
-
+                            Button({ event.onSignOutPressed(onSubmitted = viewModel::signOutUser) }) {
+                                Icon(Icons.Default.Logout, tint = MaterialTheme.colors.onPrimary, contentDescription = null)
                                 Spacer(modifier.size(ButtonDefaults.IconSize))
-                                Text(stringResource(R.string.sign_out))
+                                Text(stringResource(R.string.sign_out), color = MaterialTheme.colors.onPrimary)
                             }
                         }
 

@@ -16,7 +16,7 @@ class PrefsManager(
         Unit = { prefs.registerOnSharedPreferenceChangeListener(it) }
 
     override fun readString(key: String): String {
-        return prefs.getString(key, "") ?: ""
+        return prefs.getString(key, "")!!
     }
 
     override fun readInt(key: String): Int {

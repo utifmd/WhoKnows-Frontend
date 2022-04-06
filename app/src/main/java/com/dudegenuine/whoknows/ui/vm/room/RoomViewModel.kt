@@ -10,6 +10,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.local.api.ITimerLauncher
 import com.dudegenuine.local.api.ITimerService
@@ -39,6 +40,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RoomViewModel
     @Inject constructor(
+    private val prefsFactory: IPrefsFactory,
     private val caseMessaging: IMessageUseCaseModule,
     private val caseFile: IFileUseCaseModule,
     private val caseNotification: INotificationUseCaseModule,
@@ -50,11 +52,8 @@ class RoomViewModel
     private val savedStateHandle: SavedStateHandle): IRoomViewModel() {
     @Inject lateinit var timer: ITimerLauncher
     @Inject lateinit var share: IShareLauncher
-
     private val TAG: String = javaClass.simpleName
-    val currentUserId = caseRoom.currentUserId()
-    private val currentToken = caseRoom.currentToken()
-    private val currentRunningTime = caseRoom.currentRunningTime()
+    val currentUserId get() = prefsFactory.userId
 
     private val _uiState = MutableLiveData<Room.State>()
     val uiState: LiveData<Room.State>
@@ -67,7 +66,7 @@ class RoomViewModel
     init {
         onUiStateValueChange(
             Room.State.CurrentRoom)
-
+        Log.d(TAG, "init: ${prefsFactory.userId}")
         onDetailRouted()
         onBoardRouted()
         onBoardStored()
@@ -85,7 +84,7 @@ class RoomViewModel
 
     private fun onBoardStored() {
         getBoarding { roomState ->
-            if (currentRunningTime.isNotBlank()) currentRunningTime.let { time ->
+            prefsFactory.runningTime.let { time ->
                 formState.onTimerChange(time.toDouble())
                 if (time.toDouble() <= 0.0) onPreResult(roomState) //is finished
             }
@@ -191,7 +190,7 @@ class RoomViewModel
         val modelAddMessaging = Messaging.GroupAdder(
             key = "",
             keyName = modelResult.roomId,
-            tokens = listOf(caseRoom.currentToken())
+            tokens = listOf(prefsFactory.tokenId)
         )
 
        timer.stop()
@@ -219,6 +218,7 @@ class RoomViewModel
     }
 
     private fun onUiStateValueChange(roomState: Room.State){
+        Log.d(TAG, "onUiStateValueChange: $roomState")
         _uiState.value = roomState
     }
 
@@ -255,7 +255,7 @@ class RoomViewModel
 
         createMessaging(Messaging.GroupCreator(
             keyName = model.id,
-            tokens = listOf(currentToken))){ notifyKey ->
+            tokens = listOf(prefsFactory.tokenId))){ notifyKey ->
             Log.d(TAG, "onCreatePressed: notifyKey is $notifyKey")
 
             caseRoom.postRoom(model)
@@ -274,7 +274,7 @@ class RoomViewModel
             caseRoom.deleteRoom(roomId),
             caseMessaging.getMessaging(roomId)
                 .flatMapConcat { res -> onResourceFlow(res) { key ->
-                    val remover = Messaging.GroupRemover(roomId, listOf(currentToken), key)
+                    val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
                     caseMessaging.removeMessaging(remover) }})
             .flattenMerge()
             .flatMapLatest { onDeleted(); rooms.retry() }
@@ -317,7 +317,7 @@ class RoomViewModel
         val notifier = formState.notification.copy(
             userId = currentUserId, roomId = participant.roomId,
             event = event, recipientId = participant.userId)
-        val remover = Messaging.GroupRemover(participant.roomId, listOf(currentToken), "key")
+        val remover = Messaging.GroupRemover(participant.roomId, listOf(prefsFactory.tokenId), "key")
         val pusher = Messaging.Pusher(room.title, event, participant.user?.profileUrl ?: "", "key")
 
         return flowOf(
@@ -349,7 +349,7 @@ class RoomViewModel
         }
 
         caseRoom.getRoom(id)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     override fun patchRoom(id: String, current: Room.Complete) {
@@ -363,7 +363,7 @@ class RoomViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    fun expireRoom(current: Room.Complete/*, onSucceed: (Room.Complete) -> Unit*/) {
+    fun expireRoom(current: Room.Complete, finished: () -> Unit) {
         val model = current.copy(expired = true, updatedAt = Date())
         if (model.id.isBlank() || model.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -373,7 +373,7 @@ class RoomViewModel
             .onEach{ res -> onResourceSucceed(res) {
                 onStateChange(ResourceState(room = it))
 
-                //onSucceed(it)
+                finished() //onSucceed(it)
             }}
             .launchIn(viewModelScope)
     }
@@ -389,12 +389,14 @@ class RoomViewModel
     }
 
     override val rooms: Flow<PagingData<Room.Censored>> =
-        caseRoom.getRooms(DEFAULT_BATCH_ROOM).cachedIn(viewModelScope)
+        caseRoom.getRooms(DEFAULT_BATCH_ROOM)
+            .cachedIn(viewModelScope)
 
     override val roomsOwner: Flow<PagingData<Room.Complete>> =
-        if(currentUserId.isNotBlank())
-            caseRoom.getRooms(currentUserId, DEFAULT_BATCH_ROOM)
-                .cachedIn(viewModelScope) else emptyFlow()
+        caseRoom.getRooms(prefsFactory.userId, DEFAULT_BATCH_ROOM)
+
+    val roomsOwnerDirectly: (String) -> Flow<PagingData<Room.Complete>> =
+        { caseRoom.getRooms(it, DEFAULT_BATCH_ROOM) }
 
     override fun getRooms(page: Int, size: Int) {
         if (size == 0){

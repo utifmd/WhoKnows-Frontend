@@ -33,11 +33,17 @@ class BodyConverter<T>(
             val json = buffer.clone().readString(Charset.defaultCharset())
             val elem = JsonParser.parseString(json)
 
-            if (elem is JsonObject && elem.has("data"))
-                if (elem.get("status").asString.lowercase() != "ok")
-                    throw HttpFailureException(elem.get("data").asString)
+            if (elem is JsonObject && elem.has("data")) {
+                when (elem.get("status").asString.lowercase()) {
+                    "ok" -> gson.fromJson<T>(body.string(), type)
+                    else -> throw HttpFailureException(elem.get("data").asString)
+                }
+            } else gson.fromJson(body.string(), type)
 
-            gson.fromJson<T>(body.string(), type)
+                /*if (elem.get("status").asString.lowercase() != "ok")
+                    throw HttpFailureException(elem.get("data").asString)*/
+
+            //gson.fromJson<T>(body.string(), type)
         } catch (e: Exception){
             Log.d(TAG, "exception: ${e.localizedMessage}")
             throw HttpFailureException(e.localizedMessage ?: "Exception.")
