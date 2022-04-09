@@ -1,14 +1,9 @@
 package com.dudegenuine.whoknows.ui.compose.navigation.graph
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.NotificationScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
@@ -17,20 +12,11 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 23 Feb 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalAnimationApi
-@ExperimentalCoroutinesApi
-@ExperimentalComposeUiApi
-@FlowPreview
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@ExperimentalCoilApi
 fun NavGraphBuilder.discoverGraph(props: IMainProps){
     val notification = Screen.Home.Discover.Notification
 

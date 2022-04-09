@@ -26,7 +26,7 @@ val LightShimmerColorShades = listOf(
     Color.Black.copy(alpha = 0.04f),
 )
 val DarkShimmerColorShades = listOf(
-    Color.Black.copy(alpha = 0.06f),
+    Color.Gray.copy(alpha = 0.06f),
     Color.Black,
-    Color.Black.copy(alpha = 0.06f),
+    Color.Gray.copy(alpha = 0.06f),
 )

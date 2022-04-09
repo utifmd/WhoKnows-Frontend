@@ -2,8 +2,11 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.user
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralPicture
@@ -27,17 +29,12 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
-@FlowPreview
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
 @Composable
-@ExperimentalCoilApi
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
@@ -70,19 +67,17 @@ fun ProfileScreen(
         content = {
             SwipeRefresh(swipeRefreshState, { state.user?.id?.let(viewModel::getUser) }) {
                 state.user?.let { user ->
-                    val profileUrl = user.profileUrl.substringAfterLast('/')
                     Column(modifier.verticalScroll(scrollState),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Spacer(modifier.size(12.dp))
 
                         if (isOwn) GeneralPicture(
                             data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray)
-                                else profileUrl,
+                                else user.profileUrl,
                             onChangePressed = { launcher.launch("image/*") },
                             onCheckPressed = viewModel::onUploadProfile,
                             onPreviewPressed = {
-                                val fileId = profileUrl
-                                event.onPicturePressed(fileId)
+                                event.onPicturePressed(user.profileUrl)
                             }
 
                         ) else GeneralPicture(
@@ -117,7 +112,7 @@ fun ProfileScreen(
                                 value = user.let { it.fullName.ifBlank { "Not Set" } },
                                 onValuePressed = { user.let { event.onFullNamePressed(it.fullName.ifBlank { "Not Set" }) } })
 
-                            FieldTag(
+                            if (isOwn) FieldTag(
                                 key = stringResource(R.string.phone_number),
                                 editable = isOwn,
                                 value = user.let { it.phone.ifBlank { "Not Set" } },
@@ -129,7 +124,7 @@ fun ProfileScreen(
                                 value = user.username,
                                 onValuePressed = { user.let { event.onUsernamePressed(it.username.ifBlank { "Not Set" }) }})
 
-                            FieldTag(
+                            if (isOwn) FieldTag(
                                 key = stringResource(R.string.email),
                                 value = user.email,
                                 editable = false,
@@ -141,7 +136,7 @@ fun ProfileScreen(
                                 editable = false,
                                 onValuePressed = { user.let { event.onPasswordPressed(it.password) }})
 
-                            FieldTag(
+                            if (isOwn) FieldTag(
                                 key = stringResource(R.string.password),
                                 value = user.password,
                                 editable = false,

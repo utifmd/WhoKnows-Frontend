@@ -1,7 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Row
@@ -11,8 +10,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -22,8 +23,6 @@ import androidx.compose.ui.unit.dp
  * Tue, 22 Feb 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalAnimationApi
-@ExperimentalComposeUiApi
 @Composable
 fun SearchTopBar(
     title: String,
@@ -39,7 +38,7 @@ fun SearchTopBar(
 
     //val keyboardController = LocalSoftwareKeyboardController.current
     //val focusRequester = remember { FocusRequester() }
-    var showClearButton by remember { mutableStateOf(false) }
+    val showClearButton by remember { mutableStateOf(false) }
 
     TopAppBar(
         title = { Text(title) },

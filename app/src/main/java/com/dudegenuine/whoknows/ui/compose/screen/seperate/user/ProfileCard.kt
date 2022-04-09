@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.component.GeneralCardView
 import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
 import com.dudegenuine.whoknows.ui.theme.SmoothBackground
@@ -24,9 +23,8 @@ import com.dudegenuine.whoknows.ui.theme.SmoothBackground
  * Sat, 15 Jan 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalFoundationApi
-@ExperimentalCoilApi
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun ProfileCard(
     modifier: Modifier = Modifier,
     colorBorder: Color? = null,

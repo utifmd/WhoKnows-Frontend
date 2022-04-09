@@ -19,17 +19,13 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Mon, 17 Jan 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalComposeUiApi
-@FlowPreview
-@ExperimentalCoroutinesApi
 @Composable
+@OptIn(ExperimentalComposeUiApi::class)
 fun RoomFinderScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel(),

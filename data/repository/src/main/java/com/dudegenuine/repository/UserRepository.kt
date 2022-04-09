@@ -129,6 +129,8 @@ class UserRepository
         if (currentUser != null) local.delete(currentUser)
         else local.delete()
 
+        Log.d(TAG, "unload: triggered")
+
         onUserIdChange("")
         //prefs.write(CURRENT_USER_ID, "")
     }

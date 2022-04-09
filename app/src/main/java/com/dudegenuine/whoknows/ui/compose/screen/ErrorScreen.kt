@@ -23,8 +23,7 @@ fun ErrorScreen(
     message: String,
     isDanger: Boolean = true,
     isSnack: Boolean = false,
-    onPressed: (() -> Unit)? = null,
-) {
+    onPressed: (() -> Unit)? = null) {
     Box(
         modifier = if(isSnack) Modifier.fillMaxWidth().padding(vertical = 12.dp) else modifier.fillMaxSize(),
         contentAlignment = Alignment.Center) {

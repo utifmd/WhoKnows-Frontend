@@ -9,13 +9,11 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent.Companion.PHONE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent.Companion.USERNAME
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 26 Jan 2022
  * WhoKnows by utifmd
  **/
-@FlowPreview
 class ProfileEvent(
     private val props: IMainProps): IProfileEvent {
 

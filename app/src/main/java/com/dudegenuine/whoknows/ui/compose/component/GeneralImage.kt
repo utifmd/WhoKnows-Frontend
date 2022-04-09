@@ -17,8 +17,8 @@ import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import com.dudegenuine.whoknows.BuildConfig
 
-@ExperimentalCoilApi
 @Composable
+@OptIn(ExperimentalCoilApi::class)
 fun GeneralImage(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,

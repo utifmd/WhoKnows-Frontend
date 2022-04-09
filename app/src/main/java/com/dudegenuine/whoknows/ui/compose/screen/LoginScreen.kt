@@ -27,15 +27,13 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralButton
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.misc.FrontLiner
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalComposeUiApi
-@FlowPreview
 @Composable
+@OptIn(ExperimentalComposeUiApi::class)
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel(),

@@ -16,6 +16,7 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.notification.contract.INotificationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -24,8 +25,8 @@ import javax.inject.Inject
  * Thu, 10 Feb 2022
  * WhoKnows by utifmd
  **/
-@FlowPreview
 @HiltViewModel
+@OptIn(FlowPreview::class)
 class NotificationViewModel
     @Inject constructor(
     private val prefsFactory: IPrefsFactory,

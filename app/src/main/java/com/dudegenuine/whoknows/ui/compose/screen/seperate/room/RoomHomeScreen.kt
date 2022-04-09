@@ -19,24 +19,20 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Wed, 29 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalCoroutinesApi
-@ExperimentalFoundationApi
-@FlowPreview
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun RoomHomeScreen(
     event: IRoomEventHome, modifier: Modifier = Modifier, props: IMainProps) {
     val swipeRefreshState = rememberSwipeRefreshState(false)
 
     Scaffold(modifier,
         topBar = { GeneralTopBar(title = "Created class") }) {
-        SwipeRefresh(swipeRefreshState, props.ownerRoomsPager::refresh) {
+        SwipeRefresh(swipeRefreshState, props.lazyPagingOwnerRooms::refresh) {
             LazyColumn(modifier.fillMaxSize(),
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -51,13 +47,13 @@ fun RoomHomeScreen(
 
                 item {
                     LazyStatePaging(
-                        items = props.ownerRoomsPager,
+                        items = props.lazyPagingOwnerRooms,
                         vertical = Arrangement.spacedBy(8.dp),
                         repeat = 5, height = 130.dp, width = null
                     )
                 }
 
-                items(props.ownerRoomsPager) {
+                items(props.lazyPagingOwnerRooms) {
                     it?.let { room ->
                         RoomItem(model = room) { event.onRoomItemSelected(room.id) }
                     }

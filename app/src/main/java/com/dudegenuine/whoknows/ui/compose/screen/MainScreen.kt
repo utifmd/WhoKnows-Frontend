@@ -1,16 +1,12 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
 import android.content.Context
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -19,7 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
@@ -35,8 +30,6 @@ import com.dudegenuine.whoknows.ui.vm.main.IActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -44,13 +37,6 @@ import kotlinx.coroutines.flow.emptyFlow
  * Wed, 19 Jan 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalCoroutinesApi
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@ExperimentalCoilApi
-@FlowPreview
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
@@ -60,26 +46,22 @@ fun MainScreen(
         override val context: Context = LocalContext.current
         override val router: NavHostController = router
         override val vmMain: IActivityViewModel = vmMain
-        override val currentUserId: String = vmMain.userId
-        override val vmRoom: RoomViewModel = hiltViewModel()
+        val vmRoom: RoomViewModel = hiltViewModel()
         val vmUser: UserViewModel = hiltViewModel()
         val vmQuiz: QuizViewModel = hiltViewModel()
 
-        override val roomsPager: LazyPagingItems<Room.Censored> =
+        override val lazyPagingRooms: LazyPagingItems<Room.Censored> =
             vmRoom.rooms.collectAsLazyPagingItems()
 
-        override var ownerRoomsPager: LazyPagingItems<Room.Complete> =
-            /*if (vmMain.isSignedIn) vmRoom.roomsOwner.collectAsLazyPagingItems()
-            else*/ emptyFlow<PagingData<Room.Complete>>().collectAsLazyPagingItems()
+        override var lazyPagingOwnerRooms: LazyPagingItems<Room.Complete> =
+            emptyFlow<PagingData<Room.Complete>>().collectAsLazyPagingItems()
 
-        override val participantsPager: LazyPagingItems<User.Censored> =
+        override val lazyPagingParticipants: LazyPagingItems<User.Censored> =
             vmUser.participants.collectAsLazyPagingItems()
 
-        override val quizzesPager: LazyPagingItems<Quiz.Complete> =
+        override val lazyPagingQuizzes: LazyPagingItems<Quiz.Complete> =
             vmQuiz.questions.collectAsLazyPagingItems()
     }
-
-    //var props by remember { mutableStateOf(initialProps) }
 
     WhoKnowsTheme {
         with(vmMain) {
@@ -94,15 +76,9 @@ fun MainScreen(
                             .padding(padding)) {
                         GeneralAlertDialog(this@with)
                         when {
-                            isSignedIn -> MainGraph(
-                                props = props,
-                                destination = Screen.Home.route
-                            )
                             state.loading -> LoadingScreen()
-                            else -> MainGraph(
-                                props = props,
-                                destination = Screen.Auth.route
-                            )
+                            isSignedIn -> MainGraph(props, Screen.Home.route)
+                            else -> MainGraph(props, Screen.Auth.route)
                         }
                     }
                 },

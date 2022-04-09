@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizPrivateEvent
@@ -12,7 +11,6 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.contract.IQuizPr
  * Fri, 24 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalCoilApi
 @Composable
 fun QuestionBoardingScreen(
     modifier: Modifier = Modifier,

@@ -10,8 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
 import com.dudegenuine.model.*
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
 import kotlinx.coroutines.flow.*
@@ -95,12 +93,6 @@ abstract class BaseViewModel: ViewModel() {
             Detail("detail")
         }*/
 
-    fun <T: Any> pagingLoading(items: LazyPagingItems<T>): Boolean = mutableStateOf(
-        items.loadState.refresh is LoadState.Loading).value
-
-    fun <T: Any> pagingError(items: LazyPagingItems<T>): Boolean = mutableStateOf(
-        items.loadState.refresh is LoadState.Error).value
-
     protected fun<T> onResource(resource: Resource<T>){
         onResourceSucceed(resource){ data ->
             if (data is List<*>) {
@@ -148,7 +140,7 @@ abstract class BaseViewModel: ViewModel() {
         resources: Resource<T>, onSuccess: (T) -> Unit){
 
         when(resources){
-            is Resource.Success -> resources.data?.let { onSuccess(it) } ?: also {
+            is Resource.Success -> resources.data?.let { onSuccess.invoke(it) } ?: also {
                 Log.d(TAG, "Resource.Error: ${resources.message}")
                 _state.value = ResourceState(
                     error = resources.message ?: "Resource data is null."
@@ -174,6 +166,22 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
+    /*protected fun<T> onResourceFailed(resources: Resource<T>){
+        onResource(resources, { Log.d(TAG, "onResourceFailed: succeed") }) {
+            Log.d(TAG, "onResourceFailed: failure")
+            _state.value = ResourceState(error = it)
+        }
+    }*/
+
+    protected fun<T> onResourceBoarding(
+        resources: Resource<T>, onPrepare: () -> Unit, onSuccess: (T) -> Unit){
+
+        when(resources){
+            is Resource.Success -> resources.data?.let(onSuccess)
+            is Resource.Error -> resources.message?.let { onStateChange(ResourceState(error = it)) }
+            is Resource.Loading -> onPrepare()
+        }
+    }
     protected fun<T> onResource(
         resources: Resource<T>, onSuccess: (T) -> Unit, onError: (String) -> Unit){
 
@@ -232,6 +240,31 @@ abstract class BaseViewModel: ViewModel() {
             is Resource.Error -> {
                 Log.d(TAG, "onResourceFlowError: ${resources.message}")
                 //_state.value = ResourceState(loading = false)
+                emptyFlow()
+            }
+        }
+    }
+
+    protected fun<T> onResourceAuthFlow(
+        resources: Resource<T>, onSucceed: (T) -> Flow<Resource<T>>): Flow<Resource<T>> {
+        return when(resources) {
+            is Resource.Success -> {
+                Log.d(TAG, "onResourceAuthFlow: success")
+                resources.data?.let { onSucceed.invoke(it) } ?: emptyFlow()
+            }
+            is Resource.Loading -> {
+                Log.d(TAG, "onResourceAuthFlow: loading..")
+                _authState.value = ResourceState.Auth(loading = true)
+
+                resources.data?.let {
+                    Log.d(TAG, "onResourceAuthFlow: loading already got data")
+                    _authState.value = ResourceState.Auth(loading = false)
+                    onSucceed.invoke(it)
+                } ?: emptyFlow()
+            }
+            is Resource.Error -> {
+                Log.d(TAG, "onResourceFlowError: ${resources.message}")
+                _authState.value = ResourceState.Auth(error = resources.message ?: "Invalid authentication")
                 emptyFlow()
             }
         }

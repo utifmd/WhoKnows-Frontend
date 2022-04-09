@@ -13,11 +13,7 @@ import kotlinx.coroutines.FlowPreview
  * Thu, 16 Dec 2021
  * WhoKnows by utifmd
  **/
-@FlowPreview
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
 @Composable
-@ExperimentalCoilApi
 fun SettingScreen(
     modifier: Modifier = Modifier,
     event: IProfileEvent) {

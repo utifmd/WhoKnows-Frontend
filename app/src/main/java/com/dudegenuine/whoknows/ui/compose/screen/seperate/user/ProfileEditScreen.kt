@@ -16,13 +16,11 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Tue, 18 Jan 2022
  * WhoKnows by utifmd
  **/
-@FlowPreview
 @Composable
 fun ProfileEditScreen(
     modifier: Modifier = Modifier,

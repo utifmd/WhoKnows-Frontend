@@ -20,15 +20,11 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Tue, 11 Jan 2022
  * WhoKnows by utifmd
  **/
-@FlowPreview
-@ExperimentalCoroutinesApi
 @Composable
 fun RoomCreatorScreen(
     modifier: Modifier = Modifier,

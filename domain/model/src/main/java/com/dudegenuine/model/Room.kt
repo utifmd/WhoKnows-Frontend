@@ -44,7 +44,7 @@ sealed class Room {
     
     sealed class State {
         object CurrentRoom: State() //{ var currentUserId by mutableStateOf("") }
-
+        object BoardingPrepare: State()
         data class BoardingQuiz(
             val participantId: String,
             val participant: User.Censored,

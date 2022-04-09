@@ -30,9 +30,6 @@ import okhttp3.internal.http.toHttpDateString
  * Thu, 10 Feb 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalFoundationApi
-@FlowPreview
-@ExperimentalCoilApi
 @Composable
 fun NotificationScreen(props: IMainProps,
     modifier: Modifier = Modifier,

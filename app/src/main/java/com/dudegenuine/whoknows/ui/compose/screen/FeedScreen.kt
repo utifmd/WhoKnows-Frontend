@@ -1,7 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -12,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -20,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.items
 import androidx.paging.compose.itemsIndexed
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
@@ -37,20 +33,11 @@ import com.dudegenuine.whoknows.ui.theme.ColorSilver
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Tue, 22 Feb 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalCoilApi
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
 @Composable
 fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
@@ -60,9 +47,9 @@ fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
     val vmMain = props.vmMain as ActivityViewModel
     val onRefresh: () -> Unit = {
         props.apply {
-            participantsPager.refresh()
-            roomsPager.refresh()
-            quizzesPager.refresh()
+            lazyPagingParticipants.refresh()
+            lazyPagingRooms.refresh()
+            lazyPagingQuizzes.refresh()
         }
     }
 
@@ -73,9 +60,6 @@ fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
                 tails = Icons.Filled.Notifications,
                 tailsTint = if(vmMain.badge > 0) MaterialTheme.colors.error else null,
                 onTailPressed = onNotificationPressed
-                /*{
-                    //vmMain.onTurnNotifierOn(false)
-                },*/
             )
         },
         scaffoldState = scaffoldState) {
@@ -86,16 +70,14 @@ fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(12.dp)) {
 
-                item { BodyRoom(modifier, props.roomsPager, onJoinButtonPressed) }
-                item { BodyQuiz(modifier, props.quizzesPager) }
-                item { BodyParticipant(modifier, props.participantsPager) }
+                item { BodyRoom(modifier, props.lazyPagingRooms, onJoinButtonPressed) }
+                item { BodyQuiz(modifier, props.lazyPagingQuizzes) }
+                item { BodyParticipant(modifier, props.lazyPagingParticipants) }
             }
         }
     }
 }
 
-@ExperimentalFoundationApi
-@ExperimentalCoilApi
 @Composable
 private fun BodyParticipant(
     modifier: Modifier, lazyParticipants: LazyPagingItems<User.Censored>){
@@ -127,12 +109,11 @@ private fun BodyParticipant(
     }
 }
 
-@FlowPreview
 @Composable
 private fun BodyRoom(
     modifier: Modifier, lazyRooms: LazyPagingItems<Room.Censored>, onJoinButtonPressed: () -> Unit){
     Body(modifier, "Most happening class${if (lazyRooms.itemCount > 1) "es" else ""}",
-        Icons.Filled.Class, true) {
+        Icons.Filled.Class/*, true*/) {
 
         LazyRow(modifier.padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)) {

@@ -18,7 +18,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Notification
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
@@ -28,8 +27,7 @@ import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
  * Thu, 10 Feb 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalFoundationApi
-@ExperimentalCoilApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NotificationItem(
     modifier: Modifier = Modifier, model: Notification,

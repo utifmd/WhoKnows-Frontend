@@ -17,7 +17,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.BuildConfig
 import com.dudegenuine.whoknows.ui.compose.component.GeneralImage
 import com.dudegenuine.whoknows.ui.vm.file.FileViewModel
@@ -26,7 +25,6 @@ import com.dudegenuine.whoknows.ui.vm.file.FileViewModel
  * Tue, 15 Mar 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalCoilApi
 @Composable
 fun ImageViewer(fileId: String,
     modifier: Modifier = Modifier,

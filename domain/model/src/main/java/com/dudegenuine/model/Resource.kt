@@ -31,6 +31,7 @@ sealed class Resource<T> (
         const val HTTP_FAILURE_EXCEPTION = "Server response failure."
         const val THROWABLE_EXCEPTION = "An expected error occurred."
         const val ILLEGAL_STATE_EXCEPTION = "An expected error occurred."
+        const val NO_RESULT = "No result."
     }
 }
 
@@ -41,12 +42,11 @@ class ResourcePaging<T: Any>(
         val pageNumber = params.key ?: 0
         val list = onEvent(pageNumber)
 
-        LoadResult.Page(
+        if (list.isNotEmpty()) LoadResult.Page(
             data = list,
             prevKey = if (pageNumber > 0) pageNumber -1 else null,
             nextKey = if (list.isNotEmpty()) pageNumber +1 else null
-        )
-
+        ) else LoadResult.Error(Throwable(Resource.NO_RESULT))
     } catch (e: HttpFailureException) {
         LoadResult.Error(Throwable(Resource.HTTP_FAILURE_EXCEPTION))
     } catch (e: IOException) {

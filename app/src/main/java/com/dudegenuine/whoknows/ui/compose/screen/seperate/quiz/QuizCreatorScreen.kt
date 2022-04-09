@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -36,9 +35,8 @@ import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
  * Tue, 28 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalComposeUiApi
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-@ExperimentalFoundationApi
 fun QuizCreatorScreen(
     modifier: Modifier = Modifier,
     viewModel: QuizViewModel = hiltViewModel(),

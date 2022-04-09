@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -26,15 +25,15 @@ import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
 fun GeneralBottomBar(
     modifier: Modifier = Modifier,
     items: Set<BottomDomain>,
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    //darkTheme: Boolean = isSystemInDarkTheme(),
     controller: NavController, onPressed: ((BottomDomain) -> Unit)? = null) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(modifier,
-        backgroundColor = if (darkTheme) MaterialTheme.colors.background
-            else MaterialTheme.colors.onPrimary,
-        contentColor = if (darkTheme) MaterialTheme.colors.onBackground
-            else MaterialTheme.colors.primary,
+        backgroundColor = /*if (darkTheme)*/ MaterialTheme.colors.background
+            /*else MaterialTheme.colors.onPrimary*/,
+        contentColor = /*if (darkTheme)*/ MaterialTheme.colors.onBackground
+            /*else MaterialTheme.colors.primary*/,
         elevation = 3.dp) {
 
         items.forEach { screen ->

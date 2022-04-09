@@ -35,9 +35,8 @@ import javax.inject.Inject
  * Wed, 08 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalCoroutinesApi
-@FlowPreview
 @HiltViewModel
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class RoomViewModel
     @Inject constructor(
     private val prefsFactory: IPrefsFactory,
@@ -66,7 +65,7 @@ class RoomViewModel
     init {
         onUiStateValueChange(
             Room.State.CurrentRoom)
-        Log.d(TAG, "init: ${prefsFactory.userId}")
+
         onDetailRouted()
         onBoardRouted()
         onBoardStored()
@@ -82,14 +81,36 @@ class RoomViewModel
         if (!roomId.isNullOrBlank()) onPreBoarding(roomId)
     }
 
-    private fun onBoardStored() {
-        getBoarding { roomState ->
-            prefsFactory.runningTime.let { time ->
-                formState.onTimerChange(time.toDouble())
-                if (time.toDouble() <= 0.0) onPreResult(roomState) //is finished
+    private fun onBoardStored() /*= viewModelScope.launch*/ {
+        val isStored = prefsFactory.participationId.isNotBlank()
+
+        if (isStored) caseRoom.getBoarding()
+            .onEach { resource -> onResourceBoarding(resource,
+                onPrepare = { onUiStateValueChange(Room.State.BoardingPrepare) }) { roomState ->
+                    formState.onTimerChange(prefsFactory.runningTime.toDouble())
+
+                    if (prefsFactory.runningTime <= 0) onPreResult(roomState) //is finished
+                    else onUiStateValueChange(roomState) }
+                }
+            .launchIn(viewModelScope)
+
+        /*val boardingState = caseRoom.getBoarding()
+            .onEach(::onResourceFailed).stateIn(viewModelScope)
+
+        prefsFactory.runningTime.let { time ->
+            when (boardingState.value){
+                is Resource.Loading ->
+                    onUiStateValueChange(Room.State.BoardingLoading)
+
+                is Resource.Success -> boardingState.value.data?.let { roomState ->
+                    formState.onTimerChange(time.toDouble())
+
+                    if (time <= 0) onPreResult(roomState) //is finished
+                    else onUiStateValueChange(roomState)
+                }
+                else -> onUiStateValueChange(Room.State.BoardingError)
             }
-            onUiStateValueChange(roomState)
-        }
+        }*/
     }
 
     private fun onPreBoarding(roomId: String) {
@@ -115,7 +136,6 @@ class RoomViewModel
                 resources = res,
                 onSuccess = {
                     timer.start(asSecond)
-
                     onBoarding(room, it.id)
                 },
                 onError = { error ->
@@ -206,10 +226,11 @@ class RoomViewModel
         flowOf(
             caseRoom.deleteBoarding(),
             caseResult.postResult(result),
-            caseNotification.postNotification(notification))
-            .flattenMerge()
+            caseNotification.postNotification(notification),
+            registerPushMessaging(result.roomId, register, pusher))
             .onStart { _uiState.postValue(Room.State.BoardingResult(roomTitle, result)) }
-            .flatMapLatest { registerPushMessaging(result.roomId, register, pusher) }
+            .flattenMerge()
+            //.catch {  }
             .launchIn(viewModelScope)
     }
 
@@ -218,7 +239,6 @@ class RoomViewModel
     }
 
     private fun onUiStateValueChange(roomState: Room.State){
-        Log.d(TAG, "onUiStateValueChange: $roomState")
         _uiState.value = roomState
     }
 

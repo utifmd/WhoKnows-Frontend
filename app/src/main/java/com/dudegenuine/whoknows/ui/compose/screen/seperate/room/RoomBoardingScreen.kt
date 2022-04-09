@@ -10,25 +10,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.ITimerService.Companion.TIME_ACTION
 import com.dudegenuine.local.api.ITimerService.Companion.asString
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuestionBoardingScreen
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Fri, 17 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalCoroutinesApi
-@FlowPreview
 @Composable
-@ExperimentalCoilApi
-@ExperimentalMaterialApi
+@OptIn(ExperimentalMaterialApi::class)
 fun RoomBoardingScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel,

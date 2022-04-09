@@ -15,7 +15,7 @@ import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
 import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.INotifyManager
 import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID_TIMER
-import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.activity.MainActivity
@@ -54,7 +54,7 @@ class TimerService: ITimerService() {
     lateinit var notifier: INotifyManager
 
     @Inject
-    lateinit var prefs: IPreferenceManager
+    lateinit var prefsFactory: IPrefsFactory
 
     private val currentTime = mutableStateOf(0.0)
 
@@ -91,9 +91,7 @@ class TimerService: ITimerService() {
                 sendBroadcast(broadcast.putExtra(
                     INITIAL_TIME_KEY, it))
 
-                prefs.write(
-                    INITIAL_TIME_KEY, it.toString()
-                )
+                onRunningTimeChange(it)
             }
         }
 
@@ -127,5 +125,9 @@ class TimerService: ITimerService() {
         }
 
         startForeground(FOREGROUND_TIMER_SERVICE_ID, builder.build())
+    }
+
+    private fun onRunningTimeChange(fresh: Double) {
+        prefsFactory.runningTime = fresh.toInt()
     }
 }

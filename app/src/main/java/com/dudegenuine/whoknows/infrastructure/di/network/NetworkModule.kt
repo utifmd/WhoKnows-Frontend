@@ -5,6 +5,7 @@ import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModul
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.READ_TIMEOUT
 import com.dudegenuine.whoknows.infrastructure.di.network.contract.INetworkModule.Companion.WRITE_TIMEOUT
 import com.dudegenuine.whoknows.infrastructure.di.network.factory.BodyFactory
+import com.dudegenuine.whoknows.infrastructure.di.network.factory.HttpFailureInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -38,11 +39,12 @@ object NetworkModule: INetworkModule {
             connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
             writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
             readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
-            retryOnConnectionFailure(true)
             // addInterceptor(RespInterceptor())
+            addInterceptor(HttpFailureInterceptor())
             addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
+            retryOnConnectionFailure(true)
         }.build()
     }
 

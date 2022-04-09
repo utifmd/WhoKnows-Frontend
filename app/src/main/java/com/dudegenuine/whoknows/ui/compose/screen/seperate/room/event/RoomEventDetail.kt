@@ -1,10 +1,5 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.ExperimentalComposeUiApi
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
@@ -14,20 +9,11 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Fri, 28 Jan 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalCoilApi
-@ExperimentalAnimationApi
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@FlowPreview
-@ExperimentalCoroutinesApi
-@ExperimentalMaterialApi
 class RoomEventDetail(
     private val props: IMainProps,
     private val vmRoom: RoomViewModel): IRoomEventDetail {

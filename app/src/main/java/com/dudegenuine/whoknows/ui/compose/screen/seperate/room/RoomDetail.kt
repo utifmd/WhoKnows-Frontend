@@ -18,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
@@ -31,8 +30,6 @@ import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileCard
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import okhttp3.internal.http.toHttpDateString
 
@@ -40,12 +37,8 @@ import okhttp3.internal.http.toHttpDateString
  * Thu, 27 Jan 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalCoilApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
 @Composable
+@OptIn(ExperimentalMaterialApi::class)
 fun RoomDetail(
     modifier: Modifier = Modifier,
     isOwn: Boolean = false,
@@ -170,9 +163,8 @@ private fun BackLayer(
     }
 }
 
-@ExperimentalCoilApi
-@ExperimentalFoundationApi
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun FrontLayer(
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,

@@ -1,10 +1,8 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.room
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import coil.annotation.ExperimentalCoilApi
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ui.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ui.compose.screen.LoadingScreen
@@ -12,24 +10,17 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventHome
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 /**
  * Fri, 24 Dec 2021
  * WhoKnows by utifmd
  **/
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalCoilApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
 @Composable
 fun RoomStatedPreBoardingScreen(
     props: IMainProps,
     eventHome: IRoomEventHome,
-    eventBoarding: IRoomEventBoarding) {
-    val viewModel: RoomViewModel = props.vmRoom as RoomViewModel
+    eventBoarding: IRoomEventBoarding,
+    viewModel: RoomViewModel = hiltViewModel()) {
     val uiState = viewModel.uiState.observeAsState().value
     val state = viewModel.state
 
@@ -37,27 +28,22 @@ fun RoomStatedPreBoardingScreen(
         object: IRoomEventBoarding {
             override fun onPrevPressed() { roomState.currentQuestionIdx -=1 }
             override fun onNextPressed() { roomState.currentQuestionIdx +=1 }
-            override fun onDonePressed() { viewModel.onPreResult(roomState) }
-        }
+            override fun onDonePressed() { viewModel.onPreResult(roomState) }}
     }
-
-    when {
-        uiState is Room.State.BoardingQuiz -> RoomBoardingScreen(
+    when (uiState) {
+        is Room.State.BoardingQuiz -> RoomBoardingScreen(
             state = uiState,
             viewModel = viewModel,
             onAction = eventBoarding::onAction,
             onPrevPressed = { composeEvent(uiState).onPrevPressed() },
             onNextPressed = { composeEvent(uiState).onNextPressed() },
-            onDonePressed = { composeEvent(uiState).onDonePressed() })
-        uiState is Room.State.BoardingResult -> ResultScreen(
-            state = uiState,
-            onDonePressed = viewModel::onCloseBoarding)
-        state.loading -> LoadingScreen()
-        state.error.isNotBlank() -> ErrorScreen(
-            message = state.error)
-        else -> RoomHomeScreen(
-            props = props,
-            event = eventHome
+            onDonePressed = { composeEvent(uiState).onDonePressed() }
         )
+        is Room.State.BoardingResult -> ResultScreen(
+            state = uiState, onDonePressed = viewModel::onCloseBoarding
+        )
+        is Room.State.BoardingPrepare -> LoadingScreen()
+        is Room.State.CurrentRoom -> RoomHomeScreen(eventHome, props = props)
+        else -> ErrorScreen(message = state.error)
     }
 }

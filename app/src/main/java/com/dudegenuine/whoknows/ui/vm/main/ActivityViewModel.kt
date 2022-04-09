@@ -3,22 +3,17 @@ package com.dudegenuine.whoknows.ui.vm.main
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.util.Log
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IPrefsFactory.Companion.NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPrefsFactory.Companion.USER_ID
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.model.Messaging
-import com.dudegenuine.model.Resource
+import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
@@ -33,13 +28,8 @@ import javax.inject.Inject
  * Fri, 11 Feb 2022
  * WhoKnows by utifmd
  **/
-@FlowPreview
-@ExperimentalCoilApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
 @HiltViewModel
+@OptIn(FlowPreview::class)
 class ActivityViewModel
     @Inject constructor(
     private val prefsFactory: IPrefsFactory,
@@ -63,6 +53,7 @@ class ActivityViewModel
         else Log.d(TAG, "currentToken: ${prefsFactory.tokenId}")
 
         getNotifications(prefsFactory.userId)
+        retryFailureMessaging()
     }
 
     val networkServiceAction = IntentFilter(IReceiverFactory.ACTION_CONNECTIVITY_CHANGE)
@@ -76,7 +67,7 @@ class ActivityViewModel
     val messagingServiceReceiver = caseMessaging.onTokenReceived { token ->
         token.apply (::onTokenIdChange)
 
-        if (prefsFactory.userId.isNotBlank()) onPreRegisterToken(token)
+        if (prefsFactory.userId.isNotBlank()) onTokenIdGenerated(/*token*/)
     }
 
     private fun messagingSubscribeTopic() {
@@ -100,37 +91,65 @@ class ActivityViewModel
         }
     }
 
-    private fun onPreRegisterToken(token: String) {
-        Log.d(TAG, "onPreRegisterToken: $token")
-
-        getJoinedOwnedRoomIds { roomIds ->
-            roomIds.asFlow()
-                .flatMapConcat(::onRegisterMessaging)
-                .launchIn(viewModelScope)
-        }
+    private fun retryFailureMessaging() {
+        // TODO: check failure state in prefs then retry calls each functions everytime
+        // 1. login messaging
+        // 1. logout messaging
+        // 1. create room messaging
+        // 1. boarding messaging
     }
 
-    private fun getJoinedOwnedRoomIds(onSucceed: (List<String>) -> Unit) {
-        if (prefsFactory.userId.isBlank()) return
-
-        caseUser.getUser()
-            .onEach { res -> onResourceSucceed(res) { usr ->
-                val joined = usr.participants.map { it.roomId }
-                val owned = usr.rooms.map { it.roomId }
-
-                onSucceed(concatenate(owned, joined)) }}
+    private fun onTokenIdGenerated(/*tokenId: String*/){
+        caseUser.getUser(userId)
+            .onEach { onAuth(it, ::onPreRegisterMessaging) }
+            .onStart { Log.d(TAG, "onTokenIdGenerated: triggered") }
             .launchIn(viewModelScope)
     }
 
+    private fun onPreRegisterMessaging(currentUser: User.Complete) {
+        val joined = currentUser.participants.map { it.roomId }
+        val owned = currentUser.rooms.map { it.roomId }
+        val unread = currentUser.notifications.count { !it.seen }
 
-    private fun onRegisterMessaging(roomId: String): Flow<Resource<out Any>> {
-        return caseMessaging.getMessaging(roomId)
-            .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
-                caseMessaging.addMessaging(register)
-            }
-        }
+        concatenate(joined, owned)
+            .map(::onRegisterMessaging)
+            .asFlow()
+            .onStart { onBadgeChange(unread) }
+            .flattenMerge()
+            .catch { Log.d(TAG, "onPreRegisterGroupToken->catch: ${it.localizedMessage}") }
+            .launchIn(viewModelScope)
     }
+
+    private fun onPreUnregisterMessaging(currentUser: User.Complete) {
+        val joined = currentUser.participants.map { it.roomId }
+        val owned = currentUser.rooms.map { it.roomId }
+
+        concatenate(joined, owned)
+            .map(::onUnregisterMessaging)
+            .asFlow()
+            .onStart { onBadgeChange(0) }
+            .flattenMerge()
+            .catch { Log.d(TAG, "onPreUnregisterGroupToken->catch: ${it.localizedMessage}") }
+            .launchIn(viewModelScope)
+    }
+
+    private fun onRegisterMessaging(roomId: String) =
+        caseMessaging.getMessaging(roomId)
+            .flatMapConcat { res ->
+                onResourceFlow(res) { key ->
+                    val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
+                    caseMessaging.addMessaging(register)
+                }
+            }
+
+    private fun onUnregisterMessaging(roomId: String) =
+        caseMessaging.getMessaging(roomId)
+            .flatMapConcat { res ->
+                onResourceFlow(res) { key ->
+                    val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
+                    caseMessaging.removeMessaging(remover)
+                }
+            }
 
     fun registerPrefsListener() { prefsFactory.manager.register(onPrefsListener) }
     fun unregisterPrefsListener() { prefsFactory.manager.unregister(onPrefsListener) }
@@ -167,12 +186,6 @@ class ActivityViewModel
             }}
             .launchIn(viewModelScope)
     }
-
-    /*fun onTurnNotifierOn(fresh: Boolean){
-        isNotify = fresh
-
-        caseMessaging.onBadgeStatusRefresh(fresh)
-    }*/
 
     private fun onBadgeChange(fresh: Int) {
         prefsFactory.notificationBadge = fresh

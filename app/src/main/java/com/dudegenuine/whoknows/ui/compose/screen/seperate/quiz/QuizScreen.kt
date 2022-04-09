@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil
 import com.dudegenuine.whoknows.ui.compose.component.GeneralCardView
@@ -34,7 +33,6 @@ import okhttp3.internal.http.toHttpDateString
  * Mon, 31 Jan 2022
  * WhoKnows by utifmd
  **/
-@ExperimentalCoilApi
 @Composable
 fun QuizScreen(
     modifier: Modifier = Modifier,
@@ -61,7 +59,6 @@ fun QuizScreen(
     }
 }
 
-@ExperimentalCoilApi
 @Composable
 private fun Body(
     modifier: Modifier = Modifier,
@@ -124,7 +121,6 @@ private fun Body(
     }
 }
 
-@ExperimentalCoilApi
 @Composable
 private fun PrivateBody (
     modifier: Modifier = Modifier,
@@ -160,7 +156,6 @@ private fun PrivateBody (
     }
 }
 
-@ExperimentalCoilApi
 @Composable
 private fun PublicBody (
     modifier: Modifier = Modifier,
