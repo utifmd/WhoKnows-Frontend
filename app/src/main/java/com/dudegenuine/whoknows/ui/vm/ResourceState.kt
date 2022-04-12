@@ -43,6 +43,7 @@ data class ResourceState(
 
     companion object {
         const val DONT_EMPTY = "Fields must not be blank."
+        const val DONT_EMPTY_IMG = "Pick single picture first."
         const val CHECK_CONN = "Check your internet connection and try again."
         const val NULL_STATE = "State is null."
         const val NO_QUESTION = "There is no question for this room."

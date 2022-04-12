@@ -1,6 +1,5 @@
 package com.dudegenuine.remote.mapper
 
-import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.ResourcePaging
@@ -59,9 +58,9 @@ class ParticipantDataMapper
     override fun asPagingResource(
         onEvent: suspend (Int) -> List<Participant>): PagingSource<Int, Participant> =
         try { ResourcePaging(onEvent) } catch (e: Exception) {
-            Log.d(TAG, "asPagingResource: ${e.localizedMessage}")
             ResourcePaging { emptyList() }
         }
+
 
     override fun asParticipants(response: Response<List<ParticipantEntity>>): List<Participant> {
         return when(response.data){

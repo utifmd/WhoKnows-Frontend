@@ -38,8 +38,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
-    isOwn: Boolean,
-    event: IProfileEvent,
+    isOwn: Boolean, event: IProfileEvent,
     viewModel: UserViewModel = hiltViewModel(),
     scrollState: ScrollState = rememberScrollState()){
 
@@ -77,7 +76,7 @@ fun ProfileScreen(
                             onChangePressed = { launcher.launch("image/*") },
                             onCheckPressed = viewModel::onUploadProfile,
                             onPreviewPressed = {
-                                event.onPicturePressed(user.profileUrl)
+                                event.onPicturePressed(user.profileUrl.substringAfterLast('/'))
                             }
 
                         ) else GeneralPicture(

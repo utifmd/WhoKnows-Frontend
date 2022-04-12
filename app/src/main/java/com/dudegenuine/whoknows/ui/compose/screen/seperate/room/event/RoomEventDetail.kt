@@ -60,15 +60,6 @@ class RoomEventDetail(
         }
     }
 
-    /*override fun onRoomDetailPressed(roomId: String) {
-        props.router.apply {
-            popBackStack()
-            navigate(Screen.Home.Summary.RoomDetail.routeWithArgs(
-                roomId, IRoomEvent.OWN_IS_TRUE)
-            )
-        }
-    }*/
-
     override fun onShareRoomPressed(room: Room.Complete) {
         if(room.questions.size >= 3) vmRoom.onSharePressed(room.id)
         else vmMain.onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest))
@@ -81,7 +72,7 @@ class RoomEventDetail(
             room.participants.any { it.userId == vmRoom.currentUserId } -> props.context.getString(R.string.already_joined_to_join)
             else -> null }
         val accepted = vmRoom.currentUserId.isNotBlank() && vmRoom.currentUserId != room.userId &&
-                room.participants.any { it.userId != vmRoom.currentUserId }
+                room.participants.all { it.userId != vmRoom.currentUserId }
         val dialog = DialogState(props.context.getString(R.string.participate_the_class), disclaimer,
             onSubmitted = if (accepted) {{ onBoardingRoomPressed(room.id) }} else null)
         vmMain.onDialogStateChange(dialog)
@@ -97,7 +88,7 @@ class RoomEventDetail(
     override fun onDeleteRoomPressed(room: Room.Complete) {
         val disclaimer = when {
             room.participants.isNotEmpty() -> props.context.getString(R.string.there_is_no_participant)
-            room.questions.all { it.images.isNotEmpty() } -> props.context.getString(R.string.there_is_no_quest)
+            room.questions.any { it.images.isNotEmpty() } -> props.context.getString(R.string.there_is_no_quest)
             else -> null
         }
         val accepted = room.participants.isEmpty() && room.questions.all { it.images.isEmpty() }
@@ -107,14 +98,18 @@ class RoomEventDetail(
     }
 
     override fun onParticipantLongPressed(enabled: Boolean, participant: Participant) {
-        val dialog = DialogState(props.context.getString(R.string.delete_participant), props.context.getString(R.string.allowed_when_class_opened),
+        val dialog = DialogState(props.context.getString(R.string.delete_participant),
+            if (!enabled) props.context.getString(R.string.allowed_when_class_opened) else null,
             onSubmitted = if(enabled) {{ vmRoom.onDeleteParticipantPressed(participant) }} else null)
         vmMain.onDialogStateChange(dialog)
     }
 
-    override fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String) {
-        val dialog = DialogState(props.context.getString(R.string.delete_question),
-            onSubmitted = if(enabled) {{ vmRoom.onDeleteQuestionPressed(quiz) }} else null)
+    override fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete) {
+        val accepted = !room.expired && room.participants.isEmpty()
+        val disclaimer: String? = if(room.expired) props.context.getString(R.string.allowed_when_class_opened)
+            else if(room.participants.isNotEmpty()) props.context.getString(R.string.there_is_no_participant) else null
+        val dialog = DialogState(props.context.getString(R.string.delete_question), disclaimer,
+            onSubmitted = if(accepted) {{ vmRoom.onDeleteQuestionPressed(quiz) }} else null)
         vmMain.onDialogStateChange(dialog)
     }
 }

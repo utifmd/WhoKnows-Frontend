@@ -39,8 +39,8 @@ object NetworkModule: INetworkModule {
             connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
             writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
             readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
-            // addInterceptor(RespInterceptor())
-            addInterceptor(HttpFailureInterceptor())
+            // addNetworkInterceptor(RespInterceptor())
+            addNetworkInterceptor(HttpFailureInterceptor())
             addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })

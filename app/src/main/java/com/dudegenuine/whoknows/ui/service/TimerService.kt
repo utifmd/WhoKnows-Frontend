@@ -5,14 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.local.api.INotifyManager
 import com.dudegenuine.local.api.INotifyManager.Companion.CHANNEL_ID_TIMER
 import com.dudegenuine.local.api.IPrefsFactory
@@ -20,8 +15,6 @@ import com.dudegenuine.local.api.ITimerService
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.activity.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import java.util.*
 import javax.inject.Inject
 
@@ -29,13 +22,6 @@ import javax.inject.Inject
  * Wed, 09 Feb 2022
  * WhoKnows by utifmd
  **/
-@FlowPreview
-@ExperimentalCoroutinesApi
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
-@ExperimentalCoilApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
 @AndroidEntryPoint
 class TimerService: ITimerService() {
     private val TAG = javaClass.simpleName

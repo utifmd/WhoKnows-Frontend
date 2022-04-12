@@ -10,6 +10,7 @@ import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.local.api.IShareLauncher
 import com.dudegenuine.model.BuildConfig
 import com.dudegenuine.model.Messaging
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
@@ -20,12 +21,10 @@ import com.dudegenuine.whoknows.ui.compose.state.UserState
 import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.CHECK_CONN
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY_IMG
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.util.*
@@ -36,13 +35,13 @@ import javax.inject.Inject
  * WhoKnows by utifmd
  **/
 @HiltViewModel
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class UserViewModel
     @Inject constructor(
     private val prefsFactory: IPrefsFactory,
     private val caseMessaging: IMessageUseCaseModule,
     private val caseUser: IUserUseCaseModule,
-    private val fileCase: IFileUseCaseModule,
+    private val caseFile: IFileUseCaseModule,
     private val savedStateHandle: SavedStateHandle) : IUserViewModel() {
     private val TAG = javaClass.simpleName
     @Inject
@@ -74,49 +73,48 @@ class UserViewModel
         val owned = currentUser.rooms.map { it.roomId }
         val unread = currentUser.notifications.count { !it.seen }
 
-        concatenate(joined, owned)
-            .map(::onRegisterMessaging)
-            .asFlow()
+        concatenate(joined, owned).asFlow()
+            .flatMapConcat(::onRegisterMessaging)
             .onStart { onBadgeChange(unread) }
-            .flattenMerge()
-            .catch { cause -> /*cause is IOException then save in prefs*/
-                Log.d(TAG, "onPreRegisterGroupToken->catch: ${cause.localizedMessage}") }
+            .onCompletion { it?.let(::onResolveAddMessaging) }
+            .catch { it.let(::onResolveAddMessaging) }
             .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .launchIn(scope)
+
+        /*concatenate(joined, owned)
+            .map(::onRegisterMessaging).asFlow().flattenMerge()
+            .onStart { onBadgeChange(unread) }
+            .catch { Log.d(TAG, "onPreRegisterGroupToken->catch: ${it.localizedMessage}") }
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
+            .launchIn(scope)*/
     }
 
     private fun onPreUnregisterMessaging(currentUser: User.Complete) {
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
 
-        concatenate(joined, owned)
-            .map(::onUnregisterMessaging)
-            .asFlow()
-            .onStart { onBadgeChange(0) }
-            .flattenMerge()
-            .catch { cause -> /*cause is IOException then save in prefs*/
-                Log.d(TAG, "onPreUnregisterGroupToken->catch: ${cause.localizedMessage}") }
+        concatenate(joined, owned).asFlow()
+            .flatMapConcat(::onUnregisterMessaging)
+            .onStart { onBadgeChange(0); onRejectAllMessaging() }
+            .onCompletion { it?.let(::onResolveAddMessaging) }
+            .catch { it.let(::onResolveAddMessaging) }
             .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .launchIn(scope)
     }
 
     private fun onRegisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
-            .flatMapConcat { res ->
-                onResourceFlow(res) { key ->
-                    val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
-                    caseMessaging.addMessaging(register)
-                }
-            }
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+                val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
+                caseMessaging.addMessaging(register)
+            }}
 
     private fun onUnregisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
-            .flatMapConcat { res ->
-                onResourceFlow(res) { key ->
-                    val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
-                    caseMessaging.removeMessaging(remover)
-                }
-            }
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+                val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
+                caseMessaging.removeMessaging(remover)
+            }}
 
     override fun signUpUser() {
         val model = formState.regisModel
@@ -161,8 +159,9 @@ class UserViewModel
 
         caseUser.getUser(userId)
             .onEach { onAuth(it, ::onPreUnregisterMessaging) }
-            .flatMapMerge { caseUser.signOutUser() }
-            .onEach { onAuth(it, onSignedOut = notifier.manager::cancelAll) }
+            .flatMapLatest { if(it is Resource.Success) caseUser.signOutUser() else emptyFlow() }
+            .onCompletion { it?.let(::onResolveRemoveMessaging) ?: notifier.manager::cancelAll }
+            .catch { it.let(::onResolveRemoveMessaging) }
             .launchIn(scope)
     }
 
@@ -178,7 +177,7 @@ class UserViewModel
 
     override fun getUser() {
         caseUser.getUser()
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     override fun getUser(id: String) {
@@ -187,7 +186,7 @@ class UserViewModel
             return
         }
         caseUser.getUser(id)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     override fun getUser(id: String, onSucceed: (User.Complete) -> Unit) {
@@ -210,7 +209,7 @@ class UserViewModel
         freshUser.apply { updatedAt = Date() }
 
         caseUser.patchUser(id, freshUser)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     override fun patchUser(freshUser: User.Complete, onSucceed: (User.Complete) -> Unit) {
@@ -230,9 +229,8 @@ class UserViewModel
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         caseUser.deleteUser(id)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     override val participants = caseUser
@@ -246,12 +244,11 @@ class UserViewModel
         }
 
         caseUser.getUsers(page, size)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResource).launchIn(viewModelScope)
     }
 
     override fun getMessaging(
-        keyName: String, onSucceed: (String) -> Unit
-    ) {
+        keyName: String, onSucceed: (String) -> Unit) {
         if (keyName.isBlank()) return
 
         caseMessaging.getMessaging(keyName)
@@ -260,8 +257,7 @@ class UserViewModel
     }
 
     override fun addMessaging(
-        messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit
-    ) {
+        messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit) {
         //if (!messaging.isValid) return
 
         caseMessaging.addMessaging(messaging)
@@ -289,41 +285,61 @@ class UserViewModel
             .launchIn(viewModelScope)
     }
 
-    private fun onUserIdChange(fresh: String) {
+    /*private fun onUserIdChange(fresh: String) {
         prefsFactory.userId = fresh
-    }
+    }*/
 
     private fun onBadgeChange(fresh: Int) {
         prefsFactory.notificationBadge = fresh
     }
 
-    private fun onTokenIdChange(fresh: String) {
-        prefsFactory.tokenId = fresh
+    private fun onRejectAllMessaging() {
+        with(prefsFactory) {
+            createMessaging = ""
+            addMessaging = false
+            removeMessaging = false
+        }
     }
 
-    fun onUploadProfile() {
-        val model: User.Complete? = state.user
+    /*private fun onTokenIdChange(fresh: String) {
+        prefsFactory.tokenId = fresh
+    }*/
 
-        if (formState.profileImage.isEmpty() || model == null) {
-            onStateChange(ResourceState(error = DONT_EMPTY))
+    private fun onResolveAddMessaging(t: Throwable) {
+        Log.d(TAG, "onResolveAddMessaging: ${t.message}")
+        prefsFactory.addMessaging = true
+    }
+
+    private fun onResolveRemoveMessaging(t: Throwable) {
+        Log.d(TAG, "onResolveRemoveMessaging: ${t.message}")
+        prefsFactory.removeMessaging = true
+    }
+
+    /*private fun onReportUnregisterMessaging(t: Throwable) {
+        Log.d(TAG, "onReportUnregisterMessaging: ${t.message}")
+        prefsFactory.unregisterMessaging = true
+    }*/
+
+    fun onUploadProfile() {
+        val user: User.Complete = state.user ?: return
+        val fileId = user.profileUrl.substringAfterLast("/")
+
+        if (formState.profileImage.isEmpty()) {
+            onStateChange(ResourceState(error = DONT_EMPTY_IMG))
             return
         }
-
-        model.let { user ->
-            val fileId = user.profileUrl.substringAfterLast("/")
-
-            fileCase.uploadFile(formState.profileImage)
-                .onEach { res ->
-                    onResourceSucceed(res) { file ->
-                        val fresh = user.copy(profileUrl = file.url)
-
-                        Log.d("onUploadProfile", fresh.toString())
-                        patchUser(id = fresh.id, freshUser = fresh)
-                    }
+        caseFile.uploadFile(formState.profileImage)
+            .flatMapConcat { onResourceFlow(it) { file ->
+                val fresh = user.copy(profileUrl = file.url, createdAt = Date())
+                flowOf(caseUser.patchUser(user.id, fresh),
+                    if(fileId.isNotBlank()) caseFile.deleteFile(fileId) else emptyFlow()).flattenMerge()
+                    .map { Resource.Success(file) }
                 }
-                .flatMapMerge { fileCase.deleteFile(fileId) }
-                .launchIn(viewModelScope)
-        }
+            }
+            .onStart { _formState.value = UserState.FormState() }
+            .onCompletion { it?.let(::onResolveAddMessaging) } // onStateChange(ResourceState(message = it.localizedMessage ?: Resource.NO_RESULT))
+            .catch { it.let(::onResolveAddMessaging) }
+            .launchIn(viewModelScope)
     }
 
     fun onUpdateUser(fieldKey: String?, fieldValue: String, onSucceed: (User.Complete) -> Unit) {

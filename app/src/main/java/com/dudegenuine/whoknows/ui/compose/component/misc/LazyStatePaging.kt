@@ -18,25 +18,21 @@ fun <T: Any> LazyStatePaging(
     height: Dp = 125.dp, width: Dp? = 246.dp,
     items: LazyPagingItems<T>,
     vertical: Arrangement.Vertical? = null,
-    horizontal: Arrangement.Horizontal? = null, repeat: Int){
-    //var loaded by remember { mutableStateOf(false)  }
+    horizontal: Arrangement.Horizontal? = null, repeat: Int) {
 
     with(items) {
         when {
             loadState.prepend is LoadState.Loading ||
-                    loadState.refresh is LoadState.Loading -> {
-                //loaded = true
-                when {
-                    vertical != null -> Column(verticalArrangement = vertical) {
-                        repeat(repeat) { LoadBoxScreen(height = height, width = width) }
-                    }
-
-                    horizontal != null -> Row(horizontalArrangement = horizontal) {
-                        repeat(repeat) { LoadBoxScreen(height = height, width = width) }
-                    }
-
-                    else -> LoadBoxScreen(height = height, width = width)
+                    loadState.refresh is LoadState.Loading -> when {
+                vertical != null -> Column(verticalArrangement = vertical) {
+                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
                 }
+
+                horizontal != null -> Row(horizontalArrangement = horizontal) {
+                    repeat(repeat) { LoadBoxScreen(height = height, width = width) }
+                }
+
+                else -> LoadBoxScreen(height = height, width = width)
             }
             loadState.refresh is LoadState.Error-> {
                 val error = (loadState.refresh as LoadState.Error).error.localizedMessage ?: "Retry again"
@@ -49,6 +45,7 @@ fun <T: Any> LazyStatePaging(
                     ErrorScreen(
                         message = error,
                         onPressed = items::retry,
+                        isSnack = true,
                         isDanger = error != Resource.NO_RESULT
                     )
                 }

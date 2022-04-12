@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.compose.items
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.component.GeneralTopBar
@@ -28,7 +29,8 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 @OptIn(ExperimentalFoundationApi::class)
 fun RoomHomeScreen(
     event: IRoomEventHome, modifier: Modifier = Modifier, props: IMainProps) {
-    val swipeRefreshState = rememberSwipeRefreshState(false)
+    val swipeRefreshState = rememberSwipeRefreshState(
+        props.lazyPagingOwnerRooms.loadState.refresh is LoadState.Loading)
 
     Scaffold(modifier,
         topBar = { GeneralTopBar(title = "Created class") }) {

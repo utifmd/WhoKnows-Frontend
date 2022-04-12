@@ -47,7 +47,7 @@ fun GeneralPicture(
                             tint = MaterialTheme.colors.onPrimary,
                             modifier = modifier.clickable(
                                 enabled = onCheckPressed != null,
-                                onClick = { onCheckPressed?.invoke() }
+                                onClick = { onCheckPressed?.invoke(); toggle() }
                             ),
                         )
                     }

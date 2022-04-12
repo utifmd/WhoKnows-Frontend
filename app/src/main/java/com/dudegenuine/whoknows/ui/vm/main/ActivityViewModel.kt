@@ -43,8 +43,8 @@ class ActivityViewModel
     private val messaging: FirebaseMessaging = FirebaseMessaging.getInstance()
 
     val userId get() = prefsFactory.userId
+    var badge by mutableStateOf(prefsFactory.notificationBadge)
     var isSignedIn by mutableStateOf(userId.isNotBlank())
-    val badge get() = prefsFactory.notificationBadge
 
     init {
         messagingSubscribeTopic()
@@ -53,7 +53,30 @@ class ActivityViewModel
         else Log.d(TAG, "currentToken: ${prefsFactory.tokenId}")
 
         getNotifications(prefsFactory.userId)
-        retryFailureMessaging()
+        retryFailureAttempted()
+    }
+
+    private fun retryFailureAttempted() {
+        // TODO: check failure state in prefs then retry calls each functions everytime
+        // 1. login messaging
+        // 1. logout messaging
+        // 1. create room messaging
+        // 1. boarding messaging
+
+        when {
+            prefsFactory.createMessaging.isNotBlank()  -> {
+                Log.d(TAG, "retryFailureAttempted: create ${prefsFactory.createMessaging}")
+                onCreateMessaging()
+            }
+            prefsFactory.addMessaging  -> {
+                Log.d(TAG, "retryFailureAttempted: add ${prefsFactory.addMessaging}")
+                getUser(::onPreRegisterMessaging)
+            }
+            prefsFactory.removeMessaging  -> {
+                Log.d(TAG, "retryFailureAttempted: remove ${prefsFactory.removeMessaging}")
+                getUser(::onPreUnregisterMessaging)
+            }
+        }
     }
 
     val networkServiceAction = IntentFilter(IReceiverFactory.ACTION_CONNECTIVITY_CHANGE)
@@ -65,9 +88,11 @@ class ActivityViewModel
 
     val messagingServiceAction = IntentFilter(IReceiverFactory.ACTION_FCM_TOKEN)
     val messagingServiceReceiver = caseMessaging.onTokenReceived { token ->
-        token.apply (::onTokenIdChange)
+        Log.d(TAG, "messagingServiceReceiver: triggered")
 
-        if (prefsFactory.userId.isNotBlank()) onTokenIdGenerated(/*token*/)
+        token.apply (::onTokenIdChange)
+        if (prefsFactory.userId.isNotBlank())
+            getUser(::onPreRegisterMessaging)
     }
 
     private fun messagingSubscribeTopic() {
@@ -91,89 +116,64 @@ class ActivityViewModel
         }
     }
 
-    private fun retryFailureMessaging() {
-        // TODO: check failure state in prefs then retry calls each functions everytime
-        // 1. login messaging
-        // 1. logout messaging
-        // 1. create room messaging
-        // 1. boarding messaging
-    }
-
-    private fun onTokenIdGenerated(/*tokenId: String*/){
-        caseUser.getUser(userId)
-            .onEach { onAuth(it, ::onPreRegisterMessaging) }
-            .onStart { Log.d(TAG, "onTokenIdGenerated: triggered") }
-            .launchIn(viewModelScope)
-    }
 
     private fun onPreRegisterMessaging(currentUser: User.Complete) {
+        val TAG = object{}.javaClass.enclosingMethod?.name
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
         val unread = currentUser.notifications.count { !it.seen }
 
-        concatenate(joined, owned)
-            .map(::onRegisterMessaging)
-            .asFlow()
+        concatenate(joined, owned).asFlow()
+            .flatMapConcat(::onRegisterMessaging)
             .onStart { onBadgeChange(unread) }
-            .flattenMerge()
-            .catch { Log.d(TAG, "onPreRegisterGroupToken->catch: ${it.localizedMessage}") }
+            .onCompletion { it?.let { onFlowFailed(TAG, it) } ?: onRejectAddMessaging() }
+            .catch { onFlowFailed(TAG, it) }
             .launchIn(viewModelScope)
     }
 
     private fun onPreUnregisterMessaging(currentUser: User.Complete) {
+        val TAG = object{}.javaClass.enclosingMethod?.name
         val joined = currentUser.participants.map { it.roomId }
         val owned = currentUser.rooms.map { it.roomId }
 
-        concatenate(joined, owned)
-            .map(::onUnregisterMessaging)
-            .asFlow()
+        concatenate(joined, owned).asFlow()
+            .flatMapConcat(::onUnregisterMessaging)
             .onStart { onBadgeChange(0) }
-            .flattenMerge()
-            .catch { Log.d(TAG, "onPreUnregisterGroupToken->catch: ${it.localizedMessage}") }
+            .onCompletion { it?.let { onFlowFailed(TAG, it) } ?: onRejectRemoveMessaging() }
+            .catch { onFlowFailed(TAG, it) }
             .launchIn(viewModelScope)
     }
 
     private fun onRegisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
-            .flatMapConcat { res ->
-                onResourceFlow(res) { key ->
-                    val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
-                    caseMessaging.addMessaging(register)
-                }
-            }
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+                val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
+                caseMessaging.addMessaging(register)
+            }}
 
     private fun onUnregisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
-            .flatMapConcat { res ->
-                onResourceFlow(res) { key ->
-                    val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
-                    caseMessaging.removeMessaging(remover)
-                }
-            }
+            .flatMapConcat { res -> onResourceFlow(res) { key ->
+                val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
+                caseMessaging.removeMessaging(remover)
+            }}
 
     fun registerPrefsListener() { prefsFactory.manager.register(onPrefsListener) }
     fun unregisterPrefsListener() { prefsFactory.manager.unregister(onPrefsListener) }
 
     private val onPrefsListener = SharedPreferences
-        .OnSharedPreferenceChangeListener { prefs, key ->
-
-        when (key) {
+        .OnSharedPreferenceChangeListener { prefs, key -> when (key) {
             USER_ID -> {
                 val fresh = prefs?.getString(USER_ID, "")
 
                 fresh?.let(::onUserIdChange)
             }
             NOTIFICATION_BADGE -> {
-                val preBadge = prefs?.getInt(NOTIFICATION_BADGE, 0)
-                val fresh = preBadge ?: 0
+                val fresh = prefs?.getInt(NOTIFICATION_BADGE, 0)
 
-                onBadgeChange(fresh)
+                fresh?.let(::onBadgeChange)
             }
-        }
-
-        prefs?.all?.forEach {
-            Log.d(TAG, "${it.key}: ${it.value}")
-        }
+        } /*prefs?.all?.forEach { Log.d(TAG, "${it.key}: ${it.value}") }*/
     }
 
     private fun getNotifications(userId: String){
@@ -187,17 +187,42 @@ class ActivityViewModel
             .launchIn(viewModelScope)
     }
 
+    private fun getUser(onSucceed: (User.Complete) -> Unit){
+        caseUser.getUser(userId)
+            .onEach { onResourceSucceed(it, onSucceed) }
+            .launchIn(viewModelScope)
+    }
+
+    private fun onCreateMessaging() {
+        val create = Messaging.GroupCreator(prefsFactory.createMessaging, listOf(prefsFactory.tokenId))
+        caseMessaging.createMessaging(create)
+            .onCompletion { if(it == null) onRejectCreateMessaging() }
+            .launchIn(viewModelScope)
+    }
+
     private fun onBadgeChange(fresh: Int) {
+        badge = fresh
         prefsFactory.notificationBadge = fresh
     }
 
     private fun onUserIdChange(fresh: String) {
         isSignedIn = fresh.isNotBlank()
-
         prefsFactory.userId = fresh
     }
 
     private fun onTokenIdChange(fresh: String) {
         prefsFactory.tokenId = fresh
+    }
+
+    private fun onRejectCreateMessaging() {
+        prefsFactory.addMessaging = false
+    }
+
+    private fun onRejectAddMessaging() {
+        prefsFactory.addMessaging = false
+    }
+
+    private fun onRejectRemoveMessaging() {
+        prefsFactory.removeMessaging = false
     }
 }

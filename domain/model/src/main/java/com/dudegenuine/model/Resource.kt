@@ -2,9 +2,7 @@ package com.dudegenuine.model
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.dudegenuine.model.common.validation.HttpFailureException
-import retrofit2.HttpException
-import java.io.IOException
+import com.dudegenuine.model.Resource.Companion.IO_EXCEPTION
 
 /**
  * Wed, 01 Dec 2021
@@ -26,10 +24,13 @@ sealed class Resource<T> (
     )
 
     companion object {
-        const val IO_EXCEPTION = "Check your internet connection."
         const val HTTP_EXCEPTION = "An expected http exception error occurred."
         const val HTTP_FAILURE_EXCEPTION = "Server response failure."
         const val THROWABLE_EXCEPTION = "An expected error occurred."
+        const val SOCKET_TIMEOUT_EXCEPTION = "Timeout - Please check your internet connection"
+        const val UNKNOWN_HOST_EXCEPTION = "Unable to make a connection. Please check your internet"
+        const val CONN_SHUT_DOWN_EXCEPTION = "Connection shutdown. Please check your internet"
+        const val IO_EXCEPTION = "Server is unreachable, please try again later."
         const val ILLEGAL_STATE_EXCEPTION = "An expected error occurred."
         const val NO_RESULT = "No result."
     }
@@ -46,13 +47,10 @@ class ResourcePaging<T: Any>(
             data = list,
             prevKey = if (pageNumber > 0) pageNumber -1 else null,
             nextKey = if (list.isNotEmpty()) pageNumber +1 else null
+
         ) else LoadResult.Error(Throwable(Resource.NO_RESULT))
-    } catch (e: HttpFailureException) {
-        LoadResult.Error(Throwable(Resource.HTTP_FAILURE_EXCEPTION))
-    } catch (e: IOException) {
-        LoadResult.Error(Throwable(Resource.IO_EXCEPTION))
-    } catch (e: HttpException) {
-        LoadResult.Error(e)
+    } catch (e: Exception) {
+        LoadResult.Error(Throwable(IO_EXCEPTION))
     }
 
     override fun getRefreshKey(state: PagingState<Int, T>): Int? = // null

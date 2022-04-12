@@ -6,32 +6,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.ExperimentalComposeUiApi
-import coil.annotation.ExperimentalCoilApi
 import com.dudegenuine.whoknows.ui.compose.screen.MainScreen
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
-@ExperimentalCoroutinesApi
-@ExperimentalAnimationApi
-@ExperimentalComposeUiApi
-@ExperimentalCoilApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@FlowPreview
 @AndroidEntryPoint
 class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleName
-    private val vmMain: ActivityViewModel by viewModels()
+    private val viewModel: ActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        with(vmMain) {
+        with(viewModel) {
             registerPrefsListener()
             registerReceiver(messagingServiceReceiver, messagingServiceAction)
             registerReceiver(networkServiceReceiver, networkServiceAction)
@@ -42,7 +28,7 @@ class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleNa
     override fun onDestroy() {
         super.onDestroy()
 
-        with (vmMain) {
+        with (viewModel) {
             unregisterPrefsListener()
             messagingServiceReceiver.apply(::unregisterReceiver)
             networkServiceReceiver.apply(::unregisterReceiver)

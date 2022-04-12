@@ -71,6 +71,16 @@ class RoomViewModel
         onBoardStored()
     }
 
+    val timerServiceAction = IntentFilter(ITimerService.TIME_ACTION)
+    val timerServiceReceiver: (
+        Room.State.BoardingQuiz) -> BroadcastReceiver = { roomState ->
+
+        caseRoom.onTimerReceived { time, finished ->
+            formState.onTimerChange(time)
+            if (finished) onPreResult(roomState)
+        }
+    }
+
     private fun onDetailRouted(){
         savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(this::getRoom)
     }
@@ -81,10 +91,8 @@ class RoomViewModel
         if (!roomId.isNullOrBlank()) onPreBoarding(roomId)
     }
 
-    private fun onBoardStored() /*= viewModelScope.launch*/ {
-        val isStored = prefsFactory.participationId.isNotBlank()
-
-        if (isStored) caseRoom.getBoarding()
+    private fun onBoardStored() {
+        if (prefsFactory.participationId.isNotBlank()) caseRoom.getBoarding()
             .onEach { resource -> onResourceBoarding(resource,
                 onPrepare = { onUiStateValueChange(Room.State.BoardingPrepare) }) { roomState ->
                     formState.onTimerChange(prefsFactory.runningTime.toDouble())
@@ -93,24 +101,6 @@ class RoomViewModel
                     else onUiStateValueChange(roomState) }
                 }
             .launchIn(viewModelScope)
-
-        /*val boardingState = caseRoom.getBoarding()
-            .onEach(::onResourceFailed).stateIn(viewModelScope)
-
-        prefsFactory.runningTime.let { time ->
-            when (boardingState.value){
-                is Resource.Loading ->
-                    onUiStateValueChange(Room.State.BoardingLoading)
-
-                is Resource.Success -> boardingState.value.data?.let { roomState ->
-                    formState.onTimerChange(time.toDouble())
-
-                    if (time <= 0) onPreResult(roomState) //is finished
-                    else onUiStateValueChange(roomState)
-                }
-                else -> onUiStateValueChange(Room.State.BoardingError)
-            }
-        }*/
     }
 
     private fun onPreBoarding(roomId: String) {
@@ -189,20 +179,20 @@ class RoomViewModel
         val resultScore: Float = correct.toFloat() / questioners.size.toFloat() * 100
         val event = "${boardingState.participant.username} has joined the ${boardingState.roomTitle}"
 
-       val modelResult = formState.result.copy(
+        val modelResult = formState.result.copy(
            roomId = boardingState.roomId, //participantId = boardingState.participantId,
            userId = currentUserId,
            correctQuiz = questioners.filter { it.isCorrect }.map { it.quiz.question },
            wrongQuiz = questioners.filter { !it.isCorrect }.map { it.quiz.question },
            score = resultScore.toInt())
 
-       val modelNotification = formState.notification.copy(
+        val modelNotification = formState.notification.copy(
            userId = currentUserId,
            roomId = boardingState.roomId,
            event = event,
            recipientId = boardingState.userId)
 
-       val modelPushMessaging = Messaging.Pusher(
+        val modelPushMessaging = Messaging.Pusher(
            largeIcon = boardingState.participant.profileUrl,
            title = boardingState.roomTitle,
            body = event, to = "")
@@ -213,24 +203,28 @@ class RoomViewModel
             tokens = listOf(prefsFactory.tokenId)
         )
 
-       timer.stop()
-       Log.d(TAG, "onPreResult: triggered")
+        Log.d(TAG, "onPreResult: triggered")
+        if (formState.hasResultAttempted) return
 
-       onResult(boardingState.roomTitle,
+        formState.onAttemptResult()
+        timer.stop()
+
+        onResult(boardingState.roomTitle,
            modelResult, modelNotification, modelAddMessaging, modelPushMessaging)
     }
 
     private fun onResult(roomTitle: String, result: Result,
         notification: Notification, register: Messaging.GroupAdder, pusher: Messaging.Pusher){
+        Log.d(TAG, "onResult: triggered")
 
         flowOf(
             caseRoom.deleteBoarding(),
             caseResult.postResult(result),
             caseNotification.postNotification(notification),
-            registerPushMessaging(result.roomId, register, pusher))
+            flowRegisterPushMessaging(result.roomId, register, pusher)).flattenMerge()
             .onStart { _uiState.postValue(Room.State.BoardingResult(roomTitle, result)) }
-            .flattenMerge()
-            //.catch {  }
+            .onCompletion { it?.let(::onResolveAddMessaging) }
+            .catch { it.let(::onResolveAddMessaging) }
             .launchIn(viewModelScope)
     }
 
@@ -248,40 +242,34 @@ class RoomViewModel
         share.launch(data)
     }
 
-    val timerServiceAction = IntentFilter(ITimerService.TIME_ACTION)
-    val timerServiceReceiver: (
-        Room.State.BoardingQuiz) -> BroadcastReceiver = { roomState ->
-
-        caseRoom.onTimerReceived { time, finished ->
-            formState.onTimerChange(time)
-            if (finished) onPreResult(roomState)
-        }
-    }
-
     fun onCreatePressed(onSucceed: (Room.Complete) -> Unit) {
         val model = formState.room.copy(userId = currentUserId)
 
         if (!formState.isPostValid || currentUserId.isBlank()) {
             onStateChange(ResourceState(error = DONT_EMPTY))
-
             return
         }
-
         if (formState.desc.text.length > 225){
             onStateChange(ResourceState(error = DESC_TOO_LONG))
-
             return
         }
+        val messaging = Messaging.GroupCreator(
+            model.id, listOf(prefsFactory.tokenId))
 
-        createMessaging(Messaging.GroupCreator(
-            keyName = model.id,
-            tokens = listOf(prefsFactory.tokenId))){ notifyKey ->
+        caseMessaging.createMessaging(messaging)
+            .flatMapMerge { caseRoom.postRoom(model) }
+            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .onCompletion { if (it != null) onResolveCreateMessaging(it, model.id) }
+            .catch { it.let(::onResolveCreateMessaging) }
+            .launchIn(viewModelScope)
+
+        /*createMessaging() { notifyKey ->
             Log.d(TAG, "onCreatePressed: notifyKey is $notifyKey")
 
             caseRoom.postRoom(model)
                 .onEach { res -> onResourceSucceed(res, onSucceed) }
                 .launchIn(viewModelScope)
-        }
+        }*/
     }
 
     fun onDeleteRoomPressed(roomId: String, onDeleted: () -> Unit) {
@@ -297,43 +285,48 @@ class RoomViewModel
                     val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
                     caseMessaging.removeMessaging(remover) }})
             .flattenMerge()
-            .flatMapLatest { onDeleted(); rooms.retry() }
+            .onCompletion { it?.let { onFlowFailed(TAG, it) } ?: onDeleted() }
+            .catch { onFlowFailed(TAG, it) }
             .launchIn(viewModelScope)
     }
 
     fun onDeleteQuestionPressed(quiz: Quiz.Complete) {
-        val fileIds = quiz.images.map { it.substringAfterLast("/") }
+        val flowFileIds = quiz.images.map { it.substringAfterLast("/") }
 
         flowOf(
             caseQuiz.deleteQuiz(quiz.id),
-            fileIds.asFlow()
+            flowFileIds.asFlow()
                 .flatMapConcat { caseFile.deleteFile(it) })
             .flattenMerge()
             .flatMapLatest { caseRoom.getRoom(quiz.roomId) }
             .onEach(::onResource)
+            .onCompletion { it?.let(::onResolveAddMessaging) }
+            .catch { it.let(::onResolveAddMessaging) }
             .launchIn(viewModelScope)
     }
 
     fun onDeleteParticipantPressed(participant: Participant) = viewModelScope.launch {
+        //val TAG = object{}.javaClass.enclosingMethod?.name
         val room = state.room?.copy() ?: let {
             val message = "invalid current class"
             onStateChange(ResourceState(message = message))
             Log.d(TAG, message)
             return@launch
         }
-
         flowOf(
             caseParticipant.deleteParticipant(participant.id),
             caseResult.deleteResult(participant.roomId, participant.userId),
-            unregisterMessaging(room, participant))
+            flowUnregisterMessaging(room, participant))
             .flattenMerge()
-            .flatMapLatest { caseRoom.getRoom(participant.roomId) }
-            .onEach(::onResource)
+            .flatMapLatest { caseRoom.getRoom(participant.roomId) } // necessary
+            .onEach(::onResource) // necessary
+            .onCompletion { it?.let(::onResolveAddMessaging) }
+            .catch { it.let(::onResolveAddMessaging) }
             .launchIn(viewModelScope)
     }
 
-    private fun unregisterMessaging(room: Room.Complete, participant: Participant): Flow<Resource<out Any>> {
-        val event = "${participant.user?.fullName} just removed by admin of ${room.title} class"
+    private fun flowUnregisterMessaging(room: Room.Complete, participant: Participant): Flow<Resource<out Any>> {
+        val event = "[${participant.user?.username}] just kicked out by [${room.user?.username}] as admin of the ${room.title} class"
         val notifier = formState.notification.copy(
             userId = currentUserId, roomId = participant.roomId,
             event = event, recipientId = participant.userId)
@@ -344,9 +337,10 @@ class RoomViewModel
             caseNotification.postNotification(notifier),
             caseMessaging.getMessaging(participant.roomId)
                 .flatMapConcat { res -> onResourceFlow(res) { key ->
-                    caseMessaging.pushMessaging(pusher.copy(to = key)) }}
-                .flatMapLatest { res -> onResourceFlow(res){ key ->
-                    caseMessaging.removeMessaging(remover.copy(key = key)) }})
+                        caseMessaging.pushMessaging(pusher.copy(to = key))
+                            .onCompletion { if(it == null) caseMessaging.removeMessaging(remover.copy(key = key)) }
+                }
+            })
             .flattenMerge()
     }
 
@@ -415,8 +409,13 @@ class RoomViewModel
     override val roomsOwner: Flow<PagingData<Room.Complete>> =
         caseRoom.getRooms(prefsFactory.userId, DEFAULT_BATCH_ROOM)
 
-    val roomsOwnerDirectly: (String) -> Flow<PagingData<Room.Complete>> =
-        { caseRoom.getRooms(it, DEFAULT_BATCH_ROOM) }
+    val roomsOwnerDirectly: (String) -> Flow<PagingData<Room.Complete>> = {
+        Log.d(TAG, "roomsOwnerDirectly: attempted")
+
+        caseRoom.getRooms(it, DEFAULT_BATCH_ROOM)
+            .distinctUntilChanged()
+            .cachedIn(viewModelScope)
+    }
 
     override fun getRooms(page: Int, size: Int) {
         if (size == 0){
@@ -433,7 +432,7 @@ class RoomViewModel
         }}
     }*/
 
-    val registerPushMessaging: (String, Messaging.GroupAdder, Messaging.Pusher) ->
+    val flowRegisterPushMessaging: (String, Messaging.GroupAdder, Messaging.Pusher) ->
         Flow<Resource<String>> = { roomId, register, pusher ->
 
         caseMessaging.getMessaging(roomId)
@@ -445,6 +444,18 @@ class RoomViewModel
                 caseMessaging.pushMessaging(pusher.copy(to = key))}
             }}
         }
+    }
+
+    private fun onResolveCreateMessaging(t: Throwable, keyName: String? = null) {
+        Log.d(TAG, "onResolveCreateMessaging: $keyName ${t.localizedMessage}")
+
+        if (keyName == null) return
+        prefsFactory.createMessaging = keyName
+    }
+
+    private fun onResolveAddMessaging(t: Throwable) {
+        Log.d(TAG, "onResolveRegisterMessaging: ${t.message}")
+        prefsFactory.addMessaging = true
     }
 
     override fun createMessaging(

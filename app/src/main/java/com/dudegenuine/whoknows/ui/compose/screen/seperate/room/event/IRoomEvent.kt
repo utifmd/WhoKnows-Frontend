@@ -31,7 +31,7 @@ interface IRoomEventHome: IRoomEvent {
 interface IRoomEventDetail: IRoomEvent {
     fun onBackPressed(){}
     fun onParticipantLongPressed(enabled: Boolean, participant: Participant){}
-    fun onQuestionLongPressed(enabled: Boolean, quiz: Quiz.Complete, roomId: String){}
+    fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete){}//(enabled: Boolean, quiz: Quiz.Complete, roomId: String){}
     //fun onRoomDetailPressed(roomId: String){}
     fun onCloseRoomPressed(room: Room.Complete, finished: () -> Unit){}
     fun onShareRoomPressed(room: Room.Complete){}

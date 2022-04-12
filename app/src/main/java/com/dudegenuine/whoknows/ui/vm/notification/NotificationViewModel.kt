@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.vm.notification
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,7 +8,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.local.api.IPrefsFactory
 import com.dudegenuine.model.Notification
-import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ui.compose.state.NotificationState
@@ -16,7 +16,6 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.notification.contract.INotificationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -106,11 +105,15 @@ class NotificationViewModel
         }
 
         caseNotify.deleteNotification(id)
-            .onEach { res ->
+            .flatMapMerge { caseNotify.getNotifications(prefsFactory.userId, 0, Int.MAX_VALUE) }
+            .onEach(::onResource)
+            .catch { Log.d(TAG, "deleteNotification->cause: ${it.localizedMessage}") }
+            .launchIn(viewModelScope)
+
+            /*.onEach { res ->
                 if(res is Resource.Success) // onStateChange(state.copy(notifications = state.notifications?.filter { it.notificationId != id }))
                     getNotifications()
-            }
-            .launchIn(viewModelScope)
+            }*/
     }
 
     override fun getNotifications(page: Int, size: Int) {
@@ -132,7 +135,8 @@ class NotificationViewModel
         caseNotify.getNotifications(recipientId, page, size)
             .onEach(::onResource).launchIn(viewModelScope)
             /*.onEach { res ->
-                if (res is Resource.Success){
+                if (res is Resource.ScaseNotify.getNotifications(recipientId, page, size)
+            .onEach(::onResource)uccess){
                     val badges = res.data?.count { !it.seen } ?: 0
                     caseNotify.onChangeCurrentBadge(badges)
                 }

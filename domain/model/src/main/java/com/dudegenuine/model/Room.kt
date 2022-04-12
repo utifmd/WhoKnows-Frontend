@@ -78,6 +78,10 @@ sealed class Room {
             val timer: Double
                 get() = _timer.value
 
+            private val _hasResultAttempted = mutableStateOf(false)
+            val hasResultAttempted: Boolean
+                get() = _hasResultAttempted.value
+
             private val _minute = mutableStateOf(TextFieldValue(text = ""))
             val minute: TextFieldValue
                 get() = _minute.value
@@ -126,6 +130,10 @@ sealed class Room {
 
             fun onMinuteChange (it: String){
                 _minute.value = TextFieldValue(text = it)
+            }
+
+            fun onAttemptResult() {
+                _hasResultAttempted.value = true
             }
 
             fun onRoomIdChange(id: String) {

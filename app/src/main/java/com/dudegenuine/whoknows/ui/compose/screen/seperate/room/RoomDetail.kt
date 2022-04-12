@@ -120,7 +120,8 @@ private fun BackLayer(
                 else eventDetail.onJoinRoomDirectlyPressed(model) }) {
 
             Text(
-                color = if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
+                color = if (enabled) MaterialTheme.colors.onPrimary
+                    else MaterialTheme.colors.onPrimary.copy(0.5f),
 
                 text = if (isOwn) stringResource(R.string.add_new_question)
                     else stringResource(R.string.join_the_room)
@@ -171,7 +172,7 @@ private fun FrontLayer(
     model: Room.Complete, currentUserId: String,
     isOwn: Boolean,
     onQuestionPressed: (String) -> Unit,
-    onQuestionLongPressed: (enabled: Boolean, quiz: Quiz.Complete, roomId: String) -> Unit,
+    onQuestionLongPressed: (room: Room.Complete, quiz: Quiz.Complete) -> Unit,
     onProfileSelected: (String) -> Unit,
     onProfileLongPressed: (Boolean, Participant) -> Unit,
     onResultSelected: (String, String) -> Unit) {
@@ -264,7 +265,7 @@ private fun FrontLayer(
                 model.questions.forEach { quiz ->
 
                     Box(modifier.combinedClickable(
-                        onLongClick = { onQuestionLongPressed(!model.expired and model.participants.isEmpty(), quiz, model.id) },
+                        onLongClick = { onQuestionLongPressed(model, quiz) },
                         onClick = { onQuestionPressed(quiz.id) })) {
                         Divider(thickness = (0.5).dp)
 

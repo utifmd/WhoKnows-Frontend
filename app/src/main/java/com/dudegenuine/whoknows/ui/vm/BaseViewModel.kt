@@ -66,6 +66,11 @@ abstract class BaseViewModel: ViewModel() {
         //_dialogState.value = state
     }
 
+    fun onFlowFailed(methodName: String?, t: Throwable){
+        onShowSnackBar(t.localizedMessage ?: "Failed attempt.")
+        //Toast.makeText(this, "", Toast.LENGTH_LONG).show()
+        Log.d(TAG, "${methodName ?: "onCompletionFlowFailed"}: ${t.message}")
+    }
 
     /*init { observeSnackBar() }
 

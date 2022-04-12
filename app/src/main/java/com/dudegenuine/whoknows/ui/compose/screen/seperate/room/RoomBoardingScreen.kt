@@ -42,12 +42,10 @@ fun RoomBoardingScreen(
         state.quizzes[state.currentQuestionIdx]
     }
 
-    val onPreNextPressed: () -> Unit = {
-        state.let(viewModel::postBoarding
-            /*if (boardingState.showPrevious) viewModel::patchBoarding
-            else viewModel::postBoarding*/)
+    /*val onPreNextPressed: () -> Unit = {
+        state.let(viewModel::postBoarding)
         onNextPressed()
-    }
+    }*/
 
     DisposableEffect(context, TIME_ACTION) {
         val broadcast = viewModel.timerServiceReceiver(state)
@@ -92,7 +90,7 @@ fun RoomBoardingScreen(
                     } else {
                         TextButton(
                             enabled = boardingState.enableNext,
-                            onClick = onPreNextPressed
+                            onClick = onNextPressed
                         ) {
                             Text(text = "Next", color = MaterialTheme.colors.onPrimary)
                         }

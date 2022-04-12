@@ -11,6 +11,9 @@ interface IPrefsFactory {
     var participationId: String
     var notificationBadge: Int
     var runningTime: Int
+    var createMessaging: String
+    var addMessaging: Boolean
+    var removeMessaging: Boolean
 
     companion object {
         const val USER_ID = "FACTORY_USER_ID"
@@ -18,5 +21,8 @@ interface IPrefsFactory {
         const val TOKEN_ID = "FACTORY_TOKEN_ID"
         const val NOTIFICATION_BADGE = "FACTORY_NOTIFICATION_BADGE"
         const val RUNNING_TIME = "FACTORY_RUNNING_TIME_BOARDING"
+        const val CREATE_MESSAGING = "FACTORY_CREATE_MESSAGING"
+        const val ADD_MESSAGING = "FACTORY_ADD_MESSAGING"
+        const val REMOVE_MESSAGING = "FACTORY_REMOVE_MESSAGING"
     }
 }

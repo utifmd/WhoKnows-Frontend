@@ -1,5 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -71,7 +73,7 @@ fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
                 contentPadding = PaddingValues(12.dp)) {
 
                 item { BodyRoom(modifier, props.lazyPagingRooms, onJoinButtonPressed) }
-                item { BodyQuiz(modifier, props.lazyPagingQuizzes) }
+                item { BodyQuiz(modifier.animateContentSize(animationSpec = tween(600)), props.lazyPagingQuizzes) }
                 item { BodyParticipant(modifier, props.lazyPagingParticipants) }
             }
         }
@@ -149,8 +151,8 @@ private fun BodyQuiz(
         LazyRow(modifier.padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             item { LazyStatePaging(items = lazyQuizzes, repeat = 3, horizontal = Arrangement.spacedBy(4.dp)) }
-            items(lazyQuizzes, { it.id }) { item ->
-                item?.let { QuestItem(model = item) }
+            items(lazyQuizzes, { it.id }){ model ->
+                model?.let { QuestItem(model = model) }
             }
         }
     }

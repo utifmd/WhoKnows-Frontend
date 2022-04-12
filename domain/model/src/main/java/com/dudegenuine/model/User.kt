@@ -31,8 +31,11 @@ sealed class User {
         var rooms: List<Room.Censored>,
         var notifications: List<Notification>){
 
+        val sortedParticipants
+            get() = participants.sortedByDescending { it.createdAt }
+
         val isPropsBlank: Boolean =
-            fullName.isBlank() || email.isBlank() || phone.isBlank() ||
+            /*fullName.isBlank() ||*/ email.isBlank() ||// phone.isBlank() ||
                 username.isBlank() || password.isBlank()
 
         companion object {
