@@ -81,7 +81,7 @@ fun RegisterScreen(
                 Icons.Filled.Close else null,
             onTailPressed = { formState.onRePasswordChange("") },
             keyboardActions = KeyboardActions(
-                onDone = { keyboardController?.hide(); viewModel.signUpUser() })
+                onDone = { keyboardController?.hide(); viewModel.registerUser() })
         )
 
         if (authState.error.isNotBlank())
@@ -91,7 +91,7 @@ fun RegisterScreen(
             label = stringResource(R.string.sign_up),
             enabled = formState.isRegisValid.value && !authState.loading,
             isLoading = authState.loading,
-            onClick = viewModel::signUpUser
+            onClick = viewModel::registerUser
         )
 
         /*GeneralTextField(

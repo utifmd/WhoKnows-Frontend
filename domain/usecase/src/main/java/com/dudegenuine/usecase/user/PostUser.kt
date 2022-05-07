@@ -16,21 +16,21 @@ import javax.inject.Inject
  **/
 class PostUser
     @Inject constructor(
-        private val repository: IUserRepository) {
+    private val repository: IUserRepository) {
 
-        operator fun invoke(user: User.Complete): Flow<Resource<User.Complete>> = flow {
-            try {
-                emit(Resource.Loading())
-                val posted = repository.create(user)
-                emit(Resource.Success(posted))
-            } catch (e: HttpFailureException) {
-                emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
-            } catch (e: HttpException) {
-                emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
-            } catch (e: IOException) {
-                emit(Resource.Error(Resource.IO_EXCEPTION))
-            } catch (e: Exception){
-                emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
-            }
+    operator fun invoke(user: User.Complete): Flow<Resource<User.Complete>> = flow {
+        try {
+            emit(Resource.Loading())
+            val posted = repository.create(user)
+            emit(Resource.Success(posted))
+        } catch (e: HttpFailureException) {
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        } catch (e: IOException) {
+            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
+    }
 }

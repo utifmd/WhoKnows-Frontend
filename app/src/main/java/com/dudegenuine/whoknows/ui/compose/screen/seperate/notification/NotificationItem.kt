@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,50 +33,52 @@ fun NotificationItem(
     onItemLongPressed: () -> Unit, onItemPressed: () -> Unit) {
     var isSeen by remember { mutableStateOf(model.seen) }
 
-    Row(modifier.fillMaxWidth().clipToBounds()
+    Box(modifier.fillMaxWidth()
         .combinedClickable(
-            onLongClick = onItemLongPressed,
-            onClick = {
-                isSeen = true
+        onLongClick = onItemLongPressed,
+        onClick = {
+            isSeen = true
 
-                onItemPressed()
-            }
-        ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-
-        Surface(
-            modifier = Modifier.size(36.dp), shape = CircleShape,
-            color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)) {
-
-            GeneralImage(
-                modifier = modifier.fillMaxSize(),
-                data = model.sender?.profileUrl ?: "",
-                contentScale = ContentScale.Crop,
-                placeholder = {
-                    Icon(
-                        modifier = modifier
-                            .fillMaxSize()
-                            .padding(4.dp),
-                        imageVector = Icons.Default.Person,
-                        tint = MaterialTheme.colors.secondaryVariant,
-                        contentDescription = null
-                    )
-                }
-            )
+            onItemPressed()
         }
+    )) {
 
-        Column {
-            Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" - "+ model.event,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                color = if (!isSeen) MaterialTheme.colors.secondaryVariant
-                    else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
-                style = MaterialTheme.typography.caption)
+        Row(modifier.fillMaxSize().padding(12.dp, 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
 
-            Text(timeAgo(model.createdAt),
-                style = MaterialTheme.typography.overline
-            )
+            Surface(modifier.size(36.dp), shape = CircleShape,
+                color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)) {
+
+                GeneralImage(
+                    modifier = modifier.fillMaxSize(),
+                    data = model.sender?.profileUrl ?: "",
+                    contentScale = ContentScale.Crop,
+                    placeholder = {
+                        Icon(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(4.dp),
+                            imageVector = Icons.Default.Person,
+                            tint = MaterialTheme.colors.secondaryVariant,
+                            contentDescription = null
+                        )
+                    }
+                )
+            }
+
+            Column {
+                Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" - "+ model.event,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = if (!isSeen) MaterialTheme.colors.secondaryVariant
+                        else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+                    style = MaterialTheme.typography.caption)
+
+                Text(timeAgo(model.createdAt),
+                    style = MaterialTheme.typography.overline
+                )
+            }
         }
     }
 }

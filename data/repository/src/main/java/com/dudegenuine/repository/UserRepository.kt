@@ -86,14 +86,32 @@ class UserRepository
         listOrderByParticipant(page, batchSize)
     }
 
-    override suspend fun signIn(params: Map<String, String>): User.Complete {
-        val remoteUser = mapper.asUser(service.signIn(mapper.asLogin(params)))
+    override suspend fun signIn(params: Map<String, String>):
+            User.Complete = mapper.asUser(service.signIn(mapper.asLogin(params)))
 
-        return remoteUser.also { save(mapper.asUserTable(it)) }
+    /*{
+        val response = service.signIn(mapper.asLogin(params))
+
+        val reqPwd = params[User.Complete.PASSWORD] ?: throw HttpFailureException("Incorrect password")
+        val respPwd = response.data?.password
+
+        val decrypt = Utility.decrypt(reqPwd)
+
+        Log.d(TAG, "signIn: reqPwd = $reqPwd")
+        Log.d(TAG, "signIn: respPwd = $respPwd")
+        Log.d(TAG, "signIn: decrypt = $decrypt")
+
+        return if (decrypt == reqPwd) mapper.asUser(response)
+        else throw HttpFailureException("Incorrect password")
+    }*/
+
+    override suspend fun signIn(model: User.Complete): User.Complete {
+        save(mapper.asUserTable(model))
+        return model
     }
 
-    override suspend fun signOut(): String {
-        val finalId = prefsFactory.userId
+    override suspend fun signOut(user: User.Complete): String {
+        val finalId = user.id //prefsFactory.userId
 
         unload(finalId)
 

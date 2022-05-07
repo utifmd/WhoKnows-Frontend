@@ -15,6 +15,7 @@ abstract class IRoomViewModel: IParticipantViewModel, IMessagingViewModel, BaseV
     companion object {
         const val DEFAULT_BATCH_ROOM = 5
         const val ALREADY_JOINED = "Sorry, you already joined the class."
+        const val JUST_KICKED_OUT = "just kicked out by admin from the"
     }
 
     open fun postRoom(room: Room.Complete){}

@@ -29,6 +29,9 @@ class HttpFailureInterceptor: Interceptor {
                 .build()
 
         } catch (e: Exception) {
+            e.printStackTrace()
+            Log.d(TAG, "Exception: ${e.message}")
+
             val message = when (e) {
                 is SocketTimeoutException -> Resource.SOCKET_TIMEOUT_EXCEPTION
                 is UnknownHostException -> Resource.UNKNOWN_HOST_EXCEPTION
@@ -38,13 +41,12 @@ class HttpFailureInterceptor: Interceptor {
                 else -> e.message ?: e.localizedMessage ?: Resource.HTTP_EXCEPTION
             }
 
-            Log.d(TAG, "Exception: ${e.message}")
             Response.Builder()
                 .request(request)
                 .protocol(response.protocol)
                 .code(response.code)
                 .message(response.message)
-                .body(message.toResponseBody())
+                .body(message.toResponseBody(response.body?.contentType()))
                 .build()
             //response
         }

@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.Flow
  **/
 abstract class IUserViewModel: IMessagingViewModel, BaseViewModel() { //: IFilePresenter {
     //fun signInUser(loginRequest: LoginRequest)
-    open fun signInUser(){}
-    open fun signUpUser(){}
-    open fun signOutUser(){}
+    open fun registerUser(){}
+    open fun loginUser(){}
+    open fun logoutUser(){}
     open fun postUser(user: User.Complete){}
     open fun getUser(){}
     open fun getUser(id: String){}

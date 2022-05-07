@@ -33,11 +33,11 @@ interface IRoomEventDetail: IRoomEvent {
     fun onParticipantLongPressed(enabled: Boolean, participant: Participant){}
     fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete){}//(enabled: Boolean, quiz: Quiz.Complete, roomId: String){}
     //fun onRoomDetailPressed(roomId: String){}
-    fun onCloseRoomPressed(room: Room.Complete, finished: () -> Unit){}
+    fun onCloseRoomPressed(room: Room.Complete, onComplete: () -> Unit){}
     fun onShareRoomPressed(room: Room.Complete){}
+    fun onSetCopyRoomPressed(room: Room.Complete){}
     fun onDeleteRoomPressed(room: Room.Complete){}
-    fun onDeleteRoomSucceed(){}
-    fun onNewRoomQuizPressed(roomId: String, owner: String){}
+    fun onNewRoomQuizPressed(room: Room.Complete){}
     fun onJoinRoomDirectlyPressed(room: Room.Complete/*roomId: String*/){}
     fun onBoardingRoomPressed(roomId: String){}
     fun onParticipantItemPressed(userId: String){}

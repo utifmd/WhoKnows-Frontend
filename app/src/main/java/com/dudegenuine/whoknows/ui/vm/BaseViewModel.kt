@@ -5,6 +5,7 @@ import androidx.compose.material.DrawerState
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHostState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,7 +13,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.*
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
-import kotlinx.coroutines.flow.*
+import com.dudegenuine.whoknows.ui.compose.state.EventState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -25,20 +33,21 @@ abstract class BaseViewModel: ViewModel() {
     private val _state = mutableStateOf(ResourceState())
     val state: ResourceState
         get() = _state.value
+    val stateResource: State<ResourceState> get() = _state
 
     private val _authState = mutableStateOf(ResourceState.Auth())
     val authState: ResourceState.Auth
         get() = _authState.value
 
+    private val _eventState = mutableStateOf<EventState?>(null)
+    val eventState = _eventState.value
+
     private val _snackMessage = MutableSharedFlow<String>()
-    val snackMessage: SharedFlow<String>
-        get() = _snackMessage.asSharedFlow()
+    val snackMessage = _snackMessage.asSharedFlow()
 
     private val _snackHostState = mutableStateOf(SnackbarHostState())
     val snackHostState = _snackHostState.value
 
-    /*private val _dialogState = mutableStateOf(DialogState())
-    val dialogState = _dialogState.value*/
     var dialogState by mutableStateOf<DialogState?>(null)
 
     private val _snackBarHostState by mutableStateOf(snackHostState)
@@ -46,12 +55,25 @@ abstract class BaseViewModel: ViewModel() {
         ScaffoldState(DrawerState(
             DrawerValue.Closed), _snackBarHostState))
 
-    fun onStateChange(fresh: ResourceState){
+    private val viewModelJob = SupervisorJob()
+    val jobScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
+    /*private val eventChannel = Channel<String>(
+        capacity = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val eventFlow = eventChannel.receiveAsFlow()
+
+    fun sendEvent(element: String) = eventChannel.trySend(element)*/
+
+    fun onStateChange(fresh: ResourceState) = viewModelScope.launch {
         _state.value = fresh
     }
 
     fun onAuthStateChange(fresh: ResourceState.Auth){
         _authState.value = fresh
+    }
+
+    fun onEventStateChange(event: EventState?){
+        _eventState.value = event
     }
 
     fun onShowSnackBar(message: String){
@@ -97,6 +119,11 @@ abstract class BaseViewModel: ViewModel() {
             Home("home"),
             Detail("detail")
         }*/
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
 
     protected fun<T> onResource(resource: Resource<T>){
         onResourceSucceed(resource){ data ->
@@ -255,7 +282,12 @@ abstract class BaseViewModel: ViewModel() {
         return when(resources) {
             is Resource.Success -> {
                 Log.d(TAG, "onResourceAuthFlow: success")
-                resources.data?.let { onSucceed.invoke(it) } ?: emptyFlow()
+                resources.data?.let { data ->
+                    if (data is User.Complete) _state.value = ResourceState(
+                        user = data as User.Complete
+                    )
+
+                    onSucceed.invoke(data) } ?: emptyFlow()
             }
             is Resource.Loading -> {
                 Log.d(TAG, "onResourceAuthFlow: loading..")

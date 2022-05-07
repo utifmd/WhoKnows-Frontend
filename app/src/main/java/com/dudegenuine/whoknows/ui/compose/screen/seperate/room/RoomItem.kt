@@ -72,8 +72,8 @@ fun RoomItem(
 
                         CardFooter(
                             icon = if (!model.expired) Icons.Default.LockOpen else Icons.Default.Lock,
-                            text = if (!model.expired) "Opened ${timeAgo(model.createdAt)}"
-                                else "Closed ${model.updatedAt?.let { timeAgo(it) }}"
+                            text = if (!model.expired) "Available ${timeAgo(model.createdAt)}"
+                                else "Unavailable ${model.updatedAt?.let { timeAgo(it) }}"
                         )
 
                         Row(Modifier) {

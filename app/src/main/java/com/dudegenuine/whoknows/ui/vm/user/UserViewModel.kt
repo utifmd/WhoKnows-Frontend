@@ -22,9 +22,11 @@ import com.dudegenuine.whoknows.ui.vm.ResourceState
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.CHECK_CONN
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.DONT_EMPTY_IMG
+import com.dudegenuine.whoknows.ui.vm.ResourceState.Companion.MISS_MATCH
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.util.*
@@ -53,9 +55,6 @@ class UserViewModel
     val formState: UserState.FormState
         get() = _formState.value
 
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.Main + job)
-
     init {
         val navigated = savedStateHandle.get<String>(USER_ID_SAVED_KEY)
 
@@ -68,58 +67,31 @@ class UserViewModel
         share.launch(data)
     }
 
-    private fun onPreRegisterMessaging(currentUser: User.Complete) {
-        val joined = currentUser.participants.map { it.roomId }
-        val owned = currentUser.rooms.map { it.roomId }
-        val unread = currentUser.notifications.count { !it.seen }
-
-        concatenate(joined, owned).asFlow()
-            .flatMapConcat(::onRegisterMessaging)
-            .onStart { onBadgeChange(unread) }
-            .onCompletion { it?.let(::onResolveAddMessaging) }
-            .catch { it.let(::onResolveAddMessaging) }
-            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
-            .launchIn(scope)
-
-        /*concatenate(joined, owned)
-            .map(::onRegisterMessaging).asFlow().flattenMerge()
-            .onStart { onBadgeChange(unread) }
-            .catch { Log.d(TAG, "onPreRegisterGroupToken->catch: ${it.localizedMessage}") }
-            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
-            .launchIn(scope)*/
-    }
-
-    private fun onPreUnregisterMessaging(currentUser: User.Complete) {
-        val joined = currentUser.participants.map { it.roomId }
-        val owned = currentUser.rooms.map { it.roomId }
-
-        concatenate(joined, owned).asFlow()
-            .flatMapConcat(::onUnregisterMessaging)
-            .onStart { onBadgeChange(0); onRejectAllMessaging() }
-            .onCompletion { it?.let(::onResolveAddMessaging) }
-            .catch { it.let(::onResolveAddMessaging) }
-            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
-            .launchIn(scope)
-    }
-
     private fun onRegisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
-                caseMessaging.addMessaging(register)
-            }}
+                caseMessaging.addMessaging(
+                    Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)) }}
+            .onEach(::onResourceStateless)
 
     private fun onUnregisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
-                caseMessaging.removeMessaging(remover)
-            }}
+                caseMessaging.removeMessaging(
+                    Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)) }}
+            .onEach(::onResourceStateless)
 
-    override fun signUpUser() {
+    override fun registerUser() {
         val model = formState.regisModel
         if (!formState.isRegisValid.value) {
             onAuthStateChange(ResourceState.Auth(error = DONT_EMPTY))
+            return
+        }
+
+        if (formState.password.text != formState.rePassword.text){
+            onAuthStateChange(ResourceState.Auth(error = MISS_MATCH))
             return
         }
 
@@ -129,11 +101,23 @@ class UserViewModel
         }
 
         caseUser.postUser(model)
-            .onEach { onAuth(it, ::onPreRegisterMessaging) }
+            .flatMapLatest { res -> onResourceAuthFlow(res) { currentUser ->
+                val joined = currentUser.participants.map { it.roomId }
+                val owned = currentUser.rooms.map { it.roomId }
+
+                concatenate(joined, owned).asFlow()
+                    .flatMapConcat(::onRegisterMessaging)
+                    .mapLatest { Resource.Success(currentUser) }}}
+
+            .onEach { res -> onResourceStateless(res, ::signInUser) }
+            .onEmpty { state.user?.let(::signInUser) }
+            .onCompletion { it?.let(::onResolveAddMessaging) }
+            .catch { it.let(::onResolveAddMessaging) }
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .launchIn(viewModelScope)
     }
 
-    override fun signInUser() {
+    override fun loginUser() {
         val model = formState.loginModel
         if (!formState.isLoginValid.value) {
             onAuthStateChange(ResourceState.Auth(error = DONT_EMPTY))
@@ -146,11 +130,32 @@ class UserViewModel
         }
 
         caseUser.signInUser(model)
-            .onEach { onAuth(it, ::onPreRegisterMessaging) }
-            .launchIn(scope)
+            .flatMapConcat{ res -> onResourceAuthFlow(res) { currentUser ->
+                val joined = currentUser.participants.map { it.roomId }
+                val owned = currentUser.rooms.map { it.roomId }
+
+                concatenate(joined, owned).asFlow()
+                    .flatMapConcat(::onRegisterMessaging)
+                    .mapLatest{ Resource.Success(currentUser) }}}
+
+            .onEach{ res -> onResourceStateless(res, ::signInUser) }
+            .onEmpty{ state.user?.let(::signInUser) }
+            .onCompletion{ it?.let(::onResolveAddMessaging) }
+            .catch{ it.let(::onResolveAddMessaging) }
+            .retryWhen{ cause, attempt -> cause is IOException || attempt < 3 }
+            .launchIn(viewModelScope)
     }
 
-    override fun signOutUser() {
+    private fun signInUser(model: User.Complete) {
+        caseUser.signInUser(model)
+            .onEach(::onAuth)
+            .onStart{ model.notifications
+                .count{ !it.seen }
+                .let(::onBadgeChange) }
+            .launchIn(viewModelScope)
+    }
+
+    override fun logoutUser() {
         val userId = prefsFactory.userId
         if (prefsFactory.tokenId.isBlank() or userId.isBlank()) {
             onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
@@ -158,11 +163,26 @@ class UserViewModel
         }
 
         caseUser.getUser(userId)
-            .onEach { onAuth(it, ::onPreUnregisterMessaging) }
-            .flatMapLatest { if(it is Resource.Success) caseUser.signOutUser() else emptyFlow() }
-            .onCompletion { it?.let(::onResolveRemoveMessaging) ?: notifier.manager::cancelAll }
-            .catch { it.let(::onResolveRemoveMessaging) }
-            .launchIn(scope)
+            .flatMapConcat{ res -> onResourceAuthFlow(res){ currentUser ->
+                val joined = currentUser.participants.map{ it.roomId }
+                val owned = currentUser.rooms.map{ it.roomId }
+
+                concatenate(joined, owned).asFlow()
+                    .flatMapConcat(::onUnregisterMessaging)
+                    .mapLatest{ Resource.Success(currentUser) }}}
+
+            .onEach{ res -> onResourceStateless(res, ::signOutUser) }
+            .onEmpty{ state.user?.let(::signOutUser) }
+            .onCompletion{ it?.let(::onResolveRemoveMessaging) }
+            .catch{ it.let(::onResolveRemoveMessaging) }
+            .retryWhen{ cause, attempt -> cause is IOException || attempt < 3 }
+            .launchIn(viewModelScope)
+    }
+
+    private fun signOutUser(user: User.Complete) {
+        caseUser.signOutUser(user)
+            .onStart { onRejectAllMessaging() }
+            .launchIn(viewModelScope)
     }
 
     override fun postUser(user: User.Complete) {
@@ -266,8 +286,7 @@ class UserViewModel
     }
 
     override fun removeMessaging(
-        messaging: Messaging.GroupRemover, onSucceed: (String) -> Unit
-    ) {
+        messaging: Messaging.GroupRemover, onSucceed: (String) -> Unit) {
         if (!messaging.isValid) return
 
         caseMessaging.removeMessaging(messaging)
@@ -276,8 +295,7 @@ class UserViewModel
     }
 
     override fun pushMessaging(
-        messaging: Messaging.Pusher, onSucceed: (String) -> Unit
-    ) {
+        messaging: Messaging.Pusher, onSucceed: (String) -> Unit) {
         if (!messaging.isValid) return
 
         caseMessaging.pushMessaging(messaging)
@@ -294,6 +312,9 @@ class UserViewModel
     }
 
     private fun onRejectAllMessaging() {
+        Log.d(TAG, "onRejectAllMessaging: triggered")
+        notifier.manager.cancelAll()
+
         with(prefsFactory) {
             createMessaging = ""
             addMessaging = false

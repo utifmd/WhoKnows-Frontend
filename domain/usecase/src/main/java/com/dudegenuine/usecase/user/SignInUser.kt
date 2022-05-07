@@ -16,21 +16,38 @@ import javax.inject.Inject
  **/
 class SignInUser
     @Inject constructor(
-        private val repository: IUserRepository) {
-        operator fun invoke(params: Map<String, String>): Flow<Resource<User.Complete>> = flow {
-            try {
-                emit(Resource.Loading())
-                val signedInUser = repository.signIn(params)
-                emit(Resource.Success(signedInUser))
+    private val repository: IUserRepository) {
+    operator fun invoke(params: Map<String, String>): Flow<Resource<User.Complete>> = flow {
+        try {
+            emit(Resource.Loading())
+            val signedInUser = repository.signIn(params)
+            emit(Resource.Success(signedInUser))
 
-            } catch (e: HttpFailureException){
-                emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
-            } catch (e: HttpException){
-                emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
-            } catch (e: IOException){
-                emit(Resource.Error(Resource.IO_EXCEPTION))
-            } catch (e: Exception){
-                emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
-            }
+        } catch (e: HttpFailureException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: HttpException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        } catch (e: IOException){
+            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
+    }
+
+    operator fun invoke(model: User.Complete): Flow<Resource<User.Complete>> = flow {
+        try {
+            emit(Resource.Loading())
+            val signedInUser = repository.signIn(model)
+            emit(Resource.Success(signedInUser))
+
+        } catch (e: HttpFailureException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: HttpException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        } catch (e: IOException){
+            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
+        }
+    }
 }

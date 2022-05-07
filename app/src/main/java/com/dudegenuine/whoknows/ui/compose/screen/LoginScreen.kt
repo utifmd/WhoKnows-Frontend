@@ -75,7 +75,7 @@ fun LoginScreen(
                 Icons.Filled.Close else null,
             onTailPressed = { formState.onPasswordChange("") },
             keyboardActions = KeyboardActions(
-                onDone = { keyboardController?.hide(); viewModel.signInUser() }))
+                onDone = { keyboardController?.hide(); viewModel.loginUser() }))
 
         if (authState.error.isNotBlank()) {
             ErrorScreen(message = authState.error, isSnack = true)
@@ -87,7 +87,7 @@ fun LoginScreen(
             label = stringResource(R.string.sign_in),
             enabled = formState.isLoginValid.value && !authState.loading,
             isLoading = authState.loading,
-            onClick = viewModel::signInUser
+            onClick = viewModel::loginUser
         )
 
         TextButton(

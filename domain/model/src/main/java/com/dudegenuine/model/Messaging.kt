@@ -19,7 +19,7 @@ sealed class Messaging {
     data class GroupAdder(
         val keyName: String,
         val tokens: List<String>,
-        val key: String,
+        val key: String = "",
         val operation: String = "add",
     ): Messaging(){
             var isValid: Boolean = mutableStateOf(
@@ -40,7 +40,8 @@ sealed class Messaging {
         val title: String,
         val body: String,
         val largeIcon: String,
-        val to: String): Messaging(){
+        val args: String = "",
+        val to: String = ""): Messaging(){
             var isValid: Boolean = mutableStateOf(
                 title.isNotBlank() and body.isNotBlank() and to.isNotBlank()).value
         }

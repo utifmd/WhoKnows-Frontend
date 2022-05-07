@@ -16,7 +16,8 @@ interface IUserRepository {
     suspend fun list(page: Int, size: Int): List<User.Complete>
     suspend fun listOrderByParticipant(page: Int, size: Int): List<User.Censored>
     suspend fun signIn(params: Map<String, String>): User.Complete
-    suspend fun signOut(): String
+    suspend fun signIn(model: User.Complete): User.Complete
+    suspend fun signOut(user: User.Complete): String
 
     suspend fun load(userId: String? = null): User.Complete
     suspend fun save(userTable: UserTable)

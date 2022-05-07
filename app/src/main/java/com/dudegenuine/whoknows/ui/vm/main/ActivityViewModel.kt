@@ -13,6 +13,7 @@ import com.dudegenuine.local.api.IPrefsFactory.Companion.NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPrefsFactory.Companion.USER_ID
 import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.model.Messaging
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
@@ -20,8 +21,10 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotification
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -29,7 +32,7 @@ import javax.inject.Inject
  * WhoKnows by utifmd
  **/
 @HiltViewModel
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class ActivityViewModel
     @Inject constructor(
     private val prefsFactory: IPrefsFactory,
@@ -58,25 +61,18 @@ class ActivityViewModel
 
     private fun retryFailureAttempted() {
         // TODO: check failure state in prefs then retry calls each functions everytime
-        // 1. login messaging
-        // 1. logout messaging
-        // 1. create room messaging
-        // 1. boarding messaging
-
-        when {
+        /*when {
             prefsFactory.createMessaging.isNotBlank()  -> {
                 Log.d(TAG, "retryFailureAttempted: create ${prefsFactory.createMessaging}")
                 onCreateMessaging()
             }
-            prefsFactory.addMessaging  -> {
-                Log.d(TAG, "retryFailureAttempted: add ${prefsFactory.addMessaging}")
-                getUser(::onPreRegisterMessaging)
+            prefsFactory.addMessaging -> onPreRegisterMessaging {
+                Log.d(TAG, "retryFailureAttempted: add ${it.username}")
             }
-            prefsFactory.removeMessaging  -> {
-                Log.d(TAG, "retryFailureAttempted: remove ${prefsFactory.removeMessaging}")
-                getUser(::onPreUnregisterMessaging)
+            prefsFactory.removeMessaging -> onPreUnregisterMessaging {
+                Log.d(TAG, "retryFailureAttempted: remove ${it.username}")
             }
-        }
+        }*/
     }
 
     val networkServiceAction = IntentFilter(IReceiverFactory.ACTION_CONNECTIVITY_CHANGE)
@@ -92,7 +88,7 @@ class ActivityViewModel
 
         token.apply (::onTokenIdChange)
         if (prefsFactory.userId.isNotBlank())
-            getUser(::onPreRegisterMessaging)
+            onPreRegisterMessaging { Log.d(TAG, "messagingServiceReceiver: onPreRegisterMessaging") }
     }
 
     private fun messagingSubscribeTopic() {
@@ -103,6 +99,7 @@ class ActivityViewModel
     }
 
     private fun messagingInitToken() {
+        retryFailureAttempted()
         with (messaging.token) {
             addOnSuccessListener {
                 Log.d(TAG, "Success: $it")
@@ -116,47 +113,51 @@ class ActivityViewModel
         }
     }
 
+    private fun onPreRegisterMessaging(onFinished: (User.Complete) -> Unit){
+        caseUser.getUser(userId)
+            .flatMapConcat { res -> onResourceAuthFlow(res) { currentUser ->
+                val joined = currentUser.participants.map { it.roomId }
+                val owned = currentUser.rooms.map { it.roomId }
 
-    private fun onPreRegisterMessaging(currentUser: User.Complete) {
-        val TAG = object{}.javaClass.enclosingMethod?.name
-        val joined = currentUser.participants.map { it.roomId }
-        val owned = currentUser.rooms.map { it.roomId }
-        val unread = currentUser.notifications.count { !it.seen }
+                concatenate(joined, owned).asFlow()
+                    .flatMapConcat(::onRegisterMessaging)
+                    .mapLatest { Resource.Success(currentUser) }}}
 
-        concatenate(joined, owned).asFlow()
-            .flatMapConcat(::onRegisterMessaging)
-            .onStart { onBadgeChange(unread) }
-            .onCompletion { it?.let { onFlowFailed(TAG, it) } ?: onRejectAddMessaging() }
-            .catch { onFlowFailed(TAG, it) }
+            .onEach { res -> onResourceStateless(res, onFinished) }
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .launchIn(viewModelScope)
     }
 
-    private fun onPreUnregisterMessaging(currentUser: User.Complete) {
-        val TAG = object{}.javaClass.enclosingMethod?.name
-        val joined = currentUser.participants.map { it.roomId }
-        val owned = currentUser.rooms.map { it.roomId }
+    private fun onPreUnregisterMessaging(onFinished: (User.Complete) -> Unit){
+        caseUser.getUser(userId)
+            .flatMapConcat { res -> onResourceAuthFlow(res) { currentUser ->
+                val joined = currentUser.participants.map { it.roomId }
+                val owned = currentUser.rooms.map { it.roomId }
 
-        concatenate(joined, owned).asFlow()
-            .flatMapConcat(::onUnregisterMessaging)
-            .onStart { onBadgeChange(0) }
-            .onCompletion { it?.let { onFlowFailed(TAG, it) } ?: onRejectRemoveMessaging() }
-            .catch { onFlowFailed(TAG, it) }
+                concatenate(joined, owned).asFlow()
+                    .flatMapConcat(::onUnregisterMessaging)
+                    .mapLatest { Resource.Success(currentUser) }}}
+
+            .onEach { res -> onResourceStateless(res, onFinished) }
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .launchIn(viewModelScope)
     }
 
     private fun onRegisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val register = Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)
-                caseMessaging.addMessaging(register)
-            }}
+                caseMessaging.addMessaging(
+                    Messaging.GroupAdder(roomId, listOf(prefsFactory.tokenId), key)) }}
+            .onEach { onResourceStateless(it) { onRejectAddMessaging() } }
 
     private fun onUnregisterMessaging(roomId: String) =
         caseMessaging.getMessaging(roomId)
+            .retryWhen { cause, attempt -> cause is IOException || attempt < 3 }
             .flatMapConcat { res -> onResourceFlow(res) { key ->
-                val remover = Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)
-                caseMessaging.removeMessaging(remover)
-            }}
+                caseMessaging.removeMessaging(
+                    Messaging.GroupRemover(roomId, listOf(prefsFactory.tokenId), key)) }}
+            .onEach { onResourceStateless(it) { onRejectRemoveMessaging() } }
 
     fun registerPrefsListener() { prefsFactory.manager.register(onPrefsListener) }
     fun unregisterPrefsListener() { prefsFactory.manager.unregister(onPrefsListener) }
@@ -173,7 +174,11 @@ class ActivityViewModel
 
                 fresh?.let(::onBadgeChange)
             }
-        } /*prefs?.all?.forEach { Log.d(TAG, "${it.key}: ${it.value}") }*/
+        }
+
+        /*prefs?.all?.forEach {
+            Log.d(TAG, "${it.key}: ${it.value}")
+        }*/
     }
 
     private fun getNotifications(userId: String){
@@ -196,7 +201,7 @@ class ActivityViewModel
     private fun onCreateMessaging() {
         val create = Messaging.GroupCreator(prefsFactory.createMessaging, listOf(prefsFactory.tokenId))
         caseMessaging.createMessaging(create)
-            .onCompletion { if(it == null) onRejectCreateMessaging() }
+            .onEach { res -> onResourceStateless(res) { onRejectCreateMessaging() }}
             .launchIn(viewModelScope)
     }
 

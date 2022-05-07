@@ -44,8 +44,7 @@ sealed class UserState {
                 payload.text.isNotBlank() &&
                         Patterns.EMAIL_ADDRESS.matcher(payload.text).matches() &&
                         password.text.isNotBlank() &&
-                        rePassword.text.isNotBlank() &&
-                        password.text == rePassword.text
+                        rePassword.text.isNotBlank()
             )
 
         val loginModel: Map<String, String>

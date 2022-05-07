@@ -1,5 +1,7 @@
 package com.dudegenuine.model
 
+import android.util.Log
+import com.dudegenuine.model.common.Utility
 import java.util.*
 
 /**
@@ -37,6 +39,17 @@ sealed class User {
         val isPropsBlank: Boolean =
             /*fullName.isBlank() ||*/ email.isBlank() ||// phone.isBlank() ||
                 username.isBlank() || password.isBlank()
+
+        var exactPassword = password
+
+        init {
+            try {
+                exactPassword = Utility.decrypt(password)
+                Log.d("Model User TAG", ": $exactPassword")
+            } catch (e: Exception){
+                Log.d("Model User TAG", e.localizedMessage ?: "")
+            }
+        }
 
         companion object {
             const val PAYLOAD = "payload"

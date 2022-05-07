@@ -42,11 +42,6 @@ fun RoomBoardingScreen(
         state.quizzes[state.currentQuestionIdx]
     }
 
-    /*val onPreNextPressed: () -> Unit = {
-        state.let(viewModel::postBoarding)
-        onNextPressed()
-    }*/
-
     DisposableEffect(context, TIME_ACTION) {
         val broadcast = viewModel.timerServiceReceiver(state)
         
@@ -54,7 +49,10 @@ fun RoomBoardingScreen(
             broadcast, viewModel.timerServiceAction)
 
         onDispose {
-            viewModel.patchBoarding(state)
+            with(viewModel){
+                if (isBoardedIn) patchBoarding(state)
+                else postBoarding(state)
+            }
             context.unregisterReceiver(broadcast)
         }
     }

@@ -137,7 +137,7 @@ fun ProfileScreen(
 
                             if (isOwn) FieldTag(
                                 key = stringResource(R.string.password),
-                                value = user.password,
+                                value = user.exactPassword,
                                 editable = false,
                                 censored = true,
                                 isDivide = false,
@@ -145,7 +145,7 @@ fun ProfileScreen(
                         }
 
                         if (isOwn){
-                            Button({ event.onSignOutPressed(onSubmitted = viewModel::signOutUser) }) {
+                            Button({ event.onSignOutPressed(onSubmitted = viewModel::logoutUser) }) {
                                 Icon(Icons.Default.Logout, tint = MaterialTheme.colors.onPrimary, contentDescription = null)
                                 Spacer(modifier.size(ButtonDefaults.IconSize))
                                 Text(stringResource(R.string.sign_out), color = MaterialTheme.colors.onPrimary)

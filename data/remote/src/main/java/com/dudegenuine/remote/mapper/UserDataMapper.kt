@@ -6,6 +6,7 @@ import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.*
 import com.dudegenuine.model.User.Complete.Companion.PASSWORD
 import com.dudegenuine.model.User.Complete.Companion.PAYLOAD
+import com.dudegenuine.model.common.Utility.encrypt
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.*
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
@@ -39,6 +40,7 @@ class UserDataMapper
         }
     }
 
+    @Throws(Exception::class)
     override fun asEntity(user: User.Complete): UserEntity.Complete {
         return UserEntity.Complete(
             userId = user.id,
@@ -46,7 +48,7 @@ class UserDataMapper
             username = user.username,
             phone = user.phone,
             email = user.email,
-            password = user.password,
+            password = encrypt(user.password),
             profileUrl = user.profileUrl,
             createdAt = user.createdAt,
             updatedAt = user.updatedAt,
@@ -113,12 +115,13 @@ class UserDataMapper
             ResourcePaging { emptyList() }
         }
 
+    @Throws(Exception::class)
     override fun asLogin(params: Map<String, String>): User.Signer {
         val payload = params[PAYLOAD] ?: throw HttpFailureException("incorrect payload")
         val password = params[PASSWORD] ?: throw HttpFailureException("incorrect password")
 
         return User.Signer(
-            payload, password
+            payload, encrypt(password)
         )
     }
 

@@ -22,7 +22,8 @@ fun NavGraphBuilder.discoverGraph(props: IMainProps){
 
     composable(
         route = notification.route,
-        deepLinks = listOf(navDeepLink{ uriPattern = notification.uriPattern })){
+        deepLinks = listOf(
+            navDeepLink{ uriPattern = notification.uriPattern })){
 
         NotificationScreen(props,
             onBackPressed = props.router::popBackStack,

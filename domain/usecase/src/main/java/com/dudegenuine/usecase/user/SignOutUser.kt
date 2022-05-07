@@ -1,6 +1,7 @@
 package com.dudegenuine.usecase.user
 
 import com.dudegenuine.model.Resource
+import com.dudegenuine.model.User
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IUserRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,11 +17,11 @@ import javax.inject.Inject
 class SignOutUser
     @Inject constructor(val repository: IUserRepository) {
 
-    operator fun invoke(): Flow<Resource<String>> = flow {
+    operator fun invoke(user: User.Complete): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
 
-            val unloaded = repository.signOut()
+            val unloaded = repository.signOut(user)
             emit(Resource.Success(unloaded))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

@@ -62,51 +62,45 @@ fun NotificationScreen(props: IMainProps,
         content = {
             SwipeRefresh(swipeRefreshState, onRefresh = onRefresh) {
 
-                LazyColumn( contentPadding = PaddingValues(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    content = {
-                        vmUser.state.user?.let { user ->
-                            if (user.participants.isNotEmpty()) {
-                                if (user.participants.isNotEmpty()) item {
-                                    Text("Recently participation${if (user.participants.size > 1) "\'s" else ""}")
-                                }
-                                item {
-                                    LazyRow(modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                LazyColumn {
+                    vmUser.state.user?.let { user ->
+                        if (user.participants.isNotEmpty()) item {
+                            Column(modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
 
-                                        items(user.sortedParticipants, { it.id }) { model ->
-                                            OutlinedButton(
-                                                { onDetailRoomPressed(model) },
-                                                modifier.animateItemPlacement()) {
+                                if (user.participants.isNotEmpty()) Text("Recently participation${if (user.participants.size > 1) "\'s" else ""}")
+                                LazyRow(modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
 
-                                                Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
-                                                Spacer(modifier.size(ButtonDefaults.IconSize))
-                                                Text(model.createdAt.toHttpDateString())
-                                            }
+                                    items(user.sortedParticipants, { it.id }) { model ->
+                                        OutlinedButton(
+                                            { onDetailRoomPressed(model) },
+                                            modifier.animateItemPlacement()) {
+
+                                            Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
+                                            Spacer(modifier.size(ButtonDefaults.IconSize))
+                                            Text(model.createdAt.toHttpDateString())
                                         }
                                     }
                                 }
                             }
                         }
+                    }
 
-                        vmNotifier.state.notifications?.let { notifications ->
-                            if (notifications.isNotEmpty()) item {
-                                Spacer(modifier.size(ButtonDefaults.IconSize))
-                                Text("Recently event${ if(notifications.size > 1)"\'s" else ""}")
-                            }
+                    vmNotifier.state.notifications?.let { notifications ->
+                        if (notifications.isNotEmpty()) item {
+                            Text("Recently event${ if(notifications.size > 1)"\'s" else ""}", modifier.padding(12.dp, 4.dp))
+                        }
 
-                            items(notifications, { it.notificationId }) { model ->
-                                NotificationItem(modifier
-                                    .animateItemPlacement(), model,
-                                    onItemLongPressed = { onLongPressed(model.notificationId) },
-                                    onItemPressed = { vmNotifier.onReadNotification(model)
-                                        { onPressed(model.roomId, model.userId) }
-                                    }
-                                )
-                            }
+                        items(notifications, { it.notificationId }) { model ->
+                            NotificationItem(Modifier.animateItemPlacement(), model,
+                                onItemLongPressed = { onLongPressed(model.notificationId) },
+                                onItemPressed = { vmNotifier.onReadNotification(model)
+                                    { onPressed(model.roomId, model.userId) }
+                                }
+                            )
                         }
                     }
-                )
+                }
                 if (vmNotifier.state.error.isNotBlank())
                     ErrorScreen(modifier, message = vmNotifier.state.error, isDanger = false)
             }

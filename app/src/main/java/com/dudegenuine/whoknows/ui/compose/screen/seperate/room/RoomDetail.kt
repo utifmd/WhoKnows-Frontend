@@ -55,7 +55,9 @@ fun RoomDetail(
         }
     }
 
-    state.room?.let { model ->
+    val stateResource = viewModel.stateResource.value
+
+    stateResource.room?.let { model ->
         BackdropScaffold(
             modifier = modifier.fillMaxSize(),
             scaffoldState = scaffoldState,
@@ -72,8 +74,7 @@ fun RoomDetail(
             },
 
             backLayerContent = {
-                BackLayer(
-                    model = model,
+                BackLayer(model,
                     isOwn = isOwn,
                     toggle = toggle,
                     eventDetail = eventDetail
@@ -98,69 +99,41 @@ fun RoomDetail(
     if (state.error.isNotBlank()) ErrorScreen(modifier, message = state.error)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun BackLayer(
-    modifier: Modifier = Modifier,
     model: Room.Complete,
-    toggle: () -> Unit,
     isOwn: Boolean,
-    eventDetail: IRoomEventDetail) {
+    eventDetail: IRoomEventDetail,
+    modifier: Modifier = Modifier,
+    toggle: () -> Unit) {
     val enabled = !model.expired
 
     Column(
-        modifier = modifier.padding(12.dp),
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally) {
+        ButtonBackLayer(
+            label = if (isOwn) stringResource(R.string.add_new_question)
+                else stringResource(R.string.join_the_room),
+            enabled = enabled) {
 
-        TextButton(
-            enabled = enabled,
-            modifier = modifier.fillMaxWidth(),
-            onClick = {
-                if (isOwn) eventDetail.onNewRoomQuizPressed(model.id, model.userId)
-                else eventDetail.onJoinRoomDirectlyPressed(model) }) {
-
-            Text(
-                color = if (enabled) MaterialTheme.colors.onPrimary
-                    else MaterialTheme.colors.onPrimary.copy(0.5f),
-
-                text = if (isOwn) stringResource(R.string.add_new_question)
-                    else stringResource(R.string.join_the_room)
-            )
+            if (isOwn) eventDetail.onNewRoomQuizPressed(model)
+            else eventDetail.onJoinRoomDirectlyPressed(model)
         }
 
         if (isOwn) {
-            TextButton(
-                enabled = enabled,
-                modifier = modifier.fillMaxWidth(),
-                onClick = { eventDetail.onShareRoomPressed(model) }) {
-
-                Text(
-                    color = if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
-                    text = stringResource(R.string.invite_w_a_link)
-                )
+            ButtonBackLayer(stringResource(R.string.invite_w_a_link), enabled,
+                onLongPressed = { eventDetail.onSetCopyRoomPressed(model) }){
+                eventDetail.onShareRoomPressed(model)
             }
-
-            TextButton(
-                enabled = enabled,
-                modifier = modifier.fillMaxWidth(),
-                onClick = { eventDetail.onDeleteRoomPressed(model) } ) {
-
-                Text(stringResource(R.string.delete_permanent),
-                    color =  if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
-                )
+            ButtonBackLayer(stringResource(R.string.delete_permanent), enabled){
+                eventDetail.onDeleteRoomPressed(model)
             }
-
-            TextButton(
-                enabled = enabled,
-                modifier = modifier.fillMaxWidth(),
-                onClick = { eventDetail.onCloseRoomPressed(model, toggle) }) {
-
-                Text(
-                    color = if (enabled) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.5f),
-                    text = stringResource(R.string.close_the_room)
-                )
+            ButtonBackLayer(stringResource(R.string.close_the_room), enabled){
+                eventDetail.onCloseRoomPressed(model, toggle)
             }
         }
+        Spacer(modifier.size(12.dp))
     }
 }
 
@@ -201,12 +174,14 @@ private fun FrontLayer(
             )
 
             CardFooter(
-                text = "${if (model.expired) "Closed" else "Opened"} by ${
-                    model.user?.fullName ?:
-                    model.user?.username?.padStart(1, '@') ?:
-                    stringResource(R.string.unknown)
-                }",
+                text = if (model.expired) "Unavailable" else "Available",
                 icon = if (model.expired) Icons.Filled.Lock else Icons.Filled.LockOpen,
+            )
+
+            CardFooter(
+                text = (model.user?.fullName ?: "").ifBlank {
+                    model.user?.username ?: stringResource(R.string.unknown) },
+                icon = Icons.Filled.VerifiedUser,
             )
 
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
@@ -281,6 +256,32 @@ private fun FrontLayer(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+private fun ButtonBackLayer(
+    label: String, enabled: Boolean, modifier: Modifier = Modifier,
+    onLongPressed: (() -> Unit)? = null, onPressed: (() -> Unit)? = null) {
+
+    Box(modifier.combinedClickable(
+        enabled = enabled,
+        onLongClick = { onLongPressed?.invoke() },
+        onClick = { onPressed?.invoke() })) {
+
+        Box(
+            modifier
+                .fillMaxWidth()
+                .padding(12.dp, 8.dp),
+            contentAlignment = Alignment.Center) {
+
+            Text(label,
+                color = if (enabled) MaterialTheme.colors.onPrimary
+                else MaterialTheme.colors.onPrimary.copy(0.5f),
+                style = MaterialTheme.typography.button
+            )
         }
     }
 }
