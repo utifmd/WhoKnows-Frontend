@@ -130,12 +130,15 @@ class UserViewModel
         }
 
         caseUser.signInUser(model)
-            .flatMapConcat{ res -> onResourceAuthFlow(res) { currentUser ->
+            .flatMapLatest{ res -> onResourceAuthFlow(res) { currentUser ->
                 val joined = currentUser.participants.map { it.roomId }
                 val owned = currentUser.rooms.map { it.roomId }
 
                 concatenate(joined, owned).asFlow()
                     .flatMapConcat(::onRegisterMessaging)
+                    .flatMapMerge { prefsFactory.prevOwnedRoomIds // ~> guarantee previous user in a same device not conflict
+                        .split(" | ").asFlow()
+                        .flatMapConcat(::onUnregisterMessaging) }
                     .mapLatest{ Resource.Success(currentUser) }}}
 
             .onEach{ res -> onResourceStateless(res, ::signInUser) }
@@ -163,11 +166,12 @@ class UserViewModel
         }
 
         caseUser.getUser(userId)
-            .flatMapConcat{ res -> onResourceAuthFlow(res){ currentUser ->
+            .flatMapLatest{ res -> onResourceAuthFlow(res){ currentUser ->
                 val joined = currentUser.participants.map{ it.roomId }
                 val owned = currentUser.rooms.map{ it.roomId }
 
-                concatenate(joined, owned).asFlow()
+                onPrefOwnedRoomIdsChange(owned) // ~> guarantee previous user in a same device not conflict
+                concatenate(joined/*, owned*/).asFlow()
                     .flatMapConcat(::onUnregisterMessaging)
                     .mapLatest{ Resource.Success(currentUser) }}}
 
@@ -179,9 +183,13 @@ class UserViewModel
             .launchIn(viewModelScope)
     }
 
+    private fun onPrefOwnedRoomIdsChange(owned: List<String>) {
+        prefsFactory.prevOwnedRoomIds = owned.joinToString(" | ")
+    }
+
     private fun signOutUser(user: User.Complete) {
         caseUser.signOutUser(user)
-            .onStart { onRejectAllMessaging() }
+            .onStart { onClearPrefsFactories() }
             .launchIn(viewModelScope)
     }
 
@@ -226,7 +234,7 @@ class UserViewModel
             return
         }
 
-        freshUser.apply { updatedAt = Date() }
+        freshUser.apply { password = exactPassword }
 
         caseUser.patchUser(id, freshUser)
             .onEach(::onResource).launchIn(viewModelScope)
@@ -238,7 +246,8 @@ class UserViewModel
             return
         }
 
-        freshUser.apply { updatedAt = Date() }
+        freshUser.apply { password = exactPassword }
+        Log.d(TAG, "patchUser: freshUser.password = ${freshUser.password}")
 
         caseUser.patchUser(freshUser.id, freshUser)
             .onEach { onResourceSucceed(it, onSucceed) }.launchIn(viewModelScope)
@@ -311,11 +320,14 @@ class UserViewModel
         prefsFactory.notificationBadge = fresh
     }
 
-    private fun onRejectAllMessaging() {
-        Log.d(TAG, "onRejectAllMessaging: triggered")
+    private fun onClearPrefsFactories() {
         notifier.manager.cancelAll()
 
         with(prefsFactory) {
+            /*userId = ""
+            participationId = ""
+            notificationBadge = 0
+            runningTime = 0*/
             createMessaging = ""
             addMessaging = false
             removeMessaging = false
@@ -351,14 +363,16 @@ class UserViewModel
         }
         caseFile.uploadFile(formState.profileImage)
             .flatMapConcat { onResourceFlow(it) { file ->
-                val fresh = user.copy(profileUrl = file.url, createdAt = Date())
+                val fresh = user.copy(profileUrl = file.url, createdAt = Date()).apply {
+                    password = exactPassword
+                }
                 flowOf(caseUser.patchUser(user.id, fresh),
                     if(fileId.isNotBlank()) caseFile.deleteFile(fileId) else emptyFlow()).flattenMerge()
                     .map { Resource.Success(file) }
                 }
             }
             .onStart { _formState.value = UserState.FormState() }
-            .onCompletion { it?.let(::onResolveAddMessaging) } // onStateChange(ResourceState(message = it.localizedMessage ?: Resource.NO_RESULT))
+            .onCompletion { it?.let(::onResolveAddMessaging) ?: getUser(user.id) } // onStateChange(ResourceState(message = it.localizedMessage ?: Resource.NO_RESULT))
             .catch { it.let(::onResolveAddMessaging) }
             .launchIn(viewModelScope)
     }

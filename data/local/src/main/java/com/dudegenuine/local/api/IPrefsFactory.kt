@@ -12,6 +12,7 @@ interface IPrefsFactory {
     var notificationBadge: Int
     var runningTime: Int
     var createMessaging: String
+    var prevOwnedRoomIds: String
     var addMessaging: Boolean
     var removeMessaging: Boolean
 
@@ -19,6 +20,7 @@ interface IPrefsFactory {
         const val USER_ID = "FACTORY_USER_ID"
         const val PARTICIPATION_ID = "FACTORY_PARTICIPATION_ID"
         const val TOKEN_ID = "FACTORY_TOKEN_ID"
+        const val PREV_OWNED_ROOM_IDS = "FACTORY_PREV_OWNED_ROOM_IDS"
         const val NOTIFICATION_BADGE = "FACTORY_NOTIFICATION_BADGE"
         const val RUNNING_TIME = "FACTORY_RUNNING_TIME_BOARDING"
         const val CREATE_MESSAGING = "FACTORY_CREATE_MESSAGING"

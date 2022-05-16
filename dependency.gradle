@@ -15,7 +15,7 @@ dependencies {
     implementation("androidx.paging:paging-compose:$paging_compose_version")
 
     // Dagger - Hilt
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_droidx_version"
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_droidx_lifecycle_version"
     implementation "androidx.hilt:hilt-navigation-compose:$hilt_droidx_version"
     implementation "com.google.dagger:hilt-android:$hilt_dagger_version"
     kapt "androidx.hilt:hilt-compiler:$hilt_droidx_version"

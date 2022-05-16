@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event
 
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Quiz
+import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
@@ -57,9 +58,13 @@ class RoomEventDetail(
     }
 
     private fun onDeleteRoomSucceed() {
-        props.router.navigate(Screen.Home.Summary.route){
-            popUpTo(Screen.Home.Summary.route){ inclusive = true }
+        props.router.apply {
+            previousBackStackEntry?.savedStateHandle?.set(Resource.KEY_REFRESH, true)
+            popBackStack()
         }
+        /*props.router.navigate(Screen.Home.Summary.route){
+            popUpTo(Screen.Home.Summary.route){ inclusive = true }
+        }*/
     }
 
     private fun onReNavigateRoom(roomId: String) {

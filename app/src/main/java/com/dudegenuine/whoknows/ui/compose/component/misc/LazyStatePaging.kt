@@ -34,7 +34,7 @@ fun <T: Any> LazyStatePaging(
 
                 else -> LoadBoxScreen(height = height, width = width)
             }
-            loadState.refresh is LoadState.Error-> {
+            loadState.refresh is LoadState.Error -> {
                 val error = (loadState.refresh as LoadState.Error).error.localizedMessage ?: "Retry again"
                 Box(if (width != null) modifier
                     .height(height)

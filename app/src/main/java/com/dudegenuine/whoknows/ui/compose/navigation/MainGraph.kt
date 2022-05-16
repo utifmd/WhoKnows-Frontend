@@ -20,8 +20,8 @@ fun MainGraph(
     val vmRoom: RoomViewModel = hiltViewModel()
     val userId = (props.vmMain as ActivityViewModel).userId
     val delegateProps = props.apply {
-        if(userId.isNotBlank()) lazyPagingOwnerRooms =
-            vmRoom.roomsOwnerDirectly(userId).collectAsLazyPagingItems()
+        if(userId.isNotBlank())
+            lazyPagingOwnerRooms = vmRoom.roomsOwnerDirectly(userId).collectAsLazyPagingItems()
     }
 
     NavHost(

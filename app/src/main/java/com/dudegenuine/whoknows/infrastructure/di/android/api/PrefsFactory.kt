@@ -6,6 +6,7 @@ import com.dudegenuine.local.api.IPrefsFactory.Companion.ADD_MESSAGING
 import com.dudegenuine.local.api.IPrefsFactory.Companion.CREATE_MESSAGING
 import com.dudegenuine.local.api.IPrefsFactory.Companion.NOTIFICATION_BADGE
 import com.dudegenuine.local.api.IPrefsFactory.Companion.PARTICIPATION_ID
+import com.dudegenuine.local.api.IPrefsFactory.Companion.PREV_OWNED_ROOM_IDS
 import com.dudegenuine.local.api.IPrefsFactory.Companion.REMOVE_MESSAGING
 import com.dudegenuine.local.api.IPrefsFactory.Companion.RUNNING_TIME
 import com.dudegenuine.local.api.IPrefsFactory.Companion.TOKEN_ID
@@ -52,6 +53,12 @@ class PrefsFactory(
         get() = manager.readString(CREATE_MESSAGING)
         set(fresh) {
             manager.write(CREATE_MESSAGING, fresh)
+        }
+
+    override var prevOwnedRoomIds: String
+        get() = manager.readString(PREV_OWNED_ROOM_IDS)
+        set(fresh) {
+            manager.write(PREV_OWNED_ROOM_IDS, fresh)
         }
 
     override var addMessaging: Boolean

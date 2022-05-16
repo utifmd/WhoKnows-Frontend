@@ -64,6 +64,20 @@ private fun Shimmer(content: @Composable (Brush) -> Unit){
 }
 
 @Composable
+fun LoadBoxScreen(modifier: Modifier = Modifier) {
+    Shimmer { brush ->
+        Column(modifier.fillMaxSize()) {
+            Spacer(modifier
+                .fillMaxSize()
+                .background(brush,
+                    shape = MaterialTheme.shapes.small
+                )
+            )
+        }
+    }
+}
+
+@Composable
 fun LoadBoxScreen(
     modifier: Modifier = Modifier,
     height: Dp, width: Dp? = null, times: Int? = null){

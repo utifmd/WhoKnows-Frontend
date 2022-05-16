@@ -33,6 +33,7 @@ sealed class Resource<T> (
         const val IO_EXCEPTION = "Server is unreachable, please try again later."
         const val ILLEGAL_STATE_EXCEPTION = "An expected error occurred."
         const val NO_RESULT = "No result."
+        const val KEY_REFRESH = "refresh"
     }
 }
 

@@ -11,6 +11,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
+import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
 
 /**
@@ -19,14 +20,19 @@ import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
  **/
 fun NavGraphBuilder.discoverGraph(props: IMainProps){
     val notification = Screen.Home.Discover.Notification
+    val isSignedIn = (props.vmMain as ActivityViewModel).isSignedIn
 
     composable(
         route = notification.route,
-        deepLinks = listOf(
-            navDeepLink{ uriPattern = notification.uriPattern })){
+        deepLinks = if (isSignedIn) listOf(
+            navDeepLink{ uriPattern = notification.uriPattern }) else emptyList()) {
 
         NotificationScreen(props,
-            onBackPressed = props.router::popBackStack,
+            onBackPressed = {
+                props.router.navigate(Screen.Home.Discover.route) {
+                    popUpTo(Screen.Home.route) { inclusive = true }
+                }
+            },
             onPressed = { roomId, userId ->
                 props.router.navigate(
                     route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(roomId, userId)) },

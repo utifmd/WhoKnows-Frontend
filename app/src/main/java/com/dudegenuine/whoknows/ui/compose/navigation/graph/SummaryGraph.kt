@@ -4,6 +4,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
@@ -26,6 +27,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
+import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
@@ -38,17 +40,23 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USE
 fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     val profile = Screen.Home.Summary.RoomDetail.ProfileDetail
     val roomDetail = Screen.Home.Summary.RoomDetail
+    val isSignedIn = (props.vmMain as ActivityViewModel).isSignedIn
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route) {
         RoomCreatorScreen(
             onBackPressed = props.router::popBackStack,
             onSucceed = {
-                val route = Screen.Home.Summary.route
+                props.router.apply {
+                    previousBackStackEntry?.savedStateHandle?.set(Resource.KEY_REFRESH, true)
+                    popBackStack()
+                }
+
+                /*val route = Screen.Home.Summary.route
 
                 props.router.navigate(route){
                     popUpTo(route) { inclusive = true }
-                }
+                }*/
             }
         )
     }
@@ -66,13 +74,17 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
 
     composable(
         route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
-        deepLinks = listOf( navDeepLink {
-            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") })){ entry ->
+        deepLinks = if (isSignedIn) listOf( navDeepLink {
+            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){ entry ->
         val viewModel: RoomViewModel = hiltViewModel()
 
         RoomDetail(
             viewModel = viewModel,
-            onBackPressed = props.router::popBackStack,
+            onBackPressed = {
+                props.router.navigate(Screen.Home.route){
+                    popUpTo(Screen.Home.route) { inclusive = true }
+                }
+            },
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
             eventDetail = RoomEventDetail(props, viewModel))
     }
@@ -132,11 +144,15 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
 
     composable(
         route = profile.routeWithArgs("{$USER_ID_SAVED_KEY}"),
-        deepLinks = listOf( navDeepLink {
-            uriPattern = profile.uriWithArgs("{$USER_ID_SAVED_KEY}") })){
+        deepLinks = if (isSignedIn) listOf( navDeepLink {
+            uriPattern = profile.uriWithArgs("{$USER_ID_SAVED_KEY}") }) else emptyList()){
 
         val event = object: IProfileEvent {
-            override fun onBackPressed() { props.router.popBackStack() }
+            override fun onBackPressed() {
+                props.router.navigate(Screen.Home.route){
+                    popUpTo(Screen.Home.route) { inclusive = true }
+                }
+            }
             override fun onPicturePressed(fileId: String?) {
                 if(fileId.isNullOrBlank()) return
 

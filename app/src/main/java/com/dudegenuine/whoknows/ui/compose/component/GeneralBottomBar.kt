@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ui.compose.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -11,11 +12,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
+import com.dudegenuine.whoknows.ui.compose.navigation.Screen
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel.Companion.PREVIEW_FILE_ID
+import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 
 /**
  * Thu, 16 Dec 2021
@@ -24,40 +30,45 @@ import com.dudegenuine.whoknows.ui.compose.model.BottomDomain
 @Composable
 fun GeneralBottomBar(
     modifier: Modifier = Modifier,
-    items: Set<BottomDomain>,
-    //darkTheme: Boolean = isSystemInDarkTheme(),
+    items: Set<BottomDomain>, //darkTheme: Boolean = isSystemInDarkTheme(),
     controller: NavController, onPressed: ((BottomDomain) -> Unit)? = null) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
     BottomNavigation(modifier,
-        backgroundColor = /*if (darkTheme)*/ MaterialTheme.colors.background
-            /*else MaterialTheme.colors.onPrimary*/,
-        contentColor = /*if (darkTheme)*/ MaterialTheme.colors.onBackground
-            /*else MaterialTheme.colors.primary*/,
+        backgroundColor = /*if (darkTheme)*/ MaterialTheme.colors.background /*else MaterialTheme.colors.onPrimary*/,
+        contentColor = /*if (darkTheme)*/ MaterialTheme.colors.onBackground /*else MaterialTheme.colors.primary*/,
         elevation = 3.dp) {
 
         items.forEach { screen ->
             val currentDestination = backStackEntry.value?.destination
-            val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true /* screen.route == backStackEntry.value?.destination?.route*/
+
+            val hasLinkUser = Screen.Home.Summary.RoomDetail.ProfileDetail.uriWithArgs("{$USER_ID_SAVED_KEY}").let { currentDestination?.hasDeepLink(it.toUri()) }
+            val hasLinkRoom = Screen.Home.Summary.RoomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}").let { currentDestination?.hasDeepLink(it.toUri()) } //currentDestination?.hasDeepLink(Uri.parse("${BuildConfig.BASE_CLIENT_URL}/who-knows/room/{$ROOM_ID_SAVED_KEY}}"))
+            val hasLinkNotifier = Screen.Home.Discover.Notification.uriPattern?.let { currentDestination?.hasDeepLink(it.toUri()) }
+            val hasLinkView = Screen.Home.Preview.uriWithArgs("{$PREVIEW_FILE_ID}").let { currentDestination?.hasDeepLink(it.toUri()) }
+            val hasDeeplink = hasLinkUser == true || hasLinkRoom == true || hasLinkNotifier == true || hasLinkView == true
+            val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true /* screen.route == currentDestination?.route*/  // currentDestination?.route == Screen.Home.Summary.route
 
             BottomNavigationItem(
                 selected = isSelected,
                 onClick = {
-                    controller.navigate(screen.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        popUpTo(controller.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same screen
-                        launchSingleTop = true
-                        // Restore state when reselecting a previously selected screen
-                        restoreState = true
-                    }
+                    Log.d("GeneralBottomBar: ", "route ${currentDestination?.route}")
+                    Log.d("GeneralBottomBar: ", "hasDeeplink $hasDeeplink")
 
-                    onPressed?.invoke(screen)
+                    if (hasDeeplink){
+                        controller.popBackStack()
+                        controller.navigate(screen.route)
+                    } else {
+                        controller.navigate(screen.route) {
+                            popUpTo(controller.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+
+                        onPressed?.invoke(screen)
+                    }
                 },
                 icon = {
                     Column(horizontalAlignment = CenterHorizontally) {

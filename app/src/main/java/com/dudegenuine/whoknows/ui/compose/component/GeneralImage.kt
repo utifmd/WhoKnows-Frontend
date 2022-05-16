@@ -16,6 +16,7 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import com.dudegenuine.whoknows.BuildConfig
+import com.dudegenuine.whoknows.ui.compose.screen.LoadBoxScreen
 
 @Composable
 @OptIn(ExperimentalCoilApi::class)
@@ -50,32 +51,38 @@ fun GeneralImage(
                     contentScale = contentScale,
                     alpha = alpha,
                     colorFilter = colorFilter,
-                    modifier = if(onPressed != null) modifier.fillMaxSize().clickable(
-                        onClick = {
-                            onPressed.invoke(fileId)
-                        }
-                    ) else modifier.fillMaxSize()
+                    modifier = if(onPressed != null) modifier
+                        .fillMaxSize()
+                        .clickable(
+                            onClick = {
+                                onPressed.invoke(fileId)
+                            }
+                        ) else modifier.fillMaxSize()
                 )
 
-                when (painter.state) { /*is ImagePainter.State.Empty, is ImagePainter.State.Success, -> {}*/
-                    is ImagePainter.State.Loading,
+                /*AnimatedVisibility(
+                    visible = when (painter.state) {
+                        is ImagePainter.State.Empty,
+                        is ImagePainter.State.Success,
+                        -> false
+                        is ImagePainter.State.Loading,
+                        is ImagePainter.State.Error,
+                        -> true
+                    },
+                    enter = fadeIn(initialAlpha = 0.3f),
+                    exit = fadeOut()
+                ) {
+                    placeholder()
+                }*/
+
+                when (painter.state) {
+                    is ImagePainter.State.Empty,
+                    is ImagePainter.State.Success -> {}
+                    is ImagePainter.State.Loading -> LoadBoxScreen()
                     is ImagePainter.State.Error -> placeholder()
                     else -> {}
                 }
             }
         }
-
-        /*AnimatedVisibility(
-            visible = when (painter.state) {
-                is ImagePainter.State.Empty,
-                is ImagePainter.State.Success,
-                -> false
-                is ImagePainter.State.Loading,
-                is ImagePainter.State.Error,
-                -> true
-            }
-        ) {
-            placeholder()
-        }*/
     }
 }

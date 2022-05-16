@@ -55,9 +55,9 @@ fun RoomHomeScreen(
                     )
                 }
 
-                items(props.lazyPagingOwnerRooms) {
-                    it?.let { room ->
-                        RoomItem(model = room) { event.onRoomItemSelected(room.id) }
+                if(props.lazyPagingOwnerRooms.loadState.refresh !is LoadState.Error) {
+                    items(props.lazyPagingOwnerRooms, { it.id }) { room ->
+                        if (room != null) RoomItem(model = room) { event.onRoomItemSelected(room.id) }
                     }
                 }
             }
