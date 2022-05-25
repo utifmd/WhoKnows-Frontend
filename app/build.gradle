@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'com.google.gms.google-services'
     id 'org.jetbrains.kotlin.android'
     id 'dagger.hilt.android.plugin'
 }
@@ -68,3 +67,5 @@ dependencies {
     implementation "io.coil-kt:coil-compose:$coil_version"
     /*implementation "id.zelory:compressor:$compressor_version"*/
 }
+
+apply plugin: 'com.google.gms.google-services'

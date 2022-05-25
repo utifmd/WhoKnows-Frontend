@@ -69,12 +69,13 @@ fun QuizCreatorScreen(
             )
         },
 
-        content = {
+        content = { _ ->
             Box(modifier.verticalScroll(scrollState)) {
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = modifier.fillMaxSize()
+                    modifier = modifier
+                        .fillMaxSize()
                         .padding(12.dp)) {
 
                     ImagesPreUpload(

@@ -48,7 +48,7 @@ fun RoomCreatorScreen(
                 onSubmitPressed = { viewModel.onCreatePressed(onSucceed) }
             )
         },
-        content = {
+        content = { _ ->
             Body(
                 resourceState = state,
                 formState = formState,

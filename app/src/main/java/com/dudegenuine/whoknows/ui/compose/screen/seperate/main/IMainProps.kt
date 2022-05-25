@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.ui.compose.screen.seperate.main
 
 import android.content.Context
+import android.content.Intent
 import androidx.navigation.NavHostController
 import androidx.paging.compose.LazyPagingItems
 import com.dudegenuine.model.Quiz
@@ -12,6 +13,7 @@ interface IMainProps {
     val context: Context
     val router: NavHostController
     val vmMain: IActivityViewModel
+    val intent: Intent
     //val vmRoom: IRoomViewModel
     //val currentUserId: String
 

@@ -33,11 +33,7 @@ fun RoomBoardingScreen(
     onDonePressed: () -> Unit) {
     val context = LocalContext.current
 
-    val scaffoldState = rememberBackdropScaffoldState(
-        initialValue = BackdropValue.Concealed,
-        snackbarHostState = viewModel.snackHostState
-    )
-
+    val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     val boardingState = remember(state.currentQuestionIdx) {
         state.quizzes[state.currentQuestionIdx]
     }

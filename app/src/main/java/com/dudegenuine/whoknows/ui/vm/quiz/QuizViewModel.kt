@@ -143,7 +143,7 @@ class QuizViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    val questions = caseQuiz.getQuestions(BATCH_SIZE)
+    override val questions = caseQuiz.getQuestions(BATCH_SIZE)
         .cachedIn(viewModelScope)
 
     override fun getQuestions(page: Int, size: Int) {

@@ -21,7 +21,7 @@ class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleNa
             registerPrefsListener()
             registerReceiver(messagingServiceReceiver, messagingServiceAction)
             registerReceiver(networkServiceReceiver, networkServiceAction)
-            setContent { MainScreen(vmMain = this) }
+            setContent { MainScreen(vmMain = this, intent = intent) }
         }
     }
 

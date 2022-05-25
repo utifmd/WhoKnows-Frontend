@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
+import com.dudegenuine.whoknows.ui.compose.state.DialogState
 
 /**
  * Wed, 26 Jan 2022
@@ -29,6 +30,9 @@ interface IRoomEventHome: IRoomEvent {
 }
 
 interface IRoomEventDetail: IRoomEvent {
+    fun onShowSnackBar(message: String){}
+    fun onShowDialog(state: DialogState){}
+
     fun onBackPressed(){}
     fun onParticipantLongPressed(enabled: Boolean, participant: Participant){}
     fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete){}//(enabled: Boolean, quiz: Quiz.Complete, roomId: String){}

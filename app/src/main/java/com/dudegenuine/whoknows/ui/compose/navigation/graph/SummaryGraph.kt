@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import com.dudegenuine.model.Resource
+import com.dudegenuine.whoknows.ui.compose.component.misc.DialogSubscriber
 import com.dudegenuine.whoknows.ui.compose.navigation.Screen
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.quiz.QuizCreatorScreen
@@ -26,11 +27,14 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEvent
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.IRoomEventBoarding
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.room.event.RoomEventDetail
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.ProfileScreen
-import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent
+import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.ProfileEvent
 import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
+import com.dudegenuine.whoknows.ui.vm.result.ResultViewModel
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
+import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
 import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USER_ID_SAVED_KEY
 
 /**
@@ -40,30 +44,34 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel.Companion.USE
 fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     val profile = Screen.Home.Summary.RoomDetail.ProfileDetail
     val roomDetail = Screen.Home.Summary.RoomDetail
-    val isSignedIn = (props.vmMain as ActivityViewModel).isSignedIn
+
+    val vmMain = props.vmMain as ActivityViewModel
+    val isSignedIn = vmMain.isSignedIn
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route) {
+        val vmRoom: RoomViewModel = hiltViewModel()
+
+        DialogSubscriber(vmMain, vmRoom)
         RoomCreatorScreen(
+            viewModel = vmRoom,
             onBackPressed = props.router::popBackStack,
             onSucceed = {
                 props.router.apply {
                     previousBackStackEntry?.savedStateHandle?.set(Resource.KEY_REFRESH, true)
                     popBackStack()
                 }
-
-                /*val route = Screen.Home.Summary.route
-
-                props.router.navigate(route){
-                    popUpTo(route) { inclusive = true }
-                }*/
             }
         )
     }
 
     composable(
         route = Screen.Home.Summary.RoomFinder.route){
+        val vmRoom: RoomViewModel = hiltViewModel()
+
+        DialogSubscriber(vmMain, vmRoom)
         RoomFinderScreen(
+            viewModel = vmRoom,
             onBackPressed = props.router::popBackStack,
             onRoomSelected = { roomId ->
                 props.router.navigate(
@@ -76,21 +84,23 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
         route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
         deepLinks = if (isSignedIn) listOf( navDeepLink {
             uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){ entry ->
-        val viewModel: RoomViewModel = hiltViewModel()
+        val vmRoom: RoomViewModel = hiltViewModel()
 
+        DialogSubscriber(vmMain, vmRoom)
         RoomDetail(
-            viewModel = viewModel,
+            viewModel = vmRoom,
             onBackPressed = {
                 props.router.navigate(Screen.Home.route){
                     popUpTo(Screen.Home.route) { inclusive = true }
                 }
             },
             isOwn = entry.arguments?.getString(ROOM_IS_OWN) == OWN_IS_TRUE,
-            eventDetail = RoomEventDetail(props, viewModel))
+            eventDetail = RoomEventDetail(props, vmRoom))
     }
 
     composable(
         route = Screen.Home.Summary.OnBoarding.routeWithArgs("{$ONBOARD_ROOM_ID_SAVED_KEY}")){
+        val vmRoom: RoomViewModel = hiltViewModel()
         val event = object: IRoomEventBoarding {
 
             override fun onDoneResultPressed() {
@@ -102,14 +112,18 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
             }
         }
 
-        RoomRoutedPreBoardingScreen(event)
+        DialogSubscriber(vmMain, vmRoom)
+        RoomRoutedPreBoardingScreen(event, vmRoom)
     }
 
     composable(
         route = Screen.Home.Summary.RoomDetail.QuizCreator.routeWithArgs(
             "{$ROOM_ID_SAVED_KEY}", "{$ROOM_OWNER_SAVED_KEY}")) {
+        val vmQuiz: QuizViewModel = hiltViewModel()
 
-        QuizCreatorScreen(onBackPressed = props.router::popBackStack) { quiz ->
+        DialogSubscriber(vmMain, vmQuiz)
+        QuizCreatorScreen(
+            viewModel = vmQuiz, onBackPressed = props.router::popBackStack) { quiz ->
             val screen = Screen.Home.Summary.RoomDetail.routeWithArgs(
                 quiz.roomId, OWN_IS_TRUE)
 
@@ -126,8 +140,7 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
             "{$QUIZ_ID_SAVED_KEY}")){
 
         val event = object: IQuizPublicEvent {
-            override fun onBackPressed() { props.router.popBackStack() }
-            override fun onDeletePressed() { props.router.popBackStack() }
+            override fun onBackPressed() { props.router.popBackStack() } // override fun onDeletePressed() { props.router.popBackStack() }
             override fun onPicturePressed(fileId: String?) {
                 if (fileId.isNullOrBlank()) return
 
@@ -146,30 +159,22 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
         route = profile.routeWithArgs("{$USER_ID_SAVED_KEY}"),
         deepLinks = if (isSignedIn) listOf( navDeepLink {
             uriPattern = profile.uriWithArgs("{$USER_ID_SAVED_KEY}") }) else emptyList()){
+        val vmUser: UserViewModel = hiltViewModel()
 
-        val event = object: IProfileEvent {
-            override fun onBackPressed() {
-                props.router.navigate(Screen.Home.route){
-                    popUpTo(Screen.Home.route) { inclusive = true }
-                }
-            }
-            override fun onPicturePressed(fileId: String?) {
-                if(fileId.isNullOrBlank()) return
-
-                props.router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
-            }
-        }
-
+        DialogSubscriber(vmMain, vmUser)
         ProfileScreen(
+            viewModel = vmUser,
             isOwn = false,
-            event = event
+            event = ProfileEvent(props)
         )
     }
 
     composable(
         route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(
             "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}")){
+        val vmResult: ResultViewModel = hiltViewModel()
 
-        ResultDetail(onBackPressed = props.router::popBackStack)
+        DialogSubscriber(vmMain, vmResult)
+        ResultDetail(viewModel = vmResult, onBackPressed = props.router::popBackStack)
     }
 }

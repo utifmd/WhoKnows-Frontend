@@ -4,6 +4,8 @@ package com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event
 interface IProfileState
 
 interface IProfileEvent {
+    fun onShowSnackBar(message: String){}
+
     fun onFullNamePressed(it: String){}
     fun onPhonePressed(it: String){}
     fun onEmailPressed(it: String){}

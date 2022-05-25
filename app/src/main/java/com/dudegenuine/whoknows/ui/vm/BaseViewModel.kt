@@ -1,19 +1,12 @@
 package com.dudegenuine.whoknows.ui.vm
 
 import android.util.Log
-import androidx.compose.material.DrawerState
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudegenuine.model.*
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
-import com.dudegenuine.whoknows.ui.compose.state.EventState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,31 +23,6 @@ import kotlinx.coroutines.launch
 abstract class BaseViewModel: ViewModel() {
     private val TAG: String = javaClass.simpleName
 
-    private val _state = mutableStateOf(ResourceState())
-    val state: ResourceState
-        get() = _state.value
-    val stateResource: State<ResourceState> get() = _state
-
-    private val _authState = mutableStateOf(ResourceState.Auth())
-    val authState: ResourceState.Auth
-        get() = _authState.value
-
-    private val _eventState = mutableStateOf<EventState?>(null)
-    val eventState = _eventState.value
-
-    private val _snackMessage = MutableSharedFlow<String>()
-    val snackMessage = _snackMessage.asSharedFlow()
-
-    private val _snackHostState = mutableStateOf(SnackbarHostState())
-    val snackHostState = _snackHostState.value
-
-    var dialogState by mutableStateOf<DialogState?>(null)
-
-    private val _snackBarHostState by mutableStateOf(snackHostState)
-    val scaffoldState by mutableStateOf(
-        ScaffoldState(DrawerState(
-            DrawerValue.Closed), _snackBarHostState))
-
     private val viewModelJob = SupervisorJob()
     val jobScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -64,16 +32,32 @@ abstract class BaseViewModel: ViewModel() {
 
     fun sendEvent(element: String) = eventChannel.trySend(element)*/
 
+    /*private val _eventState = mutableStateOf<EventState?>(null)
+    val eventState = _eventState.value*/
+
+    private val _state = mutableStateOf(ResourceState())
+    val state: ResourceState
+        get() = _state.value
+    val stateResource: State<ResourceState> get() = _state
+
+    private val _authState = mutableStateOf(ResourceState.Auth())
+    val authState: ResourceState.Auth
+        get() = _authState.value
+
+    private val _snackMessage = MutableSharedFlow<String>()
+    val snackMessage = _snackMessage.asSharedFlow()
+
+    private val _dialogContent = MutableSharedFlow<DialogState?>()
+    val dialogContent = _dialogContent.asSharedFlow()
+
     fun onStateChange(fresh: ResourceState) = viewModelScope.launch {
         _state.value = fresh
+
+        if(fresh.error.isNotBlank()) onShowSnackBar(fresh.message)
     }
 
     fun onAuthStateChange(fresh: ResourceState.Auth){
         _authState.value = fresh
-    }
-
-    fun onEventStateChange(event: EventState?){
-        _eventState.value = event
     }
 
     fun onShowSnackBar(message: String){
@@ -82,43 +66,17 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    fun onDialogStateChange(state: DialogState?){
-        //Log.d(TAG, "onDialogStateChange: triggered")
-        dialogState = state
-        //_dialogState.value = state
+    fun onShowDialog(content: DialogState?) {
+        viewModelScope.launch {
+            _dialogContent.emit(content)
+        }
     }
 
     fun onFlowFailed(methodName: String?, t: Throwable){
-        onShowSnackBar(t.localizedMessage ?: "Failed attempt.")
+        t.localizedMessage?.let(::onShowSnackBar)
         //Toast.makeText(this, "", Toast.LENGTH_LONG).show()
         Log.d(TAG, "${methodName ?: "onCompletionFlowFailed"}: ${t.message}")
     }
-
-    /*init { observeSnackBar() }
-
-    private fun observeSnackBar(){
-        with (scaffoldState.snackbarHostState) {
-            viewModelScope.launch {
-                snackMessage.collectLatest { message ->
-                    showSnackbar(message)
-                }
-            }
-        }
-    }*/
-
-    /*private val _sharedFlow =
-          MutableSharedFlow<NavTarget>(extraBufferCapacity = 1)
-        val sharedFlow = _sharedFlow.asSharedFlow()
-
-        fun navigateTo(navTarget: NavTarget) {
-            _sharedFlow.tryEmit(navTarget)
-        }
-
-        enum class NavTarget(val label: String) {
-
-            Home("home"),
-            Detail("detail")
-        }*/
 
     override fun onCleared() {
         super.onCleared()
@@ -184,6 +142,8 @@ abstract class BaseViewModel: ViewModel() {
                 _state.value = ResourceState(
                     error = resources.message ?: "An unexpected error occurred."
                 )
+
+                resources.message?.let(::onShowSnackBar)
             }
             is Resource.Loading -> {
                 Log.d(TAG, "Resource.Loading..")
@@ -197,13 +157,6 @@ abstract class BaseViewModel: ViewModel() {
             }
         }
     }
-
-    /*protected fun<T> onResourceFailed(resources: Resource<T>){
-        onResource(resources, { Log.d(TAG, "onResourceFailed: succeed") }) {
-            Log.d(TAG, "onResourceFailed: failure")
-            _state.value = ResourceState(error = it)
-        }
-    }*/
 
     protected fun<T> onResourceBoarding(
         resources: Resource<T>, onPrepare: () -> Unit, onSuccess: (T) -> Unit){
@@ -219,7 +172,10 @@ abstract class BaseViewModel: ViewModel() {
 
         when(resources){
             is Resource.Success -> resources.data?.let(onSuccess)
-            is Resource.Error -> resources.message?.let(onError)
+            is Resource.Error -> resources.message?.let {
+                onError(it)
+                ::onShowSnackBar
+            }
             is Resource.Loading -> {
                 Log.d(TAG, "Resource.Loading..")
                 _state.value = ResourceState(loading = true)
@@ -302,6 +258,8 @@ abstract class BaseViewModel: ViewModel() {
             is Resource.Error -> {
                 Log.d(TAG, "onResourceFlowError: ${resources.message}")
                 _authState.value = ResourceState.Auth(error = resources.message ?: "Invalid authentication")
+
+                resources.message?.let(::onShowSnackBar)
                 emptyFlow()
             }
         }
@@ -344,6 +302,8 @@ abstract class BaseViewModel: ViewModel() {
                 _authState.value = ResourceState.Auth(
                     error = resources.message ?: "An unexpected error occurred."
                 )
+
+                resources.message?.let(::onShowSnackBar)
             }
             is Resource.Loading -> {
                 Log.d(TAG, "Auth.Loading..")

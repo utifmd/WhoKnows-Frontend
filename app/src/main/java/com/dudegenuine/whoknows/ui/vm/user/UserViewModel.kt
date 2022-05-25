@@ -133,12 +133,12 @@ class UserViewModel
             .flatMapLatest{ res -> onResourceAuthFlow(res) { currentUser ->
                 val joined = currentUser.participants.map { it.roomId }
                 val owned = currentUser.rooms.map { it.roomId }
+                val prevOwner = prefsFactory.prevOwnedRoomIds.split(" | ")
 
                 concatenate(joined, owned).asFlow()
                     .flatMapConcat(::onRegisterMessaging)
-                    .flatMapMerge { prefsFactory.prevOwnedRoomIds // ~> guarantee previous user in a same device not conflict
-                        .split(" | ").asFlow()
-                        .flatMapConcat(::onUnregisterMessaging) }
+                    .flatMapMerge { if(owned.containsAll(prevOwner)) prevOwner.asFlow()
+                        .flatMapConcat(::onUnregisterMessaging) else emptyFlow() } // ~> guarantee previous user in a same device not conflict
                     .mapLatest{ Resource.Success(currentUser) }}}
 
             .onEach{ res -> onResourceStateless(res, ::signInUser) }
@@ -170,11 +170,12 @@ class UserViewModel
                 val joined = currentUser.participants.map{ it.roomId }
                 val owned = currentUser.rooms.map{ it.roomId }
 
-                onPrefOwnedRoomIdsChange(owned) // ~> guarantee previous user in a same device not conflict
+                onPrevOwnedRoomIdsChange(owned) // ~> guarantee previous user in a same device not conflict
                 concatenate(joined/*, owned*/).asFlow()
                     .flatMapConcat(::onUnregisterMessaging)
                     .mapLatest{ Resource.Success(currentUser) }}}
 
+            .onStart { onShowSnackBar("Signing out..") }
             .onEach{ res -> onResourceStateless(res, ::signOutUser) }
             .onEmpty{ state.user?.let(::signOutUser) }
             .onCompletion{ it?.let(::onResolveRemoveMessaging) }
@@ -183,7 +184,7 @@ class UserViewModel
             .launchIn(viewModelScope)
     }
 
-    private fun onPrefOwnedRoomIdsChange(owned: List<String>) {
+    private fun onPrevOwnedRoomIdsChange(owned: List<String>) {
         prefsFactory.prevOwnedRoomIds = owned.joinToString(" | ")
     }
 
@@ -332,6 +333,8 @@ class UserViewModel
             addMessaging = false
             removeMessaging = false
         }
+
+        onShowSnackBar("Signed out complete")
     }
 
     /*private fun onTokenIdChange(fresh: String) {
@@ -341,11 +344,15 @@ class UserViewModel
     private fun onResolveAddMessaging(t: Throwable) {
         Log.d(TAG, "onResolveAddMessaging: ${t.message}")
         prefsFactory.addMessaging = true
+
+        t.localizedMessage?.let(::onShowSnackBar)
     }
 
     private fun onResolveRemoveMessaging(t: Throwable) {
         Log.d(TAG, "onResolveRemoveMessaging: ${t.message}")
         prefsFactory.removeMessaging = true
+
+        t.localizedMessage?.let(::onShowSnackBar)
     }
 
     /*private fun onReportUnregisterMessaging(t: Throwable) {

@@ -20,9 +20,17 @@ class RoomEventDetail(
     private val vmRoom: RoomViewModel): IRoomEventDetail {
     private val vmMain = props.vmMain as ActivityViewModel
 
+    override fun onShowSnackBar(message: String) {
+        vmMain.onShowSnackBar(message)
+    }
+
+    override fun onShowDialog(state: DialogState) {
+        vmMain.onShowDialog(state)
+    }
+
     override fun onNewRoomQuizPressed(room: Room.Complete) {
-        if (room.participants.isNotEmpty()) vmMain
-            .onShowSnackBar(props.context.getString(R.string.already_participantion))
+        if (room.participants.isNotEmpty())
+            onShowSnackBar(props.context.getString(R.string.already_participantion))
         else props.router.navigate(
             route = Screen.Home.Summary.RoomDetail.QuizCreator.routeWithArgs(room.id, room.userId))
     }
@@ -77,12 +85,12 @@ class RoomEventDetail(
 
     override fun onShareRoomPressed(room: Room.Complete) {
         if(room.questions.size >= 3) vmRoom.onSharePressed(room.id)
-        else vmMain.onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest))
+        else onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest))
     }
 
     override fun onSetCopyRoomPressed(room: Room.Complete) {
         if(room.questions.size >= 3) vmRoom.onCopyRoomIdPressed(room.id)
-        else vmMain.onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest))
+        else onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest))
     }
 
     override fun onJoinRoomDirectlyPressed(room: Room.Complete) {
@@ -96,15 +104,15 @@ class RoomEventDetail(
         val dialog = DialogState(props.context.getString(R.string.participate_the_class), disclaimer,
             onSubmitted = if (accepted) {
                 { onBoardingRoomPressed(room.id) }} else null)
-        vmMain.onDialogStateChange(dialog)
+        onShowDialog(dialog)
     }
 
     override fun onCloseRoomPressed(room: Room.Complete, onComplete: () -> Unit) {
         val disclaimer = props.context.getString(R.string.no_longer_participation)
         val dialog = DialogState(props.context.getString(R.string.close_the_class), disclaimer) {
             if(room.questions.size >= 3) vmRoom.expireRoom(room, onComplete)
-            else vmMain.onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest)) }
-        vmMain.onDialogStateChange(dialog)
+            else onShowSnackBar(props.context.getString(R.string.allowed_after_add_3_quest)) }
+        onShowDialog(dialog)
     }
 
     override fun onDeleteRoomPressed(room: Room.Complete) {
@@ -117,7 +125,7 @@ class RoomEventDetail(
         val dialog = DialogState(props.context.getString(R.string.delete_class), disclaimer,
             onSubmitted = if (accepted) {
                 { vmRoom.onDeleteRoomPressed(room.id, ::onDeleteRoomSucceed) }} else null)
-        vmMain.onDialogStateChange(dialog)
+        onShowDialog(dialog)
     }
 
     override fun onParticipantLongPressed(enabled: Boolean, participant: Participant) {
@@ -125,7 +133,7 @@ class RoomEventDetail(
             if (!enabled) props.context.getString(R.string.allowed_when_class_opened) else null,
             onSubmitted = if(enabled) {
                 { vmRoom.onDeleteParticipantPressed(participant, ::onReNavigateRoom) }} else null)
-        vmMain.onDialogStateChange(dialog)
+        onShowDialog(dialog)
     }
 
     override fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete) {
@@ -135,6 +143,6 @@ class RoomEventDetail(
         val dialog = DialogState(props.context.getString(R.string.delete_question), disclaimer,
             onSubmitted = if(accepted) {
                 { vmRoom.onDeleteQuestionPressed(quiz, ::onReNavigateRoom) }} else null)
-        vmMain.onDialogStateChange(dialog)
+        onShowDialog(dialog)
     }
 }

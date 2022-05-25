@@ -61,103 +61,101 @@ fun ProfileScreen(
                 onTailPressed = if (state.user != null){
                     { state.user.id.let(viewModel::onSharePressed) }} else null
             )
-        },
+        }){ _ ->
 
-        content = {
-            SwipeRefresh(swipeRefreshState, { state.user?.id?.let(viewModel::getUser) }) {
-                state.user?.let { user ->
-                    Column(modifier.verticalScroll(scrollState),
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                        Spacer(modifier.size(12.dp))
+        SwipeRefresh(swipeRefreshState, { state.user?.id?.let(viewModel::getUser) }) {
+            state.user?.let { user ->
+                Column(modifier.verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(modifier.size(12.dp))
 
-                        if (isOwn) GeneralPicture(
-                            data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray)
-                                else user.profileUrl,
-                            onChangePressed = { launcher.launch("image/*") },
-                            onCheckPressed = viewModel::onUploadProfile,
-                            onPreviewPressed = {
-                                event.onPicturePressed(user.profileUrl.substringAfterLast('/'))
-                            }
+                    if (isOwn) GeneralPicture(
+                        data = if (byteArray.isNotEmpty()) ImageUtil.asBitmap(byteArray)
+                        else user.profileUrl,
+                        onChangePressed = { launcher.launch("image/*") },
+                        onCheckPressed = viewModel::onUploadProfile,
+                        onPreviewPressed = {
+                            event.onPicturePressed(user.profileUrl.substringAfterLast('/'))
+                        }
 
-                        ) else GeneralPicture(
-                            data = user.profileUrl,
-                            onGeneralImagePressed = event::onPicturePressed
-                        )
+                    ) else GeneralPicture(
+                        data = user.profileUrl,
+                        onGeneralImagePressed = event::onPicturePressed
+                    )
 
+                    Spacer(modifier.size(24.dp))
+                    Row {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.Class, tint = MaterialTheme.colors.primary, contentDescription = null)
+                            Text("${user.rooms.size} class${if(user.rooms.size > 1)"es" else ""}", fontSize = 11.sp)
+                        }
                         Spacer(modifier.size(24.dp))
-                        Row {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Filled.Class, tint = MaterialTheme.colors.primary, contentDescription = null)
-                                Text("${user.rooms.size} class${if(user.rooms.size > 1)"es" else ""}", fontSize = 11.sp)
-                            }
-                            Spacer(modifier.size(24.dp))
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
-                                Text("${user.participants.size} participation ${if(user.participants.size > 1)"\'s" else ""}", fontSize = 11.sp)
-                            }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
+                            Text("${user.participants.size} participation ${if(user.participants.size > 1)"\'s" else ""}", fontSize = 11.sp)
                         }
-
-                        Spacer(modifier.size(24.dp))
-                        Column(
-                            contentModifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp, horizontal = 12.dp)
-                                .clip(shape = MaterialTheme.shapes.medium)
-                                .background(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
-
-                            FieldTag(
-                                key = stringResource(R.string.full_name),
-                                editable = isOwn,
-                                value = user.let { it.fullName.ifBlank { "Not Set" } },
-                                onValuePressed = { user.let { event.onFullNamePressed(it.fullName.ifBlank { "Not Set" }) } })
-
-                            if (isOwn) FieldTag(
-                                key = stringResource(R.string.phone_number),
-                                editable = isOwn,
-                                value = user.let { it.phone.ifBlank { "Not Set" } },
-                                onValuePressed = { user.let { event.onPhonePressed(it.phone.ifBlank { "Not Set" }) } })
-
-                            FieldTag(
-                                key = stringResource(R.string.username),
-                                editable = false,
-                                value = user.username,
-                                onValuePressed = { user.let { event.onUsernamePressed(it.username.ifBlank { "Not Set" }) }})
-
-                            if (isOwn) FieldTag(
-                                key = stringResource(R.string.email),
-                                value = user.email,
-                                editable = false,
-                                onValuePressed = { user.let { event.onEmailPressed(it.email) } })
-
-                            FieldTag(
-                                key = stringResource(R.string.user_id),
-                                value = user.id,
-                                editable = false,
-                                onValuePressed = { user.let { event.onPasswordPressed(it.password) }})
-
-                            if (isOwn) FieldTag(
-                                key = stringResource(R.string.password),
-                                value = user.exactPassword,
-                                editable = false,
-                                censored = true,
-                                isDivide = false,
-                                onValuePressed = { user.let { event.onPasswordPressed(it.password) }})
-                        }
-
-                        if (isOwn){
-                            Button({ event.onSignOutPressed(onSubmitted = viewModel::logoutUser) }) {
-                                Icon(Icons.Default.Logout, tint = MaterialTheme.colors.onPrimary, contentDescription = null)
-                                Spacer(modifier.size(ButtonDefaults.IconSize))
-                                Text(stringResource(R.string.sign_out), color = MaterialTheme.colors.onPrimary)
-                            }
-                        }
-
-                        Spacer(modifier.size(12.dp))
                     }
-                }
 
-                if (state.error.isNotBlank()) ErrorScreen(message = state.error)
+                    Spacer(modifier.size(24.dp))
+                    Column(
+                        contentModifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp, horizontal = 12.dp)
+                            .clip(shape = MaterialTheme.shapes.medium)
+                            .background(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f))) {
+
+                        FieldTag(
+                            key = stringResource(R.string.full_name),
+                            editable = isOwn,
+                            value = user.let { it.fullName.ifBlank { "Not Set" } },
+                            onValuePressed = { user.let { event.onFullNamePressed(it.fullName.ifBlank { "Not Set" }) } })
+
+                        if (isOwn) FieldTag(
+                            key = stringResource(R.string.phone_number),
+                            editable = isOwn,
+                            value = user.let { it.phone.ifBlank { "Not Set" } },
+                            onValuePressed = { user.let { event.onPhonePressed(it.phone.ifBlank { "Not Set" }) } })
+
+                        FieldTag(
+                            key = stringResource(R.string.username),
+                            editable = false,
+                            value = user.username,
+                            onValuePressed = { user.let { event.onUsernamePressed(it.username.ifBlank { "Not Set" }) }})
+
+                        if (isOwn) FieldTag(
+                            key = stringResource(R.string.email),
+                            value = user.email,
+                            editable = false,
+                            onValuePressed = { user.let { event.onEmailPressed(it.email) } })
+
+                        FieldTag(
+                            key = stringResource(R.string.user_id),
+                            value = user.id,
+                            editable = false,
+                            onValuePressed = { user.let { event.onPasswordPressed(it.password) }})
+
+                        if (isOwn) FieldTag(
+                            key = stringResource(R.string.password),
+                            value = user.exactPassword,
+                            editable = false,
+                            censored = true,
+                            isDivide = false,
+                            onValuePressed = { user.let { event.onPasswordPressed(it.password) }})
+                    }
+
+                    if (isOwn){
+                        Button({ event.onSignOutPressed(onSubmitted = viewModel::logoutUser) }) {
+                            Icon(Icons.Default.Logout, tint = MaterialTheme.colors.onPrimary, contentDescription = null)
+                            Spacer(modifier.size(ButtonDefaults.IconSize))
+                            Text(stringResource(R.string.sign_out), color = MaterialTheme.colors.onPrimary)
+                        }
+                    }
+
+                    Spacer(modifier.size(12.dp))
+                }
             }
+
+            if (state.error.isNotBlank()) ErrorScreen(message = state.error)
         }
-    )
+    }
 }

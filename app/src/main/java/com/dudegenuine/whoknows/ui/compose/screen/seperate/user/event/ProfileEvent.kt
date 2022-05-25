@@ -9,6 +9,7 @@ import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEv
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent.Companion.PHONE
 import com.dudegenuine.whoknows.ui.compose.screen.seperate.user.event.IProfileEvent.Companion.USERNAME
 import com.dudegenuine.whoknows.ui.compose.state.DialogState
+import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
 
 /**
  * Wed, 26 Jan 2022
@@ -16,6 +17,18 @@ import com.dudegenuine.whoknows.ui.compose.state.DialogState
  **/
 class ProfileEvent(
     private val props: IMainProps): IProfileEvent {
+    private val vmMain = props.vmMain as ActivityViewModel
+
+    override fun onShowSnackBar(message: String) {
+        vmMain.onShowSnackBar(message)
+    }
+
+    override fun onBackPressed() {
+        props.router.popBackStack()
+        /*props.router.navigate(Screen.Home.route){
+            popUpTo(Screen.Home.route) { inclusive = true }
+        }*/
+    }
 
     override fun onPicturePressed(fileId: String?) {
         if(fileId.isNullOrBlank()) return
@@ -41,6 +54,6 @@ class ProfileEvent(
     override fun onSignOutPressed(onSubmitted: () -> Unit) {
         val dialog = DialogState(props.context.getString(R.string.logout_account), onSubmitted = onSubmitted)
 
-        props.vmMain.onDialogStateChange(dialog)
+        props.vmMain.onShowDialog(dialog)
     }
 }

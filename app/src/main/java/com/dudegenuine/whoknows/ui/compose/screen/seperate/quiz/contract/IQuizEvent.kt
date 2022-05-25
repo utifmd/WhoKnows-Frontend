@@ -20,5 +20,5 @@ interface IQuizPrivateEvent: IQuizEvent {
 
 interface IQuizPublicEvent: IQuizEvent{
     fun onBackPressed()
-    fun onDeletePressed()
+    fun onDeletePressed(){}
 }

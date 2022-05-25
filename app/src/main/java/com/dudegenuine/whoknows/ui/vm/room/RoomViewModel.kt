@@ -450,11 +450,15 @@ class RoomViewModel
 
         if (keyName == null) return
         prefsFactory.createMessaging = keyName
+
+        t.localizedMessage?.let(::onShowSnackBar)
     }
 
     private fun onResolveAddMessaging(t: Throwable) {
         Log.d(TAG, "onResolveRegisterMessaging: ${t.message}")
         prefsFactory.addMessaging = true
+
+        t.localizedMessage?.let(::onShowSnackBar)
     }
 
     override fun createMessaging(

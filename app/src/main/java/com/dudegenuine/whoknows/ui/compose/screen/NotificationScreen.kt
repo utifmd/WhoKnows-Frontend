@@ -46,11 +46,10 @@ fun NotificationScreen(props: IMainProps,
     val onLongPressed: (String) -> Unit = { notId ->
         val dialog = DialogState(props.context.getString(R.string.delete_notifier),
             onSubmitted = { vmNotifier.deleteNotification(notId) })
-        props.vmMain.onDialogStateChange(dialog)
+        props.vmMain.onShowDialog(dialog)
     }
 
     Scaffold(modifier,
-        scaffoldState = vmNotifier.scaffoldState,
         topBar = {
             GeneralTopBar(
                 title = "Notifications",
@@ -59,7 +58,7 @@ fun NotificationScreen(props: IMainProps,
             )
         },
 
-        content = {
+        content = { _ ->
             SwipeRefresh(swipeRefreshState, onRefresh = onRefresh) {
 
                 LazyColumn {
