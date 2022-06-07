@@ -1,8 +1,7 @@
 package com.dudegenuine.remote.mapper
 
 import androidx.paging.PagingSource
-import com.dudegenuine.model.Participant
-import com.dudegenuine.model.ResourcePaging
+import com.dudegenuine.model.*
 import com.dudegenuine.remote.entity.ParticipantEntity
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
@@ -15,8 +14,34 @@ import javax.inject.Inject
  **/
 class ParticipantDataMapper
     @Inject constructor(
+    private val currentUserId: String,
     private val mapperUser: IUserDataMapper): IParticipantDataMapper {
     private val TAG: String = javaClass.simpleName
+    override fun asAnParticipation(
+        participantId: String, room: Room.Complete, pages: List<ParticipationPage>,
+        participant: User.Censored): Participation {
+        return Participation(
+            participantId = participantId,
+            userId = room.userId,
+            roomId = room.id,
+            roomTitle = room.title,
+            roomDesc = room.description,
+            roomMinute = room.minute,
+            pages = pages,
+            user = participant
+        )
+    }
+
+    override fun asParticipationPage(
+        index: Int, total: Int, question: Quiz.Complete): ParticipationPage {
+        return ParticipationPage(
+            quiz = question,
+            questionIndex = index +1,
+            totalQuestionsCount = total,
+            showPrevious = index > 0,
+            showDone = index == total -1
+        )
+    }
 
     override fun asEntity(participant: Participant): ParticipantEntity {
         return ParticipantEntity(
@@ -41,6 +66,7 @@ class ParticipantDataMapper
             entity.currentPage,
             entity.timeLeft,
             entity.expired,
+            entity.userId == currentUserId,
             entity.createdAt,
             entity.updatedAt, //, entity.results.filterIsInstance<Result>()
             entity.user?.

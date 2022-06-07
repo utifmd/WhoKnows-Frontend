@@ -2,49 +2,58 @@ package com.dudegenuine.whoknows.infrastructure.di.android
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.room.Room
-import coil.annotation.ExperimentalCoilApi
-import com.dudegenuine.local.api.*
-import com.dudegenuine.local.api.IPreferenceManager.Companion.PREF_NAME
-import com.dudegenuine.local.manager.WhoKnowsDatabase
+import com.dudegenuine.local.manager.IWhoKnowsDatabase
 import com.dudegenuine.local.manager.contract.IWhoKnowsDatabase.Companion.DATABASE_NAME
-import com.dudegenuine.whoknows.infrastructure.di.android.api.*
+import com.dudegenuine.repository.contract.dependency.local.*
+import com.dudegenuine.repository.contract.dependency.local.IPreferenceManager.Companion.PREF_NAME
+import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager
 import com.dudegenuine.whoknows.infrastructure.di.android.contract.IAndroidModule
+import com.dudegenuine.whoknows.infrastructure.di.android.dependency.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import javax.inject.Singleton
 
 /**
  * Fri, 03 Dec 2021
  * WhoKnows by utifmd
  **/
-@FlowPreview
-@ExperimentalCoroutinesApi
 @Module
-@ExperimentalCoilApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@ExperimentalAnimationApi
-@ExperimentalComposeUiApi
 @InstallIn(SingletonComponent::class)
 object AndroidModule: IAndroidModule {
 
     @Provides
     @Singleton
+    override fun provideWorkManager(
+        @ApplicationContext context: Context): IWorkerManager {
+        return WorkerManager(context)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideAlarmManager(
+        @ApplicationContext context: Context): IAlarmManager {
+
+        return AlarmManager(context)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideFirebaseManager(
+        @ApplicationContext context: Context): IFirebaseManager {
+        return FirebaseManager()
+    }
+
+    @Provides
+    @Singleton
     override fun provideLocalDatabase(
-        @ApplicationContext context: Context): WhoKnowsDatabase {
+        @ApplicationContext context: Context): IWhoKnowsDatabase {
 
         return Room.databaseBuilder(context,
-            WhoKnowsDatabase::class.java, DATABASE_NAME).build()
+            IWhoKnowsDatabase::class.java, DATABASE_NAME).build()
     }
 
     @Provides
@@ -91,7 +100,8 @@ object AndroidModule: IAndroidModule {
     @Provides
     @Singleton
     override fun providePrefsFactories(
-        prefs: IPreferenceManager): IPrefsFactory {
+        prefs: IPreferenceManager
+    ): IPrefsFactory {
         return PrefsFactory(prefs)
     }
 
@@ -100,5 +110,12 @@ object AndroidModule: IAndroidModule {
     override fun provideBroadcastReceiverModule(
         @ApplicationContext context: Context): IReceiverFactory {
         return ReceiverFactory()
+    }
+
+    @Provides
+    @Singleton
+    override fun provideResourceDependency(
+        @ApplicationContext context: Context): IResourceDependency {
+        return ResourceDependency(context)
     }
 }

@@ -1,9 +1,12 @@
 package com.dudegenuine.remote.mapper.contract
 
 import androidx.paging.PagingSource
-import com.dudegenuine.local.entity.BoardingQuizTable
-import com.dudegenuine.local.entity.OnBoardingStateTable
+import com.dudegenuine.local.entity.ParticipationPageTable
+import com.dudegenuine.local.entity.ParticipationTable
 import com.dudegenuine.local.entity.QuizTable
+import com.dudegenuine.local.entity.RoomCensoredTable
+import com.dudegenuine.model.Participation
+import com.dudegenuine.model.ParticipationPage
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.remote.entity.Response
@@ -20,11 +23,11 @@ interface IRoomDataMapper {
     fun asRoom(response: Response<RoomEntity.Complete>): Room.Complete
     fun asRooms(response: Response<List<RoomEntity.Complete>>): List<Room.Complete>
 
-    fun asBoardingQuizTable(boarding: Room.State.BoardingQuiz): BoardingQuizTable
-    fun asBoardingQuiz(table: BoardingQuizTable): Room.State.BoardingQuiz
+    fun asParticipationTable(participation: Participation): ParticipationTable
+    fun asParticipation(table: ParticipationTable): Participation
 
-    fun asOnBoardingStateTable(boarding: Room.State.OnBoardingState): OnBoardingStateTable
-    fun asOnBoardingState(table: OnBoardingStateTable): Room.State.OnBoardingState
+    fun asParticipationPageTable(participationPage: ParticipationPage): ParticipationPageTable
+    fun asParticipationPage(table: ParticipationPageTable): ParticipationPage
 
     fun asQuizTable(quiz: Quiz.Complete): QuizTable
     fun asQuiz(table: QuizTable): Quiz.Complete
@@ -35,4 +38,7 @@ interface IRoomDataMapper {
 
     fun asPagingCompleteSource(onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete>
     fun asPagingCensoredSource(onEvent: suspend (Int) -> List<Room.Censored>): PagingSource<Int, Room.Censored>
+
+    fun asRoomCensored(tableRoom: RoomCensoredTable): Room.Censored
+    fun asRoomsCensored(list: List<RoomCensoredTable>): List<Room.Censored>
 }

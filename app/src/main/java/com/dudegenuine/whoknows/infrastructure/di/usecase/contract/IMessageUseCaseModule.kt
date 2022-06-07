@@ -1,6 +1,9 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
-import android.content.BroadcastReceiver
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
+import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
+import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager
 import com.dudegenuine.usecase.messaging.*
 
 /**
@@ -13,6 +16,9 @@ interface IMessageUseCaseModule {
     val createMessaging: CreateMessaging
     val addMessaging: AddMessaging
     val removeMessaging: RemoveMessaging
-    val onInternetReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
-    val onTokenReceived: (onTokenized: (String) -> Unit) -> BroadcastReceiver
+
+    val receiver: IReceiverFactory
+    val preference: IPrefsFactory
+    val firebase: IFirebaseManager
+    val workerManager: IWorkerManager
 }

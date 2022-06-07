@@ -1,17 +1,19 @@
 package com.dudegenuine.repository
 
-import android.content.BroadcastReceiver
 import androidx.paging.PagingSource
-import com.dudegenuine.local.api.IClipboardManager
-import com.dudegenuine.local.api.IPrefsFactory
-import com.dudegenuine.local.api.IReceiverFactory
-import com.dudegenuine.local.service.contract.ICurrentBoardingDao
+import com.dudegenuine.local.entity.RoomCensoredTable
+import com.dudegenuine.local.entity.RoomCompleteTable
+import com.dudegenuine.local.manager.IWhoKnowsDatabase
+import com.dudegenuine.model.Participation
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import com.dudegenuine.remote.service.contract.IRoomService
 import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.repository.contract.IRoomRepository.Companion.NOT_FOUND
+import com.dudegenuine.repository.contract.dependency.local.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 /**
@@ -21,77 +23,80 @@ import javax.inject.Inject
 class RoomRepository
     @Inject constructor(
     private val service: IRoomService,
-    private val receiver: IReceiverFactory,
-    private val local: ICurrentBoardingDao,
     private val mapper: IRoomDataMapper,
-    private val prefsFactory: IPrefsFactory,
-    private val clip: IClipboardManager): IRoomRepository {
-    private val TAG: String = javaClass.simpleName
+    private val local: IWhoKnowsDatabase,
 
-    override val timerReceived: ((Double, Boolean) -> Unit) ->
-        BroadcastReceiver = receiver.timerReceived
+    override val workManager: IWorkerManager,
+    override val workRequest: ITokenWorkManager,
+    override val alarmManager: IAlarmManager,
+    override val receiver: IReceiverFactory,
+    override val preference: IPrefsFactory,
+    override val clipboard: IClipboardManager,
+    override val timer: ITimerLauncher,
+    override val share: IShareLauncher): IRoomRepository {
+    private val daoBoarding get() = local.daoBoarding()
 
-    override val setClipboard: (String, String) ->
-        Unit = clip::applyPlainText
-
-    override suspend fun create(room: Room.Complete): Room.Complete = mapper.asRoom(
+    override suspend fun createRemote(room: Room.Complete): Room.Complete = mapper.asRoom(
         service.create(mapper.asEntity(room)))
 
-    override suspend fun read(id: String): Room.Complete = mapper.asRoom(
+    override suspend fun readRemote(id: String): Room.Complete = mapper.asRoom(
         service.read(id))
 
-    override suspend fun update(id: String, room: Room.Complete): Room.Complete = mapper.asRoom(
+    override suspend fun updateRemote(id: String, room: Room.Complete): Room.Complete = mapper.asRoom(
         service.update(id, mapper.asEntity(room)))
 
-    override suspend fun delete(id: String) =
+    override suspend fun deleteRemote(id: String) =
         service.delete(id)
 
-    override suspend fun listComplete(page: Int, size: Int): List<Room.Complete> =
-        mapper.asRooms(service.listComplete(page, size))
+    override suspend fun listCompleteRemote(page: Int, size: Int): List<Room.Complete> = mapper.asRooms(
+        service.listComplete(page, size))
 
-    override suspend fun listCensored(page: Int, size: Int): List<Room.Censored> =
-        mapper.asRoomsCensored(service.listCensored(page, size))
+    override suspend fun listCensoredRemote(page: Int, size: Int): List<Room.Censored> = mapper.asRoomsCensored(
+        service.listCensored(page, size))
 
-    override suspend fun listComplete(userId: String, page: Int, size: Int): List<Room.Complete> =
-        mapper.asRooms(service.listComplete(userId, page, size))
+    override suspend fun listCompleteRemote(userId: String, page: Int, size: Int): List<Room.Complete> = mapper.asRooms(
+        service.listComplete(userId, page, size))
 
-    override fun page(batchSize: Int): PagingSource<Int, Room.Censored> =
-        mapper.asPagingCensoredSource { page ->
-            listCensored(page, batchSize)
-        }
+    override fun pageCensoredRemote(batchSize: Int): PagingSource<Int, Room.Censored> =
+        mapper.asPagingCensoredSource { page -> listCensoredRemote(page, batchSize) }
 
-    override fun page(userId: String, batchSize: Int): PagingSource<Int, Room.Complete> =
+    override fun pageCompleteRemote(userId: String, batchSize: Int): PagingSource<Int, Room.Complete> =
         mapper.asPagingCompleteSource { page ->
-            listComplete(userId, page, batchSize)
+            listCompleteRemote(userId, page, batchSize)
         }
 
-    override suspend fun load(): Room.State.BoardingQuiz {
-        val model = prefsFactory.participationId
-        val currentBoarding = local.read(model) ?: throw HttpFailureException(NOT_FOUND)
+    override suspend fun clearParticipation(): Flow<Unit> = flowOf(deleteBoardingLocal())
 
-        return mapper.asBoardingQuiz(currentBoarding)
-    }
-
-    override suspend fun save(boarding: Room.State.BoardingQuiz) {
-        local.create(mapper.asBoardingQuizTable(boarding)).also {
-            onParticipationIdChange(boarding.participantId)
+    override suspend fun createBoardingLocal(participation: Participation) {
+        daoBoarding.create(mapper.asParticipationTable(participation)).also {
+            onParticipationIdChange(participation.participantId)
         }
     }
 
-    override suspend fun replace(boarding: Room.State.BoardingQuiz) {
-        local.update(mapper.asBoardingQuizTable(boarding))
+    override suspend fun readBoardingLocal(): Participation {
+        val model = preference.participationId
+        val currentBoarding = local.daoBoarding().read(model) ?: throw HttpFailureException(NOT_FOUND)
+
+        return mapper.asParticipation(currentBoarding)
     }
 
-    override suspend fun unload() {
-        val store = local.read(prefsFactory.participationId)
-
-        if (store != null) local.delete(store)
-        else local.delete()
-
-        onParticipationIdChange("") //prefs.write(CURRENT_PARTICIPANT_ID, "")
+    override suspend fun updateBoardingLocal(participation: Participation) {
+        daoBoarding.update(mapper.asParticipationTable(participation))
     }
 
-    private fun onParticipationIdChange(fresh: String){
-        prefsFactory.participationId = fresh
+    override suspend fun deleteBoardingLocal() {
+        val store = daoBoarding.read(preference.participationId)
+        if (store != null) {
+            daoBoarding.delete(store)
+            return
+        }
+        daoBoarding.delete() //onParticipationIdChange("")
+    }
+
+    override suspend fun listCensoredLocal(): List<RoomCensoredTable> = emptyList() //local.roomCensoredDao().list()
+    override suspend fun listCompleteLocal(userId: String): List<RoomCompleteTable> = emptyList()//local.roomCompleteDao().list(userId)
+
+    private fun onParticipationIdChange(participantId: String){
+        preference.participationId = participantId
     }
 }

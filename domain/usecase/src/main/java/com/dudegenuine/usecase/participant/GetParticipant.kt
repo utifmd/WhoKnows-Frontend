@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -17,19 +18,23 @@ import javax.inject.Inject
 class GetParticipant
     @Inject constructor(
         private val repository: IParticipantRepository) {
-        operator fun invoke(id: String): Flow<Resource<Participant>> = flow {
-            try {
-                emit(Resource.Loading())
-                val participant = repository.read(id)
-                emit(Resource.Success(participant))
-            } catch (e: HttpFailureException){
-                emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
-            } catch (e: HttpException){
-                emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
-            } catch (e: IOException){
-                emit(Resource.Error(Resource.IO_EXCEPTION))
-            } catch (e: Exception){
-                emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
-            }
+    operator fun invoke(id: String): Flow<Resource<Participant>> = flow {
+        try {
+            emit(Resource.Loading())
+            val participant = repository.read(id)
+            emit(Resource.Success(participant))
+        } catch (e: HttpFailureException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: HttpException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        } catch (e: IOException){
+            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
+    }
+    operator fun invoke(): Participant = Participant(
+            id = "PPN-${java.util.UUID.randomUUID()}",
+            roomId = "", userId = "", currentPage = "0", timeLeft = null, expired = false,
+            createdAt = Date(), updatedAt = null, user = null, isCurrentUser = false)
 }

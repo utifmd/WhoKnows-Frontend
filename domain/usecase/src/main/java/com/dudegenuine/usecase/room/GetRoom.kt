@@ -23,7 +23,7 @@ class GetRoom
         try {
             emit(Resource.Loading())
 
-            val room = repository.read(id)
+            val room = repository.readRemote(id)
             emit(Resource.Success(room))
 
         } catch (e: HttpFailureException){

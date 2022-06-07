@@ -27,11 +27,17 @@ object RoomEntity {
         @SerializedName("expired")
         val expired: Boolean,
 
+        @SerializedName("private")
+        var private: Boolean?,
+
         @SerializedName("usernameOwner")
         val usernameOwner: String,
 
         @SerializedName("fullNameOwner")
         val fullNameOwner: String,
+
+        @SerializedName("impressions")
+        val impressions: List<ImpressionEntity>,
 
         @SerializedName("questionSize")
         val questionSize: Int,
@@ -59,11 +65,17 @@ object RoomEntity {
         @SerializedName("expired")
         val expired: Boolean,
 
+        @SerializedName("private")
+        val private: Boolean?,
+
         @SerializedName("createdAt")
         val createdAt: Date,
 
         @SerializedName("updatedAt")
         val updatedAt: Date?,
+
+        @SerializedName("impressions")
+        val impressions: List<ImpressionEntity>,
 
         @SerializedName("user")
         val user: UserEntity.Censored?,

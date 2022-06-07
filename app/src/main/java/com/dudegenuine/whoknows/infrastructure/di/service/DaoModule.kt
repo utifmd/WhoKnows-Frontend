@@ -1,8 +1,10 @@
 package com.dudegenuine.whoknows.infrastructure.di.service
 
-import com.dudegenuine.local.manager.WhoKnowsDatabase
-import com.dudegenuine.local.service.contract.ICurrentBoardingDao
-import com.dudegenuine.local.service.contract.ICurrentUserDao
+import com.dudegenuine.local.manager.IWhoKnowsDatabase
+import com.dudegenuine.local.service.IParticipationDao
+import com.dudegenuine.local.service.IRoomCensoredTableDao
+import com.dudegenuine.local.service.IRoomCompleteTableDao
+import com.dudegenuine.local.service.IUsersDao
 import com.dudegenuine.whoknows.infrastructure.di.service.contract.IDaoModule
 import dagger.Module
 import dagger.Provides
@@ -21,16 +23,30 @@ object DaoModule: IDaoModule {
     @Provides
     @Singleton
     override fun provideCurrentUserDaoModule(
-        localDatabase: WhoKnowsDatabase): ICurrentUserDao {
+        localDatabaseI: IWhoKnowsDatabase): IUsersDao {
 
-        return localDatabase.currentUserDao()
+        return localDatabaseI.daoUsers()
     }
 
     @Provides
     @Singleton
     override fun provideCurrentBoardingDaoModule(
-        localDatabase: WhoKnowsDatabase): ICurrentBoardingDao {
+        localDatabaseI: IWhoKnowsDatabase): IParticipationDao {
 
-        return localDatabase.currentBoardingDao()
+        return localDatabaseI.daoBoarding()
+    }
+
+    @Provides
+    @Singleton
+    override fun provideRoomCensoredDaoModule(
+        localDatabase: IWhoKnowsDatabase): IRoomCensoredTableDao {
+        return localDatabase.daoRoomCensored()
+    }
+
+    @Provides
+    @Singleton
+    override fun provideRoomCompleteDaoModule(
+        localDatabase: IWhoKnowsDatabase): IRoomCompleteTableDao {
+        return localDatabase.daoRoomComplete()
     }
 }

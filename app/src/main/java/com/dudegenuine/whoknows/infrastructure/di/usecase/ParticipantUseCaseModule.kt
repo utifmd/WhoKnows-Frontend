@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import com.dudegenuine.repository.contract.IParticipantRepository
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.usecase.participant.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IParticipantUseCaseModule
 
@@ -25,4 +26,10 @@ class ParticipantUseCaseModule(
 
     override val getParticipants: GetParticipants
         get() = GetParticipants(repository)
+
+    override val getParticipation: GetParticipation
+        get() = GetParticipation(repository)
+
+    override val prefs: IPrefsFactory
+        get() = repository.prefs
 }

@@ -1,7 +1,10 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
-import android.content.BroadcastReceiver
 import com.dudegenuine.repository.contract.IMessagingRepository
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
+import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
+import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager
 import com.dudegenuine.usecase.messaging.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCaseModule
 
@@ -9,7 +12,13 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCa
  * Mon, 14 Feb 2022
  * WhoKnows by utifmd
  **/
-class MessageUseCaseModule(repository: IMessagingRepository): IMessageUseCaseModule {
+class MessageUseCaseModule(
+    repository: IMessagingRepository,
+    override val preference: IPrefsFactory = repository.preference,
+    override val receiver: IReceiverFactory = repository.receiver,
+    override val firebase: IFirebaseManager = repository.firebase,
+    override val workerManager: IWorkerManager = repository.workerManager
+): IMessageUseCaseModule {
 
     override val pushMessaging: PushMessaging =
         PushMessaging(repository)
@@ -25,10 +34,4 @@ class MessageUseCaseModule(repository: IMessagingRepository): IMessageUseCaseMod
 
     override val removeMessaging: RemoveMessaging =
         RemoveMessaging(repository)
-    override val onInternetReceived: (onConnected: (String) -> Unit) ->
-        BroadcastReceiver = repository.onNetworkReceived
-
-    override val onTokenReceived: (onTokenized: (String) -> Unit) ->
-        BroadcastReceiver = repository.onTokenReceived
-
 }

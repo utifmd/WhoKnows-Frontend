@@ -1,15 +1,13 @@
 package com.dudegenuine.whoknows.infrastructure.di.repository
 
-import com.dudegenuine.local.api.IClipboardManager
-import com.dudegenuine.local.api.IPreferenceManager
-import com.dudegenuine.local.api.IPrefsFactory
-import com.dudegenuine.local.api.IReceiverFactory
-import com.dudegenuine.local.service.contract.ICurrentBoardingDao
-import com.dudegenuine.local.service.contract.ICurrentUserDao
+import com.dudegenuine.local.manager.IWhoKnowsDatabase
+import com.dudegenuine.local.service.IUsersDao
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.remote.service.contract.*
 import com.dudegenuine.repository.*
 import com.dudegenuine.repository.contract.*
+import com.dudegenuine.repository.contract.dependency.local.*
+import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager
 import com.dudegenuine.whoknows.infrastructure.di.repository.contract.IRepositoryModule
 import dagger.Module
 import dagger.Provides
@@ -29,12 +27,12 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideUserRepository(
         service: IUserService,
-        local: ICurrentUserDao,
+        local: IUsersDao,
         mapper: IUserDataMapper,
         prefsFactory: IPrefsFactory,
         receiver: IReceiverFactory
     ): IUserRepository {
-        return UserRepository(service, local, prefsFactory, mapper, receiver)
+        return UserRepository(service, local, mapper, receiver, prefsFactory)
     }
 
     @Provides
@@ -42,13 +40,17 @@ object RepositoryModule: IRepositoryModule {
     override fun provideRoomRepository(
         service: IRoomService,
         receiver: IReceiverFactory,
-        local: ICurrentBoardingDao,
+        local: IWhoKnowsDatabase,
         mapper: IRoomDataMapper,
+        workManager: IWorkerManager,
+        alarmManager: IAlarmManager,
+        workRequest: ITokenWorkManager,
         iPrefsFactory: IPrefsFactory,
-        clip: IClipboardManager
-    ): IRoomRepository {
+        clip: IClipboardManager,
+        timer: ITimerLauncher,
+        share: IShareLauncher): IRoomRepository {
 
-        return RoomRepository(service, receiver, local, mapper, iPrefsFactory, clip)
+        return RoomRepository(service, mapper, local, workManager, workRequest, alarmManager, receiver, iPrefsFactory, clip, timer, share)
     }
 
     @Provides
@@ -65,10 +67,11 @@ object RepositoryModule: IRepositoryModule {
     @Singleton
     override fun provideParticipantRepository(
         service: IParticipantService,
-        mapper: IParticipantDataMapper,
-        pref: IPreferenceManager
+        mapperUser: IUserDataMapper,
+        mapperPpn: IParticipantDataMapper,
+        pref: IPrefsFactory
     ): IParticipantRepository {
-        return ParticipantRepository(service, mapper)
+        return ParticipantRepository(service, mapperUser, mapperPpn, pref)
     }
 
     @Provides
@@ -96,9 +99,12 @@ object RepositoryModule: IRepositoryModule {
     override fun provideMessagingRepository(
         service: IMessagingService,
         mapper: IMessagingDataMapper,
-        receiver: IReceiverFactory): IMessagingRepository {
+        receiver: IReceiverFactory,
+        preference: IPrefsFactory,
+        firebase: IFirebaseManager,
+        workManager: IWorkerManager): IMessagingRepository {
 
-        return MessagingRepository(service, mapper, receiver)
+        return MessagingRepository(service, mapper, receiver, preference, firebase, workManager)
     }
 
     @Provides
@@ -106,7 +112,8 @@ object RepositoryModule: IRepositoryModule {
     override fun provideNotificationRepository(
         service: INotificationService,
         mapper: INotificationDataMapper,
-        pref: IPreferenceManager): INotificationRepository {
+        pref: IPreferenceManager
+    ): INotificationRepository {
 
         return NotificationRepository(service, mapper, pref)
     }

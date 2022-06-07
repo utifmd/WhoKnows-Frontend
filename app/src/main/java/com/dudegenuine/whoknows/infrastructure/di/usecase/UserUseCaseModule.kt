@@ -1,6 +1,10 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
+import com.dudegenuine.repository.contract.IMessagingRepository
+import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.repository.contract.IUserRepository
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 
@@ -9,30 +13,36 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseM
  * WhoKnows by utifmd
  **/
 class UserUseCaseModule(
-    private val repository: IUserRepository,
+    private val userRepository: IUserRepository,
+    private val roomRepository: IRoomRepository,
+    private val messagingRepository: IMessagingRepository,
 
     override val signInUser:
-        SignInUser = SignInUser(repository),
+        SignInUser = SignInUser(userRepository, messagingRepository),
 
     override val postUser:
-        PostUser = PostUser(repository),
+        PostUser = PostUser(userRepository, messagingRepository),
 
     override val getUser:
-        GetUser = GetUser(repository),
+        GetUser = GetUser(userRepository),
 
     override val patchUser:
-        PatchUser = PatchUser(repository),
+        PatchUser = PatchUser(userRepository),
 
     override val deleteUser:
-        DeleteUser = DeleteUser(repository),
+        DeleteUser = DeleteUser(userRepository),
 
     override val getUsers:
-        GetUsers = GetUsers(repository),
+        GetUsers = GetUsers(userRepository),
 
     override val getUsersParticipation:
-        GetUsersParticipation = GetUsersParticipation(repository),
+        GetUsersParticipation = GetUsersParticipation(userRepository),
 
-    override val signOutUser:
-        SignOutUser = SignOutUser(repository)
-
+    override val signOutUser: SignOutUser = SignOutUser(
+        userRepository,
+        roomRepository,
+        messagingRepository
+    ),
+    override val preferences: IPrefsFactory = userRepository.preference,
+    override val workManager: IWorkerManager = roomRepository.workManager
 ): IUserUseCaseModule

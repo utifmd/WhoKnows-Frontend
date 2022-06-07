@@ -1,12 +1,11 @@
 package com.dudegenuine.remote.mapper
 
 import androidx.paging.PagingSource
-import com.dudegenuine.local.entity.BoardingQuizTable
-import com.dudegenuine.local.entity.OnBoardingStateTable
+import com.dudegenuine.local.entity.ParticipationPageTable
+import com.dudegenuine.local.entity.ParticipationTable
 import com.dudegenuine.local.entity.QuizTable
-import com.dudegenuine.model.Quiz
-import com.dudegenuine.model.ResourcePaging
-import com.dudegenuine.model.Room
+import com.dudegenuine.local.entity.RoomCensoredTable
+import com.dudegenuine.model.*
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
@@ -24,6 +23,7 @@ import javax.inject.Inject
  **/
 class RoomDataMapper
     @Inject constructor(
+    private val currentUserId: String,
     private val gson: Gson,
     private val mapperUser: IUserDataMapper,
     private val mapperQuiz: IQuizDataMapper,
@@ -38,8 +38,10 @@ class RoomDataMapper
             room.title,
             room.description,
             room.expired,
+            room.private,
             room.createdAt,
             room.updatedAt,
+            emptyList(),
             room.user
                 ?.let(mapperUser::asUserCensoredEntity),
             room.questions
@@ -56,9 +58,13 @@ class RoomDataMapper
             entity.minute,
             entity.title,
             entity.description,
+            entity.userid == currentUserId,
             entity.expired,
+            entity.private ?: false,
             entity.createdAt,
             entity.updatedAt,
+            entity.impressions.size,
+            entity.impressions.any { it.userId == currentUserId },
             entity.user?.let(mapperUser::asUserCensored),
             entity.questions
                 .map { mapperQuiz.asQuiz(it) },
@@ -88,54 +94,50 @@ class RoomDataMapper
         }
     }
 
-    override fun asBoardingQuizTable(
-        boarding: Room.State.BoardingQuiz): BoardingQuizTable {
-
-        return BoardingQuizTable(
-            participantId = boarding.participantId,
-            participant = boarding.participant,
-            userId = boarding.userId,
-            roomId = boarding.roomId,
-            roomTitle = boarding.roomTitle,
-            roomDesc = boarding.roomDesc,
-            roomMinute = boarding.roomMinute,
-            currentQuestionIdx = boarding.currentQuestionIdx,
-            quizzes = boarding.quizzes
-                .map(::asOnBoardingStateTable)
+    override fun asParticipationTable(participation: Participation): ParticipationTable {
+        return ParticipationTable(
+            participantId = participation.participantId,
+            user = participation.user,
+            userId = participation.userId,
+            roomId = participation.roomId,
+            roomTitle = participation.roomTitle,
+            roomDesc = participation.roomDesc,
+            roomMinute = participation.roomMinute,
+            currentQuestionIdx = participation.currentQuestionIdx,
+            pages = participation.pages.map(::asParticipationPageTable)
         )
     }
 
-    override fun asOnBoardingStateTable(boarding: Room.State.OnBoardingState): OnBoardingStateTable {
-        return OnBoardingStateTable(
-            quiz = asQuizTable(boarding.quiz),
-            questionIndex = boarding.questionIndex,
-            totalQuestionsCount = boarding.totalQuestionsCount,
-            showPrevious = boarding.showPrevious,
-            showDone = boarding.showDone,
-            answer = boarding.answer,
-            enableNext = boarding.enableNext,
-            isCorrect = boarding.isCorrect
+    override fun asParticipationPageTable(participationPage: ParticipationPage): ParticipationPageTable {
+        return ParticipationPageTable(
+            quiz = asQuizTable(participationPage.quiz),
+            questionIndex = participationPage.questionIndex,
+            totalQuestionsCount = participationPage.totalQuestionsCount,
+            showPrevious = participationPage.showPrevious,
+            showDone = participationPage.showDone,
+            answer = participationPage.answer,
+            enableNext = participationPage.enableNext,
+            isCorrect = participationPage.isCorrect
         )
     }
 
-    override fun asBoardingQuiz(table: BoardingQuizTable): Room.State.BoardingQuiz {
-        return Room.State.BoardingQuiz(
+    override fun asParticipation(table: ParticipationTable): Participation {
+        return Participation(
             participantId = table.participantId,
-            participant = table.participant,
+            user = table.user,
             userId = table.userId,
             roomId = table.roomId,
             roomTitle = table.roomTitle,
             roomDesc = table.roomDesc,
             roomMinute = table.roomMinute,
-            quizzes = table.quizzes
-                .map(::asOnBoardingState)).apply {
+            pages = table.pages.map(::asParticipationPage)).apply {
 
             currentQuestionIdx = table.currentQuestionIdx
         }
     }
 
-    override fun asOnBoardingState(table: OnBoardingStateTable): Room.State.OnBoardingState {
-        return Room.State.OnBoardingState(
+    override fun asParticipationPage(table: ParticipationPageTable): ParticipationPage {
+        return ParticipationPage(
             quiz = asQuiz(table.quiz),
             questionIndex = table.questionIndex,
             totalQuestionsCount = table.totalQuestionsCount,
@@ -201,10 +203,12 @@ class RoomDataMapper
             title = room.title,
             description = room.description,
             expired = room.expired,
+            private = room.private,
             usernameOwner = room.usernameOwner,
             fullNameOwner = room.fullNameOwner,
             questionSize = room.questionSize,
             participantSize = room.participantSize,
+            impressions = emptyList(),
         )
     }
 
@@ -220,6 +224,10 @@ class RoomDataMapper
             fullNameOwner = entity.fullNameOwner,
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
+            isOwner = entity.userId == currentUserId,
+            private = entity.private ?: false,
+            impressed = entity.impressions.any{ it.userId == currentUserId },
+            impressionSize = entity.impressions.size
         )
     }
 
@@ -234,6 +242,27 @@ class RoomDataMapper
             else -> throw IllegalStateException()
         }
     }
+
+    override fun asRoomCensored(tableRoom: RoomCensoredTable): Room.Censored {
+        return Room.Censored(
+            roomId = tableRoom.roomId,
+            userId = tableRoom.userId,
+            minute = tableRoom.minute,
+            title = tableRoom.title,
+            description = tableRoom.description,
+            expired = tableRoom.expired,
+            usernameOwner = tableRoom.usernameOwner,
+            fullNameOwner = tableRoom.fullNameOwner,
+            questionSize = tableRoom.questionSize,
+            participantSize = tableRoom.participantSize,
+            isOwner = tableRoom.userId == currentUserId,
+            private = tableRoom.privation,
+            impressed = tableRoom.impressed,
+            impressionSize = tableRoom.impressionSize
+        )
+    }
+
+    override fun asRoomsCensored(list: List<RoomCensoredTable>): List<Room.Censored> = list.map(::asRoomCensored)
 
     override fun asPagingCompleteSource(
         onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete> =

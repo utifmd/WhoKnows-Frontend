@@ -11,13 +11,16 @@ import java.util.*
 sealed class User {
     data class Signer(
         val payload: String,
-        val password: String
+        val password: String,
+        val token: String,
     )
     data class Censored(
         val userId: String,
         val fullName: String,
         val username: String,
         val profileUrl: String,
+        var isCurrentUser: Boolean,
+        var tokens: List<String>
     )
     data class Complete (
         val id: String,
@@ -27,8 +30,10 @@ sealed class User {
         var username: String,
         var password: String,
         var profileUrl: String,
+        var isCurrentUser: Boolean,
         var createdAt: Date,
         var updatedAt: Date?,
+        var tokens: List<String>,
         var participants: List<Participant>,
         var rooms: List<Room.Censored>,
         var notifications: List<Notification>){

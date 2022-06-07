@@ -22,7 +22,7 @@ class GetUsers
         try {
             emit(Resource.Loading())
 
-            val users = repository.list(page, size)
+            val users = repository.remoteList(page, size)
             emit(Resource.Success(users))
 
         }catch (e: HttpFailureException){

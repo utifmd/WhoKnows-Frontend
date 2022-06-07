@@ -60,3 +60,30 @@ class ResourcePaging<T: Any>(
                 ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
         }
 }
+
+/*
+class ResourceMediator<T: Any>(
+    private val onLocal: suspend (Int) -> List<T>,
+    private val onRemote: suspend (Int) -> List<T>): PagingSource<Int, T>(){
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> = try {
+        val pageNumber = params.key ?: 0
+        val local = onLocal(pageNumber)
+        val remote = onRemote(pageNumber)
+
+        if (remote.isNotEmpty()) LoadResult.Page(
+            data = remote,
+            prevKey = if (pageNumber > 0) pageNumber -1 else null,
+            nextKey = if (remote.isNotEmpty()) pageNumber +1 else null
+
+        ) else LoadResult.Error(Throwable(Resource.NO_RESULT))
+    } catch (e: Exception) {
+        LoadResult.Error(Throwable(IO_EXCEPTION))
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, T>): Int? = // null
+        state.anchorPosition?.let {
+            state.closestPageToPosition(it)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
+        }
+}*/

@@ -25,7 +25,7 @@ class GetRooms
         val config = PagingConfig(size,
             enablePlaceholders = true, maxSize = 200)
 
-        val pager = Pager(config) { repository.page(size) }
+        val pager = Pager(config) { repository.pageCensoredRemote(size) }
 
         return pager.flow
     }
@@ -34,7 +34,8 @@ class GetRooms
         val config = PagingConfig(size,
             enablePlaceholders = true, maxSize = 200)
 
-        val pager = Pager(config) { repository.page(userId, size) }
+        val source = repository.pageCompleteRemote(userId, size)
+        val pager = Pager(config) { source }
 
         return pager.flow
     }
@@ -42,7 +43,7 @@ class GetRooms
     operator fun invoke(page: Int, size: Int): Flow<Resource<List<Room.Complete>>> = flow {
         try {
             emit(Resource.Loading())
-            val rooms = repository.listComplete(page, size)
+            val rooms = repository.listCompleteRemote(page, size)
 
             emit(Resource.Success(rooms))
         } catch (e: HttpFailureException){

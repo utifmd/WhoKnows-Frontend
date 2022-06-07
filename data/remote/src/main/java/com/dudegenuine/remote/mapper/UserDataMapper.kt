@@ -4,9 +4,6 @@ import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.model.*
-import com.dudegenuine.model.User.Complete.Companion.PASSWORD
-import com.dudegenuine.model.User.Complete.Companion.PAYLOAD
-import com.dudegenuine.model.common.Utility.encrypt
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.entity.*
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
@@ -18,7 +15,9 @@ import javax.inject.Inject
  * WhoKnows by utifmd
  **/
 class UserDataMapper
-    @Inject constructor(val gson: Gson): IUserDataMapper {
+    @Inject constructor(
+    private val gson: Gson,
+    private val currentUserId: String): IUserDataMapper {
     private val TAG: String = javaClass.simpleName
 
     override fun asEntityCensored(user: User.Censored): UserEntity.Censored {
@@ -27,6 +26,7 @@ class UserDataMapper
             fullName = user.fullName,
             username = user.username,
             profileUrl = user.profileUrl,
+            tokens = user.tokens
         )
     }
 
@@ -48,10 +48,11 @@ class UserDataMapper
             username = user.username,
             phone = user.phone,
             email = user.email,
-            password = encrypt(user.password),
+            password = user.password,
             profileUrl = user.profileUrl,
             createdAt = user.createdAt,
             updatedAt = user.updatedAt,
+            tokens = user.tokens,
             participants = user.participants
                 .map(::asEntity),
             rooms = user.rooms
@@ -70,8 +71,10 @@ class UserDataMapper
             email = entity.email,
             password = entity.password,
             profileUrl = entity.profileUrl,
+            isCurrentUser = entity.userId == currentUserId,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
+            tokens = entity.tokens,
             participants = entity.participants
                 .map(::asParticipant),
             rooms = entity.rooms
@@ -115,16 +118,6 @@ class UserDataMapper
             ResourcePaging { emptyList() }
         }
 
-    @Throws(Exception::class)
-    override fun asLogin(params: Map<String, String>): User.Signer {
-        val payload = params[PAYLOAD] ?: throw HttpFailureException("incorrect payload")
-        val password = params[PASSWORD] ?: throw HttpFailureException("incorrect password")
-
-        return User.Signer(
-            payload, encrypt(password)
-        )
-    }
-
     override fun asUser(userTable: UserTable): User.Complete {
         return userTable.let { User.Complete(
             id = it.userId,
@@ -134,9 +127,11 @@ class UserDataMapper
             username = it.username,
             password = it.password,
             profileUrl = it.profileUrl,
+            isCurrentUser = it.userId == currentUserId,
             createdAt = userTable.createdAt, //Date(it.createdAt),
             updatedAt = userTable.updatedAt, //it.updatedAt?.let { date -> Date(date) },
             participants = userTable.participants,
+            tokens = it.tokens,
             rooms = userTable.rooms,
             notifications = userTable.notifications
         )}
@@ -153,6 +148,7 @@ class UserDataMapper
             profileUrl = user.profileUrl,
             createdAt = user.createdAt,//.time,
             updatedAt = user.updatedAt,//?.time
+            tokens = user.tokens,
             participants = user.participants,
             rooms = user.rooms,
             notifications = user.notifications
@@ -182,6 +178,7 @@ class UserDataMapper
             entity.currentPage,
             entity.timeLeft,
             entity.expired,
+            entity.userId == currentUserId,
             entity.createdAt,
             entity.updatedAt,
             entity.user?.
@@ -222,7 +219,8 @@ class UserDataMapper
             userId = user.userId,
             fullName = user.fullName,
             username = user.username,
-            profileUrl = user.profileUrl
+            profileUrl = user.profileUrl,
+            tokens =  user.tokens
         )
     }
 
@@ -231,7 +229,20 @@ class UserDataMapper
             userId = entity.userId,
             fullName = entity.fullName,
             username = entity.username,
-            profileUrl = entity.profileUrl
+            profileUrl = entity.profileUrl,
+            isCurrentUser = entity.userId == currentUserId,
+            tokens = entity.tokens
+        )
+    }
+
+    override fun asUserCensored(user: User.Complete): User.Censored {
+        return User.Censored(
+            userId = user.id,
+            fullName = user.fullName,
+            username = user.username,
+            profileUrl = user.profileUrl,
+            isCurrentUser = user.id == currentUserId,
+            tokens = user.tokens
         )
     }
 
@@ -243,10 +254,12 @@ class UserDataMapper
             title = room.title,
             description = room.description,
             expired = room.expired,
+            private = room.private,
             usernameOwner = room.usernameOwner,
             fullNameOwner = room.fullNameOwner,
             questionSize = room.questionSize,
             participantSize = room.participantSize,
+            impressions = emptyList()
         )
     }
 
@@ -262,6 +275,10 @@ class UserDataMapper
             fullNameOwner = entity.fullNameOwner,
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
+            isOwner = entity.userId == currentUserId,
+            private = entity.private ?: false,
+            impressed = entity.impressions.any{ it.userId == currentUserId },
+            impressionSize = entity.impressions.size
         )
     }
 }

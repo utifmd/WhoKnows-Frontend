@@ -21,7 +21,7 @@ class PostRoom
     operator fun invoke(body: Room.Complete): Flow<Resource<Room.Complete>> = flow {
         try {
             emit(Resource.Loading())
-            val room = repository.create(body)
+            val room = repository.createRemote(body)
             emit(Resource.Success(room))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

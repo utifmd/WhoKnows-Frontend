@@ -1,8 +1,10 @@
 package com.dudegenuine.whoknows.infrastructure.di.mapper
 
 import android.content.Context
+import android.util.Log
 import com.dudegenuine.remote.mapper.*
 import com.dudegenuine.remote.mapper.contract.*
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.whoknows.infrastructure.di.mapper.contract.IDataMapperModule
 import com.google.gson.Gson
 import dagger.Module
@@ -23,20 +25,22 @@ object DataMapperModule: IDataMapperModule {
     @Provides
     @Singleton
     override fun provideUserDataMapper(
-        gson: Gson): IUserDataMapper {
-
-        return UserDataMapper(gson)
+        gson: Gson, preference: IPrefsFactory): IUserDataMapper {
+        Log.d("provideUserDataMapper", " ${preference.userId}")
+        return UserDataMapper(gson, preference.userId)
     }
 
     @Provides
     @Singleton
     override fun provideRoomDataMapper(
         gson: Gson,
+        preference: IPrefsFactory,
         mapperUser: IUserDataMapper,
         mapperQuiz: IQuizDataMapper,
-        mapperParticipant: IParticipantDataMapper
-    ): IRoomDataMapper {
-        return RoomDataMapper(gson, mapperUser, mapperQuiz, mapperParticipant)
+        mapperImpression: IImpressionDataMapper,
+        mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
+
+        return RoomDataMapper(preference.userId, gson, mapperUser, mapperQuiz, mapperParticipant)
     }
 
     @Provides
@@ -49,10 +53,12 @@ object DataMapperModule: IDataMapperModule {
     @Provides
     @Singleton
     override fun provideParticipantDataMapper(
+        preference: IPrefsFactory,
         gson: Gson,
-        mapper: IUserDataMapper): IParticipantDataMapper {
+        mapper: IUserDataMapper
+    ): IParticipantDataMapper {
 
-        return ParticipantDataMapper(mapper)
+        return ParticipantDataMapper(preference.userId, mapper)
     }
 
     @Provides
@@ -86,5 +92,13 @@ object DataMapperModule: IDataMapperModule {
         mapper: IUserDataMapper): INotificationDataMapper {
 
         return NotificationDataMapper(mapper)
+    }
+
+    @Provides
+    @Singleton
+    override fun provideImpressionDataMapper(
+        @ApplicationContext context: Context,
+        gson: Gson): IImpressionDataMapper {
+        return ImpressionDataMapper()
     }
 }

@@ -1,6 +1,6 @@
 package com.dudegenuine.repository
 
-import com.dudegenuine.local.api.IPreferenceManager
+import com.dudegenuine.repository.contract.dependency.local.IPreferenceManager
 import com.dudegenuine.model.Notification
 import com.dudegenuine.remote.mapper.contract.INotificationDataMapper
 import com.dudegenuine.remote.service.contract.INotificationService
@@ -15,7 +15,8 @@ class NotificationRepository
     @Inject constructor(
     private val service: INotificationService,
     private val mapper: INotificationDataMapper,
-    private val prefs: IPreferenceManager): INotificationRepository {
+    private val prefs: IPreferenceManager
+    ): INotificationRepository {
 
     override suspend fun create(notification: Notification): Notification {
         return mapper.asNotification(

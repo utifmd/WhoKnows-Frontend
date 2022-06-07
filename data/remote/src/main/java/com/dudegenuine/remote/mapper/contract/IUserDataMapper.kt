@@ -23,7 +23,7 @@ interface IUserDataMapper {
     //fun asUserCensored(response: Response<UserEntity.Complete>): User.Censored
     //fun asUserCensored(json: String): User.Censored
     fun asUsersCensored(response: Response<List<UserEntity.Censored>>): List<User.Censored>
-    fun asLogin(params: Map<String, String>): User.Signer
+//    fun asLogin(params: Map<String, String>): User.Signer
 
     /*fun asUserOrNull(currentUser: CurrentUser?): User?*/
     fun asUserTable(user: User.Complete): UserTable
@@ -37,6 +37,7 @@ interface IUserDataMapper {
 
     fun asUserCensoredEntity(user: User.Censored): UserEntity.Censored
     fun asUserCensored(entity: UserEntity.Censored): User.Censored
+    fun asUserCensored(user: User.Complete): User.Censored
 
     fun asRoomCensoredEntity(room: Room.Censored): RoomEntity.Censored
     fun asRoomCensored(entity: RoomEntity.Censored): Room.Censored

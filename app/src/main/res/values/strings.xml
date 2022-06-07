@@ -36,7 +36,8 @@
     <string name="delete_question">hapus pertanyaan</string>
     <string name="join_on_progress">Participant doesn\'t finished the test yet.</string>
     <string name="join_the_room">Join The Room</string>
-    <string name="invite_w_a_link">Share Invitation Code</string>
+    <string name="private_the_class">Private The Class</string>
+    <string name="invite_w_a_link">Invite To Join</string>
     <string name="delete_permanent">Delete The Class</string>
     <string name="close_the_room">Close The Class</string>
     <string name="not_signed_in_yet_to_join">Pastikan pengguna sudah masuk/daftar</string>

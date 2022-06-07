@@ -18,7 +18,7 @@ class GetUsersParticipation
 
     operator fun invoke(size: Int): Flow<PagingData<User.Censored>> {
         val config = PagingConfig(size, enablePlaceholders = true)
-        val pager = Pager(config) { repository.page(size) }
+        val pager = Pager(config) { repository.remotePages(size) }
 
         return pager.flow
     }

@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
 import android.content.Context
 import com.dudegenuine.repository.contract.*
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 
 /**
  * Fri, 07 Jan 2022
@@ -14,6 +15,11 @@ interface IAppUseCaseModule {
     fun provideQuizUseCaseModule(repository: IQuizRepository): IQuizUseCaseModule
     fun provideResultUseCaseModule(repository: IResultRepository): IResultUseCaseModule
     fun provideRoomUseCaseModule(repository: IRoomRepository): IRoomUseCaseModule
-    fun provideUserUseCaseModule(repository: IUserRepository): IUserUseCaseModule
+    fun provideUserUseCaseModule(
+        userRepository: IUserRepository,
+        roomRepository: IRoomRepository,
+        messagingRepository: IMessagingRepository,
+        preferences: IPrefsFactory,
+    ): IUserUseCaseModule
     fun provideNotificationUseCaseModule(repository: INotificationRepository): INotificationUseCaseModule
 }

@@ -17,4 +17,25 @@ dependencies {
     implementation project(':domain:model')
     implementation project(':data:remote')
     implementation project(':data:local')
+
+    // Work manager
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation "androidx.work:work-gcm:$work_version"
+    implementation "androidx.work:work-multiprocess:$work_version"
+    implementation "androidx.hilt:hilt-work:$hilt_work_version"
+    kapt "androidx.hilt:hilt-compiler:$hilt_work_version"
+    androidTestImplementation "androidx.work:work-testing:$work_version"
+
+    // Room database
+    implementation "androidx.room:room-ktx:$room_version"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-paging:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // Firebase
+    implementation platform("com.google.firebase:firebase-bom:$firebase_bom_version")
+    implementation "com.google.firebase:firebase-analytics-ktx:$firebase_analytics_version"
+    implementation "com.google.firebase:firebase-messaging-ktx:$firebase_messaging_version"
+
 }

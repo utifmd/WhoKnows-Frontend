@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import android.content.Context
 import com.dudegenuine.repository.contract.*
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import dagger.Module
 import dagger.Provides
@@ -59,8 +60,12 @@ object AppUseCaseModule: IAppUseCaseModule {
     @Provides
     @ViewModelScoped
     override fun provideUserUseCaseModule(
-        repository: IUserRepository): IUserUseCaseModule =
-        UserUseCaseModule(repository)
+        userRepository: IUserRepository,
+        roomRepository: IRoomRepository,
+        messagingRepository: IMessagingRepository,
+        preferences: IPrefsFactory): IUserUseCaseModule = UserUseCaseModule(
+            userRepository, roomRepository, messagingRepository
+    )
 
     @Provides
     @ViewModelScoped

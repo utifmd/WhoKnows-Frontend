@@ -21,7 +21,7 @@ class PatchUser
         operator fun invoke(id: String, current: User.Complete): Flow<Resource<User.Complete>> = flow {
             try {
                 emit(Resource.Loading())
-                val updated = repository.update(id, current)
+                val updated = repository.remoteUpdate(id, current)
                 emit(Resource.Success(updated))
 
             } catch (e: HttpFailureException){

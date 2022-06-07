@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -35,4 +36,9 @@ class GetNotification
             emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
         }
     }
+
+    operator fun invoke() = Notification(
+        notificationId = "NTF-${UUID.randomUUID()}",
+        userId = "", roomId = "", event = "", seen = false,
+        recipientId = "", createdAt = Date(), null, null)
 }

@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.mapper.contract
 
 import android.content.Context
 import com.dudegenuine.remote.mapper.contract.*
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.google.gson.Gson
 
 /**
@@ -11,12 +12,14 @@ import com.google.gson.Gson
 interface IDataMapperModule {
 
     fun provideUserDataMapper(
-        gson: Gson): IUserDataMapper
+        gson: Gson, preference: IPrefsFactory): IUserDataMapper
 
     fun provideRoomDataMapper(
         gson: Gson,
+        preference: IPrefsFactory,
         mapperUser: IUserDataMapper,
         mapperQuiz: IQuizDataMapper,
+        mapperImpression: IImpressionDataMapper,
         mapperParticipant: IParticipantDataMapper): IRoomDataMapper
 
     fun provideQuizDataMapper(
@@ -24,6 +27,7 @@ interface IDataMapperModule {
         mapper: IUserDataMapper): IQuizDataMapper
 
     fun provideParticipantDataMapper(
+        preference: IPrefsFactory,
         gson: Gson, mapper: IUserDataMapper): IParticipantDataMapper
 
     fun provideResultDataMapper(
@@ -37,4 +41,6 @@ interface IDataMapperModule {
 
     fun provideNotificationDataMapper(
         context: Context, mapper: IUserDataMapper): INotificationDataMapper
+
+    fun provideImpressionDataMapper(context: Context, gson: Gson): IImpressionDataMapper
 }

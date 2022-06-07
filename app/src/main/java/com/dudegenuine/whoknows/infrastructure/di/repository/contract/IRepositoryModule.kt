@@ -1,14 +1,12 @@
 package com.dudegenuine.whoknows.infrastructure.di.repository.contract
 
-import com.dudegenuine.local.api.IClipboardManager
-import com.dudegenuine.local.api.IPreferenceManager
-import com.dudegenuine.local.api.IPrefsFactory
-import com.dudegenuine.local.api.IReceiverFactory
-import com.dudegenuine.local.service.contract.ICurrentBoardingDao
-import com.dudegenuine.local.service.contract.ICurrentUserDao
+import com.dudegenuine.local.manager.IWhoKnowsDatabase
+import com.dudegenuine.local.service.IUsersDao
 import com.dudegenuine.remote.mapper.contract.*
 import com.dudegenuine.remote.service.contract.*
 import com.dudegenuine.repository.contract.*
+import com.dudegenuine.repository.contract.dependency.local.*
+import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager
 
 /**
  * Thu, 02 Dec 2021
@@ -17,18 +15,25 @@ import com.dudegenuine.repository.contract.*
 interface IRepositoryModule {
     fun provideUserRepository(
         service: IUserService,
-        local: ICurrentUserDao,
+        local: IUsersDao,
         mapper: IUserDataMapper,
         prefsFactory: IPrefsFactory,
-        receiver: IReceiverFactory): IUserRepository
+        receiver: IReceiverFactory
+    ): IUserRepository
 
     fun provideRoomRepository(
         service: IRoomService,
         receiver: IReceiverFactory,
-        local: ICurrentBoardingDao,
+        local: IWhoKnowsDatabase,
         mapper: IRoomDataMapper,
+        workManager: IWorkerManager,
+        alarmManager: IAlarmManager,
+        workRequest: ITokenWorkManager,
         iPrefsFactory: IPrefsFactory,
-        clip: IClipboardManager): IRoomRepository
+        clip: IClipboardManager,
+        timer: ITimerLauncher,
+        share: IShareLauncher
+    ): IRoomRepository
 
     fun provideQuizRepository(
         service: IQuizService,
@@ -38,8 +43,9 @@ interface IRepositoryModule {
 
     fun provideParticipantRepository(
         service: IParticipantService,
-        mapper: IParticipantDataMapper,
-        pref: IPreferenceManager
+        mapperUser: IUserDataMapper,
+        mapperPpn: IParticipantDataMapper,
+        pref: IPrefsFactory
     ): IParticipantRepository
 
     fun provideResultRepository(
@@ -57,7 +63,10 @@ interface IRepositoryModule {
     fun provideMessagingRepository(
         service: IMessagingService,
         mapper: IMessagingDataMapper,
-        receiver: IReceiverFactory
+        receiver: IReceiverFactory,
+        preference: IPrefsFactory,
+        firebase: IFirebaseManager,
+        workManager: IWorkerManager
     ): IMessagingRepository
 
     fun provideNotificationRepository(

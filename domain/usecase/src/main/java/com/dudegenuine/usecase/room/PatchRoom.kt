@@ -21,7 +21,7 @@ class PatchRoom
     operator fun invoke(id: String, current: Room.Complete): Flow<Resource<Room.Complete>> = flow {
         try {
             emit(Resource.Loading())
-            val room = repository.update(id, current)
+            val room = repository.updateRemote(id, current)
             emit(Resource.Success(room))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

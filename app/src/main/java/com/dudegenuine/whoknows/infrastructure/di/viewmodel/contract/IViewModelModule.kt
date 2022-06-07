@@ -1,17 +1,17 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
 import androidx.lifecycle.SavedStateHandle
-import com.dudegenuine.local.api.IPrefsFactory
-import com.dudegenuine.local.api.IShareLauncher
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
-import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel
-import com.dudegenuine.whoknows.ui.vm.main.IActivityViewModel
-import com.dudegenuine.whoknows.ui.vm.notification.contract.INotificationViewModel
-import com.dudegenuine.whoknows.ui.vm.participant.contract.IParticipantViewModel
-import com.dudegenuine.whoknows.ui.vm.quiz.contract.IQuizViewModel
-import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel
-import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
-import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
+import com.dudegenuine.whoknows.ux.vm.file.IFileViewModel
+import com.dudegenuine.whoknows.ux.vm.main.IActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.notification.contract.INotificationViewModel
+import com.dudegenuine.whoknows.ux.vm.participation.contract.IParticipantViewModel
+import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizViewModel
+import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel
+import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ux.vm.user.contract.IUserViewModel
 
 /**
  * Fri, 03 Dec 2021
@@ -19,21 +19,18 @@ import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
  **/
 interface IViewModelModule {
     fun provideMainActivityViewModel(
-        prefsFactory: IPrefsFactory,
         messagingUseCaseModule: IMessageUseCaseModule,
         notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): IActivityViewModel
 
-    fun provideUserViewModel( /*mapper: IUserDataMapper,*/
+    fun provideUserViewModel(
         prefsFactory: IPrefsFactory,
-        messaging: IMessageUseCaseModule,
         userUseCase: IUserUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle): IUserViewModel
 
     fun provideRoomViewModel(
-        prefsFactory: IPrefsFactory,
         caseFile: IFileUseCaseModule,
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
@@ -56,6 +53,8 @@ interface IViewModelModule {
 
     fun provideParticipantViewModel(
         participantUseCaseModule: IParticipantUseCaseModule,
+        roomUseCaseModule: IRoomUseCaseModule,
+        userUseCaseModule: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): IParticipantViewModel
 
     fun provideNotificationViewModel(

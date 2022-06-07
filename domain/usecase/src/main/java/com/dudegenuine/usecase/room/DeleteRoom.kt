@@ -18,7 +18,7 @@ class DeleteRoom
     operator fun invoke(id: String): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
-            repository.delete(id)
+            repository.deleteRemote(id)
             emit(Resource.Success(id))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

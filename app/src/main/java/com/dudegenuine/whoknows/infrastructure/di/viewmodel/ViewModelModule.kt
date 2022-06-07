@@ -1,26 +1,26 @@
 package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
-import com.dudegenuine.local.api.IPrefsFactory
-import com.dudegenuine.local.api.IShareLauncher
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
-import com.dudegenuine.whoknows.ui.vm.file.FileViewModel
-import com.dudegenuine.whoknows.ui.vm.file.IFileViewModel
-import com.dudegenuine.whoknows.ui.vm.main.ActivityViewModel
-import com.dudegenuine.whoknows.ui.vm.main.IActivityViewModel
-import com.dudegenuine.whoknows.ui.vm.notification.NotificationViewModel
-import com.dudegenuine.whoknows.ui.vm.notification.contract.INotificationViewModel
-import com.dudegenuine.whoknows.ui.vm.participant.ParticipantViewModel
-import com.dudegenuine.whoknows.ui.vm.participant.contract.IParticipantViewModel
-import com.dudegenuine.whoknows.ui.vm.quiz.QuizViewModel
-import com.dudegenuine.whoknows.ui.vm.quiz.contract.IQuizViewModel
-import com.dudegenuine.whoknows.ui.vm.result.ResultViewModel
-import com.dudegenuine.whoknows.ui.vm.result.contract.IResultViewModel
-import com.dudegenuine.whoknows.ui.vm.room.RoomViewModel
-import com.dudegenuine.whoknows.ui.vm.room.contract.IRoomViewModel
-import com.dudegenuine.whoknows.ui.vm.user.UserViewModel
-import com.dudegenuine.whoknows.ui.vm.user.contract.IUserViewModel
+import com.dudegenuine.whoknows.ux.vm.file.FileViewModel
+import com.dudegenuine.whoknows.ux.vm.file.IFileViewModel
+import com.dudegenuine.whoknows.ux.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.IActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.notification.NotificationViewModel
+import com.dudegenuine.whoknows.ux.vm.notification.contract.INotificationViewModel
+import com.dudegenuine.whoknows.ux.vm.participation.ParticipationViewModel
+import com.dudegenuine.whoknows.ux.vm.participation.contract.IParticipantViewModel
+import com.dudegenuine.whoknows.ux.vm.quiz.QuizViewModel
+import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizViewModel
+import com.dudegenuine.whoknows.ux.vm.result.ResultViewModel
+import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel
+import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
+import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomViewModel
+import com.dudegenuine.whoknows.ux.vm.user.UserViewModel
+import com.dudegenuine.whoknows.ux.vm.user.contract.IUserViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,32 +38,28 @@ object ViewModelModule: IViewModelModule {
     @Provides
     @ViewModelScoped
     override fun provideMainActivityViewModel(
-        prefsFactory: IPrefsFactory,
         messagingUseCaseModule: IMessageUseCaseModule,
         notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
-        savedStateHandle: SavedStateHandle
-    ): IActivityViewModel {
+        savedStateHandle: SavedStateHandle): IActivityViewModel {
 
-        return ActivityViewModel(prefsFactory, messagingUseCaseModule, notifier, userUseCaseModule, savedStateHandle)
+        return ActivityViewModel(messagingUseCaseModule, notifier, userUseCaseModule, savedStateHandle)
     }
 
     @Provides
     @ViewModelScoped
     override fun provideUserViewModel(
         prefsFactory: IPrefsFactory,
-        messaging: IMessageUseCaseModule,
         userUseCase: IUserUseCaseModule,
         fileCase: IFileUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IUserViewModel =
 
-        UserViewModel(prefsFactory, messaging, userUseCase, fileCase, savedStateHandle)
+        UserViewModel(userUseCase, fileCase, savedStateHandle)
 
     @Provides
     @ViewModelScoped
     override fun provideRoomViewModel(
-        prefsFactory: IPrefsFactory,
         caseFile: IFileUseCaseModule,
         caseRoom: IRoomUseCaseModule,
         caseUser: IUserUseCaseModule,
@@ -74,7 +70,7 @@ object ViewModelModule: IViewModelModule {
         caseResult: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IRoomViewModel {
-        return RoomViewModel(prefsFactory, caseMessaging, caseFile, caseNotification,
+        return RoomViewModel(caseMessaging, caseFile, caseNotification,
             caseRoom, caseUser, caseParticipant, caseQuiz, caseResult, savedStateHandle)
     }
 
@@ -101,10 +97,11 @@ object ViewModelModule: IViewModelModule {
     @ViewModelScoped
     override fun provideParticipantViewModel(
         participantUseCaseModule: IParticipantUseCaseModule,
-        savedStateHandle: SavedStateHandle
-    ): IParticipantViewModel {
+        roomUseCaseModule: IRoomUseCaseModule,
+        userUseCaseModule: IUserUseCaseModule,
+        savedStateHandle: SavedStateHandle): IParticipantViewModel {
 
-        return ParticipantViewModel(participantUseCaseModule, savedStateHandle)
+        return ParticipationViewModel(participantUseCaseModule, roomUseCaseModule, userUseCaseModule, savedStateHandle)
     }
 
     @Provides

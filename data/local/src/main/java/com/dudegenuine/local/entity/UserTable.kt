@@ -12,7 +12,7 @@ import java.util.*
  * Thu, 13 Jan 2022
  * WhoKnows by utifmd
  **/
-@Entity
+@Entity(tableName = "users")
 data class UserTable(
     @PrimaryKey
     @ColumnInfo(name = "userId")
@@ -41,6 +41,9 @@ data class UserTable(
 
     @ColumnInfo(name = "updatedAt")
     val updatedAt: Date?,
+
+    @ColumnInfo(name = "tokens")
+    val tokens: List<String>,
 
     @ColumnInfo(name = "participants")
     val participants: List<Participant>,

@@ -24,10 +24,10 @@ class GetUser
             Flow<Resource<User.Complete>> = flow {
 
         try {
-            val localUser = repository.load()
+            val localUser = repository.localRead()
             emit(Resource.Loading(localUser))
 
-            val remoteUser = repository.read(id)
+            val remoteUser = repository.remoteRead(id)
             emit(Resource.Success(remoteUser))
 
         } catch (e: HttpFailureException){
@@ -48,7 +48,7 @@ class GetUser
 
         try {
             emit(Resource.Loading())
-            val localUser = repository.load()
+            val localUser = repository.localRead()
 
             Log.d(TAG, localUser.toString())
 

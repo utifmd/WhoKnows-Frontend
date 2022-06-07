@@ -13,6 +13,7 @@ data class Participant (
     var currentPage: String,
     var timeLeft: Int?,
     var expired: Boolean,
+    var isCurrentUser: Boolean,
     var createdAt: Date,
     var updatedAt: Date?,
     var user: User.Censored?){ //var results: List<Result>

@@ -1,7 +1,11 @@
 package com.dudegenuine.repository.contract
 
-import android.content.BroadcastReceiver
 import com.dudegenuine.model.Messaging
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
+import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
+import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager
+import kotlinx.coroutines.flow.Flow
 import okhttp3.ResponseBody
 
 /**
@@ -13,12 +17,23 @@ interface IMessagingRepository {
         const val MESSAGING_TOKEN = "current_user_firebase_messaging_token"
     }
 
-    suspend fun get(keyName: String): Messaging.Getter.Response
     //suspend fun get(keyName: String): ResponseBody
+    suspend fun get(keyName: String): Messaging.Getter.Response
     suspend fun create(messaging: Messaging): ResponseBody
     suspend fun add(messaging: Messaging): ResponseBody
     suspend fun remove(messaging: Messaging): ResponseBody
     suspend fun push(messaging: Messaging): ResponseBody
-    val onNetworkReceived: (onConnected: (String) -> Unit) -> BroadcastReceiver
-    val onTokenReceived: (onTokenized: (String) -> Unit) -> BroadcastReceiver
+
+    suspend fun readFlow(keyName: String): Flow<String>
+    suspend fun removeFlow(keyName: String, key: String): Flow<String>
+    suspend fun createFlow(keyName: String): Flow<String>
+    suspend fun addFlow(keyName: String, key: String): Flow<String>
+    suspend fun pushFlow(messaging: Messaging.Pusher): Flow<String>
+    suspend fun registerGroupTokenFlow(keyName: String): Flow<String>
+    suspend fun unregisterGroupTokenFlow(keyName: String): Flow<String>
+
+    val receiver: IReceiverFactory
+    val preference: IPrefsFactory
+    val firebase: IFirebaseManager
+    val workerManager: IWorkerManager
 }

@@ -41,12 +41,12 @@ dependencies {
     implementation "androidx.compose.foundation:foundation-layout:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation "androidx.activity:activity-compose:$activity_version"
-    implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation "androidx.activity:activity-compose:$activity_compose_version"
+    implementation "androidx.activity:activity-ktx:$activity_ktx_version"
 
     //implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_swiperefresh_version"
+    implementation "com.google.accompanist:accompanist-pager:$accompanist_pager_version"
 
     // Firebase
     implementation platform("com.google.firebase:firebase-bom:$firebase_bom_version")
@@ -58,7 +58,15 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-paging:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
-    /*annotationProcessor "androidx.room:room-compiler:$room_version"*/
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // Work manager
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation "androidx.work:work-gcm:$work_version"
+    implementation "androidx.work:work-multiprocess:$work_version"
+    implementation "androidx.hilt:hilt-work:$hilt_work_version"
+    kapt "androidx.hilt:hilt-compiler:$hilt_work_version"
+    androidTestImplementation "androidx.work:work-testing:$work_version"
 
     // Security
     // implementation "androidx.security:security-crypto:$security_crypto_version"

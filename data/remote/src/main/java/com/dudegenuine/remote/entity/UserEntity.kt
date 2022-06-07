@@ -20,6 +20,9 @@ object UserEntity{
 
         @SerializedName("profileUrl")
         val profileUrl: String,
+
+        @SerializedName("tokens")
+        var tokens: List<String>
     )
 
     data class Complete (
@@ -49,6 +52,9 @@ object UserEntity{
 
         @SerializedName("updatedAt")
         val updatedAt: Date?,
+
+        @SerializedName("tokens")
+        var tokens: List<String>,
 
         @SerializedName("participants")
         val participants: List<ParticipantEntity>,

@@ -2,16 +2,19 @@ package com.dudegenuine.repository
 
 import android.util.Log
 import androidx.paging.PagingSource
-import com.dudegenuine.local.api.IPrefsFactory
-import com.dudegenuine.local.api.IReceiverFactory
 import com.dudegenuine.local.entity.UserTable
-import com.dudegenuine.local.service.contract.ICurrentUserDao
+import com.dudegenuine.local.service.IUsersDao
 import com.dudegenuine.model.User
+import com.dudegenuine.model.common.Utility.encrypt
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IUserDataMapper
 import com.dudegenuine.remote.service.contract.IUserService
 import com.dudegenuine.repository.contract.IUserRepository
 import com.dudegenuine.repository.contract.IUserRepository.Companion.CURRENT_USER_NOT_FOUND
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 /**
@@ -21,73 +24,71 @@ import javax.inject.Inject
 class UserRepository
     @Inject constructor(
     private val service: IUserService,
-    private val local: ICurrentUserDao,
-    private val prefsFactory: IPrefsFactory,
+    private val local: IUsersDao,
     private val mapper: IUserDataMapper,
-    private val receiver: IReceiverFactory): IUserRepository {
+    override val receiver: IReceiverFactory,
+    override val preference: IPrefsFactory): IUserRepository {
     private val TAG = javaClass.simpleName
 
-    /*override val currentUserId: () ->
-        String = { prefs.readString(CURRENT_USER_ID) }
+    override suspend fun remoteCreate(user: User.Complete): User.Complete {
+        val remoteUser = mapper.asUser(
+            service.create(mapper.asEntity(user.copy(password = encrypt(user.password))))
+        )
 
-    override val currentBadge: () ->
-        Int = { prefs.readInt(CURRENT_NOTIFICATION_BADGE) }
-
-    override val onChangeCurrentBadge: (Int) ->
-        Unit = { prefs.write(CURRENT_NOTIFICATION_BADGE, it) }
-
-    override val registerPrefsListener: (
-        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.register
-
-    override val unregisterPrefsListener: (
-        SharedPreferences.OnSharedPreferenceChangeListener) -> Unit = prefs.unregister
-
-    override val networkReceived: (onConnected: (String) -> Unit) ->
-        BroadcastReceiver = receiver.networkReceived*/
-
-    override suspend fun create(user: User.Complete): User.Complete {
-        val remoteUser = mapper.asUser(service.create(mapper.asEntity(user)))
-
-        return remoteUser.also { save(mapper.asUserTable(it)) }
+        return remoteUser.also { localCreate(mapper.asUserTable(it)) }
     }
 
-    override suspend fun read(id: String): User.Complete {
-        val remoteUser = mapper.asUser(service.read(id))
+    override suspend fun remoteRead(id: String): User.Complete {
 
-        if (id == prefsFactory.userId)
-            replace(mapper.asUserTable(remoteUser))
+        /*if (id == preference.userId)
+            localUpdate(mapper.asUserTable(remoteUser))
 
-        Log.d(TAG, "read: triggered")
+        Log.d(TAG, "read: triggered")*/
 
-        return remoteUser
+        return mapper.asUser(service.read(id))
     }
 
-    override suspend fun update(id: String, user: User.Complete): User.Complete {
+    override suspend fun remoteUpdate(id: String, user: User.Complete): User.Complete {
         val remoteUser = mapper.asUser(service.update(id, mapper.asEntity(user)))
 
-        return remoteUser.also { replace(mapper.asUserTable(it)) }
+        return remoteUser.also { localUpdate(mapper.asUserTable(it)) }
     }
 
-    override suspend fun delete(id: String) {
+    override suspend fun remoteDelete(id: String) {
         service.delete(id)
 
-        unload(id)
+        localDelete(id)
     }
 
-    override suspend fun list(page: Int, size: Int): List<User.Complete> = mapper.asUsers(
+    override suspend fun remoteList(page: Int, size: Int): List<User.Complete> = mapper.asUsers(
         service.list(page, size)
     )
 
-    override suspend fun listOrderByParticipant(page: Int, size: Int): List<User.Censored> = mapper.asUsersCensored(
+    override suspend fun remoteListOrderByParticipant(page: Int, size: Int): List<User.Censored> = mapper.asUsersCensored(
         service.listOrderByParticipant(page, size)
     )
 
-    override fun page(batchSize: Int): PagingSource<Int, User.Censored> = mapper.asPagingSource { page ->
-        listOrderByParticipant(page, batchSize)
+    override fun remotePages(batchSize: Int): PagingSource<Int, User.Censored> = mapper.asPagingSource { page ->
+        remoteListOrderByParticipant(page, batchSize)
     }
 
-    override suspend fun signIn(params: Map<String, String>):
-            User.Complete = mapper.asUser(service.signIn(mapper.asLogin(params)))
+    override suspend fun signInFlow(signer: User.Signer) =
+        flowOf(remoteSignIn(signer))
+
+    override suspend fun clearCurrentUser() = flowOf(localDelete(preference.userId))
+
+    override suspend fun remoteReadFlow(): Flow<User.Complete> =
+        flowOf(remoteRead(preference.userId))
+
+    override suspend fun remoteCreateFlow(user: User.Complete): Flow<User.Complete> =
+        flowOf(remoteCreate(user))
+
+    override suspend fun remoteUpdateFlow(user: User.Complete): Flow<User.Complete> =
+        flowOf(remoteUpdate(user.id, user))
+
+    override suspend fun remoteSignIn(params: User.Signer):
+            User.Complete = mapper.asUser(service.signIn(params.copy(
+        password = encrypt(params.password))))
 
     /*{
         val response = service.signIn(mapper.asLogin(params))
@@ -105,34 +106,34 @@ class UserRepository
         else throw HttpFailureException("Incorrect password")
     }*/
 
-    override suspend fun signIn(model: User.Complete): User.Complete {
-        save(mapper.asUserTable(model))
+    override suspend fun localSignIn(model: User.Complete): User.Complete {
+        localCreate(mapper.asUserTable(model))
         return model
     }
 
-    override suspend fun signOut(user: User.Complete): String {
+    /*override suspend fun onSignOut(user: User.Complete): String {
         val finalId = user.id //prefsFactory.userId
 
-        unload(finalId)
+        localDelete(finalId)
 
         return finalId
-    }
+    }*/
 
-    override suspend fun save(userTable: UserTable) =
+    override suspend fun localCreate(userTable: UserTable) =
         local.create(userTable).also {
             onUserIdChange(userTable.userId)
 
             //prefs.write(CURRENT_USER_ID, userTable.userId)
         }
 
-    override suspend fun replace(userTable: UserTable) {
+    override suspend fun localUpdate(userTable: UserTable) {
         local.update(userTable)
 
         Log.d(TAG, "replace: triggered")
     }
 
-    override suspend fun load(userId: String?): User.Complete {
-        val finalId = userId ?: prefsFactory.userId
+    override suspend fun localRead(userId: String?): User.Complete {
+        val finalId = userId ?: preference.userId
         val currentUser = local.read(finalId)
 
         if (currentUser != null)
@@ -141,7 +142,7 @@ class UserRepository
             throw HttpFailureException(CURRENT_USER_NOT_FOUND)
     }
 
-    override suspend fun unload(userId: String) {
+    override suspend fun localDelete(userId: String) {
         val currentUser = local.read(userId) //?: throw HttpFailureException(NOT_FOUND)
 
         if (currentUser != null) local.delete(currentUser)
@@ -154,6 +155,6 @@ class UserRepository
     }
 
     private fun onUserIdChange(fresh: String){
-        prefsFactory.userId = fresh
+        preference.userId = fresh
     }
 }

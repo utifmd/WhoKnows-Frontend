@@ -9,7 +9,7 @@ import java.util.*
  * Mon, 21 Feb 2022
  * WhoKnows by utifmd
  **/
-@Entity
+@Entity(tableName = "questions")
 data class QuizTable(
     @ColumnInfo(name = "id")
     val id: String,
