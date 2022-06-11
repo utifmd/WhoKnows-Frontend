@@ -101,7 +101,7 @@ class MessagingService: FirebaseMessagingService() {
 
     private fun notification(data: Map<String, String>) {
         val dataIntent = Intent(Intent.ACTION_VIEW,
-            Screen.Home.Discover.Notification.uriPattern?.toUri(),
+            Screen.Home.Summary.Notification.uriPattern?.toUri(),
             this, MainActivity::class.java)
 
         val dataPendingIntent = TaskStackBuilder.create(this).run {

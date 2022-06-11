@@ -10,15 +10,13 @@ import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
  **/
 @Composable
 fun DiscoverScreen(props: IMainProps) {
-
     FeedScreen(
         props = props,
-        onJoinButtonPressed = {
-            props.router.navigate(Screen.Home.Discover.RoomFinder.route)
-        },
-
-        onNotificationPressed = {
-            props.router.navigate(Screen.Home.Discover.Notification.route)
-        }
+        onJoinButtonPressed = if(props.viewModel.auth.user != null) {
+            { props.router.navigate(Screen.Home.Discover.RoomFinder.route) }
+        } else null,
+        onSearchPressed = if(props.viewModel.auth.user != null) {
+            { props.router.navigate(Screen.Home.Discover.SearchScreen.route) }
+        } else null
     )
 }

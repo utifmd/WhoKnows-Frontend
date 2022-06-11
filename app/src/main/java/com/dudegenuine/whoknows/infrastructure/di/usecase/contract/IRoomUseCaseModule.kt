@@ -31,4 +31,8 @@ interface IRoomUseCaseModule {
     val clipboard: IClipboardManager
     val timer: ITimerLauncher
     val share: IShareLauncher
+
+    companion object {
+        const val EMPTY_STRING = ""
+    }
 }

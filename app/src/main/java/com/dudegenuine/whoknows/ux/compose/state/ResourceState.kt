@@ -13,7 +13,6 @@ data class ResourceState(
     val loading: Boolean = false,
     val message: String = "", //Error? = null,
     val error: String = "", //Error? = null,
-    val badge: Int = 0,
     val workerOutput: String = "",
 
     val feedRoomPageDataFlow: Flow<PagingData<Room.Censored>>? = null,
@@ -47,13 +46,10 @@ data class ResourceState(
     val files: List<File>? = null,){
 
     data class Auth(
+        val invalidated: Boolean = false,
         val loading: Boolean = false,
         val error: String = "",
-    )
-
-    data class Store(
-        val loading: Boolean = false,
-        val error: String = "",
+        val message: String = "",
         val user: User.Complete? = null
     )
 

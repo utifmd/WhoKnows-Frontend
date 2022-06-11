@@ -1,5 +1,8 @@
 package com.dudegenuine.usecase.notification
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -17,6 +20,12 @@ import javax.inject.Inject
 class GetNotifications
     @Inject constructor(
     private val repository: INotificationRepository) {
+
+    operator fun invoke(recipientId: String, size: Int): Flow<PagingData<Notification>> = Pager(
+        PagingConfig(size, enablePlaceholders = true, maxSize = 200)){
+
+        repository.pages(recipientId, size)
+    }.flow
 
     operator fun invoke(page: Int, size: Int):
             Flow<Resource<List<Notification>>> = flow {

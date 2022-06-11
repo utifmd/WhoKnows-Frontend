@@ -6,22 +6,41 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.navigation.compose.rememberNavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.dudegenuine.whoknows.ux.compose.screen.MainScreen
-import com.dudegenuine.whoknows.ux.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.MainProps
+import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleName
-    private val viewModel: ActivityViewModel by viewModels()
+class MainActivity: ComponentActivity() {
+    private val TAG = javaClass.simpleName
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         with(viewModel) {
-            registerPrefsListener()
+            //registerPrefsListener()
             registerReceiver(messagingReceiver, receiver.messagingIntent)
             registerReceiver(connectionReceiver, receiver.connectionIntent)
-            setContent { MainScreen(vmMain = this, intent = intent) }
+
+            setContent {
+                MainScreen(
+                    props = MainProps(
+                        context = applicationContext,
+                        intent = intent,
+                        viewModel = this,
+                        router = rememberNavController(),
+                        lazyPagingQuizzes = questionsFlow.collectAsLazyPagingItems(),
+                        lazyPagingRoomComplete = roomCompleteFlow.collectAsLazyPagingItems(),
+                        lazyPagingRoomCensored = roomsCensoredFlow.collectAsLazyPagingItems(),
+                        lazyPagingParticipants = participantsFlow.collectAsLazyPagingItems(),
+                        lazyPagingNotification = notificationsFlow.collectAsLazyPagingItems()
+                    )
+                )
+            }
         }
     }
 
@@ -29,7 +48,7 @@ class MainActivity: ComponentActivity() { //private val TAG = javaClass.simpleNa
         super.onDestroy()
 
         with (viewModel) {
-            unregisterPrefsListener()
+            //unregisterPrefsListener()
             messagingReceiver.apply(::unregisterReceiver)
             connectionReceiver.apply(::unregisterReceiver)
         }

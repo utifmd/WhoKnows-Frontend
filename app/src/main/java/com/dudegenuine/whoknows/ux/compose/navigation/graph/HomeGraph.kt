@@ -17,7 +17,7 @@ import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.vm.file.FileViewModel
 import com.dudegenuine.whoknows.ux.vm.file.IFileViewModel.Companion.PREVIEW_FILE_ID
-import com.dudegenuine.whoknows.ux.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
 import com.dudegenuine.whoknows.ux.vm.participation.ParticipationViewModel
 import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
 import com.dudegenuine.whoknows.ux.vm.user.UserViewModel
@@ -28,8 +28,8 @@ import com.dudegenuine.whoknows.ux.vm.user.UserViewModel
  **/
 fun NavGraphBuilder.homeNavGraph(props: IMainProps) {
     val preview = Screen.Home.Preview
-    val vmMain = props.vmMain as ActivityViewModel
-    val isLoggedIn = vmMain.isLoggedIn
+    val vmMain = props.viewModel as MainViewModel
+    val isLoggedIn = vmMain.isLoggedInByPrefs
 
     navigation(
         route = Screen.Home.route,
@@ -52,8 +52,10 @@ fun NavGraphBuilder.homeNavGraph(props: IMainProps) {
                 val isRefresh = getLiveData<Boolean>(KEY_REFRESH).observeAsState()
 
                 if (isRefresh.value == true){
-                    props.lazyPagingOwnerRooms.refresh()
-                    props.lazyPagingRooms.refresh()
+                    props.run {
+                        lazyPagingRoomCensored.refresh()
+                        lazyPagingRoomComplete.refresh()
+                    }
 
                     set(KEY_REFRESH, false)
                 }
@@ -73,9 +75,9 @@ fun NavGraphBuilder.homeNavGraph(props: IMainProps) {
             SettingScreen(
                 viewModel = vmUser,
                 state = ResourceState(
-                    user = props.store.user,
-                    loading = props.store.loading,
-                    error = props.store.error
+                    user = vmMain.auth.user?.apply {
+                        isCurrentUser = true
+                    }
                 )
             )
         }

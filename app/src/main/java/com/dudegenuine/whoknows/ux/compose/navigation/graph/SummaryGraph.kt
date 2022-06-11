@@ -17,7 +17,7 @@ import com.dudegenuine.whoknows.ux.compose.screen.seperate.room.RoomCreatorScree
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.user.ProfileScreen
-import com.dudegenuine.whoknows.ux.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
 import com.dudegenuine.whoknows.ux.vm.participation.ParticipationViewModel
 import com.dudegenuine.whoknows.ux.vm.quiz.QuizViewModel
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizPublicState
@@ -43,8 +43,8 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     val profile = Screen.Home.Summary.RoomDetail.ProfileDetail
     val roomDetail = Screen.Home.Summary.RoomDetail
 
-    val vmMain = props.vmMain as ActivityViewModel
-    val isLoggedIn = vmMain.isLoggedIn
+    val vmMain = props.viewModel as MainViewModel
+    val isLoggedIn = vmMain.isLoggedInByPrefs
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route) {

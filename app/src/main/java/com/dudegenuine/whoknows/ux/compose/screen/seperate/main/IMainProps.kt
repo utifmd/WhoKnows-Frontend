@@ -4,25 +4,21 @@ import android.content.Context
 import android.content.Intent
 import androidx.navigation.NavHostController
 import androidx.paging.compose.LazyPagingItems
+import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
-import com.dudegenuine.whoknows.ux.compose.state.ResourceState
-import com.dudegenuine.whoknows.ux.vm.main.IActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.IMainViewModel
 
 interface IMainProps {
-    val state: ResourceState
-    val store: ResourceState.Store
     val context: Context
     val router: NavHostController
-    val vmMain: IActivityViewModel
+    val viewModel: IMainViewModel
     val intent: Intent
 
-    //val vmRoom: IRoomViewModel
-    //val currentUserId: String
-
-    var lazyPagingOwnerRooms: LazyPagingItems<Room.Complete>
-    val lazyPagingRooms: LazyPagingItems<Room.Censored>
+    var lazyPagingRoomComplete: LazyPagingItems<Room.Complete>
+    val lazyPagingRoomCensored: LazyPagingItems<Room.Censored>
     val lazyPagingParticipants: LazyPagingItems<User.Censored>
-    val lazyPagingQuizzes: LazyPagingItems<Quiz.Complete>
+    val lazyPagingQuizzes : LazyPagingItems<Quiz.Complete>
+    val lazyPagingNotification : LazyPagingItems<Notification>
 }

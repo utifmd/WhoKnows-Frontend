@@ -4,10 +4,16 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.dudegenuine.model.Notification
+import com.dudegenuine.model.Participant
+import com.dudegenuine.repository.contract.INotificationRepository.Companion.PAGE_SIZE
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
+import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
-import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
+import com.dudegenuine.whoknows.ux.compose.navigation.Screen
+import com.dudegenuine.whoknows.ux.compose.state.DialogState
 import com.dudegenuine.whoknows.ux.compose.state.NotificationState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
@@ -26,35 +32,44 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 class NotificationViewModel
     @Inject constructor(
-        private val prefsFactory: IPrefsFactory,
-        private val caseNotify: INotificationUseCaseModule,
-        private val caseUser: IUserUseCaseModule,
-        private val savedState: SavedStateHandle): BaseViewModel(), INotificationViewModel {
+    private val prefsFactory: IPrefsFactory,
+    private val caseNotify: INotificationUseCaseModule,
+    private val savedState: SavedStateHandle): BaseViewModel(), INotificationViewModel {
     private val TAG = javaClass.simpleName
-    //private var badge by mutableStateOf(prefsFactory.notificationBadge)
+
+    @Inject lateinit var resource: IResourceDependency
     val currentUserId get() = prefsFactory.userId
 
     private val _formState = mutableStateOf(NotificationState.FormState())
     val formState = _formState.value
 
-    init { getNotifications() }
+    val pagingNotificationFlow = caseNotify
+        .getNotifications(currentUserId, PAGE_SIZE)
+        .distinctUntilChanged()
+        .cachedIn(viewModelScope)
 
-    fun getNotifications() {
+    //init { getNotifications() }
+    /*fun getNotifications() {
         if(prefsFactory.userId.isNotBlank())
             getNotifications(prefsFactory.userId, 0, Int.MAX_VALUE)
+    }*/
+
+    fun onLongPressed(notId: String){
+        val dialog = DialogState(resource.string(R.string.delete_notifier),
+            onSubmitted = { notId.let(::deleteNotification) })
+        onShowDialog(dialog)
     }
 
-    fun onReadNotification(notification: Notification, onStart: () -> Unit) {
+    fun onBackPressed() = onNavigateBack()
+    fun onDetailRoomPressed(participant: Participant) =
+        onNavigateTo(Screen.Home.Discover.RoomDetail.routeWithArgs(participant.roomId))
+
+    fun onReadNotification(notification: Notification) {
+        onNavigateTo(Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(notification.roomId, notification.userId))
+
         if (!notification.seen) caseNotify.patchNotification(notification.copy(seen = true))
-            .onStart {
-                onStateChange(ResourceState(
-                    badge = state.badge -1))
-                onStart()
-            }
-            .onCompletion { cause ->
-                if (cause == null) onStateChange(ResourceState(
-                    notifications = state.notifications?.filter { it != notification }))
-            }
+            .onCompletion { cause -> if (cause == null) onStateChange(ResourceState(
+                notifications = state.notifications?.filter { it != notification }))}
             .launchIn(viewModelScope)
     }
 

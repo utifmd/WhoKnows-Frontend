@@ -27,8 +27,8 @@ abstract class IRoomViewModel: BaseViewModel(),
     open fun deleteRoom(id: String){}
     open fun getRooms(page: Int, size: Int){}
 
-    abstract val rooms: Flow<PagingData<Room.Censored>>
-    abstract val roomsOwner: Flow<PagingData<Room.Complete>>
+    abstract val roomsCensored: Flow<PagingData<Room.Censored>>
+    abstract val roomsComplete: Flow<PagingData<Room.Complete>>
     //abstract val roomsOwner:(userId: String) -> Flow<PagingData<Room.Complete>>
 
     //open fun postBoarding(state: Room.State.BoardingQuiz, onSucceed: (String) -> Unit){}

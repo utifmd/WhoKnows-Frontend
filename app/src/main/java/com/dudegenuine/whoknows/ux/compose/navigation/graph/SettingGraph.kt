@@ -20,7 +20,7 @@ fun NavGraphBuilder.settingGraph(props: IMainProps){
         route = Screen.Home.Setting.ProfileEditor.routeWithArgs("{filedKey}", "{fieldValue}")){ entry ->
         val viewModel: UserViewModel = hiltViewModel()
 
-        LoggingSubscriber(props.vmMain, viewModel)
+        LoggingSubscriber(props.viewModel, viewModel)
         ProfileEditScreen(
             viewModel = viewModel,
             onBackPressed = router::popBackStack,

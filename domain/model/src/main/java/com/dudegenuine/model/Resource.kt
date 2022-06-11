@@ -2,7 +2,9 @@ package com.dudegenuine.model
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.dudegenuine.model.Resource.Companion.IO_EXCEPTION
+import com.dudegenuine.model.common.validation.HttpFailureException
+import retrofit2.HttpException
+import java.io.IOException
 
 /**
  * Wed, 01 Dec 2021
@@ -38,7 +40,7 @@ sealed class Resource<T> (
 }
 
 class ResourcePaging<T: Any>(
-    private val onEvent: suspend (Int) -> List<T>): PagingSource<Int, T>(){
+    private val onEvent: suspend (pageNumber: Int) -> List<T>): PagingSource<Int, T>(){
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> = try {
         val pageNumber = params.key ?: 0
@@ -50,8 +52,14 @@ class ResourcePaging<T: Any>(
             nextKey = if (list.isNotEmpty()) pageNumber +1 else null
 
         ) else LoadResult.Error(Throwable(Resource.NO_RESULT))
-    } catch (e: Exception) {
-        LoadResult.Error(Throwable(IO_EXCEPTION))
+    } catch (e: HttpFailureException){
+        LoadResult.Error(Throwable(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+    } catch (e: HttpException){
+        LoadResult.Error(Throwable(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+    } catch (e: IOException){
+        LoadResult.Error(Throwable(Resource.IO_EXCEPTION))
+    } catch (e: Exception){
+        LoadResult.Error(Throwable(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
     }
 
     override fun getRefreshKey(state: PagingState<Int, T>): Int? = // null

@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun LoggingSubscriber(parent: BaseViewModel, child: BaseViewModel) {
-    val TAG: String = "LoggingSubscriber"
+    //val TAG: String = "LoggingSubscriber"
 
     LaunchedEffect(Unit){ child.screenState.collectLatest(parent::onScreenStateChange) }
     LaunchedEffect(child.state){ child.state.apply(parent::onStateChange) }
+    LaunchedEffect(child.auth){ child.auth.apply(parent::onAuthChange) }
 }

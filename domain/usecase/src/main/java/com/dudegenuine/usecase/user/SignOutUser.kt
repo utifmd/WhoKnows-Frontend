@@ -1,7 +1,6 @@
 package com.dudegenuine.usecase.user
 
 import com.dudegenuine.model.Resource
-import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.repository.contract.IRoomRepository
@@ -27,23 +26,20 @@ class SignOutUser
 
     operator fun invoke(): Flow<Resource<String>> = flow {
         try {
-            repoUser.remoteReadFlow().flatMapConcat{ currentUser ->
-                val joins = currentUser.participants.map { it.roomId }
-                val owns = currentUser.rooms.map { it.roomId }
-                val tokens = currentUser.tokens.filter { it != preferences.tokenId }
-                val latestUser = currentUser.copy(tokens = tokens)
+            repoUser.localReadFlow()
+                .flatMapConcat{ currentUser -> //val joins = currentUser.participants.map { it.roomId } val owns = currentUser.rooms.map { it.roomId }
+                    val tokens = currentUser.tokens.filter { it != preferences.tokenId }
+                    val latestUser = currentUser.copy(tokens = tokens)
 
-                flowOf(repoUser.remoteUpdateFlow(latestUser)
-                    .flatMapMerge{ concatenate(joins, owns).asFlow()
-                        .flatMapConcat(repoMsg::unregisterGroupTokenFlow) })
-                    .flatMapMerge{ repoRoom.clearParticipation() }
-                    .flatMapMerge{ repoUser.clearCurrentUser() }
-                    .onStart{ emit(Resource.Loading()) }
-                    .onCompletion{ if (it == null)
-                        emit(Resource.Success("Signed out successfully")) else
-                        emit(Resource.Error(it.localizedMessage ?: "Error occurred"))
-                    }
-            }.collect()
+                    repoUser.remoteUpdateFlow(latestUser) /*.flatMapMerge{ concatenate(joins, owns).asFlow() .flatMapConcat(repoMsg::unregisterGroupTokenFlow) }*/
+                        .flatMapMerge{ repoUser.localSignOutFlow() }
+                        .flatMapMerge{ repoRoom.clearParticipation() }
+                        .mapLatest{ currentUser }
+                }
+                .onStart{ emit(Resource.Loading()) }
+                .onEach{ emit(Resource.Success(it.id)) }
+                .collect()
+            //emit(Resource.Success("Signed out successfully"))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: HttpException){

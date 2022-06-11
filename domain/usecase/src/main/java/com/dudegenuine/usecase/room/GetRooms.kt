@@ -31,11 +31,8 @@ class GetRooms
     }
 
     operator fun invoke(userId: String, size: Int): Flow<PagingData<Room.Complete>> {
-        val config = PagingConfig(size,
-            enablePlaceholders = true, maxSize = 200)
-
-        val source = repository.pageCompleteRemote(userId, size)
-        val pager = Pager(config) { source }
+        val config = PagingConfig(size, enablePlaceholders = true, maxSize = 200)
+        val pager = Pager(config) { repository.pageCompleteRemote(userId, size) }
 
         return pager.flow
     }

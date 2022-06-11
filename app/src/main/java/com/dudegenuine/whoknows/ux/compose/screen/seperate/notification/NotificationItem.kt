@@ -29,7 +29,8 @@ import com.dudegenuine.whoknows.ux.compose.component.GeneralImage
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NotificationItem(
-    modifier: Modifier = Modifier, model: Notification,
+    model: Notification,
+    modifier: Modifier = Modifier,
     onItemLongPressed: () -> Unit, onItemPressed: () -> Unit) {
     var isSeen by remember { mutableStateOf(model.seen) }
 

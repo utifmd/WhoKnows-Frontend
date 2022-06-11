@@ -14,14 +14,15 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.dudegenuine.whoknows.ux.compose.state.ScreenState
-import com.dudegenuine.whoknows.ux.vm.main.IActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.IMainViewModel
 
 /**
  * Wed, 30 Mar 2022
  * WhoKnows by utifmd
  **/
 @Composable
-fun GeneralAlertDialog(viewModel: IActivityViewModel) {
+fun GeneralAlertDialog(
+    modifier: Modifier = Modifier, viewModel: IMainViewModel) {
     val state by viewModel.screenState.collectAsState(initial = null)
 
     if(state is ScreenState.AlertDialog) {
@@ -59,7 +60,7 @@ fun GeneralAlertDialog(viewModel: IActivityViewModel) {
                 }
             }
             AlertDialog(::onDismissedPressed,
-                modifier = Modifier/*.padding(horizontal = 24.dp)*/,
+                modifier = modifier/*.padding(horizontal = 24.dp)*/,
                 title = { Text(title) },
                 text = { Text(message) },
                 confirmButton = {

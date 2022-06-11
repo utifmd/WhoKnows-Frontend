@@ -54,4 +54,14 @@ interface NotificationService: INotificationService {
         @Path("recipientId") recipientId: String,
         @Query("page") page: Int,
         @Query("size") size: Int): Response<List<NotificationEntity>>
+
+    @Headers(API_KEY, ACCEPT)
+    @GET("$ENDPOINT/owner/with_args")
+    override suspend fun pages(
+        @Query("recipientId") recipientId: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int
+    ): Response<List<NotificationEntity>> {
+        TODO("Not yet implemented")
+    }
 }

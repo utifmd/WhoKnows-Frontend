@@ -49,4 +49,6 @@
     <string name="already_participantion">Beberapa pengguna sudah berpartisipasi pada kelas ini, akses anda dilarang.</string>
     <string name="there_is_no_quest">Pastikan tidak ada pertanyaan yang berisi gambar</string>
     <string name="no_longer_participation">Dengan anda menutup kelas pengguna lain tidak dapat lagi bergabung dikelas ini</string>
+    <string name="discover_klibbor">Discovery</string>
+    <string name="discover">Discover</string>
 </resources>

@@ -43,7 +43,7 @@ fun GeneralBottomBar(
 
             val hasLinkUser = Screen.Home.Summary.RoomDetail.ProfileDetail.uriWithArgs("{$USER_ID_SAVED_KEY}").let { currentDestination?.hasDeepLink(it.toUri()) }
             val hasLinkRoom = Screen.Home.Summary.RoomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}").let { currentDestination?.hasDeepLink(it.toUri()) } //currentDestination?.hasDeepLink(Uri.parse("${BuildConfig.BASE_CLIENT_URL}/who-knows/room/{$ROOM_ID_SAVED_KEY}}"))
-            val hasLinkNotifier = Screen.Home.Discover.Notification.uriPattern?.let { currentDestination?.hasDeepLink(it.toUri()) }
+            val hasLinkNotifier = Screen.Home.Summary.Notification.uriPattern?.let { currentDestination?.hasDeepLink(it.toUri()) }
             val hasLinkView = Screen.Home.Preview.uriWithArgs("{$PREVIEW_FILE_ID}").let { currentDestination?.hasDeepLink(it.toUri()) }
             val hasDeeplink = hasLinkUser == true || hasLinkRoom == true || hasLinkNotifier == true || hasLinkView == true
             val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true /* screen.route == currentDestination?.route*/  // currentDestination?.route == Screen.Home.Summary.route

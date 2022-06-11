@@ -22,6 +22,9 @@ sealed class Screen(
 
     object Home: Screen(strOf<Home>()){
         object Summary: Screen(strOf<Home>()+strOf<Summary>()){
+            object Notification: Screen(
+                strOf<Summary>()+strOf<Notification>(),
+                "${BuildConfig.BASE_CLIENT_URL}/who-knows/notifications")
             object RoomFinder: Screen(strOf<Summary>()+strOf<RoomFinder>())
             object RoomCreator: Screen(strOf<Summary>()+strOf<RoomCreator>())
             object RoomDetail: Screen(
@@ -40,9 +43,7 @@ sealed class Screen(
         }
 
         object Discover: Screen(strOf<Home>()+strOf<Discover>()){
-            object Notification: Screen(
-                strOf<Discover>()+strOf<Notification>(),
-                "${BuildConfig.BASE_CLIENT_URL}/who-knows/notifications")
+            object SearchScreen: Screen(strOf<Discover>()+strOf<SearchScreen>())
             object RoomFinder: Screen(strOf<Discover>()+strOf<RoomFinder>())
             object RoomDetail: Screen(strOf<Discover>()+strOf<RoomDetail>())
             //object ProfileDetail: Screen(strOf<Discover>()+strOf<ProfileDetail>())

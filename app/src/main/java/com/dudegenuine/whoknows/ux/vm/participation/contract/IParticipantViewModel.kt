@@ -9,7 +9,7 @@ import com.dudegenuine.model.Participation
  **/
 interface IParticipantViewModel: IParticipationEvent {
     companion object {
-        const val BATCH_SIZE = 5
+        const val DEFAULT_PARTICIPANT_BATCH_SIZE = 5
     }
 
     //fun initParticipant(participant: Participant){}

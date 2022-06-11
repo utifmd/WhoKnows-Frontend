@@ -33,7 +33,6 @@ import com.dudegenuine.whoknows.ux.compose.screen.seperate.user.ProfileCard
 import com.dudegenuine.whoknows.ux.theme.ColorBronze
 import com.dudegenuine.whoknows.ux.theme.ColorGold
 import com.dudegenuine.whoknows.ux.theme.ColorSilver
-import com.dudegenuine.whoknows.ux.vm.main.ActivityViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -43,27 +42,26 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
  **/
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
-    scaffoldState: ScaffoldState = rememberScaffoldState(),
-    listState: LazyListState = rememberLazyListState(),
-    onJoinButtonPressed: () -> Unit, onNotificationPressed: () -> Unit) {
-    val swipeRefreshState = rememberSwipeRefreshState(false) //vmMain.pagingLoading(props.participantsPager) || vmMain.pagingLoading(props.roomsPager) || vmMain.pagingLoading(props.quizzesPager)
-    val vmMain = props.vmMain as ActivityViewModel
+fun FeedScreen(
+    modifier: Modifier = Modifier, props: IMainProps,
+    onJoinButtonPressed: (() -> Unit)? = null, onSearchPressed: (() -> Unit)? = null) {
+
+    val scaffoldState: ScaffoldState = rememberScaffoldState()
+    val listState: LazyListState = rememberLazyListState()
+    val swipeRefreshState = rememberSwipeRefreshState(false)
     val onRefresh: () -> Unit = {
-        props.apply {
+        props.run {
             lazyPagingParticipants.refresh()
-            lazyPagingRooms.refresh()
+            lazyPagingRoomCensored.refresh()
             lazyPagingQuizzes.refresh()
         }
     }
-
     Scaffold(modifier.fillMaxSize(),
         topBar = {
             GeneralTopBar(
                 title = "Discovery",
-                tails = Icons.Filled.Notifications,
-                tailsTint = if(vmMain.state.badge > 0) MaterialTheme.colors.error else null,
-                onTailPressed = onNotificationPressed
+                tails = Icons.Filled.Search,
+                onTailPressed = onSearchPressed
             )
         },
         scaffoldState = scaffoldState) {
@@ -73,10 +71,24 @@ fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(12.dp)) {
-
-                item { BodyRoom(modifier, props.lazyPagingRooms, onJoinButtonPressed) }
-                item { BodyQuiz(modifier.animateContentSize(animationSpec = tween(600)), props.lazyPagingQuizzes) }
-                item { BodyParticipant(modifier, props.lazyPagingParticipants) }
+                item {
+                    BodyRoom(modifier,
+                        props.lazyPagingRoomCensored,
+                        onJoinButtonPressed
+                    )
+                }
+                item {
+                    BodyQuiz(modifier.animateContentSize(
+                        animationSpec = tween(600)),
+                        props.lazyPagingQuizzes
+                    )
+                }
+                item {
+                    BodyParticipant(
+                        modifier,
+                        props.lazyPagingParticipants
+                    )
+                }
             }
         }
     }
@@ -84,8 +96,8 @@ fun FeedScreen(props: IMainProps, modifier: Modifier = Modifier,
 
 @Composable
 private fun BodyParticipant(
-    modifier: Modifier, lazyParticipants: LazyPagingItems<User.Censored>){
-
+    modifier: Modifier, lazyParticipants: LazyPagingItems<User.Censored>?){
+    if (lazyParticipants == null) return
     Body(modifier, "Most active participant${if (lazyParticipants.itemCount > 1) "\'s" else ""}",
         Icons.Filled.TrendingUp) {
 
@@ -115,7 +127,10 @@ private fun BodyParticipant(
 
 @Composable
 private fun BodyRoom(
-    modifier: Modifier, lazyRooms: LazyPagingItems<Room.Censored>, onJoinButtonPressed: () -> Unit){
+    modifier: Modifier,
+    lazyRooms: LazyPagingItems<Room.Censored>?, onJoinButtonPressed: (() -> Unit)? = null){
+    if (lazyRooms == null) return
+
     Body(modifier, "Most happening ${if (lazyRooms.itemCount > 1) "classes" else "class"}",
         Icons.Filled.Class/*, true*/) {
         val rowState = rememberLazyListState()
@@ -140,7 +155,7 @@ private fun BodyRoom(
         Box(modifier.fillMaxWidth(),
             contentAlignment = Alignment.CenterEnd){
 
-            Button(onJoinButtonPressed) {
+            Button({ onJoinButtonPressed?.invoke() }, enabled = onJoinButtonPressed != null) {
                 Text(stringResource(R.string.join_with_a_code), color = MaterialTheme.colors.onPrimary)
                 Spacer(modifier.size(4.dp))
                 Icon(Icons.Filled.ArrowForward, tint = MaterialTheme.colors.onPrimary, contentDescription = null)
@@ -151,7 +166,8 @@ private fun BodyRoom(
 
 @Composable
 private fun BodyQuiz(
-    modifier: Modifier, lazyQuizzes: LazyPagingItems<Quiz.Complete>){
+    modifier: Modifier, lazyQuizzes: LazyPagingItems<Quiz.Complete>?){
+    if (lazyQuizzes == null) return
     Body(modifier, "Random question${if (lazyQuizzes.itemCount > 1) "\'s" else ""}",
         Icons.Filled.Shuffle) {
 
@@ -183,20 +199,3 @@ private fun Body(
         content()
     }
 }
-
-/*LazyColumn(
-    contentPadding = PaddingValues(12.dp),
-    verticalArrangement = Arrangement.spacedBy(4.dp)) {
-
-    item {
-        LazyRow(modifier.padding(vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-
-            items(lazyQuizzes) { item ->
-                item?.let { QuestItem(it) }
-            }
-
-            //item { LazyStatePaging(items = lazyQuizzes, horizontal = Arrangement.spacedBy(4.dp), repeat = 3) }
-        }
-    }
-}*/

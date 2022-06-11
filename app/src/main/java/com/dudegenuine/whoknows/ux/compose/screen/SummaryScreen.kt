@@ -17,7 +17,7 @@ fun SummaryScreen(
     roomViewModel: RoomViewModel,
     participationViewModel: ParticipationViewModel) {
 
-    if (props.state.participation != null) ParticipationScreen(
+    if (props.viewModel.state.participation != null) ParticipationScreen(
         viewModel = participationViewModel
     ) else RoomHomeScreen(
         viewModel = roomViewModel,

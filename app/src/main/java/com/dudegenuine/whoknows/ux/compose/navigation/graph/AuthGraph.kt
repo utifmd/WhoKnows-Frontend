@@ -9,7 +9,7 @@ import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.screen.LoginScreen
 import com.dudegenuine.whoknows.ux.compose.screen.RegisterScreen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
-import com.dudegenuine.whoknows.ux.vm.main.ActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
 import com.dudegenuine.whoknows.ux.vm.user.UserViewModel
 
 /**
@@ -20,7 +20,7 @@ fun NavGraphBuilder.authNavGraph(props: IMainProps){
     navigation(
         route = Screen.Auth.route,
         startDestination = Screen.Auth.Login.route){
-        val vmMain = props.vmMain as ActivityViewModel
+        val vmMain = props.viewModel as MainViewModel
 
         composable(
             route = Screen.Auth.Login.route) {
@@ -28,7 +28,7 @@ fun NavGraphBuilder.authNavGraph(props: IMainProps){
 
             LoggingSubscriber(vmMain, vmUser)
             LoginScreen(
-                viewModel = vmUser) {
+                viewModel = vmUser, auth = props.viewModel.auth) {
                 props.router.navigate(Screen.Auth.Register.route)
             }
         }
@@ -39,7 +39,7 @@ fun NavGraphBuilder.authNavGraph(props: IMainProps){
 
             LoggingSubscriber(vmMain, vmUser)
             RegisterScreen(
-                viewModel = vmUser
+                viewModel = vmUser, auth = props.viewModel.auth
             )
         }
     }

@@ -23,14 +23,16 @@ interface IUserRepository {
     fun remotePages(batchSize: Int): PagingSource<Int, User.Censored>
     //suspend fun onSignOut(user: User.Complete): String
 
-    suspend fun signInFlow(signer: User.Signer): Flow<User.Complete>
+    suspend fun remoteSignInFlow(signer: User.Signer): Flow<User.Complete>
     suspend fun remoteCreateFlow(user: User.Complete): Flow<User.Complete>
     suspend fun remoteUpdateFlow(user: User.Complete): Flow<User.Complete>
     suspend fun remoteReadFlow(): Flow<User.Complete>
-    suspend fun clearCurrentUser(): Flow<Unit>
+    suspend fun localSignOutFlow(): Flow<Unit>
 
     suspend fun localSignIn(model: User.Complete): User.Complete
+    suspend fun localSignInFlow(model: User.Complete): Flow<User.Complete>
     suspend fun localRead(userId: String? = null): User.Complete
+    suspend fun localReadFlow(): Flow<User.Complete>
     suspend fun localCreate(userTable: UserTable)
     suspend fun localUpdate(userTable: UserTable)
     suspend fun localDelete(userId: String)

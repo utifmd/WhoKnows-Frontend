@@ -1,10 +1,12 @@
 package com.dudegenuine.repository
 
-import com.dudegenuine.repository.contract.dependency.local.IPreferenceManager
+import androidx.paging.PagingSource
 import com.dudegenuine.model.Notification
+import com.dudegenuine.model.ResourcePaging
 import com.dudegenuine.remote.mapper.contract.INotificationDataMapper
 import com.dudegenuine.remote.service.contract.INotificationService
 import com.dudegenuine.repository.contract.INotificationRepository
+import com.dudegenuine.repository.contract.dependency.local.IPreferenceManager
 import javax.inject.Inject
 
 /**
@@ -52,6 +54,19 @@ class NotificationRepository
             service.list(recipientId, page, size)
         )
     }
+
+    override suspend fun listComplete(recipientId: String, page: Int, size: Int): List<Notification> {
+        return mapper.asNotifications(
+            service.pages(recipientId, page, size)
+        )
+    }
+
+    override fun pages(recipientId: String, batchSize: Int): PagingSource<Int, Notification> = try {
+        ResourcePaging { page -> listComplete(recipientId, page, batchSize) }
+    } catch (e: Exception) {
+        ResourcePaging { emptyList() }
+    }
+
 
     /*override val currentUserId: () ->
         String = { prefs.readString(CURRENT_USER_ID) }

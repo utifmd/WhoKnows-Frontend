@@ -58,84 +58,65 @@ class UserViewModel
     private val _formState = mutableStateOf(UserState.FormState())
     val formState: UserState.FormState
         get() = _formState.value
-
     init {
         val navigated = savedStateHandle.get<String>(USER_ID_SAVED_KEY)
-
         navigated?.let(this::getUser) // ?: getUser()
         //if (prefs.userId.isNotBlank()) getUser()
     }
-
     fun onSharePressed(userId: String) {
         val data = "${BuildConfig.BASE_CLIENT_URL}/who-knows/user/$userId"
         share.launch(data)
     }
-
     override fun registerUser() {
         if (!formState.isRegisValid.value) {
-            onAuthStateChange(ResourceState.Auth(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
         if (formState.password.text != formState.rePassword.text){
-            onAuthStateChange(ResourceState.Auth(error = MISS_MATCH))
+            onStateChange(ResourceState(error = MISS_MATCH))
             return
         }
         if (prefs.tokenId.isBlank()) {
-            onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
+            onStateChange(ResourceState(error = CHECK_CONN))
             return
         }
         caseUser.postUser(formState.regisModel)
-            .onEach{ onAuth(it, ::onSignedIn) }
+            .onEach(this::onAuth)
             .launchIn(viewModelScope)
     }
-
     override fun loginUser() {
         val signer = User.Signer(formState.payload.text, formState.password.text, prefs.tokenId)
         if (!formState.isLoginValid.value) {
-            onAuthStateChange(ResourceState.Auth(error = DONT_EMPTY))
+            onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
         if (prefs.tokenId.isBlank()) {
-            onAuthStateChange(ResourceState.Auth(error = CHECK_CONN))
+            onStateChange(ResourceState(error = CHECK_CONN))
             return
         }
         caseUser.signInUser(signer)
-            .onEach{ onAuth(it, ::onSignedIn) }
+            .onEach(this::onAuth)
             .launchIn(viewModelScope)
     }
-
     override fun logoutUser() {
         caseUser.signOutUser()
-            .onEach(::onResource)
-            .onStart{ notifier.manager.cancelAll() }
+            .onEach(this::onAuth)
             .launchIn(viewModelScope)
     }
-
-    private fun onSignedIn(latestUser: User.Complete){
-        Log.d(TAG, "onSignedIn: triggered")
-        val badge = latestUser.notifications.count{ !it.seen }
-        onStateChange(ResourceState(
-            user = latestUser,
-            badge = badge
-        ))
-    }
-
+    fun onLoginDiscoverPressed() = onNavigateTo(Screen.Home.Discover.route)
     override fun postUser(user: User.Complete) {
         if (user.isPropsBlank) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         caseUser.postUser(user)
             .onEach(::onResource).launchIn(viewModelScope)
     }
-
     override fun getUser() {
         caseUser.getUser()
             .onEach(::onResource)
             .launchIn(viewModelScope)
     }
-
     override fun getUser(id: String) {
         if (id.isBlank()) {
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -144,43 +125,34 @@ class UserViewModel
         caseUser.getUser(id)
             .onEach(::onResource).launchIn(viewModelScope)
     }
-
     override fun getUser(id: String, onSucceed: (User.Complete) -> Unit) {
         if (id.isBlank()) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         caseUser.getUser(id)
             .onEach { res -> onResourceSucceed(res, onSucceed) }
             .launchIn(viewModelScope)
     }
-
     override fun patchUser(id: String, freshUser: User.Complete) {
         if (id.isBlank() || freshUser.isPropsBlank) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         freshUser.apply { password = exactPassword }
-
         caseUser.patchUser(id, freshUser)
             .onEach(::onResource).launchIn(viewModelScope)
     }
-
     override fun patchUser(freshUser: User.Complete, onSucceed: (User.Complete) -> Unit) {
         if (freshUser.id.isBlank() || freshUser.isPropsBlank) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         freshUser.apply { password = exactPassword }
         Log.d(TAG, "patchUser: freshUser.password = ${freshUser.password}")
-
         caseUser.patchUser(freshUser.id, freshUser)
             .onEach { onResourceSucceed(it, onSucceed) }.launchIn(viewModelScope)
     }
-
     override fun deleteUser(id: String) {
         if (id.isBlank()) {
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -189,37 +161,29 @@ class UserViewModel
         caseUser.deleteUser(id)
             .onEach(::onResource).launchIn(viewModelScope)
     }
-
     override val participants = caseUser
         .getUsersParticipation(DEFAULT_BATCH_PARTICIPANT)
         .cachedIn(viewModelScope)
-
     override fun getUsers(page: Int, size: Int) {
         if (size == 0) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         caseUser.getUsers(page, size)
             .onEach(::onResource).launchIn(viewModelScope)
     }
-
     private fun onClearAndroidNotifications() {
         notifier.manager.cancelAll()
-
         /*with(prefs) {
             createMessaging = ""
             addMessaging = false
             removeMessaging = false
         }*/
-
         //onShowSnackBar("Signed out complete")
     }
-
     fun onUploadProfile() {
         val user: User.Complete = state.user ?: return
         val fileId = user.profileUrl.substringAfterLast("/")
-
         if (formState.profileImage.isEmpty()) {
             onStateChange(ResourceState(error = DONT_EMPTY_IMG))
             return
@@ -240,8 +204,11 @@ class UserViewModel
                     getUser(user.id) }
             .launchIn(viewModelScope)
     }
-
-    override fun onBackPressed() = onScreenStateChange(ScreenState.Navigate.Back)
+    override fun onBackPressed() //=
+    {
+        Log.d(TAG, "onBackPressed: ${auth.user?.email}")
+        onScreenStateChange(ScreenState.Navigate.Back)
+    }
 
     override fun onPicturePressed(fileId: String?) {
         if(fileId.isNullOrBlank()) return

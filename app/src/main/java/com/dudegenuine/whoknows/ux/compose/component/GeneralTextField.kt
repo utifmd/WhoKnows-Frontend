@@ -29,6 +29,7 @@ fun GeneralTextField(
     onValueChange: (String) -> Unit,
     leads: ImageVector? = null,
     tails: Any? = null,
+    isError: Boolean = false,
     isExpand: Boolean = false,
     keyboardActions: KeyboardActions? = null,
     onTailPressed: (() -> Unit)? = null,
@@ -102,6 +103,7 @@ fun GeneralTextField(
             }
         },
         keyboardActions = keyboardActions ?: KeyboardActions.Default,
+        isError = isError,
         singleLine = singleLine,
         readOnly = readOnly,
         visualTransformation = if (asPassword) {

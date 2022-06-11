@@ -55,7 +55,7 @@ class RoomViewModel
     private val worker = caseRoom.workManager.instance()
     private val prefs = caseRoom.preferences
 
-    private val currentUserId get() = prefs.userId
+    private val userId get() = prefs.userId
     val receiver get() = caseRoom.receiver
 
     /*private val _participationState = MutableStateFlow<Participation>(Participation.OnNothing)
@@ -202,9 +202,9 @@ class RoomViewModel
         caseRoom.clipboard.applyPlainText("ROOM ID", roomId)
 
     fun onCreatePressed(onSucceed: (Room.Complete) -> Unit) {
-        val model = formState.room.copy(userId = currentUserId)
+        val model = formState.room.copy(userId = userId)
 
-        if (!formState.isPostValid || currentUserId.isBlank()) {
+        if (!formState.isPostValid || userId.isBlank()) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
@@ -273,7 +273,7 @@ class RoomViewModel
     private fun flowUnregisterMessaging(room: Room.Complete, participant: Participant): Flow<Resource<out Any>> {
         val event = "${participant.user?.username} $JUST_KICKED_OUT ${room.title} class"
         val notifier = caseNotification.getNotification().copy(
-            userId = currentUserId,
+            userId = userId,
             roomId = participant.roomId,
             event = event,
             recipientId = participant.userId
@@ -350,11 +350,11 @@ class RoomViewModel
             .onEach(::onResource).launchIn(viewModelScope)
     }
 
-    override val rooms: Flow<PagingData<Room.Censored>> =
+    override val roomsCensored: Flow<PagingData<Room.Censored>> =
         caseRoom.getRooms(DEFAULT_BATCH_ROOM)
             .cachedIn(viewModelScope)
 
-    override val roomsOwner: Flow<PagingData<Room.Complete>> =
+    override val roomsComplete: Flow<PagingData<Room.Complete>> =
         caseRoom.getRooms(prefs.userId, DEFAULT_BATCH_ROOM)
             .cachedIn(viewModelScope)
 
@@ -427,6 +427,8 @@ class RoomViewModel
     override fun onImpressed() { TODO("Not yet implemented") }
     override fun onNewClassPressed() =
         onNavigateTo(Screen.Home.Summary.RoomCreator.route)
+    override fun onNotificationPressed() =
+        onNavigateTo(Screen.Home.Summary.Notification.route)
     override fun onButtonJoinRoomWithACodePressed() =
         onNavigateTo(Screen.Home.Summary.RoomFinder.route)
     override fun onRoomItemSelected(id: String) =
@@ -469,12 +471,12 @@ class RoomViewModel
     }
     override fun onJoinButtonRoomDetailPressed(room: Room.Complete) {
         val disclaimer = when {
-            currentUserId.isBlank() -> resource.string(R.string.not_signed_in_yet_to_join)
+            userId.isBlank() -> resource.string(R.string.not_signed_in_yet_to_join)
             room.isOwner -> resource.string(R.string.the_owner_itself_to_join)
-            room.participants.any { it.userId == currentUserId } -> resource.string(R.string.already_joined_to_join)
+            room.participants.any { it.userId == userId } -> resource.string(R.string.already_joined_to_join)
             else -> null
         }
-        val accepted = currentUserId.isNotBlank() && room.isOwner && room.participants.all { it.userId != currentUserId }
+        val accepted = userId.isNotBlank() && room.isOwner && room.participants.all { it.userId != userId }
         fun onSubmit() = onParticipationPressed(room.id)
 
         onShowDialog(DialogState(resource.string(R.string.participate_the_class), disclaimer){ onSubmit() }) //,

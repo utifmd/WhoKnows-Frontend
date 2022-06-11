@@ -7,8 +7,8 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
 import com.dudegenuine.whoknows.ux.vm.file.FileViewModel
 import com.dudegenuine.whoknows.ux.vm.file.IFileViewModel
-import com.dudegenuine.whoknows.ux.vm.main.ActivityViewModel
-import com.dudegenuine.whoknows.ux.vm.main.IActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.IMainViewModel
+import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
 import com.dudegenuine.whoknows.ux.vm.notification.NotificationViewModel
 import com.dudegenuine.whoknows.ux.vm.notification.contract.INotificationViewModel
 import com.dudegenuine.whoknows.ux.vm.participation.ParticipationViewModel
@@ -41,9 +41,12 @@ object ViewModelModule: IViewModelModule {
         messagingUseCaseModule: IMessageUseCaseModule,
         notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
-        savedStateHandle: SavedStateHandle): IActivityViewModel {
+        roomUseCaseModule: IRoomUseCaseModule,
+        quizUseCaseModule: IQuizUseCaseModule,
+        savedStateHandle: SavedStateHandle
+    ): IMainViewModel {
 
-        return ActivityViewModel(messagingUseCaseModule, notifier, userUseCaseModule, savedStateHandle)
+        return MainViewModel(messagingUseCaseModule, notifier, userUseCaseModule, roomUseCaseModule, quizUseCaseModule, savedStateHandle)
     }
 
     @Provides
@@ -109,10 +112,9 @@ object ViewModelModule: IViewModelModule {
     override fun provideNotificationViewModel(
         prefsFactory: IPrefsFactory,
         case: INotificationUseCaseModule,
-        caseUser: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): INotificationViewModel {
-        return NotificationViewModel(prefsFactory, case, caseUser, savedStateHandle)
+        return NotificationViewModel(prefsFactory, case, savedStateHandle)
     }
 
 

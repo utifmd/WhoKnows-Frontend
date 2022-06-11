@@ -33,13 +33,13 @@ abstract class BaseViewModel: ViewModel() {
     private val _state = mutableStateOf(ResourceState())
     val state get() = _state.value
 
-    private val _authState = mutableStateOf(ResourceState.Auth())
+    /*private val _authState = mutableStateOf(ResourceState.Auth())
     val authState: ResourceState.Auth
-        get() = _authState.value
+        get() = _authState.value*/
 
-    private val _storeState = mutableStateOf(ResourceState.Store())
-    val storeState: ResourceState.Store
-        get() = _storeState.value
+    private val _auth = mutableStateOf(ResourceState.Auth())
+    val auth: ResourceState.Auth
+        get() = _auth.value
 
     private val _screenState = MutableSharedFlow<ScreenState>()
     val screenState = _screenState.asSharedFlow()
@@ -48,12 +48,20 @@ abstract class BaseViewModel: ViewModel() {
         _state.value = fresh
     }
 
-    fun onAuthStateChange(fresh: ResourceState.Auth){
+    /*fun onAuthStateChange(fresh: ResourceState.Auth){
         _authState.value = fresh
-    }
+    }*/
 
-    fun onStoreStateChange(fresh: ResourceState.Store){
-        _storeState.value = fresh
+    fun onAuthChange(fresh: ResourceState.Auth){
+        Log.d(TAG, "onAuthChange: user ${fresh.user != null}")
+        if (fresh.invalidated) {
+            _auth.value = fresh
+            return
+        }
+        _auth.value = if(fresh.user != null) fresh else auth.copy(
+            loading = fresh.loading,
+            error = fresh.error
+        )
     }
 
     fun onScreenStateChange(state: ScreenState) {
@@ -301,17 +309,17 @@ abstract class BaseViewModel: ViewModel() {
             }
             is Resource.Loading -> {
                 Log.d(TAG, "onResourceAuthFlow: loading..")
-                _authState.value = ResourceState.Auth(loading = true)
+                onStateChange(ResourceState(loading = true))
 
                 resources.data?.let {
                     Log.d(TAG, "onResourceAuthFlow: loading already got data")
-                    _authState.value = ResourceState.Auth(loading = false)
+                    onStateChange(ResourceState(loading = false))
                     onSucceed.invoke(it)
                 } ?: emptyFlow()
             }
             is Resource.Error -> {
                 Log.d(TAG, "onResourceFlowError: ${resources.message}")
-                _authState.value = ResourceState.Auth(error = resources.message ?: "Invalid authentication")
+                onStateChange(ResourceState(error = resources.message ?: "Invalid authentication"))
 
                 resources.message?.let { onScreenStateChange(ScreenState.SnackBar(it)) }
                 emptyFlow()
@@ -319,23 +327,21 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    protected fun <T> onStore(resource: Resource<T>){
+    /*protected fun <T> onAuth(resource: Resource<T>){
         when(resource){
             is Resource.Success -> {
                 if(resource.data is User.Complete)
-                    onStoreStateChange(ResourceState.Store(user = resource.data as User.Complete))
+                    onAuthChange(ResourceState.Auth(user = resource.data as User.Complete))
             }
-            is Resource.Loading -> onStoreStateChange(ResourceState.Store(loading = true))
-            is Resource.Error -> onStoreStateChange(ResourceState.Store(error = resource.message ?: "resource error"))
+            else -> {
+                Log.d(TAG, "onStore: else..") }
+            *//*is Resource.Loading -> onStoreChange(ResourceState.Store(loading = true))
+            is Resource.Error -> onStoreChange(ResourceState.Store(error = resource.message ?: "resource error"))*//*
         }
-    }
+    }*/
 
-    protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User.Complete) -> Unit) {
-        onAuth(resources, onSucceed) {
-
-            _authState.value = ResourceState.Auth()
-        }
-    }
+    /*protected fun<T> onAuth(resources: Resource<T>, onSucceed: (User.Complete) -> Unit) =
+        onAuth(resources, onSucceed) { Log.d(TAG, "onAuth: onSignedOut invoked") }*/
 
     protected fun<T> onAuth(
         resources: Resource<T>, onSucceed: ((User.Complete) -> Unit)? = null, onSignedOut: (() -> Unit)? = null){
@@ -345,33 +351,26 @@ abstract class BaseViewModel: ViewModel() {
                 when(resources.data) {
                     is User.Complete -> (resources.data as User.Complete).let {
                         onSucceed?.invoke(it)
-                        onStateChange(ResourceState(user = it))
+                        onAuthChange(ResourceState.Auth(user = it))
                     }
 
                     is String -> {
                         onSignedOut?.invoke()
-                        onStateChange(ResourceState( // user signed out
-                            user = null,
-                            error = resources.message ?: "An unexpected error occurred."
-                        ))
+                        onAuthChange(ResourceState.Auth(invalidated = true)) // user signed out
                     }
-                    else -> ResourceState()
+                    else -> ResourceState.Auth(error = "unknown resources")
                 }
             }
 
             is Resource.Error -> {
                 Log.d(TAG, "Auth.Error: ${resources.message}")
-                _authState.value = ResourceState.Auth(
-                    error = resources.message ?: "An unexpected error occurred."
-                )
+                onAuthChange(ResourceState.Auth(error = resources.message ?: "An unexpected error occurred."))
 
-                resources.message?.let { onScreenStateChange(ScreenState.SnackBar(it)) }
+                resources.message?.let(::onShowSnackBar)
             }
             is Resource.Loading -> {
                 Log.d(TAG, "Auth.Loading..")
-                _authState.value = ResourceState.Auth(
-                    loading = true
-                )
+                onAuthChange(ResourceState.Auth(loading = true))
             }
         }
     }

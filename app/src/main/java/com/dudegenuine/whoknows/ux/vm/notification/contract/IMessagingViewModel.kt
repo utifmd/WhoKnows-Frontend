@@ -7,6 +7,10 @@ import com.dudegenuine.model.Messaging
  * WhoKnows by utifmd
  **/
 interface IMessagingViewModel {
+    companion object{
+        const val DEFAULT_NOTIFIER_BATCH_SIZE = 7
+    }
+
     fun createMessaging(messaging: Messaging.GroupCreator, onSucceed: (String) -> Unit){}
     fun getMessaging(keyName: String, onSucceed: (String) -> Unit){}
     fun addMessaging(messaging: Messaging.GroupAdder, onSucceed: (String) -> Unit){}

@@ -14,6 +14,7 @@ import com.dudegenuine.repository.contract.IRoomRepository.Companion.NOT_FOUND
 import com.dudegenuine.repository.contract.dependency.local.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 /**
@@ -65,7 +66,9 @@ class RoomRepository
             listCompleteRemote(userId, page, batchSize)
         }
 
-    override suspend fun clearParticipation(): Flow<Unit> = flowOf(deleteBoardingLocal())
+    override suspend fun clearParticipation(): Flow<Unit> =
+        flowOf(deleteBoardingLocal())
+            .onCompletion { onParticipationIdChange("") }
 
     override suspend fun createBoardingLocal(participation: Participation) {
         daoBoarding.create(mapper.asParticipationTable(participation)).also {

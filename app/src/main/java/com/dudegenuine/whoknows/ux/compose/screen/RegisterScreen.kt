@@ -25,6 +25,7 @@ import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ux.compose.component.GeneralButton
 import com.dudegenuine.whoknows.ux.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ux.compose.component.misc.FrontLiner
+import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.vm.user.UserViewModel
 
 /**
@@ -35,11 +36,11 @@ import com.dudegenuine.whoknows.ux.vm.user.UserViewModel
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
+    auth: ResourceState.Auth,
     viewModel: UserViewModel = hiltViewModel(),
     scrollState: ScrollState = rememberScrollState()){
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val authState = viewModel.authState
     val formState = viewModel.formState
 
     Column(modifier.padding(16.dp).verticalScroll(scrollState),
@@ -84,13 +85,13 @@ fun RegisterScreen(
                 onDone = { keyboardController?.hide(); viewModel.registerUser() })
         )
 
-        if (authState.error.isNotBlank())
-            ErrorScreen(message = authState.error, isSnack = true)
+        if (auth.error.isNotBlank())
+            ErrorScreen(message = auth.error, isSnack = true)
 
         GeneralButton(
             label = stringResource(R.string.sign_up),
-            enabled = formState.isRegisValid.value && !authState.loading,
-            isLoading = authState.loading,
+            enabled = formState.isRegisValid.value && !auth.loading,
+            isLoading = auth.loading,
             onClick = viewModel::registerUser
         )
 

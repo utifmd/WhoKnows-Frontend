@@ -2,7 +2,6 @@ package com.dudegenuine.usecase.user
 
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
-import com.dudegenuine.model.common.Utility.concatenate
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.repository.contract.IUserRepository
@@ -22,22 +21,15 @@ class SignInUser
     @Inject constructor(
     private val repoUser: IUserRepository,
     private val repoMsg: IMessagingRepository) {
+    private val TAG: String = javaClass.simpleName
 
     operator fun invoke(params: User.Signer): Flow<Resource<User.Complete>> = flow {
         try {
-            repoUser.signInFlow(params).flatMapConcat { currentUser ->
-                val joins = currentUser.participants.map { it.roomId }
-                val owns = currentUser.rooms.map { it.roomId }
-
-                flowOf(repoUser.localSignIn(currentUser))
-                    .flatMapMerge{ concatenate(joins, owns).asFlow()
-                        .flatMapConcat(repoMsg::registerGroupTokenFlow) }
-                    .onStart{ emit(Resource.Loading()) }
-                    .onCompletion { if (it == null)
-                        emit(Resource.Success(currentUser)) else
-                        emit(Resource.Error(it.localizedMessage ?: "Error occurred"))
-                    }
-            }.collect()
+            repoUser.remoteSignInFlow(params)
+                .flatMapConcat(repoUser::localSignInFlow)
+                .onStart{ emit(Resource.Loading()) }
+                .onEach{ emit(Resource.Success(it)) }
+                .collect()
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: HttpException){

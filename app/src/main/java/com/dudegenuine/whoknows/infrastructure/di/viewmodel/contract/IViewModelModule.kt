@@ -5,7 +5,7 @@ import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ux.vm.file.IFileViewModel
-import com.dudegenuine.whoknows.ux.vm.main.IActivityViewModel
+import com.dudegenuine.whoknows.ux.vm.main.IMainViewModel
 import com.dudegenuine.whoknows.ux.vm.notification.contract.INotificationViewModel
 import com.dudegenuine.whoknows.ux.vm.participation.contract.IParticipantViewModel
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizViewModel
@@ -22,7 +22,9 @@ interface IViewModelModule {
         messagingUseCaseModule: IMessageUseCaseModule,
         notifier: INotificationUseCaseModule,
         userUseCaseModule: IUserUseCaseModule,
-        savedStateHandle: SavedStateHandle): IActivityViewModel
+        roomUseCaseModule: IRoomUseCaseModule,
+        quizUseCaseModule: IQuizUseCaseModule,
+        savedStateHandle: SavedStateHandle): IMainViewModel
 
     fun provideUserViewModel(
         prefsFactory: IPrefsFactory,
@@ -60,7 +62,6 @@ interface IViewModelModule {
     fun provideNotificationViewModel(
         prefsFactory: IPrefsFactory,
         case: INotificationUseCaseModule,
-        caseUser: IUserUseCaseModule,
         savedStateHandle: SavedStateHandle): INotificationViewModel
 
     fun provideFileViewModel(

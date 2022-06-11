@@ -41,7 +41,7 @@ fun ProfileScreen(
     viewModel: UserViewModel = hiltViewModel(), state: ResourceState){ /*val state = viewModel.state val formState = viewModel.formState val byteArray = viewModel.formState.profileImage*/
     val context = LocalContext.current
     val scrollState: ScrollState = rememberScrollState()
-    val swipeRefreshState = rememberSwipeRefreshState(viewModel.state.loading)
+    val swipeRefreshState = rememberSwipeRefreshState(viewModel.auth.loading || viewModel.state.loading)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { viewModel.formState.onImageValueChange(it, context) })

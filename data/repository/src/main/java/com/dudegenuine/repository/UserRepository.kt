@@ -15,6 +15,7 @@ import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 /**
@@ -34,49 +35,31 @@ class UserRepository
         val remoteUser = mapper.asUser(
             service.create(mapper.asEntity(user.copy(password = encrypt(user.password))))
         )
-
         return remoteUser.also { localCreate(mapper.asUserTable(it)) }
     }
-
     override suspend fun remoteRead(id: String): User.Complete {
-
         /*if (id == preference.userId)
             localUpdate(mapper.asUserTable(remoteUser))
-
         Log.d(TAG, "read: triggered")*/
-
         return mapper.asUser(service.read(id))
     }
-
     override suspend fun remoteUpdate(id: String, user: User.Complete): User.Complete {
         val remoteUser = mapper.asUser(service.update(id, mapper.asEntity(user)))
-
         return remoteUser.also { localUpdate(mapper.asUserTable(it)) }
     }
-
     override suspend fun remoteDelete(id: String) {
         service.delete(id)
-
         localDelete(id)
     }
-
     override suspend fun remoteList(page: Int, size: Int): List<User.Complete> = mapper.asUsers(
         service.list(page, size)
     )
-
     override suspend fun remoteListOrderByParticipant(page: Int, size: Int): List<User.Censored> = mapper.asUsersCensored(
         service.listOrderByParticipant(page, size)
     )
-
     override fun remotePages(batchSize: Int): PagingSource<Int, User.Censored> = mapper.asPagingSource { page ->
         remoteListOrderByParticipant(page, batchSize)
     }
-
-    override suspend fun signInFlow(signer: User.Signer) =
-        flowOf(remoteSignIn(signer))
-
-    override suspend fun clearCurrentUser() = flowOf(localDelete(preference.userId))
-
     override suspend fun remoteReadFlow(): Flow<User.Complete> =
         flowOf(remoteRead(preference.userId))
 
@@ -90,47 +73,26 @@ class UserRepository
             User.Complete = mapper.asUser(service.signIn(params.copy(
         password = encrypt(params.password))))
 
-    /*{
-        val response = service.signIn(mapper.asLogin(params))
-
-        val reqPwd = params[User.Complete.PASSWORD] ?: throw HttpFailureException("Incorrect password")
-        val respPwd = response.data?.password
-
-        val decrypt = Utility.decrypt(reqPwd)
-
-        Log.d(TAG, "signIn: reqPwd = $reqPwd")
-        Log.d(TAG, "signIn: respPwd = $respPwd")
-        Log.d(TAG, "signIn: decrypt = $decrypt")
-
-        return if (decrypt == reqPwd) mapper.asUser(response)
-        else throw HttpFailureException("Incorrect password")
-    }*/
+    override suspend fun remoteSignInFlow(signer: User.Signer) =
+        flowOf(remoteSignIn(signer))
 
     override suspend fun localSignIn(model: User.Complete): User.Complete {
         localCreate(mapper.asUserTable(model))
         return model
     }
+    override suspend fun localSignInFlow(model: User.Complete): Flow<User.Complete> =
+        flowOf(localSignIn(model))
+            .onCompletion { onUserIdChange(model.id) }
 
-    /*override suspend fun onSignOut(user: User.Complete): String {
-        val finalId = user.id //prefsFactory.userId
-
-        localDelete(finalId)
-
-        return finalId
-    }*/
+    override suspend fun localSignOutFlow() =
+        flowOf(localDelete(preference.userId))
+            .onCompletion { onUserIdChange("") }
 
     override suspend fun localCreate(userTable: UserTable) =
-        local.create(userTable).also {
-            onUserIdChange(userTable.userId)
+        local.create(userTable)
 
-            //prefs.write(CURRENT_USER_ID, userTable.userId)
-        }
-
-    override suspend fun localUpdate(userTable: UserTable) {
+    override suspend fun localUpdate(userTable: UserTable) =
         local.update(userTable)
-
-        Log.d(TAG, "replace: triggered")
-    }
 
     override suspend fun localRead(userId: String?): User.Complete {
         val finalId = userId ?: preference.userId
@@ -142,16 +104,16 @@ class UserRepository
             throw HttpFailureException(CURRENT_USER_NOT_FOUND)
     }
 
+    override suspend fun localReadFlow(): Flow<User.Complete> =
+        flowOf(localRead(preference.userId))
+
     override suspend fun localDelete(userId: String) {
-        val currentUser = local.read(userId) //?: throw HttpFailureException(NOT_FOUND)
+        val currentUser = local.read(userId)
 
         if (currentUser != null) local.delete(currentUser)
         else local.delete()
 
-        Log.d(TAG, "unload: triggered")
-
-        onUserIdChange("")
-        //prefs.write(CURRENT_USER_ID, "")
+        Log.d(TAG, "localDelete: triggered")
     }
 
     private fun onUserIdChange(fresh: String){

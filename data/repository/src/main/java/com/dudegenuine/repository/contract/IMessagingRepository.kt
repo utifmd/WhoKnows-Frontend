@@ -24,7 +24,7 @@ interface IMessagingRepository {
     suspend fun remove(messaging: Messaging): ResponseBody
     suspend fun push(messaging: Messaging): ResponseBody
 
-    suspend fun readFlow(keyName: String): Flow<String>
+    suspend fun readFlow(keyName: String): Flow<Messaging.Getter.Response>
     suspend fun removeFlow(keyName: String, key: String): Flow<String>
     suspend fun createFlow(keyName: String): Flow<String>
     suspend fun addFlow(keyName: String, key: String): Flow<String>
