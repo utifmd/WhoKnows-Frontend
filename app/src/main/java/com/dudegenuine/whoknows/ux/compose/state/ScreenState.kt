@@ -3,6 +3,7 @@ package com.dudegenuine.whoknows.ux.compose.state
 import androidx.compose.material.SnackbarDuration
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
+import com.dudegenuine.whoknows.ux.compose.model.Dialog
 
 /**
  * Wed, 01 Jun 2022
@@ -27,6 +28,6 @@ sealed class ScreenState {
         val duration: SnackbarDuration = SnackbarDuration.Short
     ): ScreenState()
     data class AlertDialog(
-        val state: DialogState?
+        val state: Dialog?
     ): ScreenState()
 }

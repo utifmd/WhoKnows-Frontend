@@ -52,7 +52,7 @@ fun ProfileScreen(
                 title = state.user?.username ?: "",
                 leads = if (state.user?.isCurrentUser == true) null else Icons.Filled.ArrowBack,
                 onLeadsPressed = if (state.user?.isCurrentUser == true) null else viewModel::onBackPressed,
-                tails = Icons.Filled.MoreVert,
+                tails = Icons.Filled.Share,
                 onTailPressed = if (state.user != null){
                     { state.user.id.let(viewModel::onSharePressed) }} else null
             )}) { padding ->

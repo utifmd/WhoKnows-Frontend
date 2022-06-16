@@ -16,8 +16,8 @@ import com.dudegenuine.repository.contract.dependency.local.IWorkerManager.Compa
 import com.dudegenuine.repository.contract.dependency.local.IWorkerManager.Companion.TAG_ROOM_TOKEN
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
+import com.dudegenuine.whoknows.ux.compose.model.Dialog
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
-import com.dudegenuine.whoknows.ux.compose.state.DialogState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DESC_TOO_LONG
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
@@ -58,12 +58,23 @@ class RoomViewModel
     private val userId get() = prefs.userId
     val receiver get() = caseRoom.receiver
 
-    /*private val _participationState = MutableStateFlow<Participation>(Participation.OnNothing)
-    val participationState get() = _participationState*/
-
-    /*fun onParticipationStateChange(state: Participation){
-        Log.d(TAG, "onParticipationStateChange: $state")
-        _participationState.value = state
+    /*private val _regional = mutableStateOf(ResourceState())
+    val regional
+        get() = _regional.value
+    fun onRegionalStateChange(state: ResourceState){
+        Log.d(TAG, "onRegionalStateChange: tiggered")
+        _regional.value = state
+    }
+    protected fun<T> onRegionalResource(resource: Resource<T>){
+        onResourceSucceed(resource){ data ->
+            when(data){
+                is Room.Complete -> onRegionalStateChange(regional.copy(
+                    error = EMPTY_STRING,
+                    loading = false,
+                    room = data
+                ))
+            }
+        }
     }*/
 
     private val _formState = mutableStateOf(RoomState())
@@ -120,7 +131,11 @@ class RoomViewModel
         }*/
 
     private fun onDetailRouted(){
-        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(this::getRoom)
+        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let {
+            Log.d(TAG, "onDetailRouted: $it")
+
+            getRoom(it)
+        }
     }
 
     private fun onParticipationRouted() {
@@ -304,14 +319,32 @@ class RoomViewModel
             .onEach(::onResource).launchIn(viewModelScope)
     }
 
+    /*var detailedRoom
+        by mutableStateOf<Room.Complete?>(null)
+    private set
+    fun onDetailRoomChange(room: Room.Complete?){
+        detailedRoom = room
+    }*/
+
     override fun getRoom(id: String) {
+        if (id.isBlank()){
+            onStateChange(ResourceState(error = DONT_EMPTY))
+            return
+        }
+        caseRoom.getRoom(id)
+            .onEach(::onResource)
+            .launchIn(viewModelScope)
+    }
+
+    private fun getRoom(id: String, onSucceed: (Room.Complete) -> Unit) {
         if (id.isBlank()){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
 
         caseRoom.getRoom(id)
-            .onEach(::onResource).launchIn(viewModelScope)
+            .onEach{ onResourceSucceed(it, onSucceed) }
+            .launchIn(viewModelScope)
     }
 
     override fun patchRoom(id: String, current: Room.Complete) {
@@ -424,6 +457,9 @@ class RoomViewModel
             .onEach{ res -> onResourceStateless(res, onSucceed) }
             .launchIn(viewModelScope)
     }
+    fun onRoomFinderButtonGoPressed(roomId: String) =
+        getRoom(roomId){ onNavigateTo(Screen.Home.Discover.RoomDetail.routeWithArgs(roomId)) }
+
     override fun onImpressed() { TODO("Not yet implemented") }
     override fun onNewClassPressed() =
         onNavigateTo(Screen.Home.Summary.RoomCreator.route)
@@ -431,7 +467,7 @@ class RoomViewModel
         onNavigateTo(Screen.Home.Summary.Notification.route)
     override fun onButtonJoinRoomWithACodePressed() =
         onNavigateTo(Screen.Home.Summary.RoomFinder.route)
-    override fun onRoomItemSelected(id: String) =
+    override fun onRoomHomeScreenDetailSelected(id: String) =
         onNavigateTo(Screen.Home.Summary.RoomDetail.routeWithArgs(id))
     override fun onNewRoomQuizPressed(room: Room.Complete) { if (room.participants.isEmpty())
         onNavigateTo(Screen.Home.Summary.RoomDetail.QuizCreator.routeWithArgs(room.id, room.userId)) else
@@ -479,12 +515,12 @@ class RoomViewModel
         val accepted = userId.isNotBlank() && room.isOwner && room.participants.all { it.userId != userId }
         fun onSubmit() = onParticipationPressed(room.id)
 
-        onShowDialog(DialogState(resource.string(R.string.participate_the_class), disclaimer){ onSubmit() }) //,
-            //onSubmitted = if (accepted) ::onSubmit else null)
+        onShowDialog(Dialog(resource.string(R.string.participate_the_class), disclaimer,
+            onSubmitted = if (accepted) ::onSubmit else null))
     }
     override fun onCloseRoomPressed(room: Room.Complete, onComplete: () -> Unit) {
         val disclaimer = resource.string(R.string.no_longer_participation)
-        onShowDialog(DialogState(resource.string(R.string.close_the_class), disclaimer) { if(room.questions.size >= 3)
+        onShowDialog(Dialog(resource.string(R.string.close_the_class), disclaimer) { if(room.questions.size >= 3)
             expireRoom(room, onComplete) else
                 onShowSnackBar(resource.string(R.string.allowed_after_add_3_quest)) })
     }
@@ -495,23 +531,29 @@ class RoomViewModel
             else -> null
         }
         val accepted = room.participants.isEmpty() && room.questions.all { it.images.isEmpty() }
-        onShowDialog(DialogState(resource.string(R.string.delete_class), disclaimer,
+        onShowDialog(
+            Dialog(resource.string(R.string.delete_class), disclaimer,
             onSubmitted = if (accepted) {
-                { onDeleteRoomPressed(room.id, ::onDeleteRoomSucceed) }} else null))
+                { onDeleteRoomPressed(room.id, ::onDeleteRoomSucceed) }} else null)
+        )
     }
     override fun onParticipantLongPressed(enabled: Boolean, participant: Participant) =
-        onShowDialog(DialogState(resource.string(R.string.delete_participant),
+        onShowDialog(
+            Dialog(resource.string(R.string.delete_participant),
             if (!enabled) resource.string(R.string.allowed_when_class_opened) else null,
             onSubmitted = if(enabled) {
-                { onDeleteParticipantPressed(participant, ::onReNavigateRoom) }} else null))
+                { onDeleteParticipantPressed(participant, ::onReNavigateRoom) }} else null)
+        )
     override fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete) {
         val accepted = !room.expired && room.participants.isEmpty()
         val disclaimer: String? = when{
             room.expired -> resource.string(R.string.allowed_when_class_opened)
             room.participants.isNotEmpty() -> resource.string(R.string.already_participantion)
             else -> null}
-        onShowDialog(DialogState(resource.string(R.string.delete_question), disclaimer,
+        onShowDialog(
+            Dialog(resource.string(R.string.delete_question), disclaimer,
             onSubmitted = if(accepted) {
-                { onDeleteQuestionPressed(quiz, ::onReNavigateRoom) }} else null))
+                { onDeleteQuestionPressed(quiz, ::onReNavigateRoom) }} else null)
+        )
     }
 }

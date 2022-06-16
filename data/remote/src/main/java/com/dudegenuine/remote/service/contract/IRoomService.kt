@@ -15,6 +15,7 @@ interface IRoomService {
     suspend fun listComplete(page: Int, size: Int): Response<List<RoomEntity.Complete>>
     suspend fun listCensored(page: Int, size: Int): Response<List<RoomEntity.Censored>>
     suspend fun listComplete(userId: String, page: Int, size: Int): Response<List<RoomEntity.Complete>>
+    suspend fun listCensoredSearched(query: String, page: Int, size: Int): Response<List<RoomEntity.Censored>>
 
     companion object {
         const val API_KEY = "X-Api-Key: utif.pages.dev"

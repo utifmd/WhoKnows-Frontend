@@ -16,6 +16,7 @@ interface IUserService {
     suspend fun list(page: Int, size: Int): Response<List<UserEntity.Complete>>
     suspend fun listOrderByParticipant(page: Int, size: Int): Response<List<UserEntity.Censored>>
     suspend fun signIn(loginRequest: User.Signer): Response<UserEntity.Complete>
+    suspend fun listCensoredSearched(query: String, page: Int, size: Int): Response<List<UserEntity.Censored>>
 
     companion object {
         const val API_KEY = "X-Api-Key: utif.pages.dev"

@@ -43,13 +43,49 @@ fun <T: Any> LazyStatePaging(
                     .fillMaxWidth(),
                     contentAlignment = Alignment.Center){
                     ErrorScreen(
-                        message = error,
+                        message = if (error == Resource.NOT_FOUND_EXCEPTION) Resource.NO_RESULT else error,
                         onPressed = items::retry,
                         isSnack = true,
-                        isDanger = error != Resource.NO_RESULT
+                        isDanger = error != Resource.NO_RESULT || error != Resource.NOT_FOUND_EXCEPTION
+                    )
+                }
+            }
+            loadState.append.endOfPaginationReached && itemCount < 1 -> {
+                Box(if (width != null) modifier
+                    .height(height)
+                    .width(width) else modifier
+                    .height(height)
+                    .fillMaxWidth(),
+                    contentAlignment = Alignment.Center){
+                    ErrorScreen(
+                        message = Resource.NO_RESULT,
+                        onPressed = items::retry,
+                        isSnack = true,
+                        isDanger = false
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun <T: Any> LazyStatePaging(
+    items: LazyPagingItems<T>) = with(items) {
+    when {
+        loadState.prepend is LoadState.Loading ||
+                loadState.refresh is LoadState.Loading -> LoadBoxScreen()
+        loadState.refresh is LoadState.Error -> ErrorScreen(
+            message = Resource.NO_RESULT,
+            onPressed = items::retry,
+            isSnack = true,
+            isDanger = true
+        )
+        loadState.append.endOfPaginationReached && itemCount < 1 -> ErrorScreen(
+            message = Resource.NO_RESULT,
+            onPressed = items::retry,
+            isSnack = true,
+            isDanger = false
+        )
     }
 }

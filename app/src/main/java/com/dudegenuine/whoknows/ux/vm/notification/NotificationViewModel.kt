@@ -13,7 +13,7 @@ import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
-import com.dudegenuine.whoknows.ux.compose.state.DialogState
+import com.dudegenuine.whoknows.ux.compose.model.Dialog
 import com.dudegenuine.whoknows.ux.compose.state.NotificationState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
@@ -55,7 +55,7 @@ class NotificationViewModel
     }*/
 
     fun onLongPressed(notId: String){
-        val dialog = DialogState(resource.string(R.string.delete_notifier),
+        val dialog = Dialog(resource.string(R.string.delete_notifier),
             onSubmitted = { notId.let(::deleteNotification) })
         onShowDialog(dialog)
     }

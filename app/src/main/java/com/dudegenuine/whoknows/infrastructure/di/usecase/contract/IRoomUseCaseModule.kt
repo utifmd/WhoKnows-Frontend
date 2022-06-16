@@ -6,6 +6,7 @@ import com.dudegenuine.usecase.participation.GetBoarding
 import com.dudegenuine.usecase.participation.PatchBoarding
 import com.dudegenuine.usecase.participation.PostBoarding
 import com.dudegenuine.usecase.room.*
+import com.dudegenuine.usecase.search.SearchRooms
 
 /**
  * Wed, 08 Dec 2021
@@ -22,6 +23,7 @@ interface IRoomUseCaseModule {
     val postBoarding: PostBoarding
     val patchBoarding: PatchBoarding
     val deleteBoarding: DeleteBoarding
+    val searchRooms: SearchRooms
 
     val workManager: IWorkerManager
     val workRequest: ITokenWorkManager
@@ -31,8 +33,4 @@ interface IRoomUseCaseModule {
     val clipboard: IClipboardManager
     val timer: ITimerLauncher
     val share: IShareLauncher
-
-    companion object {
-        const val EMPTY_STRING = ""
-    }
 }

@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.usecase.contract
 
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
+import com.dudegenuine.usecase.search.SearchUser
 import com.dudegenuine.usecase.user.*
 
 /**
@@ -17,6 +18,7 @@ interface IUserUseCaseModule {
     val deleteUser: DeleteUser
     val getUsers: GetUsers
     val getUsersParticipation: GetUsersParticipation
+    val searchUser: SearchUser
 
     val preferences: IPrefsFactory
     val workManager: IWorkerManager

@@ -10,7 +10,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Class
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +30,7 @@ import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.ux.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ux.compose.component.misc.LazyStatePaging
+import com.dudegenuine.whoknows.ux.compose.model.BottomDomain.Companion.DISCOVER
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.quiz.QuestItem
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.room.RoomItem
@@ -49,6 +54,15 @@ fun FeedScreen(
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val listState: LazyListState = rememberLazyListState()
     val swipeRefreshState = rememberSwipeRefreshState(false)
+
+    /*val lazyPagingRoomCensored = remember{
+        derivedStateOf {
+            props.lazyPagingRoomCensored.itemSnapshotList.items.filter {
+                it.expired
+            }
+        }
+    }*/
+
     val onRefresh: () -> Unit = {
         props.run {
             lazyPagingParticipants.refresh()
@@ -58,11 +72,11 @@ fun FeedScreen(
     }
     Scaffold(modifier.fillMaxSize(),
         topBar = {
-            GeneralTopBar(
-                title = "Discovery",
-                tails = Icons.Filled.Search,
-                onTailPressed = onSearchPressed
-            )
+             GeneralTopBar(
+                 title = DISCOVER,
+                 tails = Icons.Outlined.Search,
+                 onTailPressed = onSearchPressed
+             )
         },
         scaffoldState = scaffoldState) {
         SwipeRefresh(swipeRefreshState, onRefresh) {
@@ -132,7 +146,7 @@ private fun BodyRoom(
     if (lazyRooms == null) return
 
     Body(modifier, "Most happening ${if (lazyRooms.itemCount > 1) "classes" else "class"}",
-        Icons.Filled.Class/*, true*/) {
+        Icons.Filled.Class /*, true*/) {
         val rowState = rememberLazyListState()
 
         LazyRow(modifier.padding(vertical = 6.dp),
@@ -144,9 +158,7 @@ private fun BodyRoom(
                     RoomItem(
                         modifier.width(246.dp),
                         model = it,
-                        onImpressed = {
-
-                        }
+                        onImpressed = { }
                     )
                 }
             }

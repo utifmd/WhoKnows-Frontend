@@ -54,4 +54,10 @@ interface RoomService: IRoomService {
         @Query("page") page: Int,
         @Query("size") size: Int): Response<List<RoomEntity.Complete>>
 
+    @Headers(API_KEY, ACCEPT)
+    @GET("${ENDPOINT}/search/{titleOrDesc}")
+    override suspend fun listCensoredSearched(
+        @Path("titleOrDesc") query: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int): Response<List<RoomEntity.Censored>>
 }

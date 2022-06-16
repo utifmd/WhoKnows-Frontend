@@ -2,6 +2,7 @@ package com.dudegenuine.repository.contract
 
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.UserTable
+import com.dudegenuine.model.Search
 import com.dudegenuine.model.User
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
@@ -22,6 +23,9 @@ interface IUserRepository {
 
     fun remotePages(batchSize: Int): PagingSource<Int, User.Censored>
     //suspend fun onSignOut(user: User.Complete): String
+
+    fun remoteSearchPageCensored(query: String, batch: Int): PagingSource<Int, User.Censored>
+    fun remoteSearchSource(query: String, batch: Int): PagingSource<Int, Search<*>>
 
     suspend fun remoteSignInFlow(signer: User.Signer): Flow<User.Complete>
     suspend fun remoteCreateFlow(user: User.Complete): Flow<User.Complete>

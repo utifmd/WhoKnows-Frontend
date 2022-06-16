@@ -22,4 +22,8 @@ interface IAppUseCaseModule {
         preferences: IPrefsFactory,
     ): IUserUseCaseModule
     fun provideNotificationUseCaseModule(repository: INotificationRepository): INotificationUseCaseModule
+
+    companion object {
+        const val EMPTY_STRING = ""
+    }
 }

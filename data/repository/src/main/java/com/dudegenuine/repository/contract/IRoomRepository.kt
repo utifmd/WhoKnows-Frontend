@@ -5,6 +5,7 @@ import com.dudegenuine.local.entity.RoomCensoredTable
 import com.dudegenuine.local.entity.RoomCompleteTable
 import com.dudegenuine.model.Participation
 import com.dudegenuine.model.Room
+import com.dudegenuine.model.Search
 import com.dudegenuine.repository.contract.dependency.local.*
 import kotlinx.coroutines.flow.Flow
 
@@ -27,6 +28,8 @@ interface IRoomRepository {
     suspend fun listCompleteRemote(userId: String, page: Int, size: Int): List<Room.Complete>
     fun pageCensoredRemote(batchSize: Int): PagingSource<Int, Room.Censored>
     fun pageCompleteRemote(userId: String, batchSize: Int): PagingSource<Int, Room.Complete>
+    fun remoteSearchPageCensored(query: String, batch: Int): PagingSource<Int, Room.Censored>
+    fun remoteSearchSource(query: String, batch: Int): PagingSource<Int, Search<*>>
 
     suspend fun clearParticipation(): Flow<Unit>
 

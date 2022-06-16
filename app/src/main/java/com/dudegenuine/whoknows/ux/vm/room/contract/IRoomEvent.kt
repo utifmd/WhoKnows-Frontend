@@ -28,7 +28,7 @@ interface IRoomEvent {
 interface IRoomEventHome: IRoomEvent {
     fun onNewClassPressed()
     fun onButtonJoinRoomWithACodePressed()
-    fun onRoomItemSelected(id: String)
+    fun onRoomHomeScreenDetailSelected(id: String)
     fun onNotificationPressed()
     fun onImpressed()
 }

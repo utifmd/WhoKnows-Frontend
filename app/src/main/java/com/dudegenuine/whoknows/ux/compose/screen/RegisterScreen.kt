@@ -8,7 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.runtime.Composable
@@ -55,7 +55,7 @@ fun RegisterScreen(
             onValueChange = formState.onUsernameChange,
             leads = Icons.Filled.Email,
             tails = if (formState.payload.text.isNotBlank())
-                Icons.Filled.Close else null,
+                Icons.Filled.Clear else null,
             onTailPressed = { formState.onUsernameChange("") },
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.moveFocus(FocusDirection.Down) })
@@ -67,7 +67,7 @@ fun RegisterScreen(
             leads = Icons.Filled.Password,
             onValueChange = formState.onPasswordChange,
             tails = if (formState.password.text.isNotBlank())
-                Icons.Filled.Close else null,
+                Icons.Filled.Clear else null,
             onTailPressed = { formState.onPasswordChange("") },
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.moveFocus(FocusDirection.Down) })
@@ -79,7 +79,7 @@ fun RegisterScreen(
             leads = Icons.Filled.Password,
             onValueChange = formState.onRePasswordChange,
             tails = if (formState.rePassword.text.isNotBlank())
-                Icons.Filled.Close else null,
+                Icons.Filled.Clear else null,
             onTailPressed = { formState.onRePasswordChange("") },
             keyboardActions = KeyboardActions(
                 onDone = { keyboardController?.hide(); viewModel.registerUser() })
@@ -101,7 +101,7 @@ fun RegisterScreen(
             onValueChange = formState.onFullNameChange,
             leads = Icons.Filled.Person,
             tails = if (formState.fullName.text.isNotBlank())
-                Icons.Filled.Close else null,
+                Icons.Filled.Clear else null,
             onTailPressed = { formState.onFullNameChange("") }
         )
         GeneralTextField(
@@ -110,7 +110,7 @@ fun RegisterScreen(
             onValueChange = formState.onPhoneChange,
             leads = Icons.Filled.Phone,
             tails = if (formState.phone.text.isNotBlank())
-                Icons.Filled.Close else null,
+                Icons.Filled.Clear else null,
             onTailPressed = { formState.onPhoneChange("") }
         )*/
     }

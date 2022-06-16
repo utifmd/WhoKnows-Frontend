@@ -5,6 +5,7 @@ import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.repository.contract.IUserRepository
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
+import com.dudegenuine.usecase.search.SearchUser
 import com.dudegenuine.usecase.user.*
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 
@@ -43,6 +44,7 @@ class UserUseCaseModule(
         roomRepository,
         messagingRepository
     ),
+    override val searchUser: SearchUser = SearchUser(userRepository),
     override val preferences: IPrefsFactory = userRepository.preference,
-    override val workManager: IWorkerManager = roomRepository.workManager
+    override val workManager: IWorkerManager = roomRepository.workManager,
 ): IUserUseCaseModule

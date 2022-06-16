@@ -8,6 +8,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.ux.compose.component.GeneralAlertDialog
 import com.dudegenuine.whoknows.ux.compose.component.GeneralBottomBar
 import com.dudegenuine.whoknows.ux.compose.model.BottomDomain
@@ -31,9 +32,8 @@ fun MainScreen(
     WhoKnowsTheme {
         val scaffoldState = rememberScaffoldState()
         val snackHostState by remember{ mutableStateOf(scaffoldState.snackbarHostState) }
-        var badge by remember/*(props.viewModel.auth.user?.notifications?.size)*/{
-            mutableStateOf(props.viewModel.auth.user?.notifications?.size ?: 0)
-        }
+        val (badge, setBadge) = remember{ mutableStateOf(props.viewModel.auth.user?.notifications?.size ?: 0) }
+
         Scaffold(modifier,
             scaffoldState = scaffoldState,
             content = { padding ->
@@ -54,13 +54,16 @@ fun MainScreen(
                     GeneralBottomBar(
                         items = badge.let(BottomDomain.listItem),
                         controller = props.router) {
-                        if (badge > 0 && it.name == BottomDomain.SUMMARY) badge = 0
+                        if (badge > 0 && it.name == BottomDomain.SUMMARY) setBadge(0)
                     }
                 }
             }
         )
         LaunchedEffect(viewModel.auth.user){
-            viewModel.auth.user?.id?.let { viewModel.onRoomCompleteParameterChange(FlowParameter.RoomComplete(it)) }
+            viewModel.auth.user?.run{
+                viewModel.onRoomCompleteParameterChange(FlowParameter.RoomComplete(id))
+                viewModel.onNotificationParameterChange(FlowParameter.Notification(id))
+            }
         }
         LaunchedEffect(viewModel.screenState){
             viewModel.screenState.collectLatest{ state ->
@@ -68,7 +71,7 @@ fun MainScreen(
                     is ScreenState.Toast -> with(state) { Toast.makeText(props.context, message, duration).show() }
                     is ScreenState.SnackBar -> with(state) { snackHostState.showSnackbar(message, label, duration) }
                     is ScreenState.Navigate.Back -> props.router.popBackStack()
-                    is ScreenState.Navigate.To -> props.router.navigate(state.route, state.option)
+                    is ScreenState.Navigate.To -> try { props.router.navigate(state.route, state.option) } catch (e: Exception){ viewModel.onToast(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION) }
                     else -> {}
                 }
             }

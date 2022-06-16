@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
@@ -37,18 +36,15 @@ import okhttp3.internal.http.toHttpDateString
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun RoomDetail(
-    modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel()) {
+    modifier: Modifier = Modifier, viewModel: RoomViewModel) {
     val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModel.state
     val toggle: () -> Unit = {
         coroutineScope.launch {
             if(scaffoldState.isRevealed) scaffoldState.conceal()
-            else scaffoldState.reveal()
-        }
-    }
-    state.room?.let { model ->
+            else scaffoldState.reveal() }}
+
+    viewModel.state.room?.let { model ->
         BackdropScaffold(
             modifier = modifier.fillMaxSize(),
             scaffoldState = scaffoldState,
@@ -78,8 +74,8 @@ fun RoomDetail(
         )
     }
 
-    if (state.loading) LoadingScreen(modifier)
-    if (state.error.isNotBlank()) ErrorScreen(modifier, message = state.error)
+    if (viewModel.state.loading) LoadingScreen(modifier)
+    if (viewModel.state.error.isNotBlank()) ErrorScreen(modifier, message = viewModel.state.error)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -105,8 +101,12 @@ private fun BackLayer(
         }
 
         if (model.isOwner) {
-            Row(modifier.fillMaxWidth().defaultMinSize(
-                ButtonDefaults.MinWidth, ButtonDefaults.MinHeight),
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(
+                        ButtonDefaults.MinWidth, ButtonDefaults.MinHeight
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(stringResource(R.string.private_the_class),

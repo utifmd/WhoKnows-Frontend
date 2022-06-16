@@ -5,7 +5,9 @@ import com.dudegenuine.local.entity.RoomCensoredTable
 import com.dudegenuine.local.entity.RoomCompleteTable
 import com.dudegenuine.local.manager.IWhoKnowsDatabase
 import com.dudegenuine.model.Participation
+import com.dudegenuine.model.ResourcePaging
 import com.dudegenuine.model.Room
+import com.dudegenuine.model.Search
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
 import com.dudegenuine.remote.service.contract.IRoomService
@@ -65,6 +67,16 @@ class RoomRepository
         mapper.asPagingCompleteSource { page ->
             listCompleteRemote(userId, page, batchSize)
         }
+    override fun remoteSearchPageCensored(
+        query: String, batch: Int): PagingSource<Int, Room.Censored> = try {
+        ResourcePaging{ page -> mapper.asRoomsCensored(
+            service.listCensoredSearched(query, page, batch)) }
+    } catch (e: Exception){ ResourcePaging{ emptyList() }}
+
+    override fun remoteSearchSource(query: String, batch: Int): PagingSource<Int, Search<*>> = try {
+        ResourcePaging{ page -> mapper.asRoomsCensored(
+            service.listCensoredSearched(query, page, batch)).map { Search.Room(it) } }
+    } catch (e: Exception){ ResourcePaging{ emptyList() }}
 
     override suspend fun clearParticipation(): Flow<Unit> =
         flowOf(deleteBoardingLocal())

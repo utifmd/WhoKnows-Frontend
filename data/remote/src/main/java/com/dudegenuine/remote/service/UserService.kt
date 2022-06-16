@@ -53,4 +53,11 @@ interface UserService: IUserService {
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
     override suspend fun signIn(
         @Body loginRequest: User.Signer): Response<UserEntity.Complete>
+
+    @Headers(API_KEY, ACCEPT)
+    @GET("$ENDPOINT/search/{nameOrUname}")
+    override suspend fun listCensoredSearched(
+        @Path("nameOrUname") query: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int): Response<List<UserEntity.Censored>>
 }

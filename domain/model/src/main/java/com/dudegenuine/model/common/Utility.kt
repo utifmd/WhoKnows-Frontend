@@ -18,6 +18,8 @@ object Utility {
         return listOf(*lists).flatten()
     }
 
+    const val DEFAULT_BATCH_SIZE = 5
+
     private const val ALGORITHM = "AES"
     private const val KEY = "1Hbfh667adfDEJ78"
 

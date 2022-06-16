@@ -1,10 +1,10 @@
-package com.dudegenuine.whoknows.ux.compose.state
+package com.dudegenuine.whoknows.ux.compose.model
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-data class DialogState(
+data class Dialog(
     val about: String? = null,
     val disclaimer: String? = null,
     val onDismissed: (() -> Unit)? = null,

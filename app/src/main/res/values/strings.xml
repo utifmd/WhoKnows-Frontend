@@ -51,4 +51,6 @@
     <string name="no_longer_participation">Dengan anda menutup kelas pengguna lain tidak dapat lagi bergabung dikelas ini</string>
     <string name="discover_klibbor">Discovery</string>
     <string name="discover">Discover</string>
+    <string name="search">Search</string>
+    <string name="search_placholder">Search</string>
 </resources>

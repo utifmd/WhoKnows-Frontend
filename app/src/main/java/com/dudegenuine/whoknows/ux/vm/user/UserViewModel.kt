@@ -15,8 +15,8 @@ import com.dudegenuine.repository.contract.dependency.local.IShareLauncher
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
+import com.dudegenuine.whoknows.ux.compose.model.Dialog
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
-import com.dudegenuine.whoknows.ux.compose.state.DialogState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.CHECK_CONN
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
@@ -225,8 +225,10 @@ class UserViewModel
     override fun onPasswordPressed(it: String) =
         onNavigateTo(Screen.Home.Setting.ProfileEditor.routeWithArgs(PASSWORD, it))
     override fun onSignOutPressed() {
-        val dialog = ScreenState.AlertDialog(DialogState(resource.string(R.string.logout_account),
-            onSubmitted = ::logoutUser))
+        val dialog = ScreenState.AlertDialog(
+            Dialog(resource.string(R.string.logout_account),
+            onSubmitted = ::logoutUser)
+        )
         onScreenStateChange(dialog)
     }
     fun onUpdateUser(

@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.room
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -8,8 +9,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Task
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,18 +28,26 @@ fun RoomItem(
     modifier: Modifier = Modifier, model: Room,
     onImpressed: () -> Unit, onPressed: (() -> Unit)? = null) {
 
-    val title = if (model is Room.Censored) model.title
-        else (model as Room.Complete).title
+    val title by remember{
+        derivedStateOf{ when(model){
+            is Room.Complete -> model.title
+            is Room.Censored -> model.title }
+        }
+    }
 
-    val desc: String = if (model is Room.Censored) model.description
-        else (model as Room.Complete).description.replace("\n", "").trim()
+    val desc by remember{
+        derivedStateOf{ when(model){
+            is Room.Complete -> model.description
+            is Room.Censored -> model.description }
+        }
+    }
 
-    /*var isImpressed by remember*//*Saveable(inputs = )*//* {
+    val (impress, setImpress) = rememberSaveable {
         when(model) {
             is Room.Complete -> mutableStateOf(model.impressed)
             is Room.Censored -> mutableStateOf(model.impressed)
         }
-    }*/
+    }
 
     GeneralCardView(
         modifier = modifier
@@ -63,7 +72,8 @@ fun RoomItem(
                 )
             }
 
-            Row(modifier
+            Row(
+                modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp, bottom = 0.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -78,8 +88,8 @@ fun RoomItem(
                         Spacer(Modifier.size(ButtonDefaults.IconSize))
                         CardFooter(
                             text = "${model.impressionSize} ${if (model.impressionSize > 1) "like\'s" else "like"}",
-                            icon = if (model.impressed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            color = if (model.impressed) MaterialTheme.colors.error else null,
+                            icon = if (impress) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            color = if (impress) MaterialTheme.colors.error else null,
                             onIconClick = onImpressed
                         )
                     }
@@ -100,9 +110,11 @@ fun RoomItem(
 
                         CardFooter(
                             text = "${model.impressionSize} ${if(model.impressionSize > 1) "like\'s" else "like"}",
-                            icon = if(model.impressed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            color = if(model.impressed) MaterialTheme.colors.error else null
-                        )
+                            icon = if(impress) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            color = if(impress) MaterialTheme.colors.error else null){
+                            setImpress(!impress)
+                            Log.d("RoomItem", "setImpress $impress")
+                        }
                     }
                 }
             }

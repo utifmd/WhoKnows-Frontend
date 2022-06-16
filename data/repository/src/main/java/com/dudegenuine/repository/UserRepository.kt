@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.UserTable
 import com.dudegenuine.local.service.IUsersDao
+import com.dudegenuine.model.ResourcePaging
+import com.dudegenuine.model.Search
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.Utility.encrypt
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -60,6 +62,19 @@ class UserRepository
     override fun remotePages(batchSize: Int): PagingSource<Int, User.Censored> = mapper.asPagingSource { page ->
         remoteListOrderByParticipant(page, batchSize)
     }
+
+    override fun remoteSearchPageCensored(
+        query: String, batch: Int): PagingSource<Int, User.Censored> = try {
+        ResourcePaging{ page -> mapper.asUsersCensored(
+            service.listCensoredSearched(query, page, batch)) }
+    } catch (e: Exception){ ResourcePaging{ emptyList() } }
+
+    override fun remoteSearchSource(query: String, batch: Int): PagingSource<Int, Search<*>> = try {
+        ResourcePaging{ page -> mapper.asUsersCensored(
+            service.listCensoredSearched(query, page, batch)).map { Search.User(it) }
+        }
+    } catch (e: Exception){ ResourcePaging{ emptyList() } }
+
     override suspend fun remoteReadFlow(): Flow<User.Complete> =
         flowOf(remoteRead(preference.userId))
 

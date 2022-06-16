@@ -7,7 +7,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.outlined.Explore
@@ -66,7 +66,7 @@ fun LoginScreen(
                 onValueChange = formState.onUsernameChange,
                 leads = Icons.Filled.Email,
                 tails = if (formState.payload.text.isNotBlank())
-                    Icons.Filled.Close else null,
+                    Icons.Filled.Clear else null,
                 onTailPressed = {
                     formState.onUsernameChange("")
                     viewModel.onAuthChange(ResourceState.Auth()) },
@@ -82,7 +82,7 @@ fun LoginScreen(
                 leads = Icons.Filled.Password,
                 onValueChange = formState.onPasswordChange,
                 tails = if (formState.password.text.isNotBlank())
-                    Icons.Filled.Close else null,
+                    Icons.Filled.Clear else null,
                 onTailPressed = {
                     formState.onPasswordChange("")
                     viewModel.onAuthChange(ResourceState.Auth()) },

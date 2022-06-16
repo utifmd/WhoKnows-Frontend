@@ -26,10 +26,8 @@ import com.dudegenuine.whoknows.ux.vm.result.ResultViewModel
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
-import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.OWN_IS_FALSE
 import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.OWN_IS_TRUE
 import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
-import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_IS_OWN
 import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_OWNER_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomViewModel.Companion.KEY_PARTICIPATION_ROOM_ID
 import com.dudegenuine.whoknows.ux.vm.user.UserViewModel
@@ -68,18 +66,11 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
         val vmRoom: RoomViewModel = hiltViewModel()
 
         LoggingSubscriber(vmMain, vmRoom)
-        RoomFinderScreen(
-            viewModel = vmRoom,
-            onBackPressed = props.router::popBackStack,
-            onRoomSelected = { roomId ->
-                props.router.navigate(
-                    Screen.Home.Summary.RoomDetail.routeWithArgs(roomId, OWN_IS_FALSE))
-            }
-        )
+        RoomFinderScreen(viewModel = vmRoom)
     }
 
     composable(
-        route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}", "{$ROOM_IS_OWN}"),
+        route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}"/*, "{$ROOM_IS_OWN}"*/),
         deepLinks = if (isLoggedIn) listOf( navDeepLink {
             uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){ //entry ->
         val vmRoom: RoomViewModel = hiltViewModel()

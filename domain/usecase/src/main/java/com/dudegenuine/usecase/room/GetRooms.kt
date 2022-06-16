@@ -25,7 +25,7 @@ class GetRooms
         val config = PagingConfig(size,
             enablePlaceholders = true, maxSize = 200)
 
-        val pager = Pager(config) { repository.pageCensoredRemote(size) }
+        val pager = Pager(config){ repository.pageCensoredRemote(size) }
 
         return pager.flow
     }

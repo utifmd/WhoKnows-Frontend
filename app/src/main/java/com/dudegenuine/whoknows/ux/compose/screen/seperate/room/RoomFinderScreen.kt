@@ -8,10 +8,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.InsertInvitation
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,20 +34,18 @@ import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
 @OptIn(ExperimentalComposeUiApi::class)
 fun RoomFinderScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel(),
-    onRoomSelected: (String) -> Unit, onBackPressed: () -> Unit) {
-    val keyboardController = LocalSoftwareKeyboardController.current
+    viewModel: RoomViewModel = hiltViewModel()) {
+    val focusRequester = remember{ FocusRequester() }
     val formState = viewModel.formState
 
+    LaunchedEffect(Unit){ focusRequester.requestFocus() }
     Scaffold(modifier.fillMaxSize(),
         topBar = {
             GeneralTopBar(
-                title = stringResource(
-                    id = R.string.join_with_a_code
-                ),
+                title = stringResource(R.string.join_with_a_code),
                 leads = Icons.Filled.ArrowBack,
-                onLeadsPressed = onBackPressed,
-                submitLabel = "Search",
+                onLeadsPressed = viewModel::onBackPressed,
+                tails = Icons.Outlined.Send,
                 submitEnable = formState.roomId.isNotBlank(),
                 submitLoading = viewModel.state.loading,
                 onSubmitPressed = { viewModel.getRoom(formState.roomId) }
@@ -55,24 +57,25 @@ fun RoomFinderScreen(
                 modifier = modifier.padding(12.dp)) {
 
                 GeneralTextField(
+                    modifier.focusRequester(focusRequester),
                     label = "Enter an invitation code",
-                    value = "ROM-df1a61c8-3120-42fa-a6c8-73dea0fa9376"/*formState.roomId*/,
+                    value = formState.roomId,
                     leads = Icons.Filled.InsertInvitation,
                     tails = if(formState.roomId.isNotBlank()) Icons.Filled.Close else null,
                     onTailPressed = { formState.onRoomIdChange("") },
                     onValueChange = formState::onRoomIdChange,
                     keyboardActions = KeyboardActions(
-                        onDone = { keyboardController?.hide(); viewModel.getRoom(formState.roomId) }
+                        onAny = { viewModel.onRoomFinderButtonGoPressed(formState.roomId) }
                     )
                 )
 
-                viewModel.state.room?.let {
+                /*viewModel.state.room?.let {
                     RoomItem(
                         model = it,
                         onPressed = { onRoomSelected(it.id) },
                         onImpressed = {}
                     )
-                }
+                }*/
 
                 if (viewModel.state.error.isNotBlank()){
 

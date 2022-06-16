@@ -56,6 +56,14 @@ class MainViewModel
             _roomCompleteParameter.emit(parameter)
         }
     }
+
+    private val _notificationParameter = MutableStateFlow<FlowParameter>(FlowParameter.Nothing)
+    private val notificationParameter get() = _notificationParameter
+    fun onNotificationParameterChange(parameter: FlowParameter){
+        viewModelScope.launch {
+            _notificationParameter.emit(parameter)
+        }
+    }
     init {
         messagingSubscribeTopic()
 
@@ -64,13 +72,13 @@ class MainViewModel
 
         if (isLoggedInByPrefs) getUser()
     }
-    private fun onRoomCompleteByUserIdFlow(
-        params: FlowParameter): Flow<PagingData<Room.Complete>> = when(params){
-        is FlowParameter.RoomComplete -> caseRoom.getRooms(params.userId, DEFAULT_BATCH_ROOM)
-        else -> emptyFlow() //.onStart { emit(PagingData.from(params.list)) }
-    }
+
     val roomCompleteFlow = roomCompleteParameter
         .flatMapLatest(::onRoomCompleteByUserIdFlow)
+        .distinctUntilChanged()
+        .cachedIn(viewModelScope)
+    val notificationsFlow = notificationParameter
+        .flatMapLatest(::onNotificationByUserIdFlow)
         .distinctUntilChanged()
         .cachedIn(viewModelScope)
     val roomsCensoredFlow = caseRoom
@@ -85,10 +93,16 @@ class MainViewModel
         .getQuestions(DEFAULT_PARTICIPANT_BATCH_SIZE)
         .distinctUntilChanged()
         .cachedIn(viewModelScope)
-    val notificationsFlow = caseNotifier
-        .getNotifications(userId, DEFAULT_NOTIFIER_BATCH_SIZE)
-        .distinctUntilChanged()
-        .cachedIn(viewModelScope)
+
+    private fun onRoomCompleteByUserIdFlow(
+        params: FlowParameter): Flow<PagingData<Room.Complete>> = when(params){
+        is FlowParameter.RoomComplete -> caseRoom.getRooms(params.userId, DEFAULT_BATCH_ROOM) //.flatMapMerge{ flowOf(PagingData.from(params.list)) }
+        else -> emptyFlow()
+    }
+    private fun onNotificationByUserIdFlow(params: FlowParameter) = when(params){
+        is FlowParameter.Notification -> caseNotifier.getNotifications(userId, DEFAULT_NOTIFIER_BATCH_SIZE)
+        else -> emptyFlow()
+    }
 
     val connectionReceiver = receiver.connectionReceiver { message ->
         if (message.isNotBlank()) if(prefs.tokenId.isBlank()) messagingInitToken()

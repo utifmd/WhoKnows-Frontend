@@ -70,7 +70,7 @@ fun RoomHomeScreen(
                     if (room != null) RoomItem(
                         model = room,
                         onImpressed = viewModel::onImpressed) {
-                        viewModel.onRoomItemSelected(room.id)
+                        viewModel.onRoomHomeScreenDetailSelected(room.id)
                     }
                 }
             }

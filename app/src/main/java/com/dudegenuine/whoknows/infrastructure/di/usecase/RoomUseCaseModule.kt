@@ -7,6 +7,7 @@ import com.dudegenuine.usecase.participation.GetBoarding
 import com.dudegenuine.usecase.participation.PatchBoarding
 import com.dudegenuine.usecase.participation.PostBoarding
 import com.dudegenuine.usecase.room.*
+import com.dudegenuine.usecase.search.SearchRooms
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
 
 /**
@@ -42,6 +43,9 @@ class RoomUseCaseModule(
 
     override val deleteBoarding:
     DeleteBoarding = DeleteBoarding(repository),
+
+    override val searchRooms:
+    SearchRooms = SearchRooms(repository),
 
     override val workManager: IWorkerManager = repository.workManager,
     override val workRequest: ITokenWorkManager = repository.workRequest,

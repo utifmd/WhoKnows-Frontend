@@ -12,4 +12,5 @@ sealed class FlowParameter{
     object Nothing: FlowParameter()
     data class RoomComplete(
         val userId: String, val list: List<Room.Complete> = emptyList()): FlowParameter()
+    data class Notification(val userId: String): FlowParameter()
 }
