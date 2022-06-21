@@ -23,7 +23,7 @@ import javax.inject.Inject
  **/
 class RoomDataMapper
     @Inject constructor(
-    private val currentUserId: String,
+    //private val currentUserId: String,
     private val gson: Gson,
     private val mapperUser: IUserDataMapper,
     private val mapperQuiz: IQuizDataMapper,
@@ -32,44 +32,44 @@ class RoomDataMapper
 
     override fun asEntity(room: Room.Complete): RoomEntity.Complete {
         return RoomEntity.Complete(
-            room.id,
-            room.userId,
-            room.minute,
-            room.title,
-            room.description,
-            room.expired,
-            room.private,
-            room.createdAt,
-            room.updatedAt,
-            emptyList(),
-            room.user
+            roomId = room.id,
+            userId = room.userId,
+            minute = room.minute,
+            title = room.title,
+            token = room.token,
+            description = room.description,
+            expired = room.expired,
+            private = room.private,
+            createdAt = room.createdAt,
+            updatedAt = room.updatedAt,
+            impressions = emptyList(),
+            user = room.user
                 ?.let(mapperUser::asUserCensoredEntity),
-            room.questions
+            questions = room.questions
                 .map(mapperQuiz::asEntity),
-            room.participants
+            participants = room.participants
                 .map(mapperParticipant::asEntity),
         )
     }
 
     override fun asRoom(entity: RoomEntity.Complete): Room.Complete {
         return Room.Complete(
-            entity.roomId,
-            entity.userid,
-            entity.minute,
-            entity.title,
-            entity.description,
-            entity.userid == currentUserId,
-            entity.expired,
-            entity.private ?: false,
-            entity.createdAt,
-            entity.updatedAt,
-            entity.impressions.size,
-            entity.impressions.any { it.userId == currentUserId },
-            entity.user?.let(mapperUser::asUserCensored),
-            entity.questions
+            id = entity.roomId,
+            userId = entity.userId,
+            minute = entity.minute,
+            title = entity.title,
+            token = entity.token,
+            description = entity.description,
+            expired = entity.expired,
+            private = entity.private ?: false,
+            createdAt = entity.createdAt,
+            updatedAt = entity.updatedAt,
+            impressionSize = entity.impressions.size,
+            user = entity.user?.let(mapperUser::asUserCensored),
+            questions = entity.questions
                 .map { mapperQuiz.asQuiz(it) },
-            entity.participants
-                .map { mapperParticipant.asParticipant(it) }
+            participants = entity.participants
+                .map { mapperParticipant.asParticipant(it) }//.filter { it.expired }
         )
     }
 
@@ -201,6 +201,7 @@ class RoomDataMapper
             userId = room.userId,
             minute = room.minute,
             title = room.title,
+            token = room.token,
             description = room.description,
             expired = room.expired,
             private = room.private,
@@ -218,15 +219,14 @@ class RoomDataMapper
             userId = entity.userId,
             minute = entity.minute,
             title = entity.title,
+            token = entity.token,
             description = entity.description,
             expired = entity.expired,
             usernameOwner = entity.usernameOwner,
             fullNameOwner = entity.fullNameOwner,
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
-            isOwner = entity.userId == currentUserId,
             private = entity.private ?: false,
-            impressed = entity.impressions.any{ it.userId == currentUserId },
             impressionSize = entity.impressions.size
         )
     }
@@ -249,13 +249,13 @@ class RoomDataMapper
             userId = tableRoom.userId,
             minute = tableRoom.minute,
             title = tableRoom.title,
+            token = tableRoom.token,
             description = tableRoom.description,
             expired = tableRoom.expired,
             usernameOwner = tableRoom.usernameOwner,
             fullNameOwner = tableRoom.fullNameOwner,
             questionSize = tableRoom.questionSize,
             participantSize = tableRoom.participantSize,
-            isOwner = tableRoom.userId == currentUserId,
             private = tableRoom.privation,
             impressed = tableRoom.impressed,
             impressionSize = tableRoom.impressionSize

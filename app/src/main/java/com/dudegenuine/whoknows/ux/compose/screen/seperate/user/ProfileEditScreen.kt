@@ -52,7 +52,7 @@ fun ProfileEditScreen(
             GeneralTextField(
                 label = fieldKey ?: "No label",
                 value = field,
-                tails = if(field.isNotBlank()) Icons.Filled.Close else null,
+                trail = if(field.isNotBlank()) Icons.Filled.Close else null,
                 onValueChange = { field = it },
                 onTailPressed = { field = "" })
 

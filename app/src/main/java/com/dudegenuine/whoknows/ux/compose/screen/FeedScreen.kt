@@ -28,6 +28,7 @@ import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.User
 import com.dudegenuine.whoknows.R
+import com.dudegenuine.whoknows.ux.compose.component.GeneralButton
 import com.dudegenuine.whoknows.ux.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ux.compose.component.misc.LazyStatePaging
 import com.dudegenuine.whoknows.ux.compose.model.BottomDomain.Companion.DISCOVER
@@ -75,7 +76,7 @@ fun FeedScreen(
              GeneralTopBar(
                  title = DISCOVER,
                  tails = Icons.Outlined.Search,
-                 onTailPressed = onSearchPressed
+                 onTailPressed = if (onJoinButtonPressed != null) onSearchPressed else null
              )
         },
         scaffoldState = scaffoldState) {
@@ -167,10 +168,11 @@ private fun BodyRoom(
         Box(modifier.fillMaxWidth(),
             contentAlignment = Alignment.CenterEnd){
 
-            Button({ onJoinButtonPressed?.invoke() }, enabled = onJoinButtonPressed != null) {
-                Text(stringResource(R.string.join_with_a_code), color = MaterialTheme.colors.onPrimary)
-                Spacer(modifier.size(4.dp))
-                Icon(Icons.Filled.ArrowForward, tint = MaterialTheme.colors.onPrimary, contentDescription = null)
+            GeneralButton(
+                label = stringResource(R.string.join_with_a_code),
+                enabled = onJoinButtonPressed != null,
+                trailingIcon = Icons.Filled.ArrowForward) {
+                onJoinButtonPressed?.invoke()
             }
         }
     }

@@ -20,7 +20,9 @@ interface IMessagingRepository {
     //suspend fun get(keyName: String): ResponseBody
     suspend fun get(keyName: String): Messaging.Getter.Response
     suspend fun create(messaging: Messaging): ResponseBody
+    suspend fun create(messaging: Messaging.GroupCreator): Messaging.Getter.Response
     suspend fun add(messaging: Messaging): ResponseBody
+    suspend fun add(messaging: Messaging.GroupAdder): Messaging.Getter.Response
     suspend fun remove(messaging: Messaging): ResponseBody
     suspend fun push(messaging: Messaging): ResponseBody
 

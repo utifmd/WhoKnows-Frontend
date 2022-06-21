@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.ViewUtil.timeAgo
 import com.dudegenuine.whoknows.R
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IAppUseCaseModule.Companion.EMPTY_STRING
 import com.dudegenuine.whoknows.ux.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ux.compose.component.misc.CardFooter
 import com.dudegenuine.whoknows.ux.compose.screen.ErrorScreen
@@ -42,8 +43,8 @@ fun RoomDetail(
     val toggle: () -> Unit = {
         coroutineScope.launch {
             if(scaffoldState.isRevealed) scaffoldState.conceal()
-            else scaffoldState.reveal() }}
-
+            else scaffoldState.reveal()
+    }}
     viewModel.state.room?.let { model ->
         BackdropScaffold(
             modifier = modifier.fillMaxSize(),
@@ -55,7 +56,7 @@ fun RoomDetail(
                     leads = Icons.Default.ArrowBack,
                     tails = Icons.Default.Menu,
                     onLeadsPressed = viewModel::onBackRoomDetailPressed,
-                    onTailPressed = { toggle() }
+                    onTailPressed = toggle
                 )
             },
             backLayerContent = {
@@ -81,57 +82,49 @@ fun RoomDetail(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun BackLayer(
-    model: Room.Complete,
-    viewModel: RoomViewModel,
-    modifier: Modifier = Modifier,
+    model: Room.Complete, viewModel: RoomViewModel,
     toggle: () -> Unit) {
-    var checkedPrivation by remember { mutableStateOf(model.private) }
     val enabled = !model.expired
 
     Column(
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally) {
-        ButtonBackLayer(
-            label = if (model.isOwner) stringResource(R.string.add_new_question)
-                else stringResource(R.string.join_the_room),
-            enabled = enabled) {
-
-            if (model.isOwner) viewModel.onNewRoomQuizPressed(model)
-            else viewModel.onJoinButtonRoomDetailPressed(model)
-        }
 
         if (model.isOwner) {
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    .defaultMinSize(
-                        ButtonDefaults.MinWidth, ButtonDefaults.MinHeight
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(stringResource(R.string.private_the_class),
-                    color = if (enabled) MaterialTheme.colors.onPrimary
-                        else MaterialTheme.colors.onPrimary.copy(0.5f),
-                    style = MaterialTheme.typography.button
-                )
-                Switch(
-                    checked = checkedPrivation,
-                    onCheckedChange = { checkedPrivation = !checkedPrivation },
-                    enabled = enabled
-                )
+            SwitchBackLayer(
+                label = stringResource(R.string.private_the_class),
+                checked = viewModel.isExclusive,
+                enabled = enabled,
+                setChecked = viewModel::onExclusiveClassChange
+            )
+            Divider(thickness = (0.5).dp)
+            ToggleBackLayer(
+                label = stringResource(R.string.notification),
+                enabled = enabled,
+                checked = viewModel.isNotify,
+                setChecked = viewModel::onNotifyClassChange
+            )
+            Divider(thickness = (0.5).dp)
+            ButtonBackLayer(
+                label = stringResource(R.string.add_new_question),
+                enabled = enabled) {
+                viewModel.onNewRoomQuizPressed(model)
             }
             ButtonBackLayer(stringResource(R.string.invite_w_a_link), enabled,
                 onLongPressed = { viewModel.onSetCopyRoomPressed(model) }){
                 viewModel.onShareRoomPressed(model)
             }
-            ButtonBackLayer(stringResource(R.string.delete_permanent), enabled){
-                viewModel.onDeleteRoomPressed(model)
-            }
             ButtonBackLayer(stringResource(R.string.close_the_room), enabled){
                 viewModel.onCloseRoomPressed(model, toggle)
             }
+            ButtonBackLayer(stringResource(R.string.delete_permanent), enabled){
+                viewModel.onDeleteRoomPressed(model)
+            }
+        } else ButtonBackLayer(
+            label = stringResource(R.string.join_the_room),
+            enabled = enabled) {
+            viewModel.onJoinButtonRoomDetailPressed(model)
         }
-        Spacer(modifier.size(12.dp))
     }
 }
 
@@ -164,7 +157,7 @@ private fun FrontLayer(
 
             CardFooter(
                 text = model.createdAt.toHttpDateString(),
-                icon = Icons.Filled.CalendarToday,
+                icon = Icons.Filled.CalendarViewMonth,
             )
 
             CardFooter(
@@ -173,7 +166,7 @@ private fun FrontLayer(
             )
 
             CardFooter(
-                text = (model.user?.fullName ?: "").ifBlank {
+                text = (model.user?.fullName ?: EMPTY_STRING).ifBlank {
                     model.user?.username ?: stringResource(R.string.unknown) },
                 icon = Icons.Filled.VerifiedUser,
             )
@@ -188,7 +181,7 @@ private fun FrontLayer(
                 Text(model.description, style = MaterialTheme.typography.body2)
             }
         }
-        
+
         Spacer(modifier.size(ButtonDefaults.IconSize))
         CardFooter(modifier.padding(horizontal = 24.dp),
             text = "${model.participants.size} " +
@@ -206,9 +199,11 @@ private fun FrontLayer(
 
                 items(model.participants){ participant ->
                     ProfileCard(modifier,
-                        name = (participant.user?.fullName ?: "").ifBlank { stringResource(R.string.unknown) },
-                        desc = timeAgo(participant.createdAt),
-                        data = participant.user?.profileUrl ?: "",
+                        name = participant.user?.fullName ?: stringResource(R.string.unknown),
+                        desc = timeAgo(participant.createdAt).plus(" ~ ${if(participant.expired) "done" else "in progress"}"),
+                        data = participant.user?.profileUrl ?: EMPTY_STRING,
+                        colorDot = if (!participant.expired)
+                            MaterialTheme.colors.onError else null,
                         onPressed = {
                             if (model.isOwner || participant.isCurrentUser) viewModel.onResultPressed(participant.roomId, participant.userId)
                             else  viewModel.onParticipantItemPressed(participant.userId)
@@ -254,6 +249,63 @@ private fun FrontLayer(
 }
 
 @Composable
+private fun SwitchBackLayer(
+    modifier: Modifier = Modifier, label: String, enabled: Boolean,
+    checked: Boolean, setChecked: (Boolean) -> Unit) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .padding(horizontal = ButtonDefaults.IconSize)
+            .defaultMinSize(ButtonDefaults.MinWidth, ButtonDefaults.MinHeight),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+
+        Text(label,
+            color = if (enabled)
+                MaterialTheme.colors.onPrimary else
+                MaterialTheme.colors.onPrimary.copy(0.5f),
+            style = MaterialTheme.typography.caption)
+        Switch(
+            checked = checked,
+            onCheckedChange = setChecked,
+            enabled = enabled,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colors.onPrimary,
+            )
+        )
+    }
+}
+
+@Composable
+private fun ToggleBackLayer(
+    modifier: Modifier = Modifier, label: String, enabled: Boolean,
+    checked: Boolean, setChecked: (Boolean) -> Unit) {
+    //val (checked, onCheckedChange) = remember { mutableStateOf(false) }
+    Row(
+        modifier
+            .fillMaxWidth()
+            .padding(horizontal = ButtonDefaults.IconSize)
+            .defaultMinSize(ButtonDefaults.MinWidth, ButtonDefaults.MinHeight),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+
+        Text(label,
+            color = if (enabled)
+                MaterialTheme.colors.onPrimary else
+                MaterialTheme.colors.onPrimary.copy(0.5f),
+            style = MaterialTheme.typography.caption)
+        IconToggleButton(
+            checked = checked,
+            onCheckedChange = setChecked) {
+            Icon(if (checked)
+                Icons.Default.NotificationsOff else
+                Icons.Default.NotificationsActive, contentDescription = null
+            )
+        }
+    } //Box(modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd){ }
+}
+
+@Composable
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 private fun ButtonBackLayer(
     label: String, enabled: Boolean, modifier: Modifier = Modifier,
@@ -289,30 +341,11 @@ private fun ButtonBackLayer(
 
                     Text(label,
                         color = if (enabled) MaterialTheme.colors.onPrimary
-                            else MaterialTheme.colors.onPrimary.copy(0.5f),
+                        else MaterialTheme.colors.onPrimary.copy(0.5f),
                         style = MaterialTheme.typography.button
                     )
                 }
             }
         }
     }
-
-    /*Box(modifier.combinedClickable(
-        enabled = enabled,
-        onLongClick = { onLongPressed?.invoke() },
-        onClick = { onPressed?.invoke() })) {
-
-        Box(
-            modifier
-                .fillMaxWidth()
-                .padding(12.dp, 8.dp),
-            contentAlignment = Alignment.Center) {
-
-            Text(label,
-                color = if (enabled) MaterialTheme.colors.onPrimary
-                else MaterialTheme.colors.onPrimary.copy(0.5f),
-                style = MaterialTheme.typography.button
-            )
-        }
-    }*/
 }

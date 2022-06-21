@@ -49,15 +49,14 @@ class UserViewModel
     private val caseUser: IUserUseCaseModule,
     private val caseFile: IFileUseCaseModule,
     savedStateHandle: SavedStateHandle) : IUserViewModel() {
-    private val TAG = javaClass.simpleName
     @Inject lateinit var notifier: INotifyManager
     @Inject lateinit var share: IShareLauncher
     @Inject lateinit var resource: IResourceDependency
+    private val TAG = javaClass.simpleName
 
     private val prefs get() = caseUser.preferences
-    private val _formState = mutableStateOf(UserState.FormState())
-    val formState: UserState.FormState
-        get() = _formState.value
+    private val _userState = mutableStateOf(UserState())
+    val userState get() = _userState.value
     init {
         val navigated = savedStateHandle.get<String>(USER_ID_SAVED_KEY)
         navigated?.let(this::getUser) // ?: getUser()
@@ -68,11 +67,11 @@ class UserViewModel
         share.launch(data)
     }
     override fun registerUser() {
-        if (!formState.isRegisValid.value) {
+        if (!userState.isRegisValid.value) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-        if (formState.password.text != formState.rePassword.text){
+        if (userState.password.text != userState.rePassword.text){
             onStateChange(ResourceState(error = MISS_MATCH))
             return
         }
@@ -80,13 +79,13 @@ class UserViewModel
             onStateChange(ResourceState(error = CHECK_CONN))
             return
         }
-        caseUser.postUser(formState.regisModel)
+        caseUser.postUser(userState.regisModel)
             .onEach(this::onAuth)
             .launchIn(viewModelScope)
     }
     override fun loginUser() {
-        val signer = User.Signer(formState.payload.text, formState.password.text, prefs.tokenId)
-        if (!formState.isLoginValid.value) {
+        val signer = User.Signer(userState.payload.text, userState.password.text, prefs.tokenId)
+        if (!userState.isLoginValid.value) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
@@ -103,7 +102,7 @@ class UserViewModel
             .onEach(this::onAuth)
             .launchIn(viewModelScope)
     }
-    fun onLoginDiscoverPressed() = onNavigateTo(Screen.Home.Discover.route)
+    fun onAuthDiscoverButtonPressed() = onNavigateTo(Screen.Home.Discover.route)
     override fun postUser(user: User.Complete) {
         if (user.isPropsBlank) {
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -184,11 +183,11 @@ class UserViewModel
     fun onUploadProfile() {
         val user: User.Complete = state.user ?: return
         val fileId = user.profileUrl.substringAfterLast("/")
-        if (formState.profileImage.isEmpty()) {
+        if (userState.profileImage.isEmpty()) {
             onStateChange(ResourceState(error = DONT_EMPTY_IMG))
             return
         }
-        caseFile.uploadFile(formState.profileImage)
+        caseFile.uploadFile(userState.profileImage)
             .flatMapConcat{ onResourceFlow(it) { file ->
                 val fresh = user.copy(profileUrl = file.url, createdAt = Date()).apply{
                     password = exactPassword
@@ -198,7 +197,7 @@ class UserViewModel
                     .map{ Resource.Success(file) }
                 }
             }
-            .onStart{ _formState.value = UserState.FormState() }
+            .onStart{ _userState.value = UserState() }
             .onCompletion{ if (it != null)
                 onToast(it.localizedMessage ?: "error while upload") else
                     getUser(user.id) }
@@ -207,7 +206,7 @@ class UserViewModel
     override fun onBackPressed() //=
     {
         Log.d(TAG, "onBackPressed: ${auth.user?.email}")
-        onScreenStateChange(ScreenState.Navigate.Back)
+        onScreenStateChange(ScreenState.Navigate.Back())
     }
 
     override fun onPicturePressed(fileId: String?) {

@@ -36,7 +36,7 @@ fun RoomFinderScreen(
     modifier: Modifier = Modifier,
     viewModel: RoomViewModel = hiltViewModel()) {
     val focusRequester = remember{ FocusRequester() }
-    val formState = viewModel.formState
+    val formState = viewModel.roomState
 
     LaunchedEffect(Unit){ focusRequester.requestFocus() }
     Scaffold(modifier.fillMaxSize(),
@@ -61,7 +61,7 @@ fun RoomFinderScreen(
                     label = "Enter an invitation code",
                     value = formState.roomId,
                     leads = Icons.Filled.InsertInvitation,
-                    tails = if(formState.roomId.isNotBlank()) Icons.Filled.Close else null,
+                    trail = if(formState.roomId.isNotBlank()) Icons.Filled.Close else null,
                     onTailPressed = { formState.onRoomIdChange("") },
                     onValueChange = formState::onRoomIdChange,
                     keyboardActions = KeyboardActions(

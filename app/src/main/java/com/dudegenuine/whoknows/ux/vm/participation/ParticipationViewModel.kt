@@ -59,6 +59,24 @@ class ParticipationViewModel
         onParticipationRouted()
         onParticipationStored()
     }
+    private fun onRemoteParticipation(room: Room.Complete){
+        caseUser.getUser(prefs.userId).onEach { res ->
+            if(res.data is User.Complete){
+                val userComplete = res.data as User.Complete
+                val participated = userComplete.participants.find { !it.expired } ?: return@onEach
+
+                val participation = caseParticipation.getParticipation(
+                    participantId = participated.id,
+                    room = room,
+                    currentUser = userComplete)
+
+                if (prefs.runningTime <= 0) /*is finished*/
+                    onPreResult(participation) else
+                        onStateChange(ResourceState(participation = participation))
+            }
+        }.launchIn(viewModelScope)
+    }
+
     private fun onParticipationRouted(){
         val roomId = savedStateHandle.get<String>(KEY_PARTICIPATION_ROOM_ID) ?: return
         if (roomId.isBlank()) return
@@ -70,9 +88,10 @@ class ParticipationViewModel
             .onEach{ onResourceSucceed(it) { participation ->
                 onTimerChange(prefs.runningTime.toDouble())
 
-                if (prefs.runningTime <= 0) onPreResult(participation) //is finished
-                else onStateChange(ResourceState(participation = participation))
-            }}
+                if (prefs.runningTime <= 0)
+                    onPreResult(participation) else
+                        onStateChange(ResourceState(participation = participation)) }}
+
             .launchIn(viewModelScope)
     }
     private fun onCreateAnParticipant(room: Room.Complete) {
@@ -81,7 +100,7 @@ class ParticipationViewModel
         val participant = caseParticipation.getParticipant()
             .copy(roomId = room.id, userId = prefs.userId, timeLeft = room.minute)
         caseRoom.timer.start(taskDuration)
-        onBoarding(room, participant.id)
+        onBoarding(room, participant)
 
         /*caseParticipant.postParticipant(model).onEach { res ->
             onResource(
@@ -97,7 +116,7 @@ class ParticipationViewModel
             )
         }.launchIn(viewModelScope)*/
     }
-    private fun onBoarding(room: Room.Complete, participantId: String){
+    private fun onBoarding(room: Room.Complete, participant: Participant){
         /*caseUser.getUser()
             .flatMapConcat{ onResourceFlow(it){ user ->
                 val participation = caseParticipation.getParticipation(participantId, room, user)
@@ -108,7 +127,7 @@ class ParticipationViewModel
             .launchIn(viewModelScope)*/
 
         getCurrentUser { user ->
-            val participation = caseParticipation.getParticipation(participantId, room, user)
+            val participation = caseParticipation.getParticipation(participant.id, room, user)
 
             onStateChange(ResourceState(participation = participation))
             postBoarding(participation)
@@ -129,7 +148,6 @@ class ParticipationViewModel
             .onEach(::onResourceStateless)
             .launchIn(viewModelScope)
     }
-
     override fun postBoarding(state: Participation) {
         if (state.pages.isEmpty() or state.roomId.isEmpty() or
             state.userId.isEmpty() or state.participantId.isEmpty()) {
@@ -141,7 +159,7 @@ class ParticipationViewModel
             .launchIn(viewModelScope)
     }
     override fun onBoardingActionPressed(index: Int, type: Quiz.Action.Type ) {TODO("Not yet implemented") }
-    override fun onBoardingBackPressed() = onScreenStateChange(ScreenState.Navigate.Back)
+    override fun onBoardingBackPressed() = onScreenStateChange(ScreenState.Navigate.Back())
     override fun onBoardingPrevPressed() {
         val participation = state.participation ?: return
         val fresh = participation.apply{ currentQuestionIdx -= 1 }
@@ -164,26 +182,24 @@ class ParticipationViewModel
     override fun onPreResult(participation: Participation) {
         val questioners = participation.pages
         val correct = questioners.count { it.isCorrect }
-        val resultScore: Float = correct.toFloat() / questioners.size.toFloat() * 100
+        val resultScore = correct.toFloat() / questioners.size.toFloat() * 100
         val event = "${participation.user.username} has joined the ${participation.roomTitle}"
 
-        /*val modelResult = formState.result.copy(
-            roomId = participation.roomId, //participantId = boardingState.participantId,
-            userId = currentUserId,
-            correctQuiz = questioners.filter { it.isCorrect }.map { it.quiz.question },
-            wrongQuiz = questioners.filter { !it.isCorrect }.map { it.quiz.question },
-            score = resultScore.toInt())
-
-        val modelNotification = formState.notification.copy(
+        /*val participant = caseParticipation.getParticipant().copy(
+            id = participation.participantId,
+            roomId = participation.roomId,
+            userId = prefs.userId,
+            expired = true,
+            currentPage = "${participation.pages.size}",
+            timeLeft = 0)
+        val notification = formState.notification.copy(
             userId = currentUserId,
             roomId = participation.roomId,
             event = event,
             recipientId = participation.userId)
-
-        val modelPushMessaging = Messaging.Pusher(
+        val pushNotification = Messaging.Pusher(
             participation.roomTitle, event, participation.user.profileUrl)
-
-        val modelAddMessaging = Messaging.GroupAdder(
+        val groupAdder = Messaging.GroupAdder(
             keyName = modelResult.roomId,
             tokens = listOf(prefs.tokenId)
         )*/

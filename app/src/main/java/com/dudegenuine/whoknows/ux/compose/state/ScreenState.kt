@@ -16,7 +16,7 @@ sealed class ScreenState {
             val option: NavOptions? = null,
             val extras: Navigator.Extras? = null
         ): ScreenState()
-        object Back: ScreenState()
+        data class Back(val refresh: Boolean = false): ScreenState()
     }
     data class Toast(
         val message: String,

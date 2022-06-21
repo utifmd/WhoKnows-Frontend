@@ -57,8 +57,10 @@ abstract class BaseViewModel: ViewModel() {
     }
 
     fun onScreenStateChange(state: ScreenState) {
+        if (state is ScreenState.Navigate.Back)
+            Log.d(TAG, "onScreenStateChange: back refresh ${state.refresh}")
         viewModelScope.launch {
-            Log.d(TAG, "onScreenStateChange: $state")
+            Log.d(TAG, "onScreenStateChange: triggered")
             _screenState.emit(state)
         }
     }
@@ -67,7 +69,7 @@ abstract class BaseViewModel: ViewModel() {
     fun onShowSnackBar(message: String) = onScreenStateChange(ScreenState.SnackBar(message))
     fun onShowDialog(content: Dialog?) = onScreenStateChange(ScreenState.AlertDialog(content))
     fun onNavigateTo(route: String) = onScreenStateChange(ScreenState.Navigate.To(route))
-    fun onNavigateBack() = onScreenStateChange(ScreenState.Navigate.Back)
+    fun onNavigateBack() = onScreenStateChange(ScreenState.Navigate.Back())
 
     fun onFlowFailed(methodName: String?, t: Throwable){
         t.localizedMessage?.let { message ->
@@ -124,15 +126,9 @@ abstract class BaseViewModel: ViewModel() {
                         files = list.filterIsInstance<File>(),
                     ))
                 }
-                is User.Complete -> {
-                    val currentUser = data as User.Complete
-                    onStateChange(ResourceState(user = currentUser))
-                }
+                is User.Complete -> onStateChange(ResourceState(user = data as User.Complete))
                 is User.Censored -> onStateChange(ResourceState(userCensored = data as User.Censored))
-                is Room.Complete -> {
-                    Log.d(TAG, "onResource: Room.Complete ${data.id}")
-                    onStateChange(ResourceState(room = data as Room.Complete))
-                }
+                is Room.Complete -> onStateChange(ResourceState(room = data as Room.Complete))
                 is Room.Censored -> onStateChange(ResourceState(roomCensored = data as Room.Censored))
                 is Quiz.Complete -> onStateChange(ResourceState(quiz = data as Quiz.Complete))
                 is Participant -> onStateChange(ResourceState(participant = data as Participant))
@@ -283,11 +279,10 @@ abstract class BaseViewModel: ViewModel() {
             is Resource.Success -> {
 
                 when(resources.data) {
-                    is User.Complete -> (resources.data as User.Complete).let {
+                    is User.Complete -> (resources.data as User.Complete).let{
                         onSucceed?.invoke(it)
                         onAuthChange(ResourceState.Auth(user = it))
                     }
-
                     is String -> {
                         onSignedOut?.invoke()
                         onAuthChange(ResourceState.Auth(invalidated = true)) // user signed out

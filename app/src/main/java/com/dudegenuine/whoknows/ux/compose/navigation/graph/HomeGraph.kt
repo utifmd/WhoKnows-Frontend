@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.dudegenuine.model.Resource.Companion.KEY_REFRESH
+import com.dudegenuine.model.Resource.Companion.KEY_USER_ID
 import com.dudegenuine.whoknows.ux.compose.component.misc.ImageViewer
 import com.dudegenuine.whoknows.ux.compose.component.misc.LoggingSubscriber
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
@@ -15,6 +16,7 @@ import com.dudegenuine.whoknows.ux.compose.screen.SettingScreen
 import com.dudegenuine.whoknows.ux.compose.screen.SummaryScreen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
+import com.dudegenuine.whoknows.ux.compose.state.room.FlowParameter
 import com.dudegenuine.whoknows.ux.vm.file.FileViewModel
 import com.dudegenuine.whoknows.ux.vm.file.IFileViewModel.Companion.PREVIEW_FILE_ID
 import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
@@ -41,7 +43,6 @@ fun NavGraphBuilder.homeNavGraph(props: IMainProps) {
 
             DiscoverScreen(props)
         }
-
         summaryGraph(props)
         composable(
             route = Screen.Home.Summary.route) { entry ->
@@ -50,17 +51,23 @@ fun NavGraphBuilder.homeNavGraph(props: IMainProps) {
 
             with(entry.savedStateHandle) {
                 val isRefresh = getLiveData<Boolean>(KEY_REFRESH).observeAsState()
+                val currentUserId = getLiveData<String>(KEY_USER_ID).observeAsState()
 
-                if (isRefresh.value == true){
-                    props.run {
-                        lazyPagingRoomCensored.refresh()
-                        lazyPagingRoomComplete.refresh()
+                when{
+                    isRefresh.value == true -> {
+                        props.run {
+                            lazyPagingRoomCensored.refresh()
+                            lazyPagingRoomComplete.refresh()
+                        }
+                        set(KEY_REFRESH, false)
                     }
-
-                    set(KEY_REFRESH, false)
+                    currentUserId.value?.isNotBlank() == true -> currentUserId.value?.let {
+                        vmMain.onRoomCompleteParameterChange(FlowParameter.RoomComplete(it))
+                        vmMain.onNotificationParameterChange(FlowParameter.Notification(it))
+                    }
+                    else -> {}
                 }
             }
-
             LoggingSubscriber(vmMain, vmRoom)
             LoggingSubscriber(vmMain, vmParticipation)
             SummaryScreen(props, vmRoom, vmParticipation)

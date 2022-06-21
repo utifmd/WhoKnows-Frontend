@@ -33,6 +33,10 @@ fun GeneralBottomBar(
     controller: NavController, onPressed: ((BottomDomain) -> Unit)? = null) {
     val backStackEntry = controller.currentBackStackEntryAsState()
 
+    /*AnimatedVisibility(visible = ) {
+
+    }*/
+
     BottomNavigation(modifier,
         backgroundColor = /*if (darkTheme)*/ MaterialTheme.colors.background /*else MaterialTheme.colors.onPrimary*/,
         contentColor = /*if (darkTheme)*/ MaterialTheme.colors.onBackground /*else MaterialTheme.colors.primary*/,

@@ -1,13 +1,12 @@
 package com.dudegenuine.whoknows.ux.compose.screen
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
@@ -41,77 +40,85 @@ fun RegisterScreen(
     scrollState: ScrollState = rememberScrollState()){
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val formState = viewModel.formState
+    val formState = viewModel.userState
 
-    Column(modifier.padding(16.dp).verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally) {
+    Box(
+        modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)){
+        Column(modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+            FrontLiner()
 
-        FrontLiner()
+            GeneralTextField(
+                label = "Enter email",
+                value = formState.payload.text,
+                onValueChange = formState.onUsernameChange,
+                isError = auth.error.isNotBlank(),
+                leads = Icons.Filled.Email,
+                trail = if (formState.payload.text.isNotBlank())
+                    Icons.Filled.Clear else null,
+                onTailPressed = { formState.onUsernameChange("") },
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.moveFocus(FocusDirection.Down) })
+            )
+            GeneralTextField(
+                label = "Enter password",
+                value = formState.password.text,
+                asPassword = true,
+                leads = Icons.Filled.Password,
+                onValueChange = formState.onPasswordChange,
+                isError = auth.error.isNotBlank(),
+                trail = if (formState.password.text.isNotBlank())
+                    Icons.Filled.Clear else null,
+                onTailPressed = { formState.onPasswordChange("") },
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.moveFocus(FocusDirection.Down) })
+            )
+            GeneralTextField(
+                label = "Confirm password",
+                value = formState.rePassword.text,
+                asPassword = true,
+                leads = Icons.Filled.Password,
+                onValueChange = formState.onRePasswordChange,
+                isError = auth.error.isNotBlank(),
+                trail = if (formState.rePassword.text.isNotBlank())
+                    Icons.Filled.Clear else null,
+                onTailPressed = { formState.onRePasswordChange("") },
+                keyboardActions = KeyboardActions(
+                    onDone = { keyboardController?.hide(); viewModel.registerUser() })
+            )
 
-        GeneralTextField(
-            label = "Enter email",
-            value = formState.payload.text,
-            onValueChange = formState.onUsernameChange,
-            leads = Icons.Filled.Email,
-            tails = if (formState.payload.text.isNotBlank())
-                Icons.Filled.Clear else null,
-            onTailPressed = { formState.onUsernameChange("") },
-            keyboardActions = KeyboardActions(
-                onDone = { focusManager.moveFocus(FocusDirection.Down) })
-        )
-        GeneralTextField(
-            label = "Enter password",
-            value = formState.password.text,
-            asPassword = true,
-            leads = Icons.Filled.Password,
-            onValueChange = formState.onPasswordChange,
-            tails = if (formState.password.text.isNotBlank())
-                Icons.Filled.Clear else null,
-            onTailPressed = { formState.onPasswordChange("") },
-            keyboardActions = KeyboardActions(
-                onDone = { focusManager.moveFocus(FocusDirection.Down) })
-        )
-        GeneralTextField(
-            label = "Confirm password",
-            value = formState.rePassword.text,
-            asPassword = true,
-            leads = Icons.Filled.Password,
-            onValueChange = formState.onRePasswordChange,
-            tails = if (formState.rePassword.text.isNotBlank())
-                Icons.Filled.Clear else null,
-            onTailPressed = { formState.onRePasswordChange("") },
-            keyboardActions = KeyboardActions(
-                onDone = { keyboardController?.hide(); viewModel.registerUser() })
-        )
+            if (auth.error.isNotBlank())
+                ErrorScreen(message = auth.error, isSnack = true)
 
-        if (auth.error.isNotBlank())
-            ErrorScreen(message = auth.error, isSnack = true)
+            GeneralButton(
+                label = stringResource(R.string.sign_up),
+                enabled = formState.isRegisValid.value && !auth.loading,
+                leadingIcon = Icons.Default.AppRegistration,
+                isLoading = auth.loading,
+                onClick = viewModel::registerUser
+            )
 
-        GeneralButton(
-            label = stringResource(R.string.sign_up),
-            enabled = formState.isRegisValid.value && !auth.loading,
-            isLoading = auth.loading,
-            onClick = viewModel::registerUser
-        )
-
-        /*GeneralTextField(
-            label = "Enter full name",
-            value = formState.fullName.text,
-            onValueChange = formState.onFullNameChange,
-            leads = Icons.Filled.Person,
-            tails = if (formState.fullName.text.isNotBlank())
-                Icons.Filled.Clear else null,
-            onTailPressed = { formState.onFullNameChange("") }
-        )
-        GeneralTextField(
-            label = "Enter phone number",
-            value = formState.phone.text,
-            onValueChange = formState.onPhoneChange,
-            leads = Icons.Filled.Phone,
-            tails = if (formState.phone.text.isNotBlank())
-                Icons.Filled.Clear else null,
-            onTailPressed = { formState.onPhoneChange("") }
-        )*/
+            /*GeneralTextField(
+                label = "Enter full name",
+                value = formState.fullName.text,
+                onValueChange = formState.onFullNameChange,
+                leads = Icons.Filled.Person,
+                tails = if (formState.fullName.text.isNotBlank())
+                    Icons.Filled.Clear else null,
+                onTailPressed = { formState.onFullNameChange("") }
+            )
+            GeneralTextField(
+                label = "Enter phone number",
+                value = formState.phone.text,
+                onValueChange = formState.onPhoneChange,
+                leads = Icons.Filled.Phone,
+                tails = if (formState.phone.text.isNotBlank())
+                    Icons.Filled.Clear else null,
+                onTailPressed = { formState.onPhoneChange("") }
+            )*/
+        }
     }
 }

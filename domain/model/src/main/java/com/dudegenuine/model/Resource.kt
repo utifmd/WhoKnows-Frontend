@@ -2,7 +2,6 @@ package com.dudegenuine.model
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.dudegenuine.model.common.Utility.DEFAULT_BATCH_SIZE
 import com.dudegenuine.model.common.validation.HttpFailureException
 import retrofit2.HttpException
 import java.io.IOException
@@ -37,7 +36,8 @@ sealed class Resource<T> (
         const val ILLEGAL_STATE_EXCEPTION = "An expected error occurred."
         const val NO_RESULT = "No result."
         const val NOT_FOUND_EXCEPTION = "Not Found Exception"
-        const val KEY_REFRESH = "refresh"
+        const val KEY_REFRESH = "key_refresh"
+        const val KEY_USER_ID = "key_user_id"
     }
 }
 
@@ -48,19 +48,12 @@ class ResourcePaging<T: Any>(
         val serverStartingIndex = 0
         val pageNumber = params.key ?: serverStartingIndex
         val list = onEvent(pageNumber)
-        val nextKey = if (list.isEmpty()) null else pageNumber + (params.loadSize / DEFAULT_BATCH_SIZE)
-
-        /*if (list.isNotEmpty()) LoadResult.Page(
-            data = list,
-            prevKey = if (pageNumber == serverStartingIndex) null else pageNumber, // -1 else null,
-            nextKey = nextKey //if (list.isNotEmpty()) pageNumber +1 else null
-        ) else LoadResult.Error(Throwable(Resource.NO_RESULT))*/
 
         LoadResult.Page(
             data = list,
-            prevKey = if (pageNumber == serverStartingIndex) null else pageNumber, // -1 else null,
-            nextKey = nextKey
-        ) //if (list.isNotEmpty()) pageNumber +1 else null
+            prevKey = if (pageNumber > serverStartingIndex) pageNumber -1 else null,
+            nextKey = if (list.isNotEmpty()) pageNumber +1 else null
+        )
     } catch (e: HttpFailureException){
         LoadResult.Error(Throwable(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
     } catch (e: HttpException){

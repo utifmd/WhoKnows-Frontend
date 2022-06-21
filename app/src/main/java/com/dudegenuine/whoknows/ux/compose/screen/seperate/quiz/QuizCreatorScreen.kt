@@ -89,7 +89,7 @@ fun QuizCreatorScreen(
                         value = formState.currentQuestion.text,
                         onValueChange = formState::onQuestionValueChange,
                         leads = Icons.Filled.QuestionAnswer,
-                        tails = if (formState.currentQuestion.text.isNotBlank())
+                        trail = if (formState.currentQuestion.text.isNotBlank())
                                 Icons.Filled.Close else null,
                         onTailPressed = { formState.onQuestionValueChange("") },
                         keyboardActions = KeyboardActions(
@@ -101,7 +101,7 @@ fun QuizCreatorScreen(
                         value = formState.currentOption.text,
                         onValueChange = formState::onOptionValueChange,
                         leads = Icons.Filled.List,
-                        tails = if (formState.currentOption.text.isNotBlank())
+                        trail = if (formState.currentOption.text.isNotBlank())
                             Icons.Filled.AddCircleOutline else null,
                         onTailPressed = formState::onPushedOption,
                         modifier = modifier.onKeyEvent(formState::onOptionKeyEvent),

@@ -9,6 +9,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.dudegenuine.model.Resource
+import com.dudegenuine.model.Resource.Companion.KEY_REFRESH
 import com.dudegenuine.whoknows.ux.compose.component.GeneralAlertDialog
 import com.dudegenuine.whoknows.ux.compose.component.GeneralBottomBar
 import com.dudegenuine.whoknows.ux.compose.model.BottomDomain
@@ -59,7 +60,7 @@ fun MainScreen(
                 }
             }
         )
-        LaunchedEffect(viewModel.auth.user){
+        LaunchedEffect(viewModel.auth.user){ // this block should unnecessarily
             viewModel.auth.user?.run{
                 viewModel.onRoomCompleteParameterChange(FlowParameter.RoomComplete(id))
                 viewModel.onNotificationParameterChange(FlowParameter.Notification(id))
@@ -70,8 +71,13 @@ fun MainScreen(
                 when(state){
                     is ScreenState.Toast -> with(state) { Toast.makeText(props.context, message, duration).show() }
                     is ScreenState.SnackBar -> with(state) { snackHostState.showSnackbar(message, label, duration) }
-                    is ScreenState.Navigate.Back -> props.router.popBackStack()
-                    is ScreenState.Navigate.To -> try { props.router.navigate(state.route, state.option) } catch (e: Exception){ viewModel.onToast(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION) }
+                    is ScreenState.Navigate.Back -> if(state.refresh) props.router.run {
+                        previousBackStackEntry?.apply { savedStateHandle[KEY_REFRESH] = true }
+                        popBackStack() } else
+                            props.router.popBackStack()
+                    is ScreenState.Navigate.To -> try {
+                        props.router.navigate(state.route, state.option) } catch (e: Exception){
+                            viewModel.onToast(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION) }
                     else -> {}
                 }
             }

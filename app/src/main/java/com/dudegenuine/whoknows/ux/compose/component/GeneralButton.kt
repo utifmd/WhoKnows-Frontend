@@ -1,14 +1,13 @@
 package com.dudegenuine.whoknows.ux.compose.component
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 /**
@@ -18,12 +17,19 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun GeneralButton(
     modifier: Modifier = Modifier,
+    modifierFillMaxWidth: Boolean = false,
     label: String,
     enabled: Boolean = true,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null,
     isLoading: Boolean = false,
     onClick: () -> Unit) {
     Button(
+        modifier = if (modifierFillMaxWidth)
+            modifier.fillMaxWidth() else modifier,
         enabled = enabled,
+        shape = MaterialTheme.shapes.small.copy(
+            topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp)),
         onClick = onClick) {
         if (isLoading){
             CircularProgressIndicator(
@@ -31,8 +37,16 @@ fun GeneralButton(
                 color = MaterialTheme.colors.secondaryVariant,
                 strokeWidth = (1.5).dp
             )
-            Spacer(modifier = modifier.width(8.dp))
+            Spacer(modifier.size(ButtonDefaults.IconSpacing))
         }
-        Text(text = label)
+        if (leadingIcon != null){
+            Icon(imageVector = leadingIcon, contentDescription = null)
+            Spacer(modifier.size(ButtonDefaults.IconSpacing))
+        }
+        Text(label)
+        if (trailingIcon != null){
+            Spacer(modifier.size(ButtonDefaults.IconSpacing))
+            Icon(imageVector = trailingIcon, contentDescription = null)
+        }
     }
 }

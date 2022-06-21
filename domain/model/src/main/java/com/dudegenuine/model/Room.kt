@@ -12,15 +12,16 @@ sealed class Room {
         val userId: String,
         val minute: Int,
         val title: String,
-        val description: String,
+        val token: String,
+        val description: String, //val to: String,
         val expired: Boolean,
         val private: Boolean,
         val usernameOwner: String,
         val fullNameOwner: String,
         val questionSize: Int,
         val impressionSize: Int,
-        val isOwner: Boolean,
-        val impressed: Boolean,
+        val isOwner: Boolean = false,
+        val impressed: Boolean = false,
         val participantSize: Int): Room()
     
     data class Complete(
@@ -28,17 +29,18 @@ sealed class Room {
         val userId: String,
         var minute: Int,
         val title: String,
+        val token: String,
         val description: String,
-        val isOwner: Boolean, //
+        var isOwner: Boolean = false, //
         var expired: Boolean,
-        val private: Boolean, //
+        var private: Boolean, //
         var createdAt: Date,
         var updatedAt: Date?,
         val impressionSize: Int, //
-        val impressed: Boolean, //
+        val impressed: Boolean = false, //
         val user: User.Censored?,
         var questions: List<Quiz.Complete>,
-        var participants: List<Participant>): Room() {
+        var participants: List<Participant>): Room() { // use that expired participant as an complete participation and display
         val isPropsBlank: Boolean =
             minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
     

@@ -44,7 +44,7 @@ fun GeneralTopBar(
             else null,
         actions =  {
             tails?.let {
-                IconButton({ onTailPressed?.invoke() }) {
+                IconButton({ onTailPressed?.invoke() }, enabled = onTailPressed != null) {
 
                     Icon(tails,
                         tint = if (light) tailsTint ?: MaterialTheme.colors.onSurface

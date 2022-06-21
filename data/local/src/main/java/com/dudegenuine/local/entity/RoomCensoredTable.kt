@@ -23,6 +23,9 @@ data class RoomCensoredTable(
     @ColumnInfo(name = "title")
     val title: String,
 
+    @ColumnInfo(name = "token")
+    val token: String,
+
     @ColumnInfo(name = "description")
     val description: String,
 

@@ -14,13 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.ux.compose.component.GeneralTextField
 import com.dudegenuine.whoknows.ux.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ux.compose.screen.ErrorScreen
-import com.dudegenuine.whoknows.ux.compose.state.RoomState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
+import com.dudegenuine.whoknows.ux.compose.state.RoomState
 import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
 
 /**
@@ -31,12 +29,10 @@ import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
 @Composable
 fun RoomCreatorScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoomViewModel = hiltViewModel(),
-    onBackPressed: () -> Unit,
-    onSucceed: (Room.Complete) -> Unit){
+    viewModel: RoomViewModel){
 
     val state = viewModel.state
-    val formState = viewModel.formState
+    val formState = viewModel.roomState
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -44,11 +40,11 @@ fun RoomCreatorScreen(
             GeneralTopBar(
                 title = "New class",
                 leads = Icons.Filled.ArrowBack,
-                onLeadsPressed = onBackPressed,
+                onLeadsPressed = viewModel::onBackPressed,
                 submitLabel = "Create",
                 submitEnable = formState.isPostValid && !state.loading,
                 submitLoading = state.loading,
-                onSubmitPressed = { viewModel.onCreatePressed(onSucceed) }
+                onSubmitPressed = viewModel::onCreatePressed
             )
         },
         content = {
@@ -79,7 +75,7 @@ private fun Body(
             value = formState.title.text,
             onValueChange = formState::onTitleChange,
             leads = Icons.Filled.Title,
-            tails = if (formState.title.text.isNotBlank()) Icons.Filled.Close else null,
+            trail = if (formState.title.text.isNotBlank()) Icons.Filled.Close else null,
             onTailPressed = { formState.onTitleChange("") },
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.moveFocus(FocusDirection.Down) }
@@ -92,7 +88,7 @@ private fun Body(
             singleLine = false,
             leads = Icons.Filled.Description,
             onValueChange = formState::onDescChange,
-            tails = if (formState.desc.text.isNotBlank()) Icons.Filled.Close else null,
+            trail = if (formState.desc.text.isNotBlank()) Icons.Filled.Close else null,
             onTailPressed = { formState.onDescChange("") },
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.moveFocus(FocusDirection.Down) }
@@ -104,7 +100,7 @@ private fun Body(
             value = formState.minute.text,
             leads = Icons.Filled.Timer,
             onValueChange = formState::onMinuteChange,
-            tails = if (formState.minute.text.isNotBlank()) "minute\'s" else "minute",
+            trail = if (formState.minute.text.isNotBlank()) "minute\'s" else "minute",
             onTailPressed = { isExpand = !isExpand },
             isExpand = isExpand,
             onExpanderSelected = {

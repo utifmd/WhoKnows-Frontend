@@ -24,6 +24,9 @@ object RoomEntity {
         @SerializedName("description")
         val description: String,
 
+        @SerializedName("token")
+        val token: String,
+
         @SerializedName("expired")
         val expired: Boolean,
 
@@ -51,7 +54,7 @@ object RoomEntity {
         val roomId: String,
 
         @SerializedName("userId")
-        val userid: String,
+        val userId: String,
 
         @SerializedName("minute")
         val minute: Int,
@@ -61,6 +64,9 @@ object RoomEntity {
 
         @SerializedName("description")
         val description: String,
+
+        @SerializedName("token")
+        val token: String,
 
         @SerializedName("expired")
         val expired: Boolean,

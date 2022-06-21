@@ -32,4 +32,6 @@ abstract class IRoomViewModel: BaseViewModel(),
     //abstract val roomsOwner:(userId: String) -> Flow<PagingData<Room.Complete>>
 
     //open fun postBoarding(state: Room.State.BoardingQuiz, onSucceed: (String) -> Unit){}
+
+    abstract fun onNavigateBackThenRefresh()
 }

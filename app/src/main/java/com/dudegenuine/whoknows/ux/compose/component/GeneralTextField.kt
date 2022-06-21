@@ -3,10 +3,8 @@ package com.dudegenuine.whoknows.ux.compose.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -19,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun GeneralTextField(
@@ -31,7 +28,7 @@ fun GeneralTextField(
     value: String,
     onValueChange: (String) -> Unit,
     leads: ImageVector? = null,
-    tails: Any? = null,
+    trail: Any? = null,
     isError: Boolean = false,
     isExpand: Boolean = false,
     keyboardActions: KeyboardActions? = null,
@@ -62,10 +59,10 @@ fun GeneralTextField(
         leadingIcon =
             if (leads != null) {
                 {
-                    Icon(
+                    Icon(/*
                         modifier = modifier.clickable(
                             onClick = onTailClicked
-                        ),
+                        ),*/
                         imageVector = leads,
                         contentDescription = null
                     )
@@ -74,26 +71,19 @@ fun GeneralTextField(
             else null,
         trailingIcon = {
             AnimatedVisibility(
-                visible = tails != null,
+                visible = trail != null,
                 enter = fadeIn(), exit = fadeOut()) {
                 Row {
-                    when (tails){
-                        is ImageVector -> Icon(
-                            modifier = modifier.clickable(
-                                onClick = onTailClicked),
-                            imageVector = tails,
-                            contentDescription = null)
-                        is String -> TextButton(onTailClicked) { Text(tails) }
-                    }
                     if(asPassword){
-                        Icon(
-                            imageVector = if(!isPassVisible.value) Icons.Filled.Visibility
-                                else Icons.Filled.VisibilityOff,
-                            contentDescription = "tails-$label",
-                            modifier = modifier
-                                .padding(end = 12.dp, start = 8.dp)
-                                .clickable { isPassVisible.value = !isPassVisible.value }
-                        )
+                        IconButton({ isPassVisible.value = !isPassVisible.value }) {
+                            Icon(if(!isPassVisible.value)
+                                Icons.Filled.Visibility else
+                                    Icons.Filled.VisibilityOff, null)
+                        }
+                    }
+                    when (trail){
+                        is ImageVector -> IconButton(onTailClicked){ Icon(trail, contentDescription = null) }
+                        is String -> TextButton(onTailClicked) { Text(trail) }
                     }
                 }
             }
@@ -108,18 +98,13 @@ fun GeneralTextField(
         } else VisualTransformation.None,
         modifier = modifier.fillMaxWidth()
     )
-    AnimatedVisibility(
-        visible = isExpand,
-        enter = fadeIn(),
-        exit = fadeOut()) {
-        DropdownMenu(
-            expanded = isExpand,
-            onDismissRequest = onExpanderDismissed) {
-            for (i in 5..125 step 15){
-                DropdownMenuItem(
-                    onClick = { onExpanderClicked(i) }) {
-                    Text("$i min")
-                }
+    DropdownMenu(
+        expanded = isExpand,
+        onDismissRequest = onExpanderDismissed) {
+        for (i in 5..125 step 15){
+            DropdownMenuItem(
+                onClick = { onExpanderClicked(i) }) {
+                Text("$i min")
             }
         }
     }

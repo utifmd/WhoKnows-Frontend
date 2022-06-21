@@ -44,7 +44,7 @@ fun ProfileScreen(
     val swipeRefreshState = rememberSwipeRefreshState(viewModel.auth.loading || viewModel.state.loading)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = { viewModel.formState.onImageValueChange(it, context) })
+        onResult = { viewModel.userState.onImageValueChange(it, context) })
 
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -65,8 +65,8 @@ fun ProfileScreen(
                     Spacer(modifier.size(12.dp))
 
                     if (user.isCurrentUser) GeneralPicture(
-                        data = if (viewModel.formState.profileImage.isNotEmpty())
-                            asBitmap(viewModel.formState.profileImage) else
+                        data = if (viewModel.userState.profileImage.isNotEmpty())
+                            asBitmap(viewModel.userState.profileImage) else
                                 user.profileUrl,
                         onChangePressed = { launcher.launch("image/*") },
                         onCheckPressed = viewModel::onUploadProfile,

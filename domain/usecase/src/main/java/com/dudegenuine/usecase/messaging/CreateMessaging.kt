@@ -17,11 +17,11 @@ import javax.inject.Inject
 class CreateMessaging @Inject constructor(
     private val repository: IMessagingRepository) {
 
-    operator fun invoke(messaging: Messaging): Flow<Resource<String>> = flow {
+    operator fun invoke(messaging: Messaging.GroupCreator): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
 
-            val model = repository.create(messaging).string()
+            val model = repository.create(messaging).notification_key
             emit(Resource.Success(model))
 
         } catch (e: HttpFailureException){

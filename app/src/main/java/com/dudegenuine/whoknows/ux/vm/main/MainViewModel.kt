@@ -7,11 +7,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.work.ExistingWorkPolicy
 import com.dudegenuine.model.Room
-import com.dudegenuine.model.User
 import com.dudegenuine.repository.contract.dependency.local.IWorkerManager.Companion.WORK_NAME_ROOM_TOKEN
 import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager.Companion.TOPIC_COMMON
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
-import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.room.FlowParameter
 import com.dudegenuine.whoknows.ux.vm.notification.contract.IMessagingViewModel.Companion.DEFAULT_NOTIFIER_BATCH_SIZE
 import com.dudegenuine.whoknows.ux.vm.participation.contract.IParticipantViewModel.Companion.DEFAULT_PARTICIPANT_BATCH_SIZE
@@ -127,7 +125,6 @@ class MainViewModel
             subscribeToTopic(TOPIC_COMMON)
         }
     }
-
     private fun messagingInitToken() {
         with (messaging.token) {
             addOnSuccessListener {
@@ -141,109 +138,13 @@ class MainViewModel
             }
         }
     }
-
-    /*private var savedPagingData by mutableStateOf<PagingData<Quiz.Complete>?>(null)
-
-    val feedRoomFlow = caseRoom.getRooms(prefs.userId, 3)
-        .cachedIn(viewModelScope)
-
-    val feedParticipantFlow = caseUser.getUsersParticipation(3)
-        .cachedIn(viewModelScope)
-
-    val feedQuizFlow = caseQuiz.getQuestions(3)
-        .cachedIn(viewModelScope)*/
-
-    /*fun registerPrefsListener() { prefs.manager.register(onPrefsListener) }
-    fun unregisterPrefsListener() { prefs.manager.unregister(onPrefsListener) }*/
-
-    /*private val onPrefsListener = SharedPreferences
-        .OnSharedPreferenceChangeListener { prefs, key -> when (key) {
-            USER_ID -> {
-                val fresh = prefs?.getString(USER_ID, "")
-
-                fresh?.let(::onCurrentUserIdChange)
-            }
-            NOTIFICATION_BADGE -> {
-                val fresh = prefs?.getInt(NOTIFICATION_BADGE, 0)
-
-                fresh?.let(::onBadgeChange)
-            }
-        }
-    }*/
-
-    private fun getNotifications(userId: String){
-        if (userId.isBlank()) return
-
-        caseNotifier.getNotifications(userId, 0, Int.MAX_VALUE)
-            .onEach { res -> onResourceStateless(res) { notifiers ->
-                val counter = notifiers.count { !it.seen }
-                onBadgeChange(counter)
-            }}
-            .launchIn(viewModelScope)
-    }
-
     private fun getUser(){
         caseUser.getUser()
             .onEach(::onAuth)
             .onCompletion { if(it == null) Log.d(TAG, "getUser: complete") }
             .launchIn(viewModelScope)
     }
-
-    private fun getUser(onSucceed: (User.Complete) -> Unit){
-        caseUser.getUser(userId)
-            .onEach { onResourceSucceed(it, onSucceed) }
-            .launchIn(viewModelScope)
-    }
-
-    private fun onBadgeChange(fresh: Int) =
-        onStateChange(ResourceState())
-    /*badge = fresh prefs.notificationBadge = fresh*/
-
-    /*private fun onCurrentUserIdChange(fresh: String) {
-        _userIdState.value = fresh
-        //prefs.userId = fresh
-    }*/
-
     private fun onTokenIdChange(fresh: String) {
         prefs.tokenId = fresh
     }
-
-    /*private fun onRejectCreateMessaging() {
-        prefs.addMessaging = false
-    }
-
-    private fun onRejectAddMessaging() {
-        prefs.addMessaging = false
-    }
-
-    private fun onRejectRemoveMessaging() {
-        prefs.removeMessaging = false
-    }*/
-
-    /*private var _fruitList = mutableListOf("grape", "apple", "orange", "melon", "water melon", "cherry", "papaya", "pineapple")
-    private val fruitList get() = _fruitList
-
-    private val source: PagingSource<Int, String> = ResourcePaging {
-        delay(2_000)
-        fruitList
-    }
-
-    private val pager = Pager(PagingConfig(
-        2, enablePlaceholders = true, maxSize = 200
-    ), pagingSourceFactory = { source })
-
-    val feedFruits: () -> Flow<PagingData<String>> = { pager.flow }
-
-
-    fun onFruitsAdded(fruit: String){
-        _fruitList.add(0, fruit)
-
-        Log.d(TAG, "onFruitsAdded: $fruit")
-    }
-
-    fun onFruitsRemoved(index: Int){
-        _fruitList.removeAt(index)
-
-        Log.d(TAG, "onFruitsRemoved: $index")
-    }*/
 }

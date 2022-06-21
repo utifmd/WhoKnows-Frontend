@@ -99,11 +99,19 @@ class MessagingRepository
             service.create(mapper.asMessagingCreateEntity(messaging))
         )
     }
+
+    override suspend fun create(messaging: Messaging.GroupCreator): Messaging.Getter.Response =
+        mapper.asMessagingGetterResponse(service.create(mapper.asMessagingCreateEntity(messaging)))
+
     override suspend fun add(messaging: Messaging): ResponseBody {
         return mapper.asResponseBody(
             service.add(mapper.asMessagingAddEntity(messaging))
         )
     }
+
+    override suspend fun add(messaging: Messaging.GroupAdder): Messaging.Getter.Response =
+        mapper.asMessagingGetterResponse(service.add(mapper.asMessagingAddEntity(messaging)))
+
     override suspend fun remove(messaging: Messaging): ResponseBody {
         return mapper.asResponseBody(
             service.remove(mapper.asMessagingRemoveEntity(messaging))

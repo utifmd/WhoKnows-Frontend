@@ -4,9 +4,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import com.dudegenuine.model.Room
 import com.dudegenuine.whoknows.BuildConfig.BASE_CLIENT_URL
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IAppUseCaseModule.Companion.EMPTY_STRING
 import java.util.*
 
-class RoomState {
+class RoomState(
+    private val currentRoom: Room.Complete?) {
+
     private val _roomId = mutableStateOf("")
     val roomId: String
         get() = _roomId.value
@@ -32,13 +35,15 @@ class RoomState {
             title.text.isNotBlank() &&
                     desc.text.isNotBlank() &&
                     minute.text.isNotBlank()).value
+
     val room: Room.Complete
         get() = mutableStateOf(
             Room.Complete(
                 id = "ROM-${UUID.randomUUID()}",
-                userId = "",
+                userId = EMPTY_STRING,
                 minute = if (minute.text.isBlank()) 0 else minute.text.toInt(),
                 title = title.text,
+                token = EMPTY_STRING,
                 description = desc.text,
                 expired = false,
                 questions = emptyList(),
@@ -95,10 +100,11 @@ class RoomState {
             get() = mutableStateOf(
                 Room.Complete(
                     id = "ROM-${UUID.randomUUID()}",
-                    userId = "",
+                    userId = EMPTY_STRING,
                     minute = 10,
-                    title = "title.text",
-                    description = "desc.text",
+                    title = EMPTY_STRING,
+                    token = EMPTY_STRING,
+                    description = EMPTY_STRING,
                     expired = false,
                     questions = emptyList(),
                     participants = emptyList(),

@@ -4,7 +4,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.ux.compose.component.misc.LoggingSubscriber
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
@@ -45,20 +44,11 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     val isLoggedIn = vmMain.isLoggedInByPrefs
 
     composable(
-        route = Screen.Home.Summary.RoomCreator.route) {
+        route = Screen.Home.Summary.RoomCreator.route){
         val vmRoom: RoomViewModel = hiltViewModel()
 
         LoggingSubscriber(vmMain, vmRoom)
-        RoomCreatorScreen(
-            viewModel = vmRoom,
-            onBackPressed = props.router::popBackStack,
-            onSucceed = {
-                props.router.apply {
-                    previousBackStackEntry?.savedStateHandle?.set(Resource.KEY_REFRESH, true)
-                    popBackStack()
-                }
-            }
-        )
+        RoomCreatorScreen(viewModel = vmRoom)
     }
 
     composable(
@@ -71,8 +61,8 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
 
     composable(
         route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}"/*, "{$ROOM_IS_OWN}"*/),
-        deepLinks = if (isLoggedIn) listOf( navDeepLink {
-            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){ //entry ->
+        deepLinks = if (isLoggedIn) listOf( navDeepLink{
+            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){
         val vmRoom: RoomViewModel = hiltViewModel()
 
         LoggingSubscriber(vmMain, vmRoom)
@@ -108,7 +98,7 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
 
     composable(
         route = Screen.Home.Summary.RoomDetail.QuizDetail.routeWithArgs(
-            "{$QUIZ_ID_SAVED_KEY}")){
+            "{$QUIZ_ID_SAVED_KEY}")){ //backStackEntry ->
 
         val event = object: IQuizPublicEvent {
             override fun onBackPressed() { props.router.popBackStack() } // override fun onDeletePressed() { props.router.popBackStack() }
@@ -118,7 +108,6 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
                 props.router.navigate(Screen.Home.Preview.routeWithArgs(fileId))
             }
         }
-
         QuizScreen(
             stateCompose = object: IQuizPublicState {
                 override val event: IQuizPublicEvent = event
