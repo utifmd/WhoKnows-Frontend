@@ -280,17 +280,16 @@ abstract class BaseViewModel: ViewModel() {
 
                 when(resources.data) {
                     is User.Complete -> (resources.data as User.Complete).let{
-                        onSucceed?.invoke(it)
                         onAuthChange(ResourceState.Auth(user = it))
+                        onSucceed?.invoke(it)
                     }
                     is String -> {
-                        onSignedOut?.invoke()
                         onAuthChange(ResourceState.Auth(invalidated = true)) // user signed out
+                        onSignedOut?.invoke()
                     }
                     else -> ResourceState.Auth(error = "unknown resources")
                 }
             }
-
             is Resource.Error -> {
                 Log.d(TAG, "Auth.Error: ${resources.message}")
                 onAuthChange(ResourceState.Auth(error = resources.message ?: "An unexpected error occurred."))

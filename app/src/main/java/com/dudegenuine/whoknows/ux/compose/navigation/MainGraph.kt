@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.ux.compose.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
+import com.dudegenuine.whoknows.ux.compose.component.GeneralAlertDialog
 import com.dudegenuine.whoknows.ux.compose.navigation.graph.authNavGraph
 import com.dudegenuine.whoknows.ux.compose.navigation.graph.homeNavGraph
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
@@ -13,6 +14,8 @@ import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
 @Composable
 fun MainGraph(
     props: IMainProps, destination: String) {
+    GeneralAlertDialog(viewModel = props.viewModel)
+
     NavHost(
         route = Screen.ROOT_ROUTE,
         startDestination = destination,

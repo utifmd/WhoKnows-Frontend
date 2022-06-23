@@ -43,7 +43,7 @@ import kotlin.random.Random
  **/
 @AndroidEntryPoint
 class MessagingService: FirebaseMessagingService() {
-    @Inject lateinit var prefsFactory: IPrefsFactory
+    @Inject lateinit var prefs: IPrefsFactory
     @Inject lateinit var notifier: INotifyManager
     @Inject lateinit var repository: IMessagingRepository
     private val TAG: String = javaClass.simpleName
@@ -63,7 +63,7 @@ class MessagingService: FirebaseMessagingService() {
         Log.d(TAG, "onMessageReceived: triggered")
         message.notification?.let(::notification)
 
-        if (prefsFactory.userId.isBlank()) return
+        if (prefs.userId.isBlank()) return
         notification(message.data)
     }
 
@@ -112,7 +112,7 @@ class MessagingService: FirebaseMessagingService() {
         val body = data["body"] ?: return
         val largeIcon = data["largeIcon"]
 
-        onRemoveMessaging(data["args"])
+        //onRemoveMessaging(data["args"])
 
         // TODO: make intent for this //onBadgeChange(prefsFactory.notificationBadge +1)
 
@@ -147,11 +147,11 @@ class MessagingService: FirebaseMessagingService() {
         val roomId = elem["roomId"].asString
         val userId = elem["userId"].asString
 
-        if (userId == prefsFactory.userId) caseGetMessaging(roomId)
+        if (userId == prefs.userId) caseGetMessaging(roomId)
             .flatMapConcat { res -> when (res) {
                 is Resource.Success -> res.data?.let { notification_key ->
                     val remover = Messaging.GroupRemover(
-                        roomId, listOf(prefsFactory.tokenId), notification_key)
+                        roomId, listOf(prefs.tokenId), notification_key)
 
                     caseRemoveMessaging(remover)
                 } ?: emptyFlow()
@@ -165,7 +165,7 @@ class MessagingService: FirebaseMessagingService() {
     }
 
     private fun onTokenIdChange(token: String) {
-        prefsFactory.tokenId = token
+        prefs.tokenId = token
     }
 
     /*private fun onBadgeChange(fresh: Int) {

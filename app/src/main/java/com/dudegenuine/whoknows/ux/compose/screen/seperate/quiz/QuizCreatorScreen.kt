@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.quiz
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -21,7 +22,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.Quiz
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.R
@@ -35,43 +35,34 @@ import com.dudegenuine.whoknows.ux.vm.quiz.QuizViewModel
  * Tue, 28 Dec 2021
  * WhoKnows by utifmd
  **/
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun QuizCreatorScreen(
-    modifier: Modifier = Modifier,
-    viewModel: QuizViewModel = hiltViewModel(),
-    onBackPressed: () -> Unit,
-    onSucceed: (Quiz.Complete) -> Unit) {
+    modifier: Modifier = Modifier, viewModel: QuizViewModel/*, onBackPressed: () -> Unit, onSucceed: (Quiz.Complete) -> Unit*/) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val state = viewModel.state
-    val formState = viewModel.formState
 
     val scrollState = rememberScrollState()
-    val selectedType = remember { mutableStateOf(strOf<Quiz.Answer.Possible.SingleChoice>()) }
+    val selectedType = remember{ mutableStateOf(strOf<Quiz.Answer.Possible.SingleChoice>()) }
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { formState.onResultImage(context, it) }
-    )
-
-    Scaffold(
-        modifier = modifier,
+        contract = ActivityResultContracts.GetContent()){
+        viewModel.quizState.onResultImage(context, it)
+    }
+    Scaffold(modifier,
         topBar = {
             GeneralTopBar(
                 title = stringResource(R.string.new_question),
                 leads = Icons.Filled.ArrowBack,
-                onLeadsPressed = onBackPressed,
+                onLeadsPressed = viewModel::onBackPressed,
                 submitLabel = "Add",
-                submitEnable = formState.isValid,
-                submitLoading = state.loading,
-                onSubmitPressed = { viewModel.onPostPressed(onSucceed) }
-            )
+                submitEnable = viewModel.quizState.isValid,
+                submitLoading = viewModel.state.loading,
+                onSubmitPressed = viewModel::onPostPressed)
         },
-
-        content = { _ ->
+        content = {
             Box(modifier.verticalScroll(scrollState)) {
-
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = modifier
@@ -79,36 +70,31 @@ fun QuizCreatorScreen(
                         .padding(12.dp)) {
 
                     ImagesPreUpload(
-                        images = formState.images,
+                        images = viewModel.quizState.images,
                         onAddPressed = { launcher.launch("image/*") },
-                        onRemovePressed = formState::onImagesRemoveAt
+                        onRemovePressed = viewModel.quizState::onImagesRemoveAt
                     )
-
                     GeneralTextField(modifier,
                         label = "Enter a question",
-                        value = formState.currentQuestion.text,
-                        onValueChange = formState::onQuestionValueChange,
+                        value = viewModel.quizState.currentQuestion.text,
+                        onValueChange = viewModel.quizState::onQuestionValueChange,
                         leads = Icons.Filled.QuestionAnswer,
-                        trail = if (formState.currentQuestion.text.isNotBlank())
+                        trail = if (viewModel.quizState.currentQuestion.text.isNotBlank())
                                 Icons.Filled.Close else null,
-                        onTailPressed = { formState.onQuestionValueChange("") },
-                        keyboardActions = KeyboardActions(
-                            onDone = { focusManager.moveFocus(FocusDirection.Down) })
+                        onTailPressed = { viewModel.quizState.onQuestionValueChange("") },
+                        keyboardActions = KeyboardActions{ focusManager.moveFocus(FocusDirection.Down) }
                     )
-
                     GeneralTextField(
                         label = "Push some options",
-                        value = formState.currentOption.text,
-                        onValueChange = formState::onOptionValueChange,
+                        value = viewModel.quizState.currentOption.text,
+                        onValueChange = viewModel.quizState::onOptionValueChange,
                         leads = Icons.Filled.List,
-                        trail = if (formState.currentOption.text.isNotBlank())
+                        trail = if (viewModel.quizState.currentOption.text.isNotBlank())
                             Icons.Filled.AddCircleOutline else null,
-                        onTailPressed = formState::onPushedOption,
-                        modifier = modifier.onKeyEvent(formState::onOptionKeyEvent),
-                        keyboardActions = KeyboardActions(
-                            onDone = { keyboardController?.hide() })
+                        onTailPressed = viewModel.quizState::onPushedOption,
+                        modifier = modifier.onKeyEvent(viewModel.quizState::onOptionKeyEvent),
+                        keyboardActions = KeyboardActions{ keyboardController?.hide() }
                     )
-
                     GeneralButtonGroup(
                         buttons = setOf(
                             strOf<Quiz.Answer.Possible.SingleChoice>(),
@@ -117,28 +103,28 @@ fun QuizCreatorScreen(
                         value = selectedType.value,
                         onValueChange = {
                             selectedType.value = it
-                            formState.onSelectedAnswerValue(null)
+                            viewModel.quizState.onSelectedAnswerValue(null)
                         }
                     )
 
-                    if (state.error.isNotBlank()){
+                    if (viewModel.state.error.isNotBlank()){
                         ErrorScreen(
-                            message = state.error, isSnack = true)
+                            message = viewModel.state.error, isSnack = true)
                     }
 
                     when(selectedType.value){
                         strOf<Quiz.Answer.Possible.SingleChoice>() ->
                             SingleChoiceQuestion(
-                                options = formState.options,
-                                answer = formState.currentAnswer,
-                                onAnswerSelected = formState::onAnsweredSingle
+                                options = viewModel.quizState.options,
+                                answer = viewModel.quizState.currentAnswer,
+                                onAnswerSelected = viewModel.quizState::onAnsweredSingle
                             )
 
                         strOf<Quiz.Answer.Possible.MultipleChoice>() ->
                             MultipleChoiceQuestion(
-                                options = formState.options,
-                                answer = formState.currentAnswer,
-                                onAnswerSelected = formState::onAnsweredMultiple
+                                options = viewModel.quizState.options,
+                                answer = viewModel.quizState.currentAnswer,
+                                onAnswerSelected = viewModel.quizState::onAnsweredMultiple
                             )
                     }
                 }

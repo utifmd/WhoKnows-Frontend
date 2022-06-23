@@ -1,9 +1,13 @@
 package com.dudegenuine.whoknows.ux.compose.navigation.graph
 
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.ux.compose.component.misc.LoggingSubscriber
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
@@ -25,7 +29,6 @@ import com.dudegenuine.whoknows.ux.vm.result.ResultViewModel
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
-import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.OWN_IS_TRUE
 import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_OWNER_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomViewModel.Companion.KEY_PARTICIPATION_ROOM_ID
@@ -50,7 +53,6 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
         LoggingSubscriber(vmMain, vmRoom)
         RoomCreatorScreen(viewModel = vmRoom)
     }
-
     composable(
         route = Screen.Home.Summary.RoomFinder.route){
         val vmRoom: RoomViewModel = hiltViewModel()
@@ -58,17 +60,25 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
         LoggingSubscriber(vmMain, vmRoom)
         RoomFinderScreen(viewModel = vmRoom)
     }
-
     composable(
         route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}"/*, "{$ROOM_IS_OWN}"*/),
         deepLinks = if (isLoggedIn) listOf( navDeepLink{
-            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){
+            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){ entry ->
+        val isRefresh = entry.savedStateHandle.getLiveData<Boolean>(Resource.KEY_REFRESH).observeAsState()
         val vmRoom: RoomViewModel = hiltViewModel()
+        val (isRefreshAfter, setIsRefreshAfter) = remember{ mutableStateOf(false) }
+        if (isRefresh.value == true){
+            val roomId = entry.arguments?.getString(ROOM_ID_SAVED_KEY)
 
+            setIsRefreshAfter(true)
+            roomId?.let(vmRoom::getRoom)
+            entry.savedStateHandle[Resource.KEY_REFRESH] = false
+        }
         LoggingSubscriber(vmMain, vmRoom)
-        RoomDetail(viewModel = vmRoom)
+        RoomDetail(viewModel = vmRoom, onBackPressed =
+            if(isRefreshAfter) vmRoom::onNavigateBackThenRefresh else vmRoom::onBackPressed
+        )
     }
-
     composable(
         route = Screen.Home.Summary.Participation.routeWithArgs("{${KEY_PARTICIPATION_ROOM_ID}}")){
         val vmParticipation: ParticipationViewModel = hiltViewModel()
@@ -84,7 +94,7 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
 
         LoggingSubscriber(vmMain, vmQuiz)
         QuizCreatorScreen(
-            viewModel = vmQuiz, onBackPressed = props.router::popBackStack) { quiz ->
+            viewModel = vmQuiz/*, onBackPressed = props.router::popBackStack*/) /*{ quiz ->
             val screen = Screen.Home.Summary.RoomDetail.routeWithArgs(
                 quiz.roomId, OWN_IS_TRUE)
 
@@ -93,7 +103,7 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
 
                 navigate(screen)
             }
-        }
+        }*/
     }
 
     composable(

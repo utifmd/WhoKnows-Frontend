@@ -80,38 +80,33 @@ class RoomRepository
 
     override suspend fun clearParticipation(): Flow<Unit> =
         flowOf(deleteBoardingLocal())
-            .onCompletion { onParticipationIdChange("") }
+            .onCompletion { onParticipantTimeLeftChange(0) }
 
     override suspend fun createBoardingLocal(participation: Participation) {
         daoBoarding.create(mapper.asParticipationTable(participation)).also {
-            onParticipationIdChange(participation.participantId)
+            onParticipantTimeLeftChange(participation.roomMinute)
         }
     }
-
-    override suspend fun readBoardingLocal(): Participation {
-        val model = preference.participationId
-        val currentBoarding = local.daoBoarding().read(model) ?: throw HttpFailureException(NOT_FOUND)
+    override suspend fun readBoardingLocal(): Participation { //val model = preference.participationId
+        val currentBoarding = local.daoBoarding().read() ?: throw HttpFailureException(NOT_FOUND)
 
         return mapper.asParticipation(currentBoarding)
     }
-
     override suspend fun updateBoardingLocal(participation: Participation) {
         daoBoarding.update(mapper.asParticipationTable(participation))
     }
-
     override suspend fun deleteBoardingLocal() {
-        val store = daoBoarding.read(preference.participationId)
+        val store = daoBoarding.read(/*preference.participationId*/)
         if (store != null) {
             daoBoarding.delete(store)
             return
         }
         daoBoarding.delete() //onParticipationIdChange("")
     }
-
     override suspend fun listCensoredLocal(): List<RoomCensoredTable> = emptyList() //local.roomCensoredDao().list()
     override suspend fun listCompleteLocal(userId: String): List<RoomCompleteTable> = emptyList()//local.roomCompleteDao().list(userId)
 
-    private fun onParticipationIdChange(participantId: String){
-        preference.participationId = participantId
+    private fun onParticipantTimeLeftChange(time: Int){
+        preference.participantTimeLeft = time
     }
 }

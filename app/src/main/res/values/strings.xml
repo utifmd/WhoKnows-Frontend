@@ -23,6 +23,8 @@
     <string name="add_new_question">Add New Question</string>
     <string name="default_notification_channel_id">default_notification_channel_id</string>
     <string name="notification">Notification</string>
+    <string name="notification_class">Notification Class</string>
+    <string name="remind_class">Reminder</string>
     <string name="notify_title">Default title configuration</string>
     <string name="notify_body">Default body configuration</string>
     <string name="notify_args">Default args configuration</string>

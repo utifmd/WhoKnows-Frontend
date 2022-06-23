@@ -48,6 +48,6 @@ interface IRoomEventDetail: IRoomEvent {
     fun onQuestionItemPressed(quizId: String)
     fun onResultPressed(roomId: String, userId: String)
     fun onReNavigateRoom(roomId: String)
-    fun turnOnAlarm(minute: Int)
-    fun turnOffAlarm()
+    /*fun turnOnAlarm(minute: Int)
+    fun turnOffAlarm()*/
 }

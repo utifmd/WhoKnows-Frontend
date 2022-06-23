@@ -67,6 +67,6 @@ fun NavGraphBuilder.discoverGraph(props: IMainProps){
         val vmRoom: RoomViewModel = hiltViewModel()
 
         LoggingSubscriber(vmMain, vmRoom)
-        RoomDetail(viewModel = vmRoom)
+        RoomDetail(viewModel = vmRoom, onBackPressed = vmRoom::onBackPressed)
     }
 }

@@ -54,7 +54,6 @@ class MainViewModel
             _roomCompleteParameter.emit(parameter)
         }
     }
-
     private val _notificationParameter = MutableStateFlow<FlowParameter>(FlowParameter.Nothing)
     private val notificationParameter get() = _notificationParameter
     fun onNotificationParameterChange(parameter: FlowParameter){
@@ -64,7 +63,7 @@ class MainViewModel
     }
     init {
         messagingSubscribeTopic()
-
+        //userSubscribeAuthenticated()
         if (prefs.tokenId.isBlank()) messagingInitToken()
         else Log.d(TAG, "currentToken: ${prefs.tokenId}")
 
@@ -141,7 +140,7 @@ class MainViewModel
     private fun getUser(){
         caseUser.getUser()
             .onEach(::onAuth)
-            .onCompletion { if(it == null) Log.d(TAG, "getUser: complete") }
+            .onCompletion{ if(it == null) Log.d(TAG, "getUser: complete") }
             .launchIn(viewModelScope)
     }
     private fun onTokenIdChange(fresh: String) {

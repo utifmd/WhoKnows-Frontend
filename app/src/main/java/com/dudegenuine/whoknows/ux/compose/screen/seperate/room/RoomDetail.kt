@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.room
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,14 +39,15 @@ import okhttp3.internal.http.toHttpDateString
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun RoomDetail(
-    modifier: Modifier = Modifier, viewModel: RoomViewModel) {
+    modifier: Modifier = Modifier, viewModel: RoomViewModel, onBackPressed: () -> Unit) {
     val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     val coroutineScope = rememberCoroutineScope()
-    val toggle: () -> Unit = {
-        coroutineScope.launch {
-            if(scaffoldState.isRevealed) scaffoldState.conceal()
-            else scaffoldState.reveal()
-    }}
+
+    fun toggle() = coroutineScope.launch {
+        if(scaffoldState.isRevealed) scaffoldState.conceal()
+        else scaffoldState.reveal()
+    }
+    BackHandler(onBack = onBackPressed)
     viewModel.state.room?.let { model ->
         BackdropScaffold(
             modifier = modifier.fillMaxSize(),
@@ -55,15 +58,15 @@ fun RoomDetail(
                     title = "${model.minute} minute\'s duration",
                     leads = Icons.Default.ArrowBack,
                     tails = Icons.Default.Menu,
-                    onLeadsPressed = viewModel::onBackRoomDetailPressed,
-                    onTailPressed = toggle
+                    onLeadsPressed = onBackPressed, //viewModel::onBackRoomDetailPressed,
+                    onTailPressed = ::toggle
                 )
             },
             backLayerContent = {
                 BackLayer(
                     model = model,
                     viewModel = viewModel,
-                    toggle = toggle
+                    toggle = ::toggle
                 )
             },
             frontLayerContent = {
@@ -85,41 +88,51 @@ private fun BackLayer(
     model: Room.Complete, viewModel: RoomViewModel,
     toggle: () -> Unit) {
     val enabled = !model.expired
+    val (exclusive, setExclusive) = remember { mutableStateOf(model.private) }
+    val (notificationOff, setNotificationOff) = remember { mutableStateOf(model.token.isBlank()) }
 
     Column(
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally) {
 
         if (model.isOwner) {
-            SwitchBackLayer(
-                label = stringResource(R.string.private_the_class),
-                checked = viewModel.isExclusive,
-                enabled = enabled,
-                setChecked = viewModel::onExclusiveClassChange
-            )
-            Divider(thickness = (0.5).dp)
-            ToggleBackLayer(
-                label = stringResource(R.string.notification),
-                enabled = enabled,
-                checked = viewModel.isNotify,
-                setChecked = viewModel::onNotifyClassChange
-            )
-            Divider(thickness = (0.5).dp)
+            ButtonBackLayer(stringResource(R.string.delete_permanent), enabled) {
+                viewModel.onDeleteRoomPressed(model)
+            }
+            ButtonBackLayer(stringResource(R.string.close_the_room), enabled) {
+                viewModel.onCloseRoomPressed(model, toggle)
+            }
+            ButtonBackLayer(stringResource(R.string.invite_w_a_link), enabled,
+                onLongPressed = { viewModel.onSetCopyRoomPressed(model) }) {
+                viewModel.onShareRoomPressed(model)
+            }
             ButtonBackLayer(
                 label = stringResource(R.string.add_new_question),
                 enabled = enabled) {
                 viewModel.onNewRoomQuizPressed(model)
             }
-            ButtonBackLayer(stringResource(R.string.invite_w_a_link), enabled,
-                onLongPressed = { viewModel.onSetCopyRoomPressed(model) }){
-                viewModel.onShareRoomPressed(model)
+            Divider(thickness = (0.5).dp)
+            SwitchBackLayer(
+                label = stringResource(R.string.private_the_class),
+                checked = exclusive,
+                enabled = enabled && !viewModel.state.loading) { selected ->
+                viewModel.onExclusiveClassChange(model, selected) { setExclusive(selected) }
             }
-            ButtonBackLayer(stringResource(R.string.close_the_room), enabled){
-                viewModel.onCloseRoomPressed(model, toggle)
-            }
-            ButtonBackLayer(stringResource(R.string.delete_permanent), enabled){
-                viewModel.onDeleteRoomPressed(model)
-            }
+            /*Divider(thickness = (0.5).dp)
+            ToggleBackLayer(
+                icon = if (viewModel.isRoomAlarmUp) Icons.Default.AlarmOn else Icons.Default.AlarmOff,
+                label = stringResource(R.string.remind_class),
+                enabled = enabled,
+                checked = viewModel.isRoomAlarmUp) { selected ->
+                viewModel.onIsAlarmUpChange(5, selected)
+            }*/
+        } else if (model.isParticipated) ToggleBackLayer(
+            icon = if (notificationOff) Icons.Default.NotificationsOff else Icons.Default.NotificationsActive,
+            label = stringResource(R.string.notification_class),
+            enabled = enabled,
+            checked = notificationOff) { selected ->
+            setNotificationOff(selected)
+            viewModel.onNotificationClassChange(model, selected)
         } else ButtonBackLayer(
             label = stringResource(R.string.join_the_room),
             enabled = enabled) {
@@ -278,7 +291,7 @@ private fun SwitchBackLayer(
 
 @Composable
 private fun ToggleBackLayer(
-    modifier: Modifier = Modifier, label: String, enabled: Boolean,
+    modifier: Modifier = Modifier, icon: ImageVector, label: String, enabled: Boolean,
     checked: Boolean, setChecked: (Boolean) -> Unit) {
     //val (checked, onCheckedChange) = remember { mutableStateOf(false) }
     Row(
@@ -297,10 +310,7 @@ private fun ToggleBackLayer(
         IconToggleButton(
             checked = checked,
             onCheckedChange = setChecked) {
-            Icon(if (checked)
-                Icons.Default.NotificationsOff else
-                Icons.Default.NotificationsActive, contentDescription = null
-            )
+            Icon(icon, contentDescription = null)
         }
     } //Box(modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd){ }
 }

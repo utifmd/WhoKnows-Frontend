@@ -2,8 +2,8 @@ package com.dudegenuine.whoknows.infrastructure.di.android.dependency
 
 import com.dudegenuine.repository.contract.dependency.local.IPreferenceManager
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
-import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory.Companion.PARTICIPATION_ID
-import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory.Companion.RUNNING_TIME
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory.Companion.ROOM_ALARM_ID
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory.Companion.PARTICIPANT_TIME_LEFT
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory.Companion.TOKEN_ID
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory.Companion.USER_ID
 
@@ -27,10 +27,16 @@ class PrefsFactory(
             manager.write(TOKEN_ID, fresh)
         }
 
-    override var participationId: String
+    /*override var participationId: String
         get() = manager.readString(PARTICIPATION_ID)
         set(fresh) {
             manager.write(PARTICIPATION_ID, fresh)
+        }*/
+
+    override var roomAlarm: Boolean
+        get() = manager.readBoolean(ROOM_ALARM_ID)
+        set(value) {
+            manager.write(ROOM_ALARM_ID, value)
         }
 
     /*override var notificationBadge: Int
@@ -39,10 +45,10 @@ class PrefsFactory(
             manager.write(NOTIFICATION_BADGE, fresh)
         }*/
 
-    override var runningTime: Int
-        get() = manager.readInt(RUNNING_TIME)
+    override var participantTimeLeft: Int
+        get() = manager.readInt(PARTICIPANT_TIME_LEFT)
         set(fresh) {
-            manager.write(RUNNING_TIME, fresh)
+            manager.write(PARTICIPANT_TIME_LEFT, fresh)
         }
 
     /*override var createMessaging: String

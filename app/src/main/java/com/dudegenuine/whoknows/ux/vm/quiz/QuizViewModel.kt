@@ -11,15 +11,16 @@ import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IQuizUseCaseModule
-import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizState.Companion.QUIZ_ID_SAVED_KEY
-import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
-import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_OWNER_SAVED_KEY
 import com.dudegenuine.whoknows.ux.compose.state.QuizState
-import com.dudegenuine.whoknows.ux.vm.BaseViewModel
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ux.compose.state.ScreenState
+import com.dudegenuine.whoknows.ux.vm.BaseViewModel
+import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizState.Companion.QUIZ_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizViewModel
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizViewModel.Companion.BATCH_SIZE
+import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ux.vm.room.contract.IRoomEvent.Companion.ROOM_OWNER_SAVED_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -38,34 +39,39 @@ class QuizViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IQuizViewModel {
     private val TAG: String = strOf<QuizViewModel>()
 
-    private val _formState = mutableStateOf(QuizState.FormState())
-    val formState: QuizState.FormState
-        get() = _formState.value
+    private val _quizState = mutableStateOf(QuizState())
+    val quizState: QuizState
+        get() = _quizState.value
 
     init {
         savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)
-            ?.let(formState::onRoomIdValueChange)
+            ?.let(quizState::onRoomIdValueChange)
 
         savedStateHandle.get<String>(ROOM_OWNER_SAVED_KEY)
-            ?.let(formState::onUserIdValueChange)
+            ?.let(quizState::onUserIdValueChange)
 
         savedStateHandle.get<String>(QUIZ_ID_SAVED_KEY)
             ?.let(this::getQuiz)
     }
+    fun onBackPressed() = onNavigateBack()
 
-    fun onPostPressed(onSucceed: (Quiz.Complete) -> Unit) {
-        val model = formState.postModel
+    private fun onNavigateBackThenRefresh() =
+        onScreenStateChange(ScreenState.Navigate.Back(refresh = true))
+
+    fun onPostPressed() {
+        val model = quizState.postModel
         Log.d(TAG, "onPostPressed: triggered")
 
-        if (formState.isValid) {
-            if (formState.images.isNotEmpty())
-                multiUpload(formState.images, onSucceed)
-            else postQuiz(model, onSucceed)
-
+        if (quizState.isValid) {
+            if (quizState.images.isNotEmpty())
+                multiUpload(quizState.images, ::onPosted) else
+                    postQuiz(model, ::onPosted)
         } else {
             onStateChange(ResourceState(error = DONT_EMPTY))
         }
     }
+
+    private fun onPosted(quiz: Quiz.Complete) = onNavigateBackThenRefresh()
 
     override fun <T> multiUpload(byteArrays: List<ByteArray>, onSucceed: (T) -> Unit) {
         if (byteArrays.isEmpty()) return
@@ -76,7 +82,7 @@ class QuizViewModel
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> onMultiUploaded(resources: Resource<List<File>>, onSucceed: (T) -> Unit) {
-        val model = state.quiz ?: formState.postModel
+        val model = state.quiz ?: quizState.postModel
         Log.d(TAG, "onFileUploaded: $model")
 
         onResourceSucceed(resources) { data ->

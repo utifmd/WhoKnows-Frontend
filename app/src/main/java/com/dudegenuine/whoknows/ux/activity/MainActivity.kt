@@ -46,7 +46,6 @@ class MainActivity: ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
         with (viewModel) {
             //unregisterPrefsListener()
             messagingReceiver.apply(::unregisterReceiver)

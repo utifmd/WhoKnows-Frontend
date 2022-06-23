@@ -32,6 +32,7 @@ sealed class Room {
         val token: String,
         val description: String,
         var isOwner: Boolean = false, //
+        var isParticipated: Boolean = false, //
         var expired: Boolean,
         var private: Boolean, //
         var createdAt: Date,

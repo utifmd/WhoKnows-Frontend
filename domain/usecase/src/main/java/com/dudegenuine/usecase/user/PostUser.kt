@@ -25,6 +25,7 @@ class PostUser
 
     operator fun invoke(user: User.Complete): Flow<Resource<User.Complete>> = flow {
         try {
+            emit(Resource.Loading())
             repoUser.remoteCreateFlow(user).flatMapConcat { currentUser ->
                 val joins = currentUser.participants.map { it.roomId }
                 val owns = currentUser.rooms.map { it.roomId }

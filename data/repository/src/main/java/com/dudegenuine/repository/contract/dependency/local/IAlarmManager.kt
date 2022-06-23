@@ -10,6 +10,9 @@ interface IAlarmManager {
     val alarmManager: AlarmManager
 
     fun setupMillis(millis: Long)
+    fun setupMinute(minute: Int)
+    fun cancel()
+    //fun isRoomAlarmUp(): Boolean
 
     companion object {
         const val RECEIVER_ALARM_KEY = "RECEIVER_ALARM_KEY"

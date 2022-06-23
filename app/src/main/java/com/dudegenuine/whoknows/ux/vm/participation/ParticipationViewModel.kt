@@ -40,19 +40,19 @@ class ParticipationViewModel
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IParticipantViewModel {
     private val TAG: String = javaClass.simpleName
 
-    private val _timer = mutableStateOf(0.0)
-    val timer get() = _timer.value
-
     private val prefs get() = caseParticipation.prefs
     val receiver get() = caseRoom.receiver
 
-    /*private val _isParticipated = mutableStateOf(prefs.participationId.isNotBlank())
-    val isParticipated get() = _isParticipated.value
+    /*private val _isParticipated = mutableStateOf(prefs.participantTimeLeft)
+    val isParticipated get() = _isParticipated.value*/
 
-    private fun onParticipationCancel(){
+    private val _timer = mutableStateOf(0.0)
+    val timer get() = _timer.value
+
+    /*private fun onParticipationCancel(){
         Log.d(TAG, "onParticipationCancel: ")
-        prefs.participationId = ""
-        _isParticipated.value = false
+        _isParticipated.value = 0
+        prefs.participantTimeLeft = isParticipated
     }*/
 
     init {
@@ -70,7 +70,7 @@ class ParticipationViewModel
                     room = room,
                     currentUser = userComplete)
 
-                if (prefs.runningTime <= 0) /*is finished*/
+                if (prefs.participantTimeLeft <= 0) /*is finished*/
                     onPreResult(participation) else
                         onStateChange(ResourceState(participation = participation))
             }
@@ -84,13 +84,14 @@ class ParticipationViewModel
         getRoom(roomId, ::onCreateAnParticipant)
     }
     private fun onParticipationStored(){
-        if (prefs.participationId.isNotBlank()) caseRoom.getBoarding()
+        if (prefs.participantTimeLeft > 0) caseRoom.getBoarding()
             .onEach{ onResourceSucceed(it) { participation ->
-                onTimerChange(prefs.runningTime.toDouble())
+                onTimerChange(prefs.participantTimeLeft.toDouble())
 
-                if (prefs.runningTime <= 0)
+                if (prefs.participantTimeLeft <= 0)
                     onPreResult(participation) else
-                        onStateChange(ResourceState(participation = participation)) }}
+                        onStateChange(ResourceState(
+                            participation = participation)) }}
 
             .launchIn(viewModelScope)
     }
@@ -206,14 +207,13 @@ class ParticipationViewModel
 
         caseRoom.deleteBoarding()
             .onCompletion {
+                val option = NavOptions.Builder().setPopUpTo(Screen.Home.route, true).build()
                 if (it != null) return@onCompletion
 
                 caseRoom.timer.stop()
                 onStateChange(ResourceState(participation = null)) //onParticipationCancel()
 
-                val home = Screen.Home.Summary.route
-                onNavigateBack()
-                onNavigateTo(home)
+                onScreenStateChange(ScreenState.Navigate.To(Screen.Home.route, option))
                 onToast(event.plus(" with score ${resultScore.toDouble()}"))
             }
             .launchIn(viewModelScope)

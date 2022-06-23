@@ -25,11 +25,10 @@ class SignInUser
 
     operator fun invoke(params: User.Signer): Flow<Resource<User.Complete>> = flow {
         try {
+            emit(Resource.Loading())
             repoUser.remoteSignInFlow(params)
-                .flatMapConcat(repoUser::localSignInFlow)
-                .onStart{ emit(Resource.Loading()) }
-                .onEach{ emit(Resource.Success(it)) }
-                .collect()
+                .flatMapLatest(repoUser::localSignInFlow)
+                .onEach{ emit(Resource.Success(it)) }.collect()
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: HttpException){

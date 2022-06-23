@@ -37,7 +37,7 @@ sealed class Resource<T> (
         const val NO_RESULT = "No result."
         const val NOT_FOUND_EXCEPTION = "Not Found Exception"
         const val KEY_REFRESH = "key_refresh"
-        const val KEY_USER_ID = "key_user_id"
+        //const val KEY_USER_ID = "key_user_id"
     }
 }
 

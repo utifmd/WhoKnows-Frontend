@@ -28,7 +28,7 @@ fun NavGraphBuilder.authNavGraph(props: IMainProps){
 
             LoggingSubscriber(vmMain, vmUser)
             LoginScreen(
-                viewModel = vmUser, auth = props.viewModel.auth) {
+                viewModel = vmUser, auth = vmMain.auth) {
                 props.router.navigate(Screen.Auth.Register.route)
             }
         }
@@ -39,7 +39,7 @@ fun NavGraphBuilder.authNavGraph(props: IMainProps){
 
             LoggingSubscriber(vmMain, vmUser)
             RegisterScreen(
-                viewModel = vmUser, auth = props.viewModel.auth
+                viewModel = vmUser, auth = vmMain.auth
             )
         }
     }

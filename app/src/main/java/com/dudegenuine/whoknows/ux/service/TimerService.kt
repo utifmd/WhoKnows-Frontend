@@ -95,7 +95,7 @@ class TimerService: ITimerService() {
     }
 
     private fun onRunningTimeChange(fresh: Double) {
-        prefsFactory.runningTime = fresh.toInt()
+        prefsFactory.participantTimeLeft = fresh.toInt()
     }
 
     companion object {

@@ -14,6 +14,7 @@ interface INotifyManager {
     var builder: NotificationCompat.Builder // = NotificationCompat.Builder(context, CHANNEL_ID)
 
     companion object {
+        const val CHANNEL_ID_ALARM = "alarm"
         const val CHANNEL_ID_TIMER = "timer"
         const val CHANNEL_ID_COMMON = "common"
         const val CHANNEL_ID_JOINED = "joined"

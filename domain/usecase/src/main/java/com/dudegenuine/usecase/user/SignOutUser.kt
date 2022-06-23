@@ -26,6 +26,7 @@ class SignOutUser
 
     operator fun invoke(): Flow<Resource<String>> = flow {
         try {
+            emit(Resource.Loading())
             repoUser.localReadFlow()
                 .flatMapConcat{ currentUser -> //val joins = currentUser.participants.map { it.roomId } val owns = currentUser.rooms.map { it.roomId }
                     val tokens = currentUser.tokens.filter { it != preferences.tokenId }
@@ -34,12 +35,8 @@ class SignOutUser
                     repoUser.remoteUpdateFlow(latestUser) /*.flatMapMerge{ concatenate(joins, owns).asFlow() .flatMapConcat(repoMsg::unregisterGroupTokenFlow) }*/
                         .flatMapMerge{ repoUser.localSignOutFlow() }
                         .flatMapMerge{ repoRoom.clearParticipation() }
-                        .mapLatest{ currentUser }
-                }
-                .onStart{ emit(Resource.Loading()) }
-                .onEach{ emit(Resource.Success(it.id)) }
-                .collect()
-            //emit(Resource.Success("Signed out successfully"))
+                        .mapLatest{ currentUser } }
+                .onEach{ emit(Resource.Success(it.id)) }.collect() //emit(Resource.Success("Signed out successfully"))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: HttpException){

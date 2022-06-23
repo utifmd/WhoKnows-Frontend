@@ -45,27 +45,23 @@ fun RoomHomeScreen(
                 tails = if (badge > 0) Icons.Filled.Notifications else Icons.Outlined.Notifications,
                 tailsTint = if(badge > 0) MaterialTheme.colors.error else null,
                 onTailPressed = viewModel::onNotificationPressed )}) {
+
         SwipeRefresh(swipeRefreshState, props.lazyPagingRoomComplete::refresh) {
             LazyColumn(modifier.fillMaxSize(),
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
-
                 stickyHeader {
                     Header(
                         modifier = modifier,
                         onNewClassPressed = viewModel::onNewClassPressed,
-                        onJoinWithACodePressed = viewModel::onButtonJoinRoomWithACodePressed,
-                    )
+                        onJoinWithACodePressed = viewModel::onButtonJoinRoomWithACodePressed)
                 }
-
                 item {
                     LazyStatePaging(
                         items = props.lazyPagingRoomComplete,
                         vertical = Arrangement.spacedBy(8.dp),
-                        repeat = 5, height = 130.dp, width = null
-                    )
+                        repeat = 5, height = 130.dp, width = null)
                 }
-
                 items(props.lazyPagingRoomComplete, { it.id }) { room ->
                     if (room != null) RoomItem(
                         model = room,

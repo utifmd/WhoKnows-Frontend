@@ -1,6 +1,9 @@
 package com.dudegenuine.whoknows.ux.compose.screen
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -9,15 +12,12 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.dudegenuine.model.Resource
-import com.dudegenuine.model.Resource.Companion.KEY_REFRESH
-import com.dudegenuine.whoknows.ux.compose.component.GeneralAlertDialog
 import com.dudegenuine.whoknows.ux.compose.component.GeneralBottomBar
 import com.dudegenuine.whoknows.ux.compose.model.BottomDomain
 import com.dudegenuine.whoknows.ux.compose.navigation.MainGraph
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
 import com.dudegenuine.whoknows.ux.compose.state.ScreenState
-import com.dudegenuine.whoknows.ux.compose.state.room.FlowParameter
 import com.dudegenuine.whoknows.ux.theme.WhoKnowsTheme
 import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun MainScreen(
     modifier: Modifier = Modifier, props: IMainProps) {
     val viewModel = props.viewModel as MainViewModel
+
     WhoKnowsTheme {
         val scaffoldState = rememberScaffoldState()
         val snackHostState by remember{ mutableStateOf(scaffoldState.snackbarHostState) }
@@ -38,20 +39,19 @@ fun MainScreen(
         Scaffold(modifier,
             scaffoldState = scaffoldState,
             content = { padding ->
-                Box(
-                    modifier
-                        .fillMaxSize()
-                        .padding(padding)) {
-                    GeneralAlertDialog(modifier, viewModel)
-                    when {
+                Box(modifier.fillMaxSize().padding(padding)) {
+                    MainGraph(props, if(viewModel.isLoggedInByPrefs) Screen.Home.route else Screen.Auth.route)
+
+                    /*when {
                         viewModel.state.loading -> LoadingScreen()
                         viewModel.isLoggedInByPrefs -> MainGraph(props, Screen.Home.route)
                         else -> MainGraph(props, Screen.Auth.route)
-                    }
+                    }*/
                 }
             },
             bottomBar = {
-                if (viewModel.auth.user != null) {
+                AnimatedVisibility(viewModel.auth.user != null,
+                    enter = fadeIn(), exit = fadeOut()) {
                     GeneralBottomBar(
                         items = badge.let(BottomDomain.listItem),
                         controller = props.router) {
@@ -60,24 +60,19 @@ fun MainScreen(
                 }
             }
         )
-        LaunchedEffect(viewModel.auth.user){ // this block should unnecessarily
-            viewModel.auth.user?.run{
-                viewModel.onRoomCompleteParameterChange(FlowParameter.RoomComplete(id))
-                viewModel.onNotificationParameterChange(FlowParameter.Notification(id))
-            }
-        }
         LaunchedEffect(viewModel.screenState){
             viewModel.screenState.collectLatest{ state ->
                 when(state){
                     is ScreenState.Toast -> with(state) { Toast.makeText(props.context, message, duration).show() }
                     is ScreenState.SnackBar -> with(state) { snackHostState.showSnackbar(message, label, duration) }
-                    is ScreenState.Navigate.Back -> if(state.refresh) props.router.run {
-                        previousBackStackEntry?.apply { savedStateHandle[KEY_REFRESH] = true }
-                        popBackStack() } else
+                    is ScreenState.Navigate.Back -> if(state.refresh){
+                            props.router.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set(Resource.KEY_REFRESH, true)
                             props.router.popBackStack()
-                    is ScreenState.Navigate.To -> try {
-                        props.router.navigate(state.route, state.option) } catch (e: Exception){
-                            viewModel.onToast(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION) }
+                        } else props.router.popBackStack()
+                    is ScreenState.Navigate.To -> try { props.router.navigate(state.route, state.option) } catch (e: Exception){
+                        viewModel.onToast(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION) }
                     else -> {}
                 }
             }

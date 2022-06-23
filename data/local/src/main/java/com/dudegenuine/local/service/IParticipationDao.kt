@@ -18,6 +18,9 @@ interface IParticipationDao {
     @Query("SELECT * FROM participation WHERE participantId = :participantId")
     suspend fun read(participantId: String): ParticipationTable?
 
+    @Query("SELECT * FROM participation LIMIT 1")
+    suspend fun read(): ParticipationTable?
+
     @Delete
     suspend fun delete(participation: ParticipationTable)
 
