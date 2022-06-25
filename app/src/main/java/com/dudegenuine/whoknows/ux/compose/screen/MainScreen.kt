@@ -38,44 +38,37 @@ fun MainScreen(
 
         Scaffold(modifier,
             scaffoldState = scaffoldState,
-            content = { padding ->
-                Box(modifier.fillMaxSize().padding(padding)) {
-                    MainGraph(props, if(viewModel.isLoggedInByPrefs) Screen.Home.route else Screen.Auth.route)
+            bottomBar = { AnimatedVisibility(viewModel.auth.user != null,
+                enter = fadeIn(), exit = fadeOut()){
 
-                    /*when {
-                        viewModel.state.loading -> LoadingScreen()
-                        viewModel.isLoggedInByPrefs -> MainGraph(props, Screen.Home.route)
-                        else -> MainGraph(props, Screen.Auth.route)
-                    }*/
-                }
-            },
-            bottomBar = {
-                AnimatedVisibility(viewModel.auth.user != null,
-                    enter = fadeIn(), exit = fadeOut()) {
-                    GeneralBottomBar(
-                        items = badge.let(BottomDomain.listItem),
-                        controller = props.router) {
-                        if (badge > 0 && it.name == BottomDomain.SUMMARY) setBadge(0)
-                    }
-                }
+                GeneralBottomBar(
+                    items = badge.let(BottomDomain.listItem),
+                    controller = props.router) {
+                    if (badge > 0 && it.name == BottomDomain.SUMMARY) setBadge(0) }}}){ padding ->
+
+            Box(modifier.fillMaxSize().padding(padding)) {
+                MainGraph(props, if(viewModel.isLoggedIn)
+                    Screen.Home.route else Screen.Auth.route)
             }
-        )
+        }
+        fun onNavigateTo(state: ScreenState.Navigate.To) =
+            try { props.router.navigate(state.route, state.option) } catch (e: Exception){
+                viewModel.onToast(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION)
+        }
+        fun onNavigateBack(state: ScreenState.Navigate.Back) =
+            if(state.refresh) { props.router.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set(Resource.KEY_REFRESH, true)
+            props.router.popBackStack() } else
+                props.router.popBackStack()
+
         LaunchedEffect(viewModel.screenState){
-            viewModel.screenState.collectLatest{ state ->
-                when(state){
-                    is ScreenState.Toast -> with(state) { Toast.makeText(props.context, message, duration).show() }
-                    is ScreenState.SnackBar -> with(state) { snackHostState.showSnackbar(message, label, duration) }
-                    is ScreenState.Navigate.Back -> if(state.refresh){
-                            props.router.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(Resource.KEY_REFRESH, true)
-                            props.router.popBackStack()
-                        } else props.router.popBackStack()
-                    is ScreenState.Navigate.To -> try { props.router.navigate(state.route, state.option) } catch (e: Exception){
-                        viewModel.onToast(e.localizedMessage ?: Resource.ILLEGAL_STATE_EXCEPTION) }
-                    else -> {}
-                }
-            }
+            viewModel.screenState.collectLatest{ state -> when(state){
+                is ScreenState.Toast -> with(state){ Toast.makeText(props.context, message, duration).show() }
+                is ScreenState.SnackBar -> with(state){ snackHostState.showSnackbar(message, label, duration) }
+                is ScreenState.Navigate.Back -> state.let(::onNavigateBack)
+                is ScreenState.Navigate.To -> state.let(::onNavigateTo); else -> {}
+            }}
         }
     }
 }

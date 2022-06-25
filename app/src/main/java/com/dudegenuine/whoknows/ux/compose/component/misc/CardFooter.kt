@@ -30,7 +30,9 @@ fun CardFooter(
         verticalAlignment = Alignment.CenterVertically) {
 
         Icon(
-            modifier = Modifier.clip(CircleShape).clipToBounds()
+            modifier = Modifier
+                .clip(CircleShape)
+                .clipToBounds()
                 .clickable(enabled = onIconClick != null) { onIconClick?.invoke() },
             tint = color ?: MaterialTheme.colors.onBackground,
             imageVector = icon, contentDescription = null)

@@ -8,7 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.InsertInvitation
-import androidx.compose.material.icons.outlined.Send
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -37,7 +37,7 @@ fun RoomFinderScreen(
     viewModel: RoomViewModel = hiltViewModel()) {
     val focusRequester = remember{ FocusRequester() }
     val formState = viewModel.roomState
-
+    fun submit() = viewModel.onRoomFinderButtonGoPressed(formState.roomId)
     LaunchedEffect(Unit){ focusRequester.requestFocus() }
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -45,10 +45,10 @@ fun RoomFinderScreen(
                 title = stringResource(R.string.join_with_a_code),
                 leads = Icons.Filled.ArrowBack,
                 onLeadsPressed = viewModel::onBackPressed,
-                tails = Icons.Outlined.Send,
+                tails = Icons.Default.Send,
                 submitEnable = formState.roomId.isNotBlank(),
                 submitLoading = viewModel.state.loading,
-                onSubmitPressed = { viewModel.getRoom(formState.roomId) }
+                onSubmitPressed = ::submit
             )
         },
         content = {
@@ -64,9 +64,7 @@ fun RoomFinderScreen(
                     trail = if(formState.roomId.isNotBlank()) Icons.Filled.Close else null,
                     onTailPressed = { formState.onRoomIdChange("") },
                     onValueChange = formState::onRoomIdChange,
-                    keyboardActions = KeyboardActions(
-                        onAny = { viewModel.onRoomFinderButtonGoPressed(formState.roomId) }
-                    )
+                    keyboardActions = KeyboardActions{ submit() }
                 )
 
                 /*viewModel.state.room?.let {

@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.ux.compose.component.misc.LoggingSubscriber
@@ -44,7 +46,7 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     val roomDetail = Screen.Home.Summary.RoomDetail
 
     val vmMain = props.viewModel as MainViewModel
-    val isLoggedIn = vmMain.isLoggedInByPrefs
+    val isLoggedIn = vmMain.isLoggedIn
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route){
@@ -61,26 +63,38 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
         RoomFinderScreen(viewModel = vmRoom)
     }
     composable(
-        route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}"/*, "{$ROOM_IS_OWN}"*/),
-        deepLinks = if (isLoggedIn) listOf( navDeepLink{
-            uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}") }) else emptyList()){ entry ->
-        val isRefresh = entry.savedStateHandle.getLiveData<Boolean>(Resource.KEY_REFRESH).observeAsState()
+        route = roomDetail.routeWithArgs("{$ROOM_ID_SAVED_KEY}"),
+        deepLinks = if (isLoggedIn)
+            listOf( navDeepLink{
+                uriPattern = roomDetail.uriWithArgs("{$ROOM_ID_SAVED_KEY}")
+            }) else emptyList()){ entry ->
         val vmRoom: RoomViewModel = hiltViewModel()
-        val (isRefreshAfter, setIsRefreshAfter) = remember{ mutableStateOf(false) }
-        if (isRefresh.value == true){
-            val roomId = entry.arguments?.getString(ROOM_ID_SAVED_KEY)
+        val refreshState = entry
+            .savedStateHandle
+            .getLiveData<Boolean>(Resource.KEY_REFRESH)
+            .observeAsState()
+        val (isRefresh, _) = remember{ mutableStateOf(refreshState.value == true) }
+        fun refreshParent(it: Boolean) = props.lazyPagingRoomComplete.refresh()
 
-            setIsRefreshAfter(true)
-            roomId?.let(vmRoom::getRoom)
+        if (isRefresh) {
+            entry.arguments
+                ?.getString(ROOM_ID_SAVED_KEY)
+                ?.let(vmRoom::getRoom)
             entry.savedStateHandle[Resource.KEY_REFRESH] = false
+            refreshParent(true)
         }
+
         LoggingSubscriber(vmMain, vmRoom)
-        RoomDetail(viewModel = vmRoom, onBackPressed =
-            if(isRefreshAfter) vmRoom::onNavigateBackThenRefresh else vmRoom::onBackPressed
+        RoomDetail(
+            viewModel = vmRoom,
+            setIsRefresh = ::refreshParent, //setIsRefresh
+            onBackPressed = vmRoom::onBackPressed
         )
     }
     composable(
-        route = Screen.Home.Summary.Participation.routeWithArgs("{${KEY_PARTICIPATION_ROOM_ID}}")){
+        route = Screen.Home.Summary.Participation.routeWithArgs("{$KEY_PARTICIPATION_ROOM_ID}"),
+        arguments = listOf(navArgument(KEY_PARTICIPATION_ROOM_ID){ 
+            type = NavType.StringType; defaultValue = vmMain.isParticipated })){
         val vmParticipation: ParticipationViewModel = hiltViewModel()
 
         LoggingSubscriber(vmMain, vmParticipation)

@@ -11,7 +11,8 @@ interface IPrefsFactory {
     //var participationId: String
     var roomAlarm: Boolean
     //var notificationBadge: Int
-    var participantTimeLeft: Int
+    var participationRoomId: String
+    var participationTimeLeft: Int
 
     /*var createMessaging: String
     var prevOwnedRoomIds: String
@@ -25,6 +26,7 @@ interface IPrefsFactory {
         const val TOKEN_ID = "FACTORY_TOKEN_ID"
         const val NOTIFICATION_BADGE = "FACTORY_NOTIFICATION_BADGE"
         const val PARTICIPANT_TIME_LEFT = "FACTORY_PARTICIPANT_TIME_LEFT"
+        const val PARTICIPANT_ROOM_ID = "FACTORY_PARTICIPANT_ROOM_ID"
         const val CREATE_MESSAGING = "FACTORY_CREATE_MESSAGING"
         const val ADD_MESSAGING = "FACTORY_ADD_MESSAGING"
         const val REMOVE_MESSAGING = "FACTORY_REMOVE_MESSAGING"

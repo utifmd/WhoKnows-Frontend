@@ -1,5 +1,6 @@
 package com.dudegenuine.repository
 
+import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.RoomCensoredTable
 import com.dudegenuine.local.entity.RoomCompleteTable
@@ -16,7 +17,6 @@ import com.dudegenuine.repository.contract.IRoomRepository.Companion.NOT_FOUND
 import com.dudegenuine.repository.contract.dependency.local.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 /**
@@ -37,6 +37,7 @@ class RoomRepository
     override val clipboard: IClipboardManager,
     override val timer: ITimerLauncher,
     override val share: IShareLauncher): IRoomRepository {
+    private val TAG: String = javaClass.simpleName
     private val daoBoarding get() = local.daoBoarding()
 
     override suspend fun createRemote(room: Room.Complete): Room.Complete = mapper.asRoom(
@@ -78,12 +79,11 @@ class RoomRepository
             service.listCensoredSearched(query, page, batch)).map { Search.Room(it) } }
     } catch (e: Exception){ ResourcePaging{ emptyList() }}
 
-    override suspend fun clearParticipation(): Flow<Unit> =
-        flowOf(deleteBoardingLocal())
-            .onCompletion { onParticipantTimeLeftChange(0) }
+    override suspend fun clearParticipation(): Flow<Unit> = flowOf(deleteBoardingLocal())
 
     override suspend fun createBoardingLocal(participation: Participation) {
         daoBoarding.create(mapper.asParticipationTable(participation)).also {
+            onParticipantRoomIdChange(participation.roomId)
             onParticipantTimeLeftChange(participation.roomMinute)
         }
     }
@@ -96,17 +96,27 @@ class RoomRepository
         daoBoarding.update(mapper.asParticipationTable(participation))
     }
     override suspend fun deleteBoardingLocal() {
-        val store = daoBoarding.read(/*preference.participationId*/)
-        if (store != null) {
+        //val store = daoBoarding.read(/*preference.participationId*/)
+
+        daoBoarding.delete()
+        onParticipantRoomIdChange("")
+        onParticipantTimeLeftChange(0)
+
+        /*if (store != null) {
             daoBoarding.delete(store)
             return
         }
-        daoBoarding.delete() //onParticipationIdChange("")
+        daoBoarding.deleteAll()*/ //onParticipationIdChange("")
     }
     override suspend fun listCensoredLocal(): List<RoomCensoredTable> = emptyList() //local.roomCensoredDao().list()
     override suspend fun listCompleteLocal(userId: String): List<RoomCompleteTable> = emptyList()//local.roomCompleteDao().list(userId)
 
     private fun onParticipantTimeLeftChange(time: Int){
-        preference.participantTimeLeft = time
+        Log.d(TAG, "onParticipantTimeLeftChange: $time")
+        preference.participationTimeLeft = time
+    }
+    private fun onParticipantRoomIdChange(roomId: String){
+        Log.d(TAG, "onParticipantRoomIdChange: $roomId")
+        preference.participationRoomId = roomId
     }
 }

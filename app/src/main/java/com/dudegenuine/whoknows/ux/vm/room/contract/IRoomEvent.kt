@@ -35,15 +35,15 @@ interface IRoomEventHome: IRoomEvent {
 
 interface IRoomEventDetail: IRoomEvent {
     fun onBackRoomDetailPressed()
-    fun onParticipantLongPressed(enabled: Boolean, participant: Participant)
-    fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete)
+    fun onParticipantLongPressed(enabled: Boolean, participant: Participant, setIsRefresh: (Boolean) -> Unit)
+    fun onQuestionLongPressed(room: Room.Complete, quiz: Quiz.Complete, setIsRefresh: (Boolean) -> Unit)
     fun onCloseRoomPressed(room: Room.Complete, onComplete: () -> Unit)
     fun onShareRoomPressed(room: Room.Complete)
     fun onSetCopyRoomPressed(room: Room.Complete)
     fun onDeleteRoomPressed(room: Room.Complete)
     fun onNewRoomQuizPressed(room: Room.Complete)
     fun onJoinButtonRoomDetailPressed(room: Room.Complete)
-    fun onParticipationPressed(roomId: String)
+    fun onParticipationDecided(roomId: String)
     fun onParticipantItemPressed(userId: String)
     fun onQuestionItemPressed(quizId: String)
     fun onResultPressed(roomId: String, userId: String)

@@ -55,52 +55,34 @@ class ParticipationViewModel
         prefs.participantTimeLeft = isParticipated
     }*/
 
-    init {
-        onParticipationRouted()
-        onParticipationStored()
-    }
-    private fun onRemoteParticipation(room: Room.Complete){
-        caseUser.getUser(prefs.userId).onEach { res ->
-            if(res.data is User.Complete){
-                val userComplete = res.data as User.Complete
-                val participated = userComplete.participants.find { !it.expired } ?: return@onEach
+    init { onDecideParticipationRule() }
 
-                val participation = caseParticipation.getParticipation(
-                    participantId = participated.id,
-                    room = room,
-                    currentUser = userComplete)
+    private val savedRoomId = savedStateHandle.get<String>(KEY_PARTICIPATION_ROOM_ID)
 
-                if (prefs.participantTimeLeft <= 0) /*is finished*/
-                    onPreResult(participation) else
-                        onStateChange(ResourceState(participation = participation))
-            }
-        }.launchIn(viewModelScope)
-    }
+    private fun onDecideParticipationRule(){
+        /*val roomId = savedStateHandle.get<String>(KEY_PARTICIPATION_ROOM_ID) ?: return
+        Log.d(TAG, "onParticipationRouted: $roomId")*/
 
-    private fun onParticipationRouted(){
-        val roomId = savedStateHandle.get<String>(KEY_PARTICIPATION_ROOM_ID) ?: return
-        if (roomId.isBlank()) return
-        Log.d(TAG, "onParticipationRouted: triggered")
-        getRoom(roomId, ::onCreateAnParticipant)
-    }
-    private fun onParticipationStored(){
-        if (prefs.participantTimeLeft > 0) caseRoom.getBoarding()
-            .onEach{ onResourceSucceed(it) { participation ->
-                onTimerChange(prefs.participantTimeLeft.toDouble())
-
-                if (prefs.participantTimeLeft <= 0)
-                    onPreResult(participation) else
-                        onStateChange(ResourceState(
-                            participation = participation)) }}
-
+        caseRoom.getBoarding()
+            .onEach{ onResourceParticipation(it, ::onParticipationSucceed, ::onParticipationError) }
             .launchIn(viewModelScope)
+    }
+    private fun onParticipationSucceed(participated: Participation){
+        onTimerChange(prefs.participationTimeLeft.toDouble())
+
+        if (prefs.participationTimeLeft >= 0)
+            onParticipationChange(ResourceState.Boarding(data = participated))
+        else onPreResult(participated)
+    }
+    private fun onParticipationError(message: String){
+        Log.d(TAG, "onParticipationError: $message")
+        savedRoomId?.let { getRoom(it, ::onCreateAnParticipant) }
+            ?: onParticipationChange(ResourceState.Boarding(error = "Can\'t recognize the class"))
     }
     private fun onCreateAnParticipant(room: Room.Complete) {
         Log.d(TAG, "onCreateAnParticipant: ${room.id}")
-        val taskDuration = (room.minute.toFloat() * 60).toDouble()
-        val participant = caseParticipation.getParticipant()
-            .copy(roomId = room.id, userId = prefs.userId, timeLeft = room.minute)
-        caseRoom.timer.start(taskDuration)
+        val participant = caseParticipation.getParticipant().copy(
+            roomId = room.id, userId = prefs.userId, timeLeft = room.minute)
         onBoarding(room, participant)
 
         /*caseParticipant.postParticipant(model).onEach { res ->
@@ -127,12 +109,33 @@ class ParticipationViewModel
             .onEach(::onResource)
             .launchIn(viewModelScope)*/
 
-        getCurrentUser { user ->
+        getCurrentUser{ user ->
+            Log.d(TAG, "onBoarding -> getCurrentUser: triggered")
             val participation = caseParticipation.getParticipation(participant.id, room, user)
+            val taskDuration = (room.minute.toFloat() * 60).toDouble()
 
-            onStateChange(ResourceState(participation = participation))
+            onParticipationChange(ResourceState.Boarding(data = participation))
+            caseRoom.timer.start(taskDuration)
+
             postBoarding(participation)
         }
+    }
+    private fun onRemoteParticipation(room: Room.Complete){
+        caseUser.getUser(prefs.userId).onEach { res ->
+            if(res.data is User.Complete){
+                val userComplete = res.data as User.Complete
+                val participated = userComplete.participants.find { !it.expired } ?: return@onEach
+
+                val participation = caseParticipation.getParticipation(
+                    participantId = participated.id,
+                    room = room,
+                    currentUser = userComplete)
+
+                if (prefs.participationTimeLeft <= 0) /*is finished*/
+                    onPreResult(participation) else onParticipationChange(ResourceState.Boarding(data = participation))
+                //onStateChange(ResourceState(participation = participation))
+            }
+        }.launchIn(viewModelScope)
     }
     override fun onTimerReceiver(participation: Participation): BroadcastReceiver =
         receiver.timerReceiver { time, finished ->
@@ -159,20 +162,31 @@ class ParticipationViewModel
             .onEach(::onResourceStateless)
             .launchIn(viewModelScope)
     }
+    private fun postBoarding(
+        state: Participation, onSucceed: (String) -> Unit) {
+        if (state.pages.isEmpty() or state.roomId.isEmpty() or
+            state.userId.isEmpty() or state.participantId.isEmpty()) {
+            onToast(DONT_EMPTY)
+            return
+        }
+        caseRoom.postBoarding(state)
+            .onEach{ onResourceStateless(it, onSucceed)}
+            .launchIn(viewModelScope)
+    }
     override fun onBoardingActionPressed(index: Int, type: Quiz.Action.Type ) {TODO("Not yet implemented") }
     override fun onBoardingBackPressed() = onScreenStateChange(ScreenState.Navigate.Back())
     override fun onBoardingPrevPressed() {
-        val participation = state.participation ?: return
+        val participation = participation.data ?: return
         val fresh = participation.apply{ currentQuestionIdx -= 1 }
-        onStateChange(ResourceState(participation = fresh))
+        onParticipationChange(ResourceState.Boarding(data = fresh))
     }
     override fun onBoardingNextPressed() {
-        val participation = state.participation ?: return
+        val participation = participation.data ?: return
         val fresh = participation.apply{ currentQuestionIdx += 1 }
-        onStateChange(ResourceState(participation = fresh))
+        onParticipationChange(ResourceState.Boarding(data = fresh))
     }
     override fun onBoardingDonePressed() {
-        val participation = state.participation ?: return
+        val participation = participation.data ?: return
         onPreResult(participation)
     }
     override fun onResultDismissPressed() {
@@ -185,7 +199,7 @@ class ParticipationViewModel
         val correct = questioners.count { it.isCorrect }
         val resultScore = correct.toFloat() / questioners.size.toFloat() * 100
         val event = "${participation.user.username} has joined the ${participation.roomTitle}"
-
+        val result = event.plus(" with score ${resultScore.toDouble()}")
         /*val participant = caseParticipation.getParticipant().copy(
             id = participation.participantId,
             roomId = participation.roomId,
@@ -207,14 +221,16 @@ class ParticipationViewModel
 
         caseRoom.deleteBoarding()
             .onCompletion {
-                val option = NavOptions.Builder().setPopUpTo(Screen.Home.route, true).build()
+                val checkRoutePoint = Screen.Home.Summary.Participation.routeWithArgs("{$KEY_PARTICIPATION_ROOM_ID}")
+                val option = NavOptions.Builder().setPopUpTo(checkRoutePoint, true).build()
                 if (it != null) return@onCompletion
 
                 caseRoom.timer.stop()
-                onStateChange(ResourceState(participation = null)) //onParticipationCancel()
+                onParticipationChange(ResourceState.Boarding(data = null))//onStateChange(ResourceState(participation = null)) //onParticipationCancel()
 
-                onScreenStateChange(ScreenState.Navigate.To(Screen.Home.route, option))
-                onToast(event.plus(" with score ${resultScore.toDouble()}"))
+                onScreenStateChange(ScreenState.Navigate.To(Screen.Home.Summary.route, option))
+                onToast(result)
+                Log.d(TAG, result)
             }
             .launchIn(viewModelScope)
     }
@@ -244,12 +260,12 @@ class ParticipationViewModel
     override fun getRoom(roomId: String, onSucceed: (Room.Complete) -> Unit) {
         Log.d(TAG, "getRoom: $roomId")
         caseRoom.getRoom(roomId)
-            .onEach { res -> onResourceSucceed(res, onSucceed) }
+            .onEach{ onResourceStateless(it, onSucceed) }
             .launchIn(viewModelScope)
     }
     override fun getCurrentUser(onSucceed: (User.Complete) -> Unit) {
         caseUser.getUser()
-            .onEach{ res -> onResourceStateless(res, onSucceed) }
+            .onEach{ onResourceStateless(it, onSucceed) }
             .launchIn(viewModelScope)
     }
     override fun onTimerChange(time: Double){
@@ -262,7 +278,7 @@ class ParticipationViewModel
         }
         participant.apply { createdAt = Date() }
         caseParticipation.postParticipant(participant)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResourceStateless).launchIn(viewModelScope)
     }
     override fun getParticipant(id: String) {
         if (id.isBlank()){
@@ -270,7 +286,7 @@ class ParticipationViewModel
             return
         }
         caseParticipation.getParticipant(id)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(::onResourceStateless).launchIn(viewModelScope)
     }
     override fun patchParticipant(id: String, current: Participant) {
         if (id.isBlank() || current.isPropsBlank){
@@ -279,7 +295,7 @@ class ParticipationViewModel
         }
         current.apply { updatedAt = Date() }
         caseParticipation.patchParticipant(id, current)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(this::onResourceStateless).launchIn(viewModelScope)
     }
     override fun deleteParticipant(id: String) {
         if (id.isBlank()){
@@ -287,7 +303,7 @@ class ParticipationViewModel
             return
         }
         caseParticipation.deleteParticipant(id)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(this::onResourceStateless).launchIn(viewModelScope)
     }
     override fun getParticipants(page: Int, size: Int) {
         if (size == 0){
@@ -295,6 +311,6 @@ class ParticipationViewModel
             return
         }
         caseParticipation.getParticipants(page, size)
-            .onEach(this::onResource).launchIn(viewModelScope)
+            .onEach(this::onResourceStateless).launchIn(viewModelScope)
     }
 }

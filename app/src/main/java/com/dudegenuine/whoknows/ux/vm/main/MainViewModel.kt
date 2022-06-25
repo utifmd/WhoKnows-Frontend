@@ -41,7 +41,8 @@ class MainViewModel
     private val TAG = javaClass.simpleName
     val userId get() = prefs.userId
     val receiver get() = caseMessaging.receiver
-    val isLoggedInByPrefs get() = prefs.userId.isNotBlank()
+    val isLoggedIn get() = prefs.userId.isNotBlank()
+    val isParticipated get() = prefs.participationRoomId
 
     private val messaging get() = caseMessaging.firebase.messaging()
     private val worker get() = caseMessaging.workerManager.instance()
@@ -67,7 +68,7 @@ class MainViewModel
         if (prefs.tokenId.isBlank()) messagingInitToken()
         else Log.d(TAG, "currentToken: ${prefs.tokenId}")
 
-        if (isLoggedInByPrefs) getUser()
+        if (isLoggedIn) getUser()
     }
 
     val roomCompleteFlow = roomCompleteParameter
@@ -114,7 +115,7 @@ class MainViewModel
         )
 
         token.let(::onTokenIdChange)
-        if (isLoggedInByPrefs) chainer.enqueue() /*.then(onPreRegisterMessaging)*/
+        if (isLoggedIn) chainer.enqueue() /*.then(onPreRegisterMessaging)*/
     }
 
     // TODO: please do magic with worker here

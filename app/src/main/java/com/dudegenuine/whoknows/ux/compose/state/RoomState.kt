@@ -7,8 +7,7 @@ import com.dudegenuine.whoknows.BuildConfig.BASE_CLIENT_URL
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IAppUseCaseModule.Companion.EMPTY_STRING
 import java.util.*
 
-class RoomState(
-    private val currentRoom: Room.Complete?) {
+class RoomState {
 
     private val _roomId = mutableStateOf("")
     val roomId: String

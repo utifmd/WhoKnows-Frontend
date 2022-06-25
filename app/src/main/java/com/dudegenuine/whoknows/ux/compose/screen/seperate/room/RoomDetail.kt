@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +40,9 @@ import okhttp3.internal.http.toHttpDateString
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun RoomDetail(
-    modifier: Modifier = Modifier, viewModel: RoomViewModel, onBackPressed: () -> Unit) {
+    modifier: Modifier = Modifier, viewModel: RoomViewModel,
+    setIsRefresh: ((Boolean) -> Unit)? = null, onBackPressed: () -> Unit) {
+
     val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     val coroutineScope = rememberCoroutineScope()
 
@@ -58,7 +61,7 @@ fun RoomDetail(
                     title = "${model.minute} minute\'s duration",
                     leads = Icons.Default.ArrowBack,
                     tails = Icons.Default.Menu,
-                    onLeadsPressed = onBackPressed, //viewModel::onBackRoomDetailPressed,
+                    onLeadsPressed = onBackPressed, //if(isRefresh) viewModel::onBackRoomDetailPressed else viewModel::onBackPressed,
                     onTailPressed = ::toggle
                 )
             },
@@ -72,6 +75,7 @@ fun RoomDetail(
             frontLayerContent = {
                 FrontLayer(modifier,
                     model = model,
+                    setIsRefresh = setIsRefresh ?: {},
                     viewModel = viewModel
                 )
             }
@@ -126,7 +130,7 @@ private fun BackLayer(
                 checked = viewModel.isRoomAlarmUp) { selected ->
                 viewModel.onIsAlarmUpChange(5, selected)
             }*/
-        } else if (model.isParticipated) ToggleBackLayer(
+        } else if (model.isParticipant) ToggleBackLayer(
             icon = if (notificationOff) Icons.Default.NotificationsOff else Icons.Default.NotificationsActive,
             label = stringResource(R.string.notification_class),
             enabled = enabled,
@@ -142,13 +146,11 @@ private fun BackLayer(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 private fun FrontLayer(
     modifier: Modifier = Modifier,
-    contentModifier: Modifier = Modifier,
-    model: Room.Complete,
-    viewModel: RoomViewModel) {
-
+    contentModifier: Modifier = Modifier, viewModel: RoomViewModel,
+    model: Room.Complete, setIsRefresh: (Boolean) -> Unit) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -181,7 +183,7 @@ private fun FrontLayer(
             CardFooter(
                 text = (model.user?.fullName ?: EMPTY_STRING).ifBlank {
                     model.user?.username ?: stringResource(R.string.unknown) },
-                icon = Icons.Filled.VerifiedUser,
+                icon = Icons.Outlined.VerifiedUser,
             )
 
             CardFooter(
@@ -196,13 +198,14 @@ private fun FrontLayer(
         }
 
         Spacer(modifier.size(ButtonDefaults.IconSize))
-        CardFooter(modifier.padding(horizontal = 24.dp),
-            text = "${model.participants.size} " +
-                    if (model.participants.size > 1)
-                        "Participant\'s" else "Participant",
-            icon = Icons.Default.People,
-        )
-
+        Chip(leadingIcon = {
+            Icon(Icons.Default.People, contentDescription = null) }, onClick = {}, enabled = false) {
+            Text("${model.participants.size} " +
+                    if (model.participants.size > 1) "Participant\'s" else "Participant",
+                color = MaterialTheme.colors.onBackground,
+                style = MaterialTheme.typography.caption
+            )
+        }
         if (model.participants.isNotEmpty()) {
             LazyRow(
                 modifier
@@ -222,7 +225,7 @@ private fun FrontLayer(
                             else  viewModel.onParticipantItemPressed(participant.userId)
                         },
                         onLongPressed = {
-                            if (model.isOwner) viewModel.onParticipantLongPressed(!model.expired, participant)
+                            if (model.isOwner) viewModel.onParticipantLongPressed(!model.expired, participant, setIsRefresh)
                         }
                     )
                 }
@@ -230,18 +233,20 @@ private fun FrontLayer(
         }
 
         Spacer(modifier.size(ButtonDefaults.IconSize))
-        CardFooter(modifier.padding(horizontal = 24.dp),
-            text = "${model.questions.size} " +
+        Chip(leadingIcon = {
+            Icon(Icons.Default.Task, contentDescription = null) }, onClick = {}, enabled = false) {
+            Text("${model.questions.size} " +
                     if (model.questions.size > 1) "Question\'s" else "Question",
-            icon = Icons.Default.QuestionAnswer
-        )
-
+                color = MaterialTheme.colors.onBackground,
+                style = MaterialTheme.typography.caption
+            )
+        }
         if (model.isOwner and model.questions.isNotEmpty()){
             Column(modifier.fillMaxWidth()) {
                 model.questions.forEach { quiz ->
 
                     Box(modifier.combinedClickable(
-                        onLongClick = { viewModel.onQuestionLongPressed(model, quiz) },
+                        onLongClick = { viewModel.onQuestionLongPressed(model, quiz, setIsRefresh) },
                         onClick = { viewModel.onQuestionItemPressed(quiz.id) })) {
                         Divider(thickness = (0.5).dp)
 
@@ -258,6 +263,7 @@ private fun FrontLayer(
                 }
             }
         }
+        Spacer(modifier.size(ButtonDefaults.IconSize))
     }
 }
 

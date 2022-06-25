@@ -37,7 +37,7 @@ data class ResourceState(
     val participant: Participant? = null,
     val participants: List<Participant>? = null,
 
-    val participation: Participation? = null,
+    //val participation: Participation? = null,
 
     val notification: Notification? = null,
     val notifications: List<Notification>? = null,
@@ -51,6 +51,11 @@ data class ResourceState(
         val error: String = "",
         val message: String = "",
         val user: User.Complete? = null
+    )
+    data class Boarding(
+        val loading: Boolean = false,
+        val error: String = "",
+        val data: Participation? = null
     )
 
     companion object {

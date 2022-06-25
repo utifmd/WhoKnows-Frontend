@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavOptions
 import androidx.paging.cachedIn
 import com.dudegenuine.model.BuildConfig
 import com.dudegenuine.model.Resource
@@ -95,23 +94,23 @@ class UserViewModel
             onStateChange(ResourceState(error = CHECK_CONN))
             return
         }
-        caseUser.signInUser(signer) //.onEach(::onAuth)
-            .onEach{ onAuth(it, onSucceed = ::onSignedIn)}
+        caseUser.signInUser(signer) //.onEach{ onAuth(it, onSucceed = ::onSignedIn)}
+            .onEach(::onAuth)
             .launchIn(viewModelScope)
     }
-    private fun onSignedIn(user: User.Complete){
+    /*private fun onSignedIn(user: User.Complete){
         val option = NavOptions.Builder().setPopUpTo(Screen.Auth.route, true).build()
         onScreenStateChange(ScreenState.Navigate.To(Screen.Home.route, option))
-    }
+    }*/
     override fun logoutUser() {
-        caseUser.signOutUser() //.onEach(::onAuth)
-            .onEach{ onAuth(it, onSignedOut = ::onSignedOut) }
+        caseUser.signOutUser() //.onEach{ onAuth(it, onSignedOut = ::onSignedOut) }
+            .onEach(::onAuth)
             .launchIn(viewModelScope)
     }
-    private fun onSignedOut(){
+    /*private fun onSignedOut(){
         val option = NavOptions.Builder().setPopUpTo(Screen.Home.route, true).build()
         onScreenStateChange(ScreenState.Navigate.To(Screen.Auth.route, option))
-    }
+    }*/
     fun onAuthDiscoverButtonPressed() = onNavigateTo(Screen.Home.Discover.route)
     override fun postUser(user: User.Complete) {
         if (user.isPropsBlank) {

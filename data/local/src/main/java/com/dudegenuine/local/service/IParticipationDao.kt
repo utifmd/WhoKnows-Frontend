@@ -21,9 +21,12 @@ interface IParticipationDao {
     @Query("SELECT * FROM participation LIMIT 1")
     suspend fun read(): ParticipationTable?
 
-    @Delete
+    /*@Delete
     suspend fun delete(participation: ParticipationTable)
 
+    @Query("DELETE FROM participation")
+    suspend fun deleteAll()
+*/
     @Query("DELETE FROM participation")
     suspend fun delete()
 }

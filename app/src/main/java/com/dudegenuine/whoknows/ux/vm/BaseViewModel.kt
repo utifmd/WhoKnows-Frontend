@@ -31,11 +31,13 @@ abstract class BaseViewModel: ViewModel() {
     val jobScope = CoroutineScope(Dispatchers.Main + viewModelJob) /*private val eventChannel = Channel<String>(capacity = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST) val eventFlow = eventChannel.receiveAsFlow() fun sendEvent(element: String) = eventChannel.trySend(element)*/
 
     private val _state = mutableStateOf(ResourceState())
-    val state
+    val state: ResourceState
         get() = _state.value
     private val _auth = mutableStateOf(ResourceState.Auth())
     val auth: ResourceState.Auth
         get() = _auth.value
+    private val _participation = mutableStateOf(ResourceState.Boarding())
+    val participation get() = _participation.value
 
     private val _screenState = MutableSharedFlow<ScreenState>()
     val screenState = _screenState.asSharedFlow()
@@ -45,7 +47,6 @@ abstract class BaseViewModel: ViewModel() {
     }
 
     fun onAuthChange(fresh: ResourceState.Auth){
-        Log.d(TAG, "onAuthChange: user ${fresh.user != null}")
         if (fresh.invalidated) {
             _auth.value = fresh
             return
@@ -55,7 +56,9 @@ abstract class BaseViewModel: ViewModel() {
             error = fresh.error
         )
     }
-
+    fun onParticipationChange(fresh: ResourceState.Boarding){
+        _participation.value = fresh
+    }
     fun onScreenStateChange(state: ScreenState) {
         if (state is ScreenState.Navigate.Back)
             Log.d(TAG, "onScreenStateChange: back refresh ${state.refresh}")
@@ -217,7 +220,13 @@ abstract class BaseViewModel: ViewModel() {
             resources.message?.let { onScreenStateChange(ScreenState.Toast(it, Toast.LENGTH_LONG)) }
         }
     }
-
+    protected fun onResourceParticipation(
+        resource: Resource<Participation>, onSucceed: (Participation) -> Unit, onError: (String) -> Unit) = when(resource){
+        is Resource.Success -> resource.data?.let(onSucceed) ?: onParticipationChange(ResourceState.Boarding(data = null))
+        is Resource.Loading -> onParticipationChange(ResourceState.Boarding(loading = true))
+        is Resource.Error -> resource.message?.let(onError)
+        else -> onParticipationChange(ResourceState.Boarding())
+    }
     protected fun<T> onResourceFlow(
         resources: Resource<T>, onSucceed: (T) -> Flow<Resource<T>>): Flow<Resource<T>> {
         return when(resources) {
@@ -227,6 +236,7 @@ abstract class BaseViewModel: ViewModel() {
             }
             is Resource.Loading -> {
                 Log.d(TAG, "onResourceFLow: loading..")
+                onStateChange(ResourceState(loading = true))
 
                 resources.data?.let {
                     Log.d(TAG, "onResourceFLow: loading already got data")
@@ -238,7 +248,8 @@ abstract class BaseViewModel: ViewModel() {
                 //onSavedStateChange(ResourceState(loading = false))
                 resources.message?.let {
                     if (resources.data is User.Complete && it.contains("notification_key")) return@let
-                    onScreenStateChange(ScreenState.Toast(it, Toast.LENGTH_LONG))
+                    //onStateChange(ResourceState(error = it))
+                    onShowSnackBar(it)
                 }
                 emptyFlow()
             }

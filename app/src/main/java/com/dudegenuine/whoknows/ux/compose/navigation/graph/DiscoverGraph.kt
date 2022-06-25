@@ -24,7 +24,7 @@ import com.dudegenuine.whoknows.ux.vm.search.SearchViewModel
 fun NavGraphBuilder.discoverGraph(props: IMainProps){
     val notification = Screen.Home.Summary.Notification
     val vmMain = props.viewModel as MainViewModel
-    val isLoggedIn = (props.viewModel as MainViewModel).isLoggedInByPrefs
+    val isLoggedIn = (props.viewModel as MainViewModel).isLoggedIn
 
     composable(
         route = notification.route,

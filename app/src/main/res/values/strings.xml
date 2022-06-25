@@ -45,7 +45,9 @@
     <string name="close_the_room">Close The Class</string>
     <string name="not_signed_in_yet_to_join">Pastikan pengguna sudah masuk/daftar</string>
     <string name="the_owner_itself_to_join">Pengguna tidak bisa mengikuti kelas mereka sendiri</string>
-    <string name="already_joined_to_join">Anda sudah bergabung dikelas ini</string>
+    <string name="already_joined_this_class">Anda sudah bergabung dikelas ini</string>
+    <string name="already_joined_the_class">Anda harus menyelesaikan kelas yang sudah anda ambil sebelumnnya</string>
+    <string name="already_re_joined_the_class">Silahkan lanjut untuk menyelesaikan kelas</string>
     <string name="allowed_after_add_3_quest">Setidaknya anda sudah menambahkan 3 pertanyaan</string>
     <string name="allowed_when_class_opened">Kelas sudah ditutup.</string>
     <string name="delete_notifier">hapus notification</string>

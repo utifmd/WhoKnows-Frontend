@@ -36,6 +36,7 @@ class SignOutUser
                         .flatMapMerge{ repoUser.localSignOutFlow() }
                         .flatMapMerge{ repoRoom.clearParticipation() }
                         .mapLatest{ currentUser } }
+                .onStart{ repoRoom.timer.stop() }
                 .onEach{ emit(Resource.Success(it.id)) }.collect() //emit(Resource.Success("Signed out successfully"))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
