@@ -39,7 +39,10 @@ sealed class User {
         var notifications: List<Notification>){
 
         val sortedParticipants
-            get() = participants.sortedByDescending { it.createdAt }
+            get() = participants.sortedByDescending{ it.createdAt }
+
+        val completeParticipants
+            get() = participants.filter{ it.expired }
 
         val isPropsBlank: Boolean =
             /*fullName.isBlank() ||*/ email.isBlank() ||// phone.isBlank() ||
@@ -48,12 +51,8 @@ sealed class User {
         var exactPassword = password
 
         init {
-            try {
-                exactPassword = Utility.decrypt(password)
-                Log.d("Model User TAG", ": $exactPassword")
-            } catch (e: Exception){
-                Log.d("Model User TAG", e.localizedMessage ?: "")
-            }
+            try { exactPassword = Utility.decrypt(password) }
+            catch (e: Exception){ Log.d("Model User TAG", e.localizedMessage ?: "") }
         }
 
         companion object {

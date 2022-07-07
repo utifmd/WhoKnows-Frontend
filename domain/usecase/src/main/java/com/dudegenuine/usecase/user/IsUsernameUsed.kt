@@ -1,11 +1,8 @@
-package com.dudegenuine.usecase.room
+package com.dudegenuine.usecase.user
 
-import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Resource
-import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
-import com.dudegenuine.repository.contract.IMessagingRepository
-import com.dudegenuine.repository.contract.IRoomRepository
+import com.dudegenuine.repository.contract.IUserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
@@ -13,21 +10,18 @@ import java.io.IOException
 import javax.inject.Inject
 
 /**
- * Wed, 08 Dec 2021
+ * Tue, 28 Jun 2022
  * WhoKnows by utifmd
  **/
-class PostRoom
+class IsUsernameUsed
     @Inject constructor(
-    private val repository: IRoomRepository,
-    private val reposMessaging: IMessagingRepository) {
+    private val repository: IUserRepository) {
 
-    operator fun invoke(body: Room.Complete): Flow<Resource<Room.Complete>> = flow {
+    operator fun invoke(username: String): Flow<Resource<Boolean>> = flow {
         try {
             emit(Resource.Loading())
-            val creator = Messaging.GroupCreator(keyName = body.id, tokens = listOf(repository.preference.tokenId))
-            val notificationKey = reposMessaging.create(creator).notification_key
-            val room = repository.createRemote(body.copy(token = notificationKey))
-            emit(Resource.Success(room))
+            val count = repository.remoteCount(username)
+            emit(Resource.Success(count > 0))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: HttpException){

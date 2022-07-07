@@ -39,6 +39,9 @@ class UserUseCaseModule(
     override val getUsersParticipation:
         GetUsersParticipation = GetUsersParticipation(userRepository),
 
+    override val isUsernameUsed:
+        IsUsernameUsed = IsUsernameUsed(userRepository),
+
     override val signOutUser: SignOutUser = SignOutUser(
         userRepository,
         roomRepository,

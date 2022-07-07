@@ -30,7 +30,7 @@ interface IRoomEventHome: IRoomEvent {
     fun onButtonJoinRoomWithACodePressed()
     fun onRoomHomeScreenDetailSelected(id: String)
     fun onNotificationPressed()
-    fun onImpressed()
+    //fun onImpressed()
 }
 
 interface IRoomEventDetail: IRoomEvent {

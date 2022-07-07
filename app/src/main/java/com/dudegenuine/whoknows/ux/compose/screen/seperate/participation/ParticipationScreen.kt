@@ -44,6 +44,7 @@ fun ParticipationScreen(
                 context.registerReceiver(receiver, intention)
                 onDispose {
                     viewModel.patchBoarding(state)
+                    //viewModel.patchParticipant(state.participantId, )
                     context.unregisterReceiver(receiver)
                 }
             }

@@ -43,6 +43,10 @@ class ParticipantRepository
     override suspend fun read(id: String): Participant = mapperPpn.asParticipant(
         service.read(id))
 
+    override suspend fun read(userId: String, roomId: String): Participant = mapperPpn.asParticipant(
+        service.read(userId, roomId)
+    )
+
     override suspend fun update(id: String, participant: Participant): Participant = mapperPpn.asParticipant(
         service.update(id, mapperPpn.asEntity(participant)))
 

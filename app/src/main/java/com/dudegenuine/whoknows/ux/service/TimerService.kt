@@ -98,11 +98,11 @@ class TimerService: ITimerService() {
         prefsFactory.participationTimeLeft = fresh.toInt()
     }
 
-    companion object {
+    /*companion object {
         fun createInstance(context: Context, time: Double): Intent{
             return Intent(context, TimerService::class.java).apply {
                 putExtra(INITIAL_TIME_KEY, time)
             }
         }
-    }
+    }*/
 }

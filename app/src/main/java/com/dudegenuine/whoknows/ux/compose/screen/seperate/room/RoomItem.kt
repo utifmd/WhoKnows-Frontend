@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.room
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -26,26 +25,29 @@ import com.dudegenuine.whoknows.ux.compose.component.misc.CardFooter
 @Composable
 fun RoomItem(
     modifier: Modifier = Modifier, model: Room,
-    onImpressed: () -> Unit, onPressed: (() -> Unit)? = null) {
-
+    onImpression: ((Boolean) -> Unit)? = null, onPressed: (() -> Unit)? = null) {
     val title by remember{
         derivedStateOf{ when(model){
             is Room.Complete -> model.title
             is Room.Censored -> model.title }
         }
     }
-
     val desc by remember{
         derivedStateOf{ when(model){
             is Room.Complete -> model.description
             is Room.Censored -> model.description }
         }
     }
-
-    val (impress, setImpress) = rememberSaveable {
+    val (impressed, setImpressed) = rememberSaveable {
         when(model) {
             is Room.Complete -> mutableStateOf(model.impressed)
             is Room.Censored -> mutableStateOf(model.impressed)
+        }
+    }
+    val (impressionSize, setImpressionSize) = rememberSaveable {
+        when(model) {
+            is Room.Complete -> mutableStateOf(model.impressionSize)
+            is Room.Censored -> mutableStateOf(model.impressionSize)
         }
     }
     GeneralCardView(
@@ -78,11 +80,18 @@ fun RoomItem(
                             text = model.participantSize.toString())
                         Spacer(Modifier.size(ButtonDefaults.IconSize))
                         CardFooter(
-                            text = "${model.impressionSize} ${if (model.impressionSize > 1) "like\'s" else "like"}",
-                            icon = if (impress) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            color = if (impress) MaterialTheme.colors.error else null,
-                            onIconClick = onImpressed
-                        )
+                            text = "$impressionSize ${if (impressionSize > 1) "like\'s" else "like"}",
+                            icon = if (impressed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            color = if (impressed) MaterialTheme.colors.error else null){
+                            if (impressed) {
+                                setImpressed(false)
+                                setImpressionSize(impressionSize -1)
+                            } else {
+                                setImpressed(true)
+                                setImpressionSize(impressionSize +1)
+                            }
+                            onImpression?.invoke(!impressed)
+                        }
                     }
                     is Room.Complete -> Row(Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween) {
@@ -98,14 +107,16 @@ fun RoomItem(
                                 text = model.participants.size.toString()
                             )
                         }
-
-                        CardFooter(
-                            text = "${model.impressionSize} ${if(model.impressionSize > 1) "like\'s" else "like"}",
-                            icon = if(impress) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            color = if(impress) MaterialTheme.colors.error else null){
-                            setImpress(!impress)
-                            Log.d("RoomItem", "setImpress $impress")
-                        }
+                        /*CardFooter(
+                            text = "$impressionSize ${if(impressionSize > 1) "like\'s" else "like"}",
+                            icon = if(impressed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            color = if(impressed) MaterialTheme.colors.error else null){
+                            setImpressed(!impressed)
+                            setImpressionSize(if (impressed)
+                                impressionSize +1 else
+                                    impressionSize -1
+                            )
+                        }*/
                     }
                 }
             }

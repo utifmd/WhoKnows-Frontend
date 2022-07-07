@@ -37,7 +37,10 @@ fun ResultDetail(
             if (state.loading) LoadingScreen()
 
             state.result?.let { result ->
-                ResultScreen(modifier, state = result)
+                ResultScreen(modifier,
+                    state = result,
+                    onDonePressed = viewModel::onDonePressed
+                )
             }
             if (state.error.isNotBlank())
                 ErrorScreen(message = state.error)

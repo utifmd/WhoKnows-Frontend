@@ -26,6 +26,11 @@ interface UserService: IUserService {
     override suspend fun read(
         @Path("userId") id: String): Response<UserEntity.Complete>
 
+    @Headers(API_KEY, ACCEPT)
+    @GET("${ENDPOINT}/count/{username}")
+    override suspend fun count(
+        @Path("username") username: String): Response<Int>
+
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
     @PUT("${ENDPOINT}/{userId}")
     override suspend fun update(

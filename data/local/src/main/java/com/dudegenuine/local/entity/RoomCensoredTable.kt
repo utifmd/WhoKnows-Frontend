@@ -3,6 +3,7 @@ package com.dudegenuine.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.dudegenuine.model.Impression
 
 /**
  * Tue, 31 May 2022
@@ -44,14 +45,11 @@ data class RoomCensoredTable(
     @ColumnInfo(name = "questionSize")
     val questionSize: Int,
 
-    @ColumnInfo(name = "impressionSize")
-    val impressionSize: Int,
-
     @ColumnInfo(name = "isOwner")
     val isOwner: Boolean,
 
-    @ColumnInfo(name = "impressed")
-    val impressed: Boolean,
+    @ColumnInfo(name = "impressions")
+    val impressions: List<Impression>,
 
     @ColumnInfo(name = "participantSize")
     val participantSize: Int

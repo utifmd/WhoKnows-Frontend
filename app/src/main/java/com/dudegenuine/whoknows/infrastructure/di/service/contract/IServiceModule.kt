@@ -13,6 +13,7 @@ interface IServiceModule {
     fun provideQuizService(network: Retrofit.Builder): IQuizService
     fun provideParticipantService(network: Retrofit.Builder): IParticipantService
     fun provideResultService(network: Retrofit.Builder): IResultService
+    fun provideImpressionService(network: Retrofit.Builder): IImpressionService
     fun provideFileService(network: Retrofit.Builder): IFileService
     fun provideNotificationService(network: Retrofit.Builder): INotificationService
     fun providePushNotificationService(network: Retrofit.Builder): IMessagingService

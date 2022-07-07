@@ -20,6 +20,10 @@ class UserDataMapper
     private val currentUserId: String): IUserDataMapper {
     private val TAG: String = javaClass.simpleName
 
+    init {
+        Log.d(TAG, "currentUserId: $currentUserId")
+    }
+
     override fun asEntityCensored(user: User.Censored): UserEntity.Censored {
         return UserEntity.Censored(
             userId = user.userId,
@@ -263,6 +267,8 @@ class UserDataMapper
             impressions = emptyList()
         )
     }
+    private fun asImpression(entity: ImpressionEntity): Impression =
+        Impression(entity.impressionId, entity.postId, entity.userId, entity.good)
 
     override fun asRoomCensored(entity: RoomEntity.Censored): Room.Censored {
         return Room.Censored(
@@ -279,8 +285,11 @@ class UserDataMapper
             participantSize = entity.participantSize,
             isOwner = entity.userId == currentUserId,
             private = entity.private ?: false,
-            impressed = entity.impressions.any{ it.userId == currentUserId },
-            impressionSize = entity.impressions.size
+
+            impression = entity.impressions.map(::asImpression).find { it.userId == currentUserId },
+            impressionSize = entity.impressions.size,
+            hasImpressedBefore = entity.impressions.any{ it.userId == currentUserId },
+            impressed = entity.impressions.any{ it.userId == currentUserId && it.good }
         )
     }
 }

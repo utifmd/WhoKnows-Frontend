@@ -20,20 +20,26 @@ interface ParticipantService: IParticipantService {
         @Body entity: ParticipantEntity): Response<ParticipantEntity>
 
     @Headers(API_KEY, ACCEPT)
-    @GET("${ENDPOINT}/{userId}")
+    @GET("${ENDPOINT}/{participantId}")
     override suspend fun read(
-        @Path("userId") id: String): Response<ParticipantEntity>
+        @Path("participantId") id: String): Response<ParticipantEntity>
+
+    @Headers(API_KEY, ACCEPT)
+    @GET("$ENDPOINT/owner/with_args")
+    override suspend fun read(
+        @Query("userId") userId: String,
+        @Query("roomId") roomId: String): Response<ParticipantEntity>
 
     @Headers(API_KEY, CONTENT_TYPE, ACCEPT)
-    @PUT("${ENDPOINT}/{userId}")
+    @PUT("${ENDPOINT}/{participantId}")
     override suspend fun update(
-        @Path("userId") id: String,
+        @Path("participantId") id: String,
         @Body entity: ParticipantEntity): Response<ParticipantEntity>
 
     @Headers(API_KEY, ACCEPT)
-    @DELETE("${ENDPOINT}/{userId}")
+    @DELETE("${ENDPOINT}/{participantId}")
     override suspend fun delete(
-        @Path("userId") id: String)
+        @Path("participantId") id: String)
 
     @Headers(API_KEY, ACCEPT)
     @GET(ENDPOINT)

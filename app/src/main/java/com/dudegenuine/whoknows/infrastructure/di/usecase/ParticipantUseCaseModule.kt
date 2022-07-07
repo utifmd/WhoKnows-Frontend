@@ -1,8 +1,10 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
-import com.dudegenuine.repository.contract.IParticipantRepository
+import com.dudegenuine.repository.contract.*
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.usecase.participant.*
+import com.dudegenuine.usecase.participation.DeleteParticipation
+import com.dudegenuine.usecase.participation.PostParticipation
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IParticipantUseCaseModule
 
 /**
@@ -10,26 +12,47 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IParticipantU
  * WhoKnows by utifmd
  **/
 class ParticipantUseCaseModule(
-    private val repository: IParticipantRepository): IParticipantUseCaseModule {
+    private val reposParticipant: IParticipantRepository,
+    private val reposRoom: IRoomRepository,
+    private val reposResult: IResultRepository,
+    private val reposNotification: INotificationRepository,
+    private val reposMessaging: IMessagingRepository): IParticipantUseCaseModule {
 
     override val postParticipant: PostParticipant
-        get() = PostParticipant(repository)
+        get() = PostParticipant(reposParticipant)
 
     override val getParticipant: GetParticipant
-        get() = GetParticipant(repository)
+        get() = GetParticipant(reposParticipant)
 
     override val patchParticipant: PatchParticipant
-        get() = PatchParticipant(repository)
+        get() = PatchParticipant(reposParticipant)
 
     override val deleteParticipant: DeleteParticipant
-        get() = DeleteParticipant(repository)
+        get() = DeleteParticipant(reposParticipant)
 
     override val getParticipants: GetParticipants
-        get() = GetParticipants(repository)
+        get() = GetParticipants(reposParticipant)
 
     override val getParticipation: GetParticipation
-        get() = GetParticipation(repository)
+        get() = GetParticipation(reposParticipant)
+
+    override val postParticipation: PostParticipation
+        get() = PostParticipation(
+            reposParticipant = reposParticipant,
+            reposRoom = reposRoom,
+            reposResult = reposResult,
+            reposMessaging = reposMessaging,
+            reposNotify = reposNotification
+        )
+
+    override val deleteParticipation: DeleteParticipation
+        get() = DeleteParticipation(
+            reposParticipant = reposParticipant,
+            reposResult = reposResult,
+            reposMessaging = reposMessaging,
+            reposNotify = reposNotification
+        )
 
     override val prefs: IPrefsFactory
-        get() = repository.prefs
+        get() = reposParticipant.prefs
 }

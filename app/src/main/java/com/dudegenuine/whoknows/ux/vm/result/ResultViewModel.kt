@@ -2,13 +2,18 @@ package com.dudegenuine.whoknows.ux.vm.result
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavOptions
 import com.dudegenuine.model.Result
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IResultUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
-import com.dudegenuine.whoknows.ux.vm.BaseViewModel
+import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
+import com.dudegenuine.whoknows.ux.compose.state.ScreenState
+import com.dudegenuine.whoknows.ux.vm.BaseViewModel
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel
+import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
+import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -99,5 +104,12 @@ class ResultViewModel
 
         case.getResults(page, size)
             .onEach(this::onResource).launchIn(viewModelScope)
+    }
+
+    fun onDonePressed() {
+        val option = NavOptions.Builder().setPopUpTo(
+            Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(
+                "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}"), true).build()
+        onScreenStateChange(ScreenState.Navigate.To(Screen.Home.Summary.route, option))
     }
 }

@@ -7,7 +7,8 @@ import com.dudegenuine.repository.contract.IRoomRepository
 import com.dudegenuine.repository.contract.IUserRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -27,17 +28,27 @@ class SignOutUser
     operator fun invoke(): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
+            val localUser = repoUser.localRead()
+            val tokens = localUser.tokens.filter{ it != preferences.tokenId }
+            val latestUser = localUser.copy(tokens = tokens)
+            val remoteUser = repoUser.remoteUpdate(latestUser.id, latestUser)
+
+            repoUser.localDelete(remoteUser.id)
+            repoRoom.deleteBoardingLocal()
+            emit(Resource.Success(remoteUser.id))
+
+            /*emit(Resource.Loading())
             repoUser.localReadFlow()
                 .flatMapConcat{ currentUser -> //val joins = currentUser.participants.map { it.roomId } val owns = currentUser.rooms.map { it.roomId }
                     val tokens = currentUser.tokens.filter { it != preferences.tokenId }
                     val latestUser = currentUser.copy(tokens = tokens)
 
-                    repoUser.remoteUpdateFlow(latestUser) /*.flatMapMerge{ concatenate(joins, owns).asFlow() .flatMapConcat(repoMsg::unregisterGroupTokenFlow) }*/
+                    repoUser.remoteUpdateFlow(latestUser) *//*.flatMapMerge{ concatenate(joins, owns).asFlow() .flatMapConcat(repoMsg::unregisterGroupTokenFlow) }*//*
                         .flatMapMerge{ repoUser.localSignOutFlow() }
                         .flatMapMerge{ repoRoom.clearParticipation() }
                         .mapLatest{ currentUser } }
                 .onStart{ repoRoom.timer.stop() }
-                .onEach{ emit(Resource.Success(it.id)) }.collect() //emit(Resource.Success("Signed out successfully"))
+                .onEach{ emit(Resource.Success(it.id)) }.collect()*/ //emit(Resource.Success("Signed out successfully"))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: HttpException){

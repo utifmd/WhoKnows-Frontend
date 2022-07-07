@@ -6,10 +6,16 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.work.ExistingWorkPolicy
+import com.dudegenuine.model.Impression
+import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Room
+import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 import com.dudegenuine.repository.contract.dependency.local.IWorkerManager.Companion.WORK_NAME_ROOM_TOKEN
 import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager.Companion.TOPIC_COMMON
+import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IAppUseCaseModule.Companion.EMPTY_STRING
+import com.dudegenuine.whoknows.ux.compose.state.NotificationState
 import com.dudegenuine.whoknows.ux.compose.state.room.FlowParameter
 import com.dudegenuine.whoknows.ux.vm.notification.contract.IMessagingViewModel.Companion.DEFAULT_NOTIFIER_BATCH_SIZE
 import com.dudegenuine.whoknows.ux.vm.participation.contract.IParticipantViewModel.Companion.DEFAULT_PARTICIPANT_BATCH_SIZE
@@ -21,6 +27,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -35,6 +42,7 @@ class MainViewModel
     private val caseNotifier: INotificationUseCaseModule,
     private val caseUser: IUserUseCaseModule,
     private val caseRoom: IRoomUseCaseModule,
+    private val caseImpression: IImpressionUseCaseModule,
 
     caseQuiz: IQuizUseCaseModule,
     savedStateHandle: SavedStateHandle): IMainViewModel() {
@@ -43,6 +51,8 @@ class MainViewModel
     val receiver get() = caseMessaging.receiver
     val isLoggedIn get() = prefs.userId.isNotBlank()
     val isParticipated get() = prefs.participationRoomId
+
+    @Inject lateinit var resource: IResourceDependency
 
     private val messaging get() = caseMessaging.firebase.messaging()
     private val worker get() = caseMessaging.workerManager.instance()
@@ -64,13 +74,13 @@ class MainViewModel
     }
     init {
         messagingSubscribeTopic()
+        //initialFeedState()
         //userSubscribeAuthenticated()
         if (prefs.tokenId.isBlank()) messagingInitToken()
         else Log.d(TAG, "currentToken: ${prefs.tokenId}")
 
         if (isLoggedIn) getUser()
     }
-
     val roomCompleteFlow = roomCompleteParameter
         .flatMapLatest(::onRoomCompleteByUserIdFlow)
         .distinctUntilChanged()
@@ -113,7 +123,6 @@ class MainViewModel
             ExistingWorkPolicy.KEEP,
             serverRequest
         )
-
         token.let(::onTokenIdChange)
         if (isLoggedIn) chainer.enqueue() /*.then(onPreRegisterMessaging)*/
     }
@@ -142,6 +151,33 @@ class MainViewModel
         caseUser.getUser()
             .onEach(::onAuth)
             .onCompletion{ if(it == null) Log.d(TAG, "getUser: complete") }
+            .launchIn(viewModelScope)
+    }
+    fun onImpression(impressed: Boolean, room: Room.Censored, onFinish: () -> Unit){
+        val actor = auth.user?.fullName?.ifBlank{ resource.string(R.string.unknown) }
+            ?: auth.user?.username ?: resource.string(R.string.unknown)
+        val event = "$actor just like the class"
+        val pusher = Messaging.Pusher(
+            title = actor,
+            body = event,
+            largeIcon = auth.user?.profileUrl ?: EMPTY_STRING,
+            to = room.token
+        )
+        val notification = NotificationState().copy(
+            userId = prefs.userId,
+            roomId = room.roomId,
+            event = event,
+            recipientId = userId
+        )
+        val impression = Impression(
+            impressionId = "IMP-${UUID.randomUUID()}",
+            postId = room.roomId,
+            userId = userId,
+            good = impressed
+        )
+        Log.d(TAG, "onImpression: $impressed")
+        caseImpression.operateImpression(impressed, room, notification, impression, pusher)
+            .onCompletion{ onFinish() }
             .launchIn(viewModelScope)
     }
     private fun onTokenIdChange(fresh: String) {

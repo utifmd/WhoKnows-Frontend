@@ -93,7 +93,6 @@ private fun BackLayer(
     toggle: () -> Unit) {
     val enabled = !model.expired
     val (exclusive, setExclusive) = remember { mutableStateOf(model.private) }
-    val (notificationOff, setNotificationOff) = remember { mutableStateOf(model.token.isBlank()) }
 
     Column(
         verticalArrangement = Arrangement.SpaceAround,
@@ -130,13 +129,10 @@ private fun BackLayer(
                 checked = viewModel.isRoomAlarmUp) { selected ->
                 viewModel.onIsAlarmUpChange(5, selected)
             }*/
-        } else if (model.isParticipant) ToggleBackLayer(
-            icon = if (notificationOff) Icons.Default.NotificationsOff else Icons.Default.NotificationsActive,
-            label = stringResource(R.string.notification_class),
-            enabled = enabled,
-            checked = notificationOff) { selected ->
-            setNotificationOff(selected)
-            viewModel.onNotificationClassChange(model, selected)
+        } else if (model.isParticipant) ButtonBackLayer(
+            label = stringResource(R.string.leave_the_class),
+            enabled = enabled) {
+            viewModel.onLeaveRoomPressed(model)
         } else ButtonBackLayer(
             label = stringResource(R.string.join_the_room),
             enabled = enabled) {
@@ -196,10 +192,10 @@ private fun FrontLayer(
                 Text(model.description, style = MaterialTheme.typography.body2)
             }
         }
-
         Spacer(modifier.size(ButtonDefaults.IconSize))
-        Chip(leadingIcon = {
-            Icon(Icons.Default.People, contentDescription = null) }, onClick = {}, enabled = false) {
+        Chip({}, modifier = modifier.padding(horizontal = 24.dp)) {
+            Icon(Icons.Default.People, contentDescription = null)
+            Spacer(modifier.size(ButtonDefaults.IconSpacing))
             Text("${model.participants.size} " +
                     if (model.participants.size > 1) "Participant\'s" else "Participant",
                 color = MaterialTheme.colors.onBackground,
@@ -213,12 +209,12 @@ private fun FrontLayer(
                     .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)) {
 
-                items(model.participants){ participant ->
+                items(model.sortedParticipants){ participant ->
                     ProfileCard(modifier,
                         name = participant.user?.fullName ?: stringResource(R.string.unknown),
                         desc = timeAgo(participant.createdAt).plus(" ~ ${if(participant.expired) "done" else "in progress"}"),
                         data = participant.user?.profileUrl ?: EMPTY_STRING,
-                        colorDot = if (!participant.expired)
+                        colorBorder = if (!participant.expired)
                             MaterialTheme.colors.onError else null,
                         onPressed = {
                             if (model.isOwner || participant.isCurrentUser) viewModel.onResultPressed(participant.roomId, participant.userId)
@@ -233,8 +229,9 @@ private fun FrontLayer(
         }
 
         Spacer(modifier.size(ButtonDefaults.IconSize))
-        Chip(leadingIcon = {
-            Icon(Icons.Default.Task, contentDescription = null) }, onClick = {}, enabled = false) {
+        Chip({}, modifier = modifier.padding(horizontal = 24.dp)){
+            Icon(Icons.Default.Task, contentDescription = null)
+            Spacer(modifier.size(ButtonDefaults.IconSpacing))
             Text("${model.questions.size} " +
                     if (model.questions.size > 1) "Question\'s" else "Question",
                 color = MaterialTheme.colors.onBackground,

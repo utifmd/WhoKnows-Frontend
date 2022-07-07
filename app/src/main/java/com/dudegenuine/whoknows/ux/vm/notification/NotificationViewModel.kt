@@ -12,8 +12,8 @@ import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
-import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.model.Dialog
+import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.state.NotificationState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
@@ -40,8 +40,8 @@ class NotificationViewModel
     @Inject lateinit var resource: IResourceDependency
     val currentUserId get() = prefsFactory.userId
 
-    private val _formState = mutableStateOf(NotificationState.FormState())
-    val formState = _formState.value
+    private val _notificationState = mutableStateOf(NotificationState())
+    val notificationState = _notificationState.value
 
     val pagingNotificationFlow = caseNotify
         .getNotifications(currentUserId, PAGE_SIZE)

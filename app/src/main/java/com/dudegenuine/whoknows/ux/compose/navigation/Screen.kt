@@ -38,7 +38,7 @@ sealed class Screen(
                 object ResultDetail: Screen(strOf<RoomDetail>()+strOf<ResultDetail>())
             }
             object Participation: Screen(strOf<Summary>()+strOf<Participation>()){
-                object Result: Screen(strOf<Participation>()+strOf<Result>())
+                //object Result: Screen(strOf<Participation>()+strOf<Result>())
             }
         }
 

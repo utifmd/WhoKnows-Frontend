@@ -14,7 +14,7 @@ interface IParticipantViewModel: IParticipationEvent {
 
     //fun initParticipant(participant: Participant){}
     fun postParticipant(participant: Participant){}
-    fun getParticipant(id: String){}
+    fun getParticipant(userId: String, roomId: String, onSucceed: (Participant) -> Unit){}
     fun patchParticipant(id: String, current: Participant){}
     fun deleteParticipant(id: String){}
     fun getParticipants(page: Int, size: Int){}

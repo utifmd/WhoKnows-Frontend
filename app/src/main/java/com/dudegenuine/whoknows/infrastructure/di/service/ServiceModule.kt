@@ -51,6 +51,12 @@ object ServiceModule: IServiceModule {
 
     @Provides
     @Singleton
+    override fun provideImpressionService(network: Retrofit.Builder): IImpressionService {
+        return network.baseUrl(BuildConfig.BASE_URL).build().create(ImpressionService::class.java)
+    }
+
+    @Provides
+    @Singleton
     override fun provideFileService(network: Retrofit.Builder): IFileService {
         return network.baseUrl(BuildConfig.BASE_URL).build().create(FileService::class.java)
     }

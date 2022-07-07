@@ -41,8 +41,7 @@ fun NotificationItem(
             isSeen = true
 
             onItemPressed()
-        }
-    )) {
+        })) {
 
         Row(modifier.fillMaxSize().padding(12.dp, 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -56,11 +55,8 @@ fun NotificationItem(
                     data = model.sender?.profileUrl ?: "",
                     contentScale = ContentScale.Crop,
                     placeholder = {
-                        Icon(
-                            modifier = modifier
-                                .fillMaxSize()
-                                .padding(4.dp),
-                            imageVector = Icons.Default.Person,
+                        Icon(Icons.Default.Person,
+                            modifier = modifier.fillMaxSize().padding(4.dp),
                             tint = MaterialTheme.colors.secondaryVariant,
                             contentDescription = null
                         )

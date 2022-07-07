@@ -13,6 +13,9 @@ interface IProfileEvent {
     fun onSignOutPressed()
 
     companion object {
+        const val KEY_EDIT_FIELD_TYPE = "KEY_EDIT_FIELD_TYPE"
+        const val KEY_EDIT_FIELD_VALUE = "KEY_EDIT_FIELD_VALUE"
+
         const val NAME = "Full Name"
         const val USERNAME = "Username"
         const val PASSWORD = "Password"

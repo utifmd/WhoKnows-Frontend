@@ -47,7 +47,7 @@
     <string name="the_owner_itself_to_join">Pengguna tidak bisa mengikuti kelas mereka sendiri</string>
     <string name="already_joined_this_class">Anda sudah bergabung dikelas ini</string>
     <string name="already_joined_the_class">Anda harus menyelesaikan kelas yang sudah anda ambil sebelumnnya</string>
-    <string name="already_re_joined_the_class">Silahkan lanjut untuk menyelesaikan kelas</string>
+    <string name="already_re_joined_the_class">Silahkan pilih partisipasi untuk menyelesaikan kelas</string>
     <string name="allowed_after_add_3_quest">Setidaknya anda sudah menambahkan 3 pertanyaan</string>
     <string name="allowed_when_class_opened">Kelas sudah ditutup.</string>
     <string name="delete_notifier">hapus notification</string>
@@ -59,4 +59,7 @@
     <string name="search">Search</string>
     <string name="search_placholder">Search</string>
     <string name="room_exclusive_disclaimer"><![CDATA[Kelas ini akan di sembunyikan dari menu discovery, eksklusif bagi pemilik code & link saja]]></string>
+    <string name="porifile_edit">Profile edit</string>
+    <string name="update">Update</string>
+    <string name="leave_the_class">Leave the class</string>
 </resources>

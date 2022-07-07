@@ -19,6 +19,7 @@ interface IUserUseCaseModule {
     val getUsers: GetUsers
     val getUsersParticipation: GetUsersParticipation
     val searchUser: SearchUser
+    val isUsernameUsed: IsUsernameUsed
 
     val preferences: IPrefsFactory
     val workManager: IWorkerManager

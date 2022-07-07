@@ -10,6 +10,7 @@ import com.dudegenuine.remote.entity.Response
 interface IParticipantService {
     suspend fun create(entity: ParticipantEntity): Response<ParticipantEntity>
     suspend fun read(id: String): Response<ParticipantEntity>
+    suspend fun read(userId: String, roomId: String): Response<ParticipantEntity>
     suspend fun update(id: String, entity: ParticipantEntity): Response<ParticipantEntity>
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): Response<List<ParticipantEntity>>

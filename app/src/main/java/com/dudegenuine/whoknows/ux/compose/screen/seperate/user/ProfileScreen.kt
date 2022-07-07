@@ -54,8 +54,7 @@ fun ProfileScreen(
                 onLeadsPressed = if (state.user?.isCurrentUser == true) null else viewModel::onBackPressed,
                 tails = Icons.Filled.Share,
                 onTailPressed = if (state.user != null){
-                    { state.user.id.let(viewModel::onSharePressed) }} else null
-            )}) { padding ->
+                    { state.user.id.let(viewModel::onSharePressed) }} else null )}) { padding ->
 
         SwipeRefresh(swipeRefreshState, { state.user?.id?.let(viewModel::getUser) },
             modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -86,7 +85,7 @@ fun ProfileScreen(
                         Spacer(modifier.size(24.dp))
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
-                            Text("${user.participants.size} participation ${if(user.participants.size > 1)"\'s" else ""}", fontSize = 11.sp)
+                            Text("${user.completeParticipants.size} participation ${if(user.completeParticipants.size > 1)"\'s" else ""}", fontSize = 11.sp)
                         }
                     }
                     Spacer(modifier.size(24.dp))
@@ -100,32 +99,32 @@ fun ProfileScreen(
                         FieldTag(
                             key = stringResource(R.string.full_name),
                             editable = user.isCurrentUser,
-                            value = user.let { it.fullName.ifBlank { "Not Set" } },
-                            onValuePressed = { user.let { viewModel.onFullNamePressed(it.fullName.ifBlank { "Not Set" }) } })
+                            value = user.let{ it.fullName.ifBlank { "Not Set" }},
+                            onValuePressed = { viewModel.onFullNamePressed(user.fullName.ifBlank{ "Not Set" })})
 
                         if (state.user.isCurrentUser) FieldTag(
                             key = stringResource(R.string.phone_number),
                             editable = user.isCurrentUser,
-                            value = user.let { it.phone.ifBlank { "Not Set" } },
-                            onValuePressed = { user.let { viewModel.onPhonePressed(it.phone.ifBlank { "Not Set" }) } })
+                            value = user.let { it.phone.ifBlank { "Not Set" }},
+                            onValuePressed = { viewModel.onPhonePressed(user.phone.ifBlank{ "Not Set" })})
 
                         FieldTag(
                             key = stringResource(R.string.username),
                             editable = false,
                             value = user.username,
-                            onValuePressed = { user.let { viewModel.onUsernamePressed(it.username.ifBlank { "Not Set" }) }})
+                            onValuePressed = { viewModel.onUsernamePressed(user.username.ifBlank{ "Not Set" }) })
 
                         if (user.isCurrentUser) FieldTag(
                             key = stringResource(R.string.email),
                             value = user.email,
                             editable = false,
-                            onValuePressed = { user.let { viewModel.onEmailPressed(it.email) } })
+                            onValuePressed = { viewModel.onEmailPressed(user.email) } )
 
                         FieldTag(
                             key = stringResource(R.string.user_id),
                             value = user.id,
                             editable = false,
-                            onValuePressed = { user.let { viewModel.onPasswordPressed(it.password) }})
+                            onValuePressed = { viewModel.onPasswordPressed(user.password) })
 
                         if (user.isCurrentUser) FieldTag(
                             key = stringResource(R.string.password),
@@ -133,7 +132,7 @@ fun ProfileScreen(
                             editable = false,
                             censored = true,
                             isDivide = false,
-                            onValuePressed = { user.let { viewModel.onPasswordPressed(it.password) }})
+                            onValuePressed = { viewModel.onPasswordPressed(user.password) })
                     }
                     if (user.isCurrentUser){
                         Button(viewModel::onSignOutPressed) {

@@ -39,14 +39,14 @@ import com.dudegenuine.local.service.IUsersDao
     QuizConverter::class,
     UserCensoredConverter::class,
     RoomCensoredConverter::class,
+    ImpressionsConverter::class,
     AnswerConverter::class,
     PossibleAnswerConverter::class
 )
 
-abstract class IWhoKnowsDatabase: RoomDatabase() { //, IWhoKnowsDatabase {
+abstract class IWhoKnowsDatabase: RoomDatabase() {
     abstract fun daoUsers(): IUsersDao
     abstract fun daoBoarding(): IParticipationDao
     abstract fun daoRoomComplete(): IRoomCompleteTableDao
     abstract fun daoRoomCensored(): IRoomCensoredTableDao
-
 }

@@ -17,7 +17,6 @@ import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 /**
@@ -45,9 +44,13 @@ class UserRepository
         Log.d(TAG, "read: triggered")*/
         return mapper.asUser(service.read(id))
     }
+    override suspend fun remoteCount(username: String): Int {
+        val response = service.count(username)
+        return response.data ?: 0
+    }
     override suspend fun remoteUpdate(id: String, user: User.Complete): User.Complete {
         val remoteUser = mapper.asUser(service.update(id, mapper.asEntity(user)))
-        return remoteUser.also { localUpdate(mapper.asUserTable(it)) }
+        return remoteUser.also{ localUpdate(mapper.asUserTable(it)) }
     }
     override suspend fun remoteDelete(id: String) {
         service.delete(id)
@@ -93,21 +96,21 @@ class UserRepository
 
     override suspend fun localSignIn(model: User.Complete): User.Complete {
         localCreate(mapper.asUserTable(model))
+        onUserIdChange(model.id)
         return model
     }
-    override suspend fun localSignInFlow(model: User.Complete): Flow<User.Complete> =
-        flowOf(localSignIn(model))
-            .onCompletion { onUserIdChange(model.id) }
-
-    override suspend fun localSignOutFlow() =
-        flowOf(localDelete(preference.userId))
-            .onCompletion { onUserIdChange("") }
+    override suspend fun localSignInFlow(model: User.Complete): Flow<User.Complete> = flowOf(localSignIn(model))
+    override suspend fun localSignOutFlow() = flowOf(localDelete(preference.userId))
 
     override suspend fun localCreate(userTable: UserTable) =
         local.create(userTable)
 
     override suspend fun localUpdate(userTable: UserTable) =
         local.update(userTable)
+
+    override suspend fun localUpdate(user: User.Complete) {
+        local.update(mapper.asUserTable(user))
+    }
 
     override suspend fun localRead(userId: String?): User.Complete {
         val finalId = userId ?: preference.userId
@@ -123,11 +126,12 @@ class UserRepository
         flowOf(localRead(preference.userId))
 
     override suspend fun localDelete(userId: String) {
-        val currentUser = local.read(userId)
+        /*val currentUser = local.read(userId)
 
         if (currentUser != null) local.delete(currentUser)
-        else local.delete()
-
+        else */
+        local.delete()
+        onUserIdChange("")
         Log.d(TAG, "localDelete: triggered")
     }
 

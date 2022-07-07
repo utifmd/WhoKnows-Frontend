@@ -19,9 +19,13 @@ sealed class Room {
         val usernameOwner: String,
         val fullNameOwner: String,
         val questionSize: Int,
-        val impressionSize: Int,
         val isOwner: Boolean = false,
+
+        val impressionSize: Int,
         val impressed: Boolean = false,
+        val hasImpressedBefore: Boolean = false,
+        val impression: Impression?,
+
         val participantSize: Int): Room()
     
     data class Complete(
@@ -41,11 +45,20 @@ sealed class Room {
         var updatedAt: Date?,
         val impressionSize: Int, //
         val impressed: Boolean = false, //
+        val hasImpressedBefore: Boolean = false, //
         val user: User.Censored?,
         var questions: List<Quiz.Complete>,
         var participants: List<Participant>): Room() { // use that expired participant as an complete participation and display
         val isPropsBlank: Boolean =
             minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
-    
+
+        val sortedParticipants
+            get() = participants
+                .sortedBy{ isOwner }
+                .sortedBy{ it.expired }
+                .sortedByDescending{ it.createdAt }
+
+        val completeParticipants
+            get() = participants.filter{ it.expired }
     }
 }

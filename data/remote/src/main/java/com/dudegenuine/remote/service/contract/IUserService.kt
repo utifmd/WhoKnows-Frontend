@@ -11,6 +11,7 @@ import com.dudegenuine.remote.entity.UserEntity
 interface IUserService {
     suspend fun create(entity: UserEntity.Complete): Response<UserEntity.Complete>
     suspend fun read(id: String): Response<UserEntity.Complete>
+    suspend fun count(username: String): Response<Int>
     suspend fun update(id: String, entity: UserEntity.Complete): Response<UserEntity.Complete>
     suspend fun delete(id: String)
     suspend fun list(page: Int, size: Int): Response<List<UserEntity.Complete>>

@@ -7,12 +7,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.dudegenuine.model.BuildConfig
 import com.dudegenuine.model.Resource
+import com.dudegenuine.model.Resource.Companion.NO_RESULT
 import com.dudegenuine.model.User
-import com.dudegenuine.model.common.Utility.encrypt
 import com.dudegenuine.repository.contract.dependency.local.INotifyManager
 import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 import com.dudegenuine.repository.contract.dependency.local.IShareLauncher
 import com.dudegenuine.whoknows.R
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IAppUseCaseModule.Companion.EMPTY_STRING
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IFileUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
 import com.dudegenuine.whoknows.ux.compose.model.Dialog
@@ -22,13 +23,16 @@ import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.CHECK_C
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY_IMG
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.MISS_MATCH
+import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.USERNAME_EXIST
 import com.dudegenuine.whoknows.ux.compose.state.ScreenState
 import com.dudegenuine.whoknows.ux.compose.state.UserState
-import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent
 import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.EMAIL
+import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.KEY_EDIT_FIELD_TYPE
+import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.KEY_EDIT_FIELD_VALUE
 import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.NAME
 import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.PASSWORD
 import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.PHONE
+import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.URL_PROFILE
 import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.USERNAME
 import com.dudegenuine.whoknows.ux.vm.user.contract.IUserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -130,6 +134,13 @@ class UserViewModel
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
+        if (id == prefs.userId) {
+            caseUser.signInUser(id)
+                .onEach(::onAuth)
+                .launchIn(viewModelScope)
+            return
+        }
+        Log.d(TAG, "getUser: loose")
         caseUser.getUser(id)
             .onEach(::onResource).launchIn(viewModelScope)
     }
@@ -158,8 +169,16 @@ class UserViewModel
         }
         freshUser.apply { password = exactPassword }
         Log.d(TAG, "patchUser: freshUser.password = ${freshUser.password}")
+
+        if (freshUser.id == prefs.userId) {
+            caseUser.patchUser(freshUser.id, freshUser)
+                .onEach{ onResourceSucceed(it, onSucceed) }
+                .launchIn(viewModelScope)
+            return
+        }
+
         caseUser.patchUser(freshUser.id, freshUser)
-            .onEach { onResourceSucceed(it, onSucceed) }.launchIn(viewModelScope)
+            .onEach{ onResourceSucceed(it, onSucceed) }.launchIn(viewModelScope)
     }
     override fun deleteUser(id: String) {
         if (id.isBlank()) {
@@ -212,12 +231,10 @@ class UserViewModel
                     getUser(user.id) }
             .launchIn(viewModelScope)
     }
-    override fun onBackPressed() //=
-    {
+    override fun onBackPressed() {
         Log.d(TAG, "onBackPressed: ${auth.user?.email}")
         onScreenStateChange(ScreenState.Navigate.Back())
     }
-
     override fun onPicturePressed(fileId: String?) {
         if(fileId.isNullOrBlank()) return
         onNavigateTo(Screen.Home.Preview.routeWithArgs(fileId))
@@ -239,23 +256,38 @@ class UserViewModel
         )
         onScreenStateChange(dialog)
     }
+    private val fieldValue = savedStateHandle.get<String>(KEY_EDIT_FIELD_VALUE) ?: EMPTY_STRING
+    val fieldKey = savedStateHandle.get<String>(KEY_EDIT_FIELD_TYPE) ?: NO_RESULT
+
     fun onUpdateUser(
-        fieldKey: String?, fieldValue: String, onSucceed: (User.Complete) -> Unit) {
-        if (fieldValue.isBlank() || state.user == null) {
+        currentUser: User.Complete) {
+        if (fieldKey == NO_RESULT && fieldValue.isBlank()) {
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-        state.user?.let { model -> IProfileEvent.apply {
-            val data = when (fieldKey) {
-                NAME -> model.copy(fullName = fieldValue)
-                EMAIL -> model.copy(email = fieldValue)
-                PHONE -> model.copy(phone = fieldValue)
-                USERNAME -> model.copy(username = fieldValue)
-                PASSWORD -> model.copy(password = encrypt(fieldValue))
-                URL_PROFILE -> model.copy(profileUrl = fieldValue)
-                else -> model
-            }
-            patchUser(data, onSucceed)}
+        val data = when (fieldKey) {
+            NAME -> currentUser.copy(fullName = fieldValue)
+            EMAIL -> currentUser.copy(email = fieldValue)
+            PHONE -> currentUser.copy(phone = fieldValue)
+            USERNAME -> currentUser.copy(username = fieldValue)
+            PASSWORD -> currentUser.copy(password = fieldValue)
+            URL_PROFILE -> currentUser.copy(profileUrl = fieldValue)
+            else -> currentUser
         }
+        if (fieldKey == USERNAME && fieldValue != currentUser.username){
+            Log.d(TAG, "onUpdateUser: isUsernameUsed trigger")
+            caseUser.isUsernameUsed(fieldValue)
+                .onEach{ onResourceSucceed(it){ isUsed ->
+                    if (isUsed) onStateChange(ResourceState(error = USERNAME_EXIST))
+                    else patchUser(data, ::onUpdatedUser) }}
+                .launchIn(viewModelScope)
+            return
+        }
+        patchUser(data, ::onUpdatedUser)
+    }
+    private fun onUpdatedUser(user: User.Complete){
+        Log.d(TAG, "onUpdatedUser: trigger")
+        onAuthChange(ResourceState.Auth(user = user))
+        onNavigateBack()
     }
 }

@@ -86,6 +86,16 @@ object RepositoryModule: IRepositoryModule {
 
     @Provides
     @Singleton
+    override fun provideImpressionRepository(
+        service: IImpressionService,
+        mapper: IImpressionDataMapper,
+        pref: IPreferenceManager
+    ): IImpressionRepository {
+        return ImpressionRepository(service, mapper, pref)
+    }
+
+    @Provides
+    @Singleton
     override fun provideFileRepository(
         service: IFileService,
         mapper: IFileDataMapper,

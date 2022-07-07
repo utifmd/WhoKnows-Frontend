@@ -63,9 +63,7 @@ fun RoomHomeScreen(
                         repeat = 5, height = 130.dp, width = null)
                 }
                 items(props.lazyPagingRoomComplete, { it.id }) { room ->
-                    if (room != null) RoomItem(
-                        model = room,
-                        onImpressed = viewModel::onImpressed) {
+                    if (room != null) RoomItem(model = room) {
                         viewModel.onRoomHomeScreenDetailSelected(room.id)
                     }
                 }

@@ -11,10 +11,20 @@ import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 interface IAppUseCaseModule {
     fun provideFileUseCaseModule(context: Context, repository: IFileRepository): IFileUseCaseModule
     fun provideMessagingUseCaseModule(repository: IMessagingRepository): IMessageUseCaseModule
-    fun provideParticipantUseCaseModule(repository: IParticipantRepository): IParticipantUseCaseModule
+    fun provideParticipantUseCaseModule(
+        reposParticipant: IParticipantRepository,
+        reposRoom: IRoomRepository,
+        reposResult: IResultRepository,
+        reposNotification: INotificationRepository,
+        reposMessaging: IMessagingRepository,
+    ): IParticipantUseCaseModule
     fun provideQuizUseCaseModule(repository: IQuizRepository): IQuizUseCaseModule
     fun provideResultUseCaseModule(repository: IResultRepository): IResultUseCaseModule
-    fun provideRoomUseCaseModule(repository: IRoomRepository): IRoomUseCaseModule
+    fun provideImpressionUseCaseModule(
+        repoImpression: IImpressionRepository,
+        reposNotify: INotificationRepository,
+        repoMessaging: IMessagingRepository): IImpressionUseCaseModule
+    fun provideRoomUseCaseModule(repository: IRoomRepository, reposMessaging: IMessagingRepository): IRoomUseCaseModule
     fun provideUserUseCaseModule(
         userRepository: IUserRepository,
         roomRepository: IRoomRepository,

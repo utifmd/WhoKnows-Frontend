@@ -40,7 +40,7 @@ object DataMapperModule: IDataMapperModule {
         mapperImpression: IImpressionDataMapper,
         mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
 
-        return RoomDataMapper(gson, mapperUser, mapperQuiz, mapperParticipant)
+        return RoomDataMapper(preference.userId, gson, mapperUser, mapperQuiz, mapperImpression, mapperParticipant)
     }
 
     @Provides

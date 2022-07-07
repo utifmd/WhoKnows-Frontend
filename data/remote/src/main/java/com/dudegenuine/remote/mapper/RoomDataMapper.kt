@@ -1,5 +1,6 @@
 package com.dudegenuine.remote.mapper
 
+import android.util.Log
 import androidx.paging.PagingSource
 import com.dudegenuine.local.entity.ParticipationPageTable
 import com.dudegenuine.local.entity.ParticipationTable
@@ -9,10 +10,7 @@ import com.dudegenuine.model.*
 import com.dudegenuine.model.common.ImageUtil.strOf
 import com.dudegenuine.remote.entity.Response
 import com.dudegenuine.remote.entity.RoomEntity
-import com.dudegenuine.remote.mapper.contract.IParticipantDataMapper
-import com.dudegenuine.remote.mapper.contract.IQuizDataMapper
-import com.dudegenuine.remote.mapper.contract.IRoomDataMapper
-import com.dudegenuine.remote.mapper.contract.IUserDataMapper
+import com.dudegenuine.remote.mapper.contract.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
@@ -23,12 +21,17 @@ import javax.inject.Inject
  **/
 class RoomDataMapper
     @Inject constructor(
-    //private val currentUserId: String,
+    private val currentUserId: String,
     private val gson: Gson,
     private val mapperUser: IUserDataMapper,
     private val mapperQuiz: IQuizDataMapper,
+    private val mapperImpression: IImpressionDataMapper,
     private val mapperParticipant: IParticipantDataMapper): IRoomDataMapper {
     private val TAG: String = javaClass.simpleName
+
+    init {
+        Log.d(TAG, "currentUserId: $currentUserId")
+    }
 
     override fun asEntity(room: Room.Complete): RoomEntity.Complete {
         return RoomEntity.Complete(
@@ -64,7 +67,11 @@ class RoomDataMapper
             private = entity.private ?: false,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
+
             impressionSize = entity.impressions.size,
+            hasImpressedBefore = entity.impressions.any { it.userId == currentUserId },
+            impressed = entity.impressions.any { it.userId == currentUserId && it.good },
+
             user = entity.user?.let(mapperUser::asUserCensored),
             questions = entity.questions
                 .map { mapperQuiz.asQuiz(it) },
@@ -227,7 +234,14 @@ class RoomDataMapper
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
             private = entity.private ?: false,
-            impressionSize = entity.impressions.size
+
+            impression = entity.impressions.map(mapperImpression::asImpression)
+                .find{ it.userId == currentUserId },
+            impressionSize = entity.impressions.size,
+            hasImpressedBefore = entity.impressions
+                .any{ it.userId == currentUserId },
+            impressed = entity.impressions
+                .any{ it.userId == currentUserId && it.good }
         )
     }
 
@@ -257,12 +271,15 @@ class RoomDataMapper
             questionSize = tableRoom.questionSize,
             participantSize = tableRoom.participantSize,
             private = tableRoom.privation,
-            impressed = tableRoom.impressed,
-            impressionSize = tableRoom.impressionSize
+
+            impression = tableRoom.impressions.find{ it.userId == currentUserId },
+            impressionSize = tableRoom.impressions.size,
+            impressed = tableRoom.impressions.any{ it.userId == currentUserId && it.good },
+            hasImpressedBefore = tableRoom.impressions.any{ it.userId == currentUserId },
         )
     }
-
-    override fun asRoomsCensored(list: List<RoomCensoredTable>): List<Room.Censored> = list.map(::asRoomCensored)
+    override fun asRoomsCensored(list: List<RoomCensoredTable>):
+            List<Room.Censored> = list.map(::asRoomCensored)
 
     override fun asPagingCompleteSource(
         onEvent: suspend (Int) -> List<Room.Complete>): PagingSource<Int, Room.Complete> =

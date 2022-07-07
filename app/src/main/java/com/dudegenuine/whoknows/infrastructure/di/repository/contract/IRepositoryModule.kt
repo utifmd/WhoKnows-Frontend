@@ -54,6 +54,12 @@ interface IRepositoryModule {
         pref: IPreferenceManager
     ): IResultRepository
 
+    fun provideImpressionRepository(
+        service: IImpressionService,
+        mapper: IImpressionDataMapper,
+        pref: IPreferenceManager
+    ): IImpressionRepository
+
     fun provideFileRepository(
         service: IFileService,
         mapper: IFileDataMapper,

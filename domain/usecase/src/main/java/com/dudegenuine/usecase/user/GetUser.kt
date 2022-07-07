@@ -54,7 +54,7 @@ class GetUser
 
             emit(Resource.Success(localUser))
 
-        }  catch (e: HttpFailureException){
+        } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
         } catch (e: HttpException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))

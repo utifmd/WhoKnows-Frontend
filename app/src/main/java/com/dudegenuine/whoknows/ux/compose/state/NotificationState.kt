@@ -1,24 +1,23 @@
 package com.dudegenuine.whoknows.ux.compose.state
 
-import androidx.compose.runtime.mutableStateOf
 import com.dudegenuine.model.Notification
+import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IAppUseCaseModule.Companion.EMPTY_STRING
 import java.util.*
 
 /**
  * Thu, 10 Feb 2022
  * WhoKnows by utifmd
  **/
-sealed class NotificationState() {
-    class FormState: NotificationState() {
-        val initialModel: Notification = mutableStateOf(Notification(
-            "NTF-${UUID.randomUUID()}",
-            "",
-            "",
-            "Just follow you",
-            false,
-            "",
-            Date(),
-            null,
-            null)).value
-    }
+object NotificationState {
+    operator fun invoke(): Notification = Notification(
+        "NTF-${UUID.randomUUID()}",
+        EMPTY_STRING,
+        EMPTY_STRING,
+        "Just follow you",
+        false,
+        "",
+        Date(),
+        null,
+        null
+    )
 }

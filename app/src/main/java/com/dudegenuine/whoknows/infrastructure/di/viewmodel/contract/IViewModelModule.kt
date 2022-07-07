@@ -24,6 +24,7 @@ interface IViewModelModule {
         userUseCaseModule: IUserUseCaseModule,
         roomUseCaseModule: IRoomUseCaseModule,
         quizUseCaseModule: IQuizUseCaseModule,
+        caseImpression: IImpressionUseCaseModule,
         savedStateHandle: SavedStateHandle): IMainViewModel
 
     fun provideUserViewModel(

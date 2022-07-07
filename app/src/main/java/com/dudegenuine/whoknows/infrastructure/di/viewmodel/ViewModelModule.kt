@@ -43,10 +43,11 @@ object ViewModelModule: IViewModelModule {
         userUseCaseModule: IUserUseCaseModule,
         roomUseCaseModule: IRoomUseCaseModule,
         quizUseCaseModule: IQuizUseCaseModule,
+        caseImpression: IImpressionUseCaseModule,
         savedStateHandle: SavedStateHandle
     ): IMainViewModel {
 
-        return MainViewModel(messagingUseCaseModule, notifier, userUseCaseModule, roomUseCaseModule, quizUseCaseModule, savedStateHandle)
+        return MainViewModel(messagingUseCaseModule, notifier, userUseCaseModule, roomUseCaseModule, caseImpression, quizUseCaseModule, savedStateHandle)
     }
 
     @Provides

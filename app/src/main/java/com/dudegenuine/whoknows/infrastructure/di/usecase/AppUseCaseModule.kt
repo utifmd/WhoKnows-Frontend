@@ -35,8 +35,13 @@ object AppUseCaseModule: IAppUseCaseModule {
     @Provides
     @ViewModelScoped
     override fun provideParticipantUseCaseModule(
-        repository: IParticipantRepository): IParticipantUseCaseModule =
-        ParticipantUseCaseModule(repository)
+        reposParticipant: IParticipantRepository,
+        reposRoom: IRoomRepository,
+        reposResult: IResultRepository,
+        reposNotification: INotificationRepository,
+        reposMessaging: IMessagingRepository): IParticipantUseCaseModule =
+
+        ParticipantUseCaseModule(reposParticipant, reposRoom, reposResult, reposNotification, reposMessaging)
 
 
     @Provides
@@ -53,9 +58,20 @@ object AppUseCaseModule: IAppUseCaseModule {
 
     @Provides
     @ViewModelScoped
+    override fun provideImpressionUseCaseModule(
+        repoImpression: IImpressionRepository,
+        reposNotify: INotificationRepository,
+        repoMessaging: IMessagingRepository
+    ): IImpressionUseCaseModule {
+        return ImpressionUseCaseModule(repoImpression, reposNotify, repoMessaging)
+    }
+
+    @Provides
+    @ViewModelScoped
     override fun provideRoomUseCaseModule(
-        repository: IRoomRepository): IRoomUseCaseModule =
-        RoomUseCaseModule(repository)
+        repository: IRoomRepository,
+        reposMessaging: IMessagingRepository): IRoomUseCaseModule =
+        RoomUseCaseModule(repository, reposMessaging)
 
     @Provides
     @ViewModelScoped

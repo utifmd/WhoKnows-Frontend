@@ -88,12 +88,16 @@ private fun LazyListScope.bodyParticipated(modifier: Modifier = Modifier,
                 modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 items(user.sortedParticipants.size) { i ->
+                    val color = if (!user.sortedParticipants[i].expired)
+                        MaterialTheme.colors.error else
+                            MaterialTheme.colors.primary
+
                     OutlinedButton(
                         { user.sortedParticipants[i].let(onDetailRoomPressed) },
                         modifier.animateItemPlacement()) {
-                        Icon(Icons.Filled.Login, tint = MaterialTheme.colors.primary, contentDescription = null)
+                        Icon(Icons.Filled.Login, tint = color, contentDescription = null)
                         Spacer(modifier.size(ButtonDefaults.IconSize))
-                        Text(user.sortedParticipants[i].createdAt.toHttpDateString())
+                        Text(user.sortedParticipants[i].createdAt.toHttpDateString(), color = color)
                     }
                 }
             }

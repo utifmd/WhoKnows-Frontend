@@ -151,10 +151,12 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
             state = vmUser.state
         )
     }
-
     composable(
         route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(
-            "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}")){
+            "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}"),
+        arguments = listOf(
+            navArgument(RESULT_ROOM_ID_SAVED_KEY){ type = NavType.StringType; defaultValue = "" },
+            navArgument(RESULT_USER_ID_SAVED_KEY){ type = NavType.StringType; defaultValue = "" })){
         val vmResult: ResultViewModel = hiltViewModel()
 
         LoggingSubscriber(vmMain, vmResult)

@@ -75,7 +75,7 @@ fun SearchScreen(
                             ProfileCard(name = fullName, desc = "@$username", data = profileUrl)
                         }
                         is Room.Censored -> with(model.data as Room.Censored){
-                            RoomItem(model = this, onImpressed = { /*TODO*/ })
+                            RoomItem(model = this)
                         }
                     }
                 }

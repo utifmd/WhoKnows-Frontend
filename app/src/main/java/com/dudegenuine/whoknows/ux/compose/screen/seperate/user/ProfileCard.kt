@@ -28,7 +28,6 @@ import com.dudegenuine.whoknows.ux.theme.SmoothBackground
 fun ProfileCard(
     modifier: Modifier = Modifier,
     colorBorder: Color? = null,
-    colorDot: Color? = null,
     name: String, desc: String, data: String,
     onPressed: (() -> Unit)? = null,
     onLongPressed: (() -> Unit)? = null) {

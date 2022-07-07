@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 interface IUserRepository {
     suspend fun remoteCreate(user: User.Complete): User.Complete
     suspend fun remoteRead(id: String): User.Complete
+    suspend fun remoteCount(username: String): Int
     suspend fun remoteUpdate(id: String, user: User.Complete): User.Complete
     suspend fun remoteDelete(id: String)
     suspend fun remoteList(page: Int, size: Int): List<User.Complete>
@@ -39,9 +40,8 @@ interface IUserRepository {
     suspend fun localReadFlow(): Flow<User.Complete>
     suspend fun localCreate(userTable: UserTable)
     suspend fun localUpdate(userTable: UserTable)
+    suspend fun localUpdate(user: User.Complete)
     suspend fun localDelete(userId: String)
-
-
 
     val receiver: IReceiverFactory
     val preference: IPrefsFactory
