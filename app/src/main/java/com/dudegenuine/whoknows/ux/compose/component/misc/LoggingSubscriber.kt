@@ -15,7 +15,7 @@ fun LoggingSubscriber(parent: BaseViewModel, child: BaseViewModel) {
     LaunchedEffect(Unit){
         child.screenState.collectLatest(parent::onScreenStateChange)
     }
-    LaunchedEffect(child.auth.user, child.auth.invalidated){
+    LaunchedEffect(child.auth/*.user, child.auth.invalidated*/){
         child.auth.apply(parent::onAuthChange)
     }
     LaunchedEffect(child.participation){

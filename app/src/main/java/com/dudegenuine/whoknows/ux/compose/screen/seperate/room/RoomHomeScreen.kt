@@ -36,8 +36,17 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 fun RoomHomeScreen(
     viewModel: RoomViewModel,
     modifier: Modifier = Modifier, props: IMainProps) {
-    val swipeRefreshState = rememberSwipeRefreshState(props.lazyPagingRoomComplete.loadState.refresh is LoadState.Loading)
-    val badge by remember { mutableStateOf(props.viewModel.auth.user?.notifications?.size ?: 0) }
+    val swipeRefreshState = rememberSwipeRefreshState(
+        props.lazyPagingRoomComplete.loadState.refresh is LoadState.Loading
+    )
+    val badge by remember{
+        mutableStateOf(props.viewModel.auth.user?.notifications?.size ?: 0)
+    }
+    fun onRefresh() = props.run {
+        lazyPagingRoomCensored.refresh()
+        lazyPagingRoomComplete.refresh()
+    }
+
     Scaffold(modifier,
         topBar = {
             GeneralTopBar(
@@ -46,7 +55,7 @@ fun RoomHomeScreen(
                 tailsTint = if(badge > 0) MaterialTheme.colors.error else null,
                 onTailPressed = viewModel::onNotificationPressed )}) {
 
-        SwipeRefresh(swipeRefreshState, props.lazyPagingRoomComplete::refresh) {
+        SwipeRefresh(swipeRefreshState, ::onRefresh) {
             LazyColumn(modifier.fillMaxSize(),
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -63,7 +72,11 @@ fun RoomHomeScreen(
                         repeat = 5, height = 130.dp, width = null)
                 }
                 items(props.lazyPagingRoomComplete, { it.id }) { room ->
-                    if (room != null) RoomItem(model = room) {
+                    if (room != null) RoomItem(model = room/*, onImpression = { impressed ->
+                        with(props.viewModel as MainViewModel){
+                            onImpression(impressed, room, ::onRefresh)
+                        }
+                    }*/) {
                         viewModel.onRoomHomeScreenDetailSelected(room.id)
                     }
                 }

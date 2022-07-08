@@ -260,8 +260,7 @@ class UserDataMapper
             description = room.description,
             expired = room.expired,
             private = room.private,
-            usernameOwner = room.usernameOwner,
-            fullNameOwner = room.fullNameOwner,
+            user = room.user?.let(::asUserCensoredEntity),
             questionSize = room.questionSize,
             participantSize = room.participantSize,
             impressions = emptyList()
@@ -279,15 +278,15 @@ class UserDataMapper
             token = entity.token,
             description = entity.description,
             expired = entity.expired,
-            usernameOwner = entity.usernameOwner,
-            fullNameOwner = entity.fullNameOwner,
+            user = entity.user?.let(::asUserCensored),
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
             isOwner = entity.userId == currentUserId,
             private = entity.private ?: false,
 
-            impression = entity.impressions.map(::asImpression).find { it.userId == currentUserId },
-            impressionSize = entity.impressions.size,
+            impressions = entity.impressions.map(::asImpression),
+            impression = entity.impressions.map(::asImpression).find{ it.userId == currentUserId },
+            impressionSize = entity.impressions.count{ it.good },
             hasImpressedBefore = entity.impressions.any{ it.userId == currentUserId },
             impressed = entity.impressions.any{ it.userId == currentUserId && it.good }
         )

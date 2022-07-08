@@ -33,11 +33,8 @@ object RoomEntity {
         @SerializedName("private")
         var private: Boolean?,
 
-        @SerializedName("usernameOwner")
-        val usernameOwner: String,
-
-        @SerializedName("fullNameOwner")
-        val fullNameOwner: String,
+        @SerializedName("user")
+        val user: UserEntity.Censored?,
 
         @SerializedName("impressions")
         val impressions: List<ImpressionEntity>,

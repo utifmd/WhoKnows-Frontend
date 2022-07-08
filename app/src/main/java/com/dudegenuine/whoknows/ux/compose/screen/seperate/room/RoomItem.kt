@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.room
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -9,7 +10,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Task
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,17 +38,20 @@ fun RoomItem(
             is Room.Censored -> model.description }
         }
     }
-    val (impressed, setImpressed) = rememberSaveable {
+    val (impressed, setImpressed) = remember{
         when(model) {
             is Room.Complete -> mutableStateOf(model.impressed)
             is Room.Censored -> mutableStateOf(model.impressed)
         }
     }
-    val (impressionSize, setImpressionSize) = rememberSaveable {
+    val (impressionSize, setImpressionSize) = remember/*Saveable*/ {
         when(model) {
             is Room.Complete -> mutableStateOf(model.impressionSize)
             is Room.Censored -> mutableStateOf(model.impressionSize)
         }
+    }
+    SideEffect {
+        Log.d("RoomItem", model.toString())
     }
     GeneralCardView(
         modifier = modifier
@@ -111,11 +114,14 @@ fun RoomItem(
                             text = "$impressionSize ${if(impressionSize > 1) "like\'s" else "like"}",
                             icon = if(impressed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             color = if(impressed) MaterialTheme.colors.error else null){
-                            setImpressed(!impressed)
-                            setImpressionSize(if (impressed)
-                                impressionSize +1 else
-                                    impressionSize -1
-                            )
+                            if (impressed) {
+                                setImpressed(false)
+                                setImpressionSize(impressionSize -1)
+                            } else {
+                                setImpressed(true)
+                                setImpressionSize(impressionSize +1)
+                            }
+                            onImpression?.invoke(!impressed)
                         }*/
                     }
                 }

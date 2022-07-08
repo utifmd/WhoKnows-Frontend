@@ -300,11 +300,12 @@ class RoomViewModel
             return
         }
         caseRoom.getRoom(id)
-            .onEach{ res -> onResourceSucceed(res, ::onDetailingRoom) }
+            .onEach(::onResource)
+            //.onEach{ res -> onResourceSucceed(res, ::onDetailingRoom) }
             .launchIn(viewModelScope)
     }
 
-    private fun onDetailingRoom(room: Room.Complete){
+    /*private fun onDetailingRoom(room: Room.Complete){
         val isUserOffBoarding = prefs.participationRoomId.isBlank()
         val isRoomMeetNewUser = room.participants.all{ userId != it.userId }
         val isRoomMeetOldUser = room.participants.any{ userId == it.userId && !it.expired }
@@ -320,12 +321,6 @@ class RoomViewModel
             Log.d(TAG, "onDetailingRoom: isRoomMeetOldUser = $isRoomMeetOldUser")
             Log.d(TAG, "onDetailingRoom: isRoomMeetExactUser = $isRoomMeetExactUser") //ROM-2c2b752f-c45b-43b5-b1a0-13cab9d0c126
 
-            /*D/RoomViewModel: onDetailingRoom: isUserOffBoarding = true
-            D/RoomViewModel: onDetailingRoom: isUserIsFree = false
-            D/RoomViewModel: onDetailingRoom: isRoomMeetNewUser = false
-            D/RoomViewModel: onDetailingRoom: isRoomMeetOldUser = true
-            D/RoomViewModel: onDetailingRoom: isRoomMeetExactUser = false*/
-
             onStateChange(ResourceState(
                 room = room.copy(
                     isOwner = false,
@@ -336,7 +331,7 @@ class RoomViewModel
             ))
         }
 
-    }
+    }*/
 
     private fun getRoom(id: String, onSucceed: (Room.Complete) -> Unit) {
         if (id.isBlank()){

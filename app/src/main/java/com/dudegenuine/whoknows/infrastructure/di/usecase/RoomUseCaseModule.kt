@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.repository.contract.IRoomRepository
+import com.dudegenuine.repository.contract.IUserRepository
 import com.dudegenuine.repository.contract.dependency.local.*
 import com.dudegenuine.usecase.participation.DeleteBoarding
 import com.dudegenuine.usecase.participation.GetBoarding
@@ -17,13 +18,14 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseM
  **/
 class RoomUseCaseModule(
     private val repository: IRoomRepository,
+    private val reposUser: IUserRepository,
     private val reposMessaging: IMessagingRepository,
 
     override val postRoom:
         PostRoom = PostRoom(repository, reposMessaging),
 
     override val getRoom:
-        GetRoom = GetRoom(repository),
+        GetRoom = GetRoom(repository, reposUser),
 
     override val patchRoom:
         PatchRoom = PatchRoom(repository),

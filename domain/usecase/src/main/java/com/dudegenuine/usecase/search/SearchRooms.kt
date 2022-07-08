@@ -25,5 +25,19 @@ class SearchRooms
     operator fun invoke(query: String/*, size: Int*/): Flow<PagingData<Search<*>>> = Pager(
         PagingConfig(DEFAULT_BATCH_SIZE, enablePlaceholders = true)){
         repository.remoteSearchSource(query, DEFAULT_BATCH_SIZE)
-    }.flow // change this to livedata
+    }.flow/*.map{ data -> data.map { search ->
+        search.data?.apply {
+            impression = impressions
+                .find{ it.userId == currentUserId }
+            impressionSize = impressions
+                .count{ it.good }
+            hasImpressedBefore = impressions
+                .any{ it.userId == currentUserId }
+            impressed = impressions
+                .any{ it.userId == currentUserId && it.good }
+        }?.copy(
+            isOwner = userId == currentUserId
+        )
+        search
+    }}*/
 }

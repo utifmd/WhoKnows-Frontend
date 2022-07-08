@@ -52,7 +52,7 @@ class UserViewModel
     @Inject constructor(
     private val caseUser: IUserUseCaseModule,
     private val caseFile: IFileUseCaseModule,
-    savedStateHandle: SavedStateHandle) : IUserViewModel() {
+    savedStateHandle: SavedStateHandle) : IUserViewModel() { //login button disable while button pressed
     @Inject lateinit var notifier: INotifyManager
     @Inject lateinit var share: IShareLauncher
     @Inject lateinit var resource: IResourceDependency

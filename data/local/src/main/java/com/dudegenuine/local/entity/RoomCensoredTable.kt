@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.dudegenuine.model.Impression
+import com.dudegenuine.model.User
 
 /**
  * Tue, 31 May 2022
@@ -36,11 +37,8 @@ data class RoomCensoredTable(
     @ColumnInfo(name = "privation")
     val privation: Boolean,
 
-    @ColumnInfo(name = "usernameOwner")
-    val usernameOwner: String,
-
-    @ColumnInfo(name = "fullNameOwner")
-    val fullNameOwner: String,
+    @ColumnInfo(name = "user")
+    val user: User.Censored?,
 
     @ColumnInfo(name = "questionSize")
     val questionSize: Int,

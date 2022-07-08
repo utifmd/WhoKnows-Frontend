@@ -67,6 +67,7 @@ fun SearchScreen(
                     }
                 }
             }
+            // TODO: combine search user with room
             item { LazyStatePaging(lazyPagingItems) }
             items(lazyPagingItems){ search ->
                 search?.let { model ->

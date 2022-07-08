@@ -1,14 +1,17 @@
 package com.dudegenuine.usecase.room
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IRoomRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -20,17 +23,29 @@ import javax.inject.Inject
 class GetRooms
     @Inject constructor(
     private val repository: IRoomRepository) {
+    private val TAG: String = javaClass.simpleName
+    private val currentUserId get() = repository.preference.userId
 
     operator fun invoke(size: Int): Flow<PagingData<Room.Censored>> {
-        val config = PagingConfig(size,
-            enablePlaceholders = true, maxSize = 200)
+        val config = PagingConfig(size, enablePlaceholders = true, maxSize = 200)
 
         val pager = Pager(config){ repository.pageCensoredRemote(size) }
 
-        return pager.flow
+        return pager.flow.map{ data -> data.map{ room -> room.copy(
+            isOwner = room.userId == currentUserId,
+            impression = room.impressions
+                .find{ it.userId == currentUserId },
+            impressionSize = room.impressions
+                .count{ it.good },
+            hasImpressedBefore = room.impressions
+                .any{ it.userId == currentUserId },
+            impressed = room.impressions
+                .any{ it.userId == currentUserId && it.good }
+        )}}
     }
 
     operator fun invoke(userId: String, size: Int): Flow<PagingData<Room.Complete>> {
+        Log.d(TAG, "invoke: Flow<PagingData<Room.Complete>>")
         val config = PagingConfig(size, enablePlaceholders = true, maxSize = 200)
         val pager = Pager(config) { repository.pageCompleteRemote(userId, size) }
 
@@ -39,6 +54,7 @@ class GetRooms
 
     operator fun invoke(page: Int, size: Int): Flow<Resource<List<Room.Complete>>> = flow {
         try {
+            Log.d(TAG, "invoke: Flow<Resource<List<Room.Complete>>>")
             emit(Resource.Loading())
             val rooms = repository.listCompleteRemote(page, size)
 

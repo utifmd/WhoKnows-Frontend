@@ -53,15 +53,18 @@ fun FeedScreen(
     modifier: Modifier = Modifier, props: IMainProps,
     onJoinButtonPressed: (() -> Unit)? = null, onSearchPressed: (() -> Unit)? = null) {
     val viewModel = props.viewModel as MainViewModel
-    //val feedState = viewModel.feedState
-
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val listState: LazyListState = rememberLazyListState()
     val swipeRefreshState = rememberSwipeRefreshState(false)
+
     fun onRefresh() = props.run {
         lazyPagingParticipants.refresh()
         lazyPagingRoomCensored.refresh()
         lazyPagingQuizzes.refresh()
+    }
+    fun onRefreshRooms() = props.run {
+        lazyPagingRoomCensored.refresh()
+        lazyPagingRoomComplete.refresh()
     }
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -84,9 +87,7 @@ fun FeedScreen(
                         props.lazyPagingRoomCensored,
                         onJoinButtonPressed = onJoinButtonPressed,
                         onImpression = { impressed, model ->
-                            viewModel.onImpression(impressed, model,
-                                props.lazyPagingRoomCensored::refresh
-                            )
+                            viewModel.onImpression(impressed, model, ::onRefreshRooms)
                         },
                     )
                 }

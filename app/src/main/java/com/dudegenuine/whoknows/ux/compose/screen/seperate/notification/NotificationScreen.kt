@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.items
 import com.dudegenuine.model.Notification
@@ -37,8 +38,9 @@ fun NotificationScreen(
     modifier: Modifier = Modifier, user: User.Complete?,
     lazyPagingItems: LazyPagingItems<Notification>,
     viewModel: NotificationViewModel = hiltViewModel()) {
-    val swipeRefreshState = rememberSwipeRefreshState(viewModel.state.loading)
-
+    val swipeRefreshState = rememberSwipeRefreshState(
+        lazyPagingItems.loadState.refresh is LoadState.Loading
+    )
     Scaffold(modifier,
         topBar = {
             GeneralTopBar(
@@ -53,20 +55,20 @@ fun NotificationScreen(
                     if (user != null && user.participants.isNotEmpty())
                         bodyParticipated(modifier, user, viewModel::onDetailRoomPressed)
 
-                    stickyHeader {
-                        Text("Recently event${ if(lazyPagingItems.itemCount > 1)"\'s" else ""}", modifier.padding(12.dp, 4.dp))
+                    if (lazyPagingItems.itemCount > 0) stickyHeader {
+                        Text("Recently event${ if(lazyPagingItems.itemCount > 1)"\'s" else ""}", modifier.padding(12.dp, 4.dp)) /*item { LazyStatePaging( modifier = modifier.padding(12.dp, 4.dp), items = lazyPagingItems, vertical = Arrangement.spacedBy(8.dp), repeat = 5, height = 90.dp, width = null ) }*/
                     }
                     item {
                         LazyStatePaging(
                             modifier = modifier.padding(12.dp, 4.dp),
                             items = lazyPagingItems,
                             vertical = Arrangement.spacedBy(8.dp),
-                            repeat = 5, height = 90.dp, width = null
+                            repeat = 5, height = 45.dp, width = null
                         )
                     }
                     items(lazyPagingItems, { it.notificationId }){ item ->
                         if (item != null) NotificationItem(item,
-                            onItemLongPressed = { item.notificationId.let(viewModel::onLongPressed) },
+                            onItemLongPressed = { viewModel.onLongPressed(item.notificationId, lazyPagingItems::refresh) },
                             onItemPressed = { item.let(viewModel::onReadNotification) }
                         )
                     }

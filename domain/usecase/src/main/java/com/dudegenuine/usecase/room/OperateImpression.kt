@@ -1,5 +1,6 @@
 package com.dudegenuine.usecase.room
 
+import android.util.Log
 import com.dudegenuine.model.*
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IImpressionRepository
@@ -24,11 +25,15 @@ class OperateImpression
         impressed: Boolean, room: Room.Censored, notification: Notification,
         impression: Impression, pusher: Messaging.Pusher): Flow<Resource<String>> = flow {
         try {
-            emit(Resource.Loading()) //Log.d("invoke", "impressed $impressed"); Log.d("invoke", "room.impressed ${room.impressed}"); Log.d("invoke", "room.hasNeverImpressed ${room.hasImpressedBefore}")
+            Log.d("invoke", "owner ${room.userId} ${room.isOwner}")
+            emit(Resource.Loading())
             if (!room.hasImpressedBefore) {
                 repoImpression.create(impression)
-                repoNotify.create(notification)
-                repoMessaging.push(pusher)
+
+                if (!room.isOwner){
+                    repoNotify.create(notification)
+                    room.user?.tokens?.forEach{ repoMessaging.push(pusher.copy(to = it)) }
+                }
             } else room.impression?.let {
                 repoImpression.update(it.impressionId, it.copy(good = impressed)) }
             emit(Resource.Success(impression.impressionId))

@@ -24,7 +24,10 @@ interface IAppUseCaseModule {
         repoImpression: IImpressionRepository,
         reposNotify: INotificationRepository,
         repoMessaging: IMessagingRepository): IImpressionUseCaseModule
-    fun provideRoomUseCaseModule(repository: IRoomRepository, reposMessaging: IMessagingRepository): IRoomUseCaseModule
+    fun provideRoomUseCaseModule(
+        repository: IRoomRepository,
+        reposUser: IUserRepository,
+        reposMessaging: IMessagingRepository): IRoomUseCaseModule
     fun provideUserUseCaseModule(
         userRepository: IUserRepository,
         roomRepository: IRoomRepository,

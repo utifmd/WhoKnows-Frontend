@@ -1,27 +1,25 @@
 package com.dudegenuine.whoknows.ux.vm.notification
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.paging.cachedIn
 import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Participant
-import com.dudegenuine.repository.contract.INotificationRepository.Companion.PAGE_SIZE
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.INotificationUseCaseModule
 import com.dudegenuine.whoknows.ux.compose.model.Dialog
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
-import com.dudegenuine.whoknows.ux.compose.state.NotificationState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ux.vm.BaseViewModel
 import com.dudegenuine.whoknows.ux.vm.notification.contract.INotificationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 /**
@@ -38,15 +36,15 @@ class NotificationViewModel
     private val TAG = javaClass.simpleName
 
     @Inject lateinit var resource: IResourceDependency
-    val currentUserId get() = prefsFactory.userId
+    private val currentUserId get() = prefsFactory.userId
 
-    private val _notificationState = mutableStateOf(NotificationState())
+    /*private val _notificationState = mutableStateOf(NotificationState())
     val notificationState = _notificationState.value
 
     val pagingNotificationFlow = caseNotify
         .getNotifications(currentUserId, PAGE_SIZE)
         .distinctUntilChanged()
-        .cachedIn(viewModelScope)
+        .cachedIn(viewModelScope)*/
 
     //init { getNotifications() }
     /*fun getNotifications() {
@@ -54,9 +52,9 @@ class NotificationViewModel
             getNotifications(prefsFactory.userId, 0, Int.MAX_VALUE)
     }*/
 
-    fun onLongPressed(notId: String){
+    fun onLongPressed(notId: String, onFinish: () -> Unit){
         val dialog = Dialog(resource.string(R.string.delete_notifier),
-            onSubmitted = { notId.let(::deleteNotification) })
+            onSubmitted = { deleteNotification(notId, onFinish) })
         onShowDialog(dialog)
     }
 
@@ -106,22 +104,15 @@ class NotificationViewModel
             .onEach(this::onResource).launchIn(viewModelScope)
     }
 
-    override fun deleteNotification(id: String){
+    override fun deleteNotification(id: String, onFinish: () -> Unit){
         if (id.isBlank()){
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         caseNotify.deleteNotification(id)
-            .flatMapMerge { caseNotify.getNotifications(prefsFactory.userId, 0, Int.MAX_VALUE) }
-            .onEach(::onResource)
-            .catch { Log.d(TAG, "deleteNotification->cause: ${it.localizedMessage}") }
+            .flatMapMerge{ caseNotify.getNotifications(prefsFactory.userId, 0, Int.MAX_VALUE) }
+            .onEach{ onResourceStateless(it){ onFinish() }}
             .launchIn(viewModelScope)
-
-            /*.onEach { res ->
-                if(res is Resource.Success) // onStateChange(state.copy(notifications = state.notifications?.filter { it.notificationId != id }))
-                    getNotifications()
-            }*/
     }
 
     override fun getNotifications(page: Int, size: Int){

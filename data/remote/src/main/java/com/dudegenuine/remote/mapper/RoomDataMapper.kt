@@ -45,7 +45,7 @@ class RoomDataMapper
             private = room.private,
             createdAt = room.createdAt,
             updatedAt = room.updatedAt,
-            impressions = emptyList(),
+            impressions = room.impressions.map(mapperImpression::asEntity),
             user = room.user
                 ?.let(mapperUser::asUserCensoredEntity),
             questions = room.questions
@@ -56,6 +56,7 @@ class RoomDataMapper
     }
 
     override fun asRoom(entity: RoomEntity.Complete): Room.Complete {
+
         return Room.Complete(
             id = entity.roomId,
             userId = entity.userId,
@@ -68,9 +69,15 @@ class RoomDataMapper
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
 
-            impressionSize = entity.impressions.size,
-            hasImpressedBefore = entity.impressions.any { it.userId == currentUserId },
-            impressed = entity.impressions.any { it.userId == currentUserId && it.good },
+            isOwner = entity.userId == currentUserId,
+            impressions = entity.impressions.map(mapperImpression::asImpression),
+            impression = entity.impressions.map(mapperImpression::asImpression)
+                .find{ it.userId == currentUserId },
+            impressionSize = entity.impressions.count{ it.good },
+            hasImpressedBefore = entity.impressions
+                .any{ it.userId == currentUserId },
+            impressed = entity.impressions
+                .any{ it.userId == currentUserId && it.good },
 
             user = entity.user?.let(mapperUser::asUserCensored),
             questions = entity.questions
@@ -212,8 +219,7 @@ class RoomDataMapper
             description = room.description,
             expired = room.expired,
             private = room.private,
-            usernameOwner = room.usernameOwner,
-            fullNameOwner = room.fullNameOwner,
+            user = room.user?.let(mapperUser::asUserCensoredEntity),
             questionSize = room.questionSize,
             participantSize = room.participantSize,
             impressions = emptyList(),
@@ -229,15 +235,16 @@ class RoomDataMapper
             token = entity.token,
             description = entity.description,
             expired = entity.expired,
-            usernameOwner = entity.usernameOwner,
-            fullNameOwner = entity.fullNameOwner,
+            user = entity.user?.let(mapperUser::asUserCensored),
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
             private = entity.private ?: false,
 
+            isOwner = entity.userId == currentUserId,
+            impressions = entity.impressions.map(mapperImpression::asImpression),
             impression = entity.impressions.map(mapperImpression::asImpression)
                 .find{ it.userId == currentUserId },
-            impressionSize = entity.impressions.size,
+            impressionSize = entity.impressions.count{ it.good },
             hasImpressedBefore = entity.impressions
                 .any{ it.userId == currentUserId },
             impressed = entity.impressions
@@ -266,14 +273,15 @@ class RoomDataMapper
             token = tableRoom.token,
             description = tableRoom.description,
             expired = tableRoom.expired,
-            usernameOwner = tableRoom.usernameOwner,
-            fullNameOwner = tableRoom.fullNameOwner,
+            user = tableRoom.user,
             questionSize = tableRoom.questionSize,
             participantSize = tableRoom.participantSize,
             private = tableRoom.privation,
 
+            isOwner = tableRoom.isOwner,
+            impressions = tableRoom.impressions,
             impression = tableRoom.impressions.find{ it.userId == currentUserId },
-            impressionSize = tableRoom.impressions.size,
+            impressionSize = tableRoom.impressions.count{ it.good },
             impressed = tableRoom.impressions.any{ it.userId == currentUserId && it.good },
             hasImpressedBefore = tableRoom.impressions.any{ it.userId == currentUserId },
         )

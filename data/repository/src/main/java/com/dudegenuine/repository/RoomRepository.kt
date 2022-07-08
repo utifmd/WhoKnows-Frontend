@@ -26,7 +26,7 @@ import javax.inject.Inject
 class RoomRepository
     @Inject constructor(
     private val service: IRoomService,
-    private val mapper: IRoomDataMapper,
+    val mapper: IRoomDataMapper,
     private val local: IWhoKnowsDatabase,
 
     override val workManager: IWorkerManager,
@@ -76,7 +76,7 @@ class RoomRepository
 
     override fun remoteSearchSource(query: String, batch: Int): PagingSource<Int, Search<*>> = try {
         ResourcePaging{ page -> mapper.asRoomsCensored(
-            service.listCensoredSearched(query, page, batch)).map { Search.Room(it) } }
+            service.listCensoredSearched(query, page, batch)).map{ Search.Room(it) } }
     } catch (e: Exception){ ResourcePaging{ emptyList() }}
 
     override suspend fun clearParticipation(): Flow<Unit> = flowOf(deleteBoardingLocal())

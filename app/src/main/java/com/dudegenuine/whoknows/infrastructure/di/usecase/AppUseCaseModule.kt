@@ -70,8 +70,9 @@ object AppUseCaseModule: IAppUseCaseModule {
     @ViewModelScoped
     override fun provideRoomUseCaseModule(
         repository: IRoomRepository,
+        reposUser: IUserRepository,
         reposMessaging: IMessagingRepository): IRoomUseCaseModule =
-        RoomUseCaseModule(repository, reposMessaging)
+        RoomUseCaseModule(repository, reposUser, reposMessaging)
 
     @Provides
     @ViewModelScoped
