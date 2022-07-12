@@ -120,7 +120,7 @@ class ParticipationViewModel
         val wrong = questioners.filter{ !it.isCorrect }.map{ it.quiz.question }
         val correctSize = questioners.count{ it.isCorrect }
         val score = correctSize.toFloat() / questioners.size.toFloat() * 100
-        val event = "${participation.user.username} has joined the ${participation.roomTitle}" //val result = event.plus(" with score ${resultScore.toDouble()}")
+        val event = "@${participation.user.username} has joined the ${participation.roomTitle}" //val result = event.plus(" with score ${resultScore.toDouble()}")
         val participant = ParticipantState().copy(
             id = participation.participantId,
             roomId = participation.roomId,
@@ -152,8 +152,7 @@ class ParticipationViewModel
         )
         caseParticipation.postParticipation(participant, result, notification, addMessaging, pushMessaging)
             .onEach(::onResourceStateless)
-            .onCompletion{ if (it == null)
-                onParticipationDone(participant.roomId, participant.userId) }
+            .onCompletion{ if (it == null) onParticipationDone(participant.roomId, participant.userId) }
             .launchIn(viewModelScope)
     }
     override fun onTimerReceiver(participation: Participation): BroadcastReceiver =

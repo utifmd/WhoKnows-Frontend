@@ -18,7 +18,7 @@ sealed class Room {
         val private: Boolean,
         val user: User.Censored?,
         val questionSize: Int,
-        val isOwner: Boolean = false,
+        var isOwner: Boolean = false,
 
         var impressions: List<Impression>,
         var impressionSize: Int,

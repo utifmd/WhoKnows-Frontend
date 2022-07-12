@@ -31,13 +31,11 @@ class ResultViewModel
     private val case: IResultUseCaseModule,
     private val savedStateHandle: SavedStateHandle): BaseViewModel(), IResultViewModel {
 
-    init {
-        onResultRouted()
-    }
+    init{ onResultRouted() }
 
     private fun onResultRouted() {
-        val userId = savedStateHandle.get<String>(IResultViewModel.RESULT_USER_ID_SAVED_KEY)
-        val roomId = savedStateHandle.get<String>(IResultViewModel.RESULT_ROOM_ID_SAVED_KEY)
+        val userId = savedStateHandle.get<String>(RESULT_USER_ID_SAVED_KEY)
+        val roomId = savedStateHandle.get<String>(RESULT_ROOM_ID_SAVED_KEY)
 
         if (!userId.isNullOrBlank() && !roomId.isNullOrBlank()) getResult(roomId, userId)
     }

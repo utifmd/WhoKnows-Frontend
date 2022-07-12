@@ -37,7 +37,8 @@ import okhttp3.internal.http.toHttpDateString
 fun NotificationScreen(
     modifier: Modifier = Modifier, user: User.Complete?,
     lazyPagingItems: LazyPagingItems<Notification>,
-    viewModel: NotificationViewModel = hiltViewModel()) {
+    viewModel: NotificationViewModel = hiltViewModel(),
+    onUpdated: () -> Unit) {
     val swipeRefreshState = rememberSwipeRefreshState(
         lazyPagingItems.loadState.refresh is LoadState.Loading
     )
@@ -58,19 +59,12 @@ fun NotificationScreen(
                     if (lazyPagingItems.itemCount > 0) stickyHeader {
                         Text("Recently event${ if(lazyPagingItems.itemCount > 1)"\'s" else ""}", modifier.padding(12.dp, 4.dp)) /*item { LazyStatePaging( modifier = modifier.padding(12.dp, 4.dp), items = lazyPagingItems, vertical = Arrangement.spacedBy(8.dp), repeat = 5, height = 90.dp, width = null ) }*/
                     }
-                    item {
-                        LazyStatePaging(
-                            modifier = modifier.padding(12.dp, 4.dp),
-                            items = lazyPagingItems,
-                            vertical = Arrangement.spacedBy(8.dp),
-                            repeat = 5, height = 45.dp, width = null
-                        )
-                    }
+                    item { LazyStatePaging(lazyPagingItems) }
                     items(lazyPagingItems, { it.notificationId }){ item ->
                         if (item != null) NotificationItem(item,
-                            onItemLongPressed = { viewModel.onLongPressed(item.notificationId, lazyPagingItems::refresh) },
-                            onItemPressed = { item.let(viewModel::onReadNotification) }
-                        )
+                            onItemLongPressed = { viewModel.onLongPressed(item.notificationId, lazyPagingItems::refresh) }){ hasNeverRead ->
+                            viewModel.onNotificationPressed(hasNeverRead, item, onUpdated)
+                        }
                     }
                 }
             }

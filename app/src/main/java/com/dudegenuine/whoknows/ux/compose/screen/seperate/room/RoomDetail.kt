@@ -93,7 +93,7 @@ private fun BackLayer(
     toggle: () -> Unit) {
     val enabled = !model.expired
     val (exclusive, setExclusive) = remember { mutableStateOf(model.private) }
-
+    val (messaging, setMessaging) = remember { mutableStateOf(model.token.isNotBlank()) }
     Column(
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally) {
@@ -121,14 +121,15 @@ private fun BackLayer(
                 enabled = enabled && !viewModel.state.loading) { selected ->
                 viewModel.onExclusiveClassChange(model, selected) { setExclusive(selected) }
             }
-            /*Divider(thickness = (0.5).dp)
+            Divider(thickness = (0.5).dp)
             ToggleBackLayer(
-                icon = if (viewModel.isRoomAlarmUp) Icons.Default.AlarmOn else Icons.Default.AlarmOff,
-                label = stringResource(R.string.remind_class),
+                icon = if (messaging) Icons.Default.NotificationsActive else Icons.Default.NotificationsOff,
+                label = stringResource(R.string.notification_class),
                 enabled = enabled,
-                checked = viewModel.isRoomAlarmUp) { selected ->
-                viewModel.onIsAlarmUpChange(5, selected)
-            }*/
+                checked = messaging) { selected ->
+                viewModel.onMessagingChange(selected, model.id, model.token)
+                setMessaging(!messaging)
+            }
         } else if (model.isParticipant) ButtonBackLayer(
             label = stringResource(R.string.leave_the_class),
             enabled = enabled) {

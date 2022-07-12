@@ -13,6 +13,7 @@ import com.dudegenuine.model.Resource
 import com.dudegenuine.whoknows.ux.compose.component.misc.LoggingSubscriber
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.main.IMainProps
+import com.dudegenuine.whoknows.ux.compose.screen.seperate.notification.NotificationScreen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.participation.ParticipationScreen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.quiz.QuizCreatorScreen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.quiz.QuizScreen
@@ -23,11 +24,13 @@ import com.dudegenuine.whoknows.ux.compose.screen.seperate.room.RoomDetail
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.room.RoomFinderScreen
 import com.dudegenuine.whoknows.ux.compose.screen.seperate.user.ProfileScreen
 import com.dudegenuine.whoknows.ux.vm.main.MainViewModel
+import com.dudegenuine.whoknows.ux.vm.notification.NotificationViewModel
 import com.dudegenuine.whoknows.ux.vm.participation.ParticipationViewModel
 import com.dudegenuine.whoknows.ux.vm.quiz.QuizViewModel
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizPublicState
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizState.Companion.QUIZ_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.result.ResultViewModel
+import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_ACTION_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.room.RoomViewModel
@@ -46,7 +49,37 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     val roomDetail = Screen.Home.Summary.RoomDetail
 
     val vmMain = props.viewModel as MainViewModel
-    val isLoggedIn = vmMain.isLoggedIn
+    val isLoggedIn = (props.viewModel as MainViewModel).isLoggedIn
+
+    composable(
+        route = Screen.Home.Summary.Notification.route,
+        deepLinks = if (isLoggedIn) listOf(
+            navDeepLink{ uriPattern = Screen.Home.Summary.Notification.uriPattern }) else emptyList()) { //entry ->
+        val vmNotifier: NotificationViewModel = hiltViewModel()
+        fun onUpdated() = vmMain.apply {
+            /*val user = auth.user ?: return@apply
+            val fresh = user.notifications.filter { it.notificationId != notifyId }
+            onAuthChange(ResourceState.Auth(user = user.copy(notifications = fresh)))*/
+
+            getLatestUser()
+            props.lazyPagingNotification::refresh
+        }
+        /*val refreshState = entry
+            .savedStateHandle
+            .getLiveData<Boolean>(Resource.KEY_REFRESH)
+            .observeAsState()
+        if (refreshState.value == true){
+            Log.d("TAG", "summaryGraph: refresh")
+            props.lazyPagingNotification.refresh()
+        }*/
+        LoggingSubscriber(vmMain, vmNotifier)
+        NotificationScreen(
+            user = props.viewModel.auth.user,
+            lazyPagingItems = props.lazyPagingNotification,
+            viewModel = vmNotifier,
+            onUpdated = ::onUpdated
+        )
+    }
 
     composable(
         route = Screen.Home.Summary.RoomCreator.route){
@@ -153,13 +186,14 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
     }
     composable(
         route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(
-            "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}"),
+            "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}", "{$RESULT_ACTION_SAVED_KEY}"),
         arguments = listOf(
             navArgument(RESULT_ROOM_ID_SAVED_KEY){ type = NavType.StringType; defaultValue = "" },
-            navArgument(RESULT_USER_ID_SAVED_KEY){ type = NavType.StringType; defaultValue = "" })){
+            navArgument(RESULT_USER_ID_SAVED_KEY){ type = NavType.StringType; defaultValue = "" },
+            navArgument(RESULT_ACTION_SAVED_KEY){ type = NavType.StringType; defaultValue = "" })){ entry ->
         val vmResult: ResultViewModel = hiltViewModel()
-
+        val action = entry.arguments?.getString(RESULT_ACTION_SAVED_KEY)
         LoggingSubscriber(vmMain, vmResult)
-        ResultDetail(viewModel = vmResult, onBackPressed = props.router::popBackStack)
+        ResultDetail(viewModel = vmResult, onBackPressed = props.router::popBackStack, action = action.isNullOrBlank())
     }
 }

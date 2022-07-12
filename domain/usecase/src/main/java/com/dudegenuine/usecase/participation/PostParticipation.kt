@@ -32,12 +32,12 @@ class PostParticipation
         try {
             emit(Resource.Loading())
             reposRoom.timer.stop()
-            //reposMessaging.add(addMessaging)
+            reposMessaging.add(addMessaging)
             reposParticipant.update(participant.id, participant.copy(expired = true))
             reposResult.create(result)
             reposNotify.create(notification)
             reposRoom.deleteBoardingLocal()
-            //reposMessaging.push(pushMessaging)
+            reposMessaging.push(pushMessaging)
             emit(Resource.Success(participant.id))
 
         } catch (e: HttpFailureException){

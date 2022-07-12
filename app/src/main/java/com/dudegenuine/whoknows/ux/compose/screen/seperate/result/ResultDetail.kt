@@ -22,7 +22,7 @@ import com.dudegenuine.whoknows.ux.vm.result.ResultViewModel
 fun ResultDetail(
     modifier: Modifier = Modifier,
     viewModel: ResultViewModel = hiltViewModel(),
-    onBackPressed: () -> Unit) {
+    action: Boolean, onBackPressed: () -> Unit) {
     val state = viewModel.state
 
     Scaffold(
@@ -39,7 +39,7 @@ fun ResultDetail(
             state.result?.let { result ->
                 ResultScreen(modifier,
                     state = result,
-                    onDonePressed = viewModel::onDonePressed
+                    onDonePressed = if(action) viewModel::onDonePressed else null
                 )
             }
             if (state.error.isNotBlank())

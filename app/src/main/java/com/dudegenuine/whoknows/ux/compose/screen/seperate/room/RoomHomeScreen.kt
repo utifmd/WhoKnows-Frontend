@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,14 +38,13 @@ fun RoomHomeScreen(
     val swipeRefreshState = rememberSwipeRefreshState(
         props.lazyPagingRoomComplete.loadState.refresh is LoadState.Loading
     )
-    val badge by remember{
-        mutableStateOf(props.viewModel.auth.user?.notifications?.size ?: 0)
+    val (badge, setBadge) = remember{
+        mutableStateOf(props.viewModel.auth.user?.notifications?.count { !it.seen } ?: 0)
     }
     fun onRefresh() = props.run {
         lazyPagingRoomCensored.refresh()
         lazyPagingRoomComplete.refresh()
     }
-
     Scaffold(modifier,
         topBar = {
             GeneralTopBar(

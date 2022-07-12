@@ -70,7 +70,7 @@ class MainViewModel
         if (prefs.tokenId.isBlank()) messagingInitToken()
         else Log.d(TAG, "currentToken: ${prefs.tokenId}")
 
-        if (isLoggedIn) getUser()
+        if (isLoggedIn) getLatestUser() //getUser()
     }
     val roomCompleteFlow = userIndicator
         .flatMapLatest{ caseRoom.getRooms(it ?: userId, DEFAULT_BATCH_ROOM) }
@@ -128,16 +128,20 @@ class MainViewModel
             }
         }
     }
-    private fun getUser(){
-        caseUser.getUser()
-            .onEach(::onAuth)
-            .onCompletion{ if(it == null) Log.d(TAG, "getUser: complete") }
-            .launchIn(viewModelScope)
-    }
+    private fun getUser() = caseUser.getUser()
+        .onEach(::onAuth)
+        .onCompletion{ if(it == null) Log.d(TAG, "getUser: complete") }
+        .launchIn(viewModelScope)
+
+    fun getLatestUser() = caseUser.getUser(userId)
+        .onEach(::onAuth)
+        .launchIn(viewModelScope)
+
     fun onImpression(impressed: Boolean, room: Room.Censored, onFinish: () -> Unit){
-        val actor = auth.user?.fullName?.ifBlank{ resource.string(R.string.unknown) }
-            ?: auth.user?.username ?: resource.string(R.string.unknown)
-        val event = "$actor just like the ${room.title} class"
+        val username = auth.user?.username ?: resource.string(R.string.unknown)
+        val actor = auth.user?.fullName?.ifBlank{ resource.string(R.string.unknown) } ?: username
+
+        val event = "@$username just like the ${room.title} class"
         val pusher = Messaging.Pusher(
             title = actor,
             body = event,

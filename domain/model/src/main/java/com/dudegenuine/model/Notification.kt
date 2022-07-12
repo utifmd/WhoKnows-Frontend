@@ -13,6 +13,7 @@ data class Notification(
     val event: String,
     var seen: Boolean,
     val recipientId: String,
+    val isDetail: Boolean = true,
     val createdAt: Date,
     val updatedAt: Date?,
     val sender: User.Censored?){

@@ -47,7 +47,6 @@ interface IRoomEventDetail: IRoomEvent {
     fun onParticipantItemPressed(userId: String)
     fun onQuestionItemPressed(quizId: String)
     fun onResultPressed(roomId: String, userId: String)
-    fun onReNavigateRoom(roomId: String)
     /*fun turnOnAlarm(minute: Int)
     fun turnOffAlarm()*/
 }

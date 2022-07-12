@@ -16,10 +16,7 @@ import com.dudegenuine.whoknows.ux.vm.BaseViewModel
 import com.dudegenuine.whoknows.ux.vm.notification.contract.INotificationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 /**
@@ -62,13 +59,15 @@ class NotificationViewModel
     fun onDetailRoomPressed(participant: Participant) =
         onNavigateTo(Screen.Home.Discover.RoomDetail.routeWithArgs(participant.roomId))
 
-    fun onReadNotification(notification: Notification) {
-        onNavigateTo(Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(notification.roomId, notification.userId))
+    fun onNotificationPressed(
+        hasNeverRead: Boolean, notification: Notification, onComplete: () -> Unit) = notification.apply {
+        val route = Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(roomId, userId, "no_action")
 
-        if (!notification.seen) caseNotify.patchNotification(notification.copy(seen = true))
-            .onCompletion { cause -> if (cause == null) onStateChange(ResourceState(
-                notifications = state.notifications?.filter { it != notification }))}
+        if (hasNeverRead) caseNotify.patchNotification(copy(seen = true))
+            .onStart{ if(isDetail) onNavigateTo(route) }
+            .onCompletion{ if(it == null) onComplete() }
             .launchIn(viewModelScope)
+        else if(isDetail) onNavigateTo(route)
     }
 
     override fun postNotification(notification: Notification) {

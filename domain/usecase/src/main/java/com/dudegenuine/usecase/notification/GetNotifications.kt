@@ -3,12 +3,14 @@ package com.dudegenuine.usecase.notification
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
 import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.INotificationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -21,11 +23,14 @@ class GetNotifications
     @Inject constructor(
     private val repository: INotificationRepository) {
 
-    operator fun invoke(recipientId: String, size: Int): Flow<PagingData<Notification>> = Pager(
-        PagingConfig(size, enablePlaceholders = true, maxSize = 200)){
-
+    operator fun invoke(recipientId: String, size: Int):
+            Flow<PagingData<Notification>> = Pager(PagingConfig(size, enablePlaceholders = true, maxSize = 200)){
         repository.pages(recipientId, size)
-    }.flow
+    }.flow.map { data ->
+        data.map { notify ->
+            notify.copy(isDetail = !notify.event.contains("like"))
+        }
+    }
 
     operator fun invoke(page: Int, size: Int):
             Flow<Resource<List<Notification>>> = flow {

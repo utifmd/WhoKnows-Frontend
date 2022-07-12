@@ -10,7 +10,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -31,17 +33,15 @@ import com.dudegenuine.whoknows.ux.compose.component.GeneralImage
 fun NotificationItem(
     model: Notification,
     modifier: Modifier = Modifier,
-    onItemLongPressed: () -> Unit, onItemPressed: () -> Unit) {
-    var isSeen by remember { mutableStateOf(model.seen) }
+    onItemLongPressed: () -> Unit, onItemPressed: (Boolean) -> Unit) {
+    val (seen, setSeen) = remember { mutableStateOf(model.seen) }
 
-    Box(modifier.fillMaxWidth()
-        .combinedClickable(
-        onLongClick = onItemLongPressed,
-        onClick = {
-            isSeen = true
-
-            onItemPressed()
-        })) {
+    fun onSeen(){
+        onItemPressed(!seen)
+        setSeen(true)
+    }
+    Box(modifier.fillMaxWidth().combinedClickable(
+        onLongClick = onItemLongPressed, onClick = ::onSeen)) {
 
         Row(modifier.fillMaxSize().padding(12.dp, 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -68,7 +68,7 @@ fun NotificationItem(
                 Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" - "+ model.event,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = if (!isSeen) MaterialTheme.colors.secondaryVariant
+                    color = if (!seen) MaterialTheme.colors.secondaryVariant
                         else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
                     style = MaterialTheme.typography.caption)
 

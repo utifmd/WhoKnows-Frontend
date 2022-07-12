@@ -67,7 +67,6 @@ fun SearchScreen(
                     }
                 }
             }
-            // TODO: combine search user with room
             item { LazyStatePaging(lazyPagingItems) }
             items(lazyPagingItems){ search ->
                 search?.let { model ->
@@ -114,7 +113,7 @@ private fun BodyTopBar(
                 placeholder = { Text(stringResource(R.string.search_placholder)) },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions {
-                    viewModel.onSearchTextFlowChange(viewModel.type)
+                    viewModel.onSearchButtonPressed()
                     keyboardController?.hide()
                 },
                 colors = TextFieldDefaults.textFieldColors(

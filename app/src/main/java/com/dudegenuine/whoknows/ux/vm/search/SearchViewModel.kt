@@ -50,15 +50,15 @@ class SearchViewModel
         .cachedIn(viewModelScope)
 
     fun onSearchTextChange(text: String){
+        onSearchTextFlowChange(null)
+
         _searchField.value = TextFieldValue(text)
     }
-    fun onSearchTypeChange(type: SearchState){
+    private fun onSearchTypeChange(type: SearchState){
         _searchType.value = type
     }
-    fun onSearchTextFlowChange(state: SearchState?){
-        viewModelScope.launch {
-            _searchTextFlow.emit(state)
-        }
+    private fun onSearchTextFlowChange(state: SearchState?){
+        viewModelScope.launch { _searchTextFlow.emit(state) }
     }
     fun onChipUserPressed() = with(SearchState.User){
         onSearchTypeChange(this)
@@ -73,8 +73,8 @@ class SearchViewModel
         onSearchTextFlowChange(null)
     }
     override fun onBackPressed() = onNavigateBack()
-    override fun onSearchButtonPressed() {
-        /*Log.d(TAG, "onSearchButtonPressed: trigger")
-        onSearchTextFlowChange(searchText)*/
+    override fun onSearchButtonPressed() = with(type){
+        onSearchTypeChange(this)
+        onSearchTextFlowChange(this)
     }
 }

@@ -32,7 +32,8 @@ class OperateImpression
 
                 if (!room.isOwner){
                     repoNotify.create(notification)
-                    room.user?.tokens?.forEach{ repoMessaging.push(pusher.copy(to = it)) }
+                    room.user?.tokens?.first()?.let{ repoMessaging.push(pusher.copy(to = it)) }
+                    //room.user?.tokens?.forEach{ repoMessaging.push(pusher.copy(to = it)) }
                 }
             } else room.impression?.let {
                 repoImpression.update(it.impressionId, it.copy(good = impressed)) }

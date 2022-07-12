@@ -17,6 +17,7 @@ import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ux.compose.model.Dialog
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
+import com.dudegenuine.whoknows.ux.compose.state.NotificationState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DESC_TOO_LONG
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
@@ -65,19 +66,6 @@ class RoomViewModel
         onDetailRouted()
         //onParticipated()
     }
-    /*private fun onParticipated() = viewModelScope.launch {
-        *//*val route = Screen.Home.Summary.Participation.routeWithArgs("")*//*
-        participationState.collectLatest { participation ->
-            if (participation !is Participation.OnBoarding) return@collectLatest
-
-            Log.d(TAG, "onParticipated: $participation")
-        }
-    }*/
-
-    /*internal fun checkAlarm(){
-        val nextAlarm = caseRoom.alarmManager.alarmManager.nextAlarmClock
-        Log.d(TAG, "checkAlarm: isBroadcast ${nextAlarm.showIntent.creatorPackage}")
-    }*/
     internal fun subscribeTokenWorker(){
         val tokenWorkRequest = caseRoom.workRequest.onTime() /*.periodicTime(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)*/
             .addTag(TAG_ROOM_TOKEN)
@@ -91,44 +79,10 @@ class RoomViewModel
             .onCompletion { if(it == null) Log.d(TAG, "subscribeAlarmWorker: complete") }
             .launchIn(viewModelScope)
     }
-    internal fun cancelWork(){
-        worker.cancelAllWorkByTag(TAG_ROOM_TOKEN)
-    }
-    /*val timerReceiver: (Room.State.BoardingQuiz) -> BroadcastReceiver = { roomState ->
-        receiver.timerReceiver { time, finished ->
-            formState.onTimerChange(time)
-            if (finished) onPreResult(roomState)
-        }
-    }*/
-
-    /*override fun onTimerReceiver(participation: Participation.OnBoarding): BroadcastReceiver =
-        receiver.timerReceiver { time, finished ->
-            formState.onTimerChange(time)
-            if (finished) onPreResult(participation)
-        }*/
-
+    internal fun cancelWork() = worker.cancelAllWorkByTag(TAG_ROOM_TOKEN)
     private fun onDetailRouted() =
         savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(::getRoom)
 
-    /*private fun onParticipationRouted() {
-        val roomId = savedStateHandle.get<String>(KEY_PARTICIPATION_ROOM_ID)
-
-        if (!roomId.isNullOrBlank()) onPreBoarding(roomId)
-    }*/
-    private fun onParticipationStored() {
-        /*Log.d(TAG, "onParticipationStored: triggered")
-        if (currentUserId.isBlank() or prefs.participationId.isBlank()) return
-        Log.d(TAG, "onParticipationStored: passed")
-        *//*caseRoom.getBoarding()
-            .onEach{ onResourceSucceed(it) { participation ->
-                Log.d(TAG, "onParticipationStored: ${prefs.participationId}")
-                *//**//*if (prefs.runningTime <= 0) onPreResult(participation) //is finished
-                else onRoomStateChange(participation)*//**//*
-                onParticipationPressed(participation.roomId)
-            }}
-            .launchIn(viewModelScope)*//*
-        onNavigateTo(Screen.Home.Summary.Participation.routeWithArgs(""))*/
-    }
     fun onExclusiveClassChange(
         room: Room.Complete, selected: Boolean, onSelected: () -> Unit){
         if (userId.isBlank() || room.id.isBlank()) return
@@ -140,54 +94,9 @@ class RoomViewModel
         }
         onScreenStateChange(ScreenState.AlertDialog(dialog))
     }
-    fun onLeaveRoomPressed(room: Room.Complete){ }
+    fun onLeaveRoomPressed(room: Room.Complete){
 
-    /*private fun onPreBoarding(roomId: String) {
-        Log.d(TAG, "onPreBoarding: $roomId")
-        if (roomId.isBlank()) {
-            onScreenStateChange(ScreenState.Toast("unknown participation", Toast.LENGTH_LONG))
-            return
-        }
-        caseRoom.getRoom(roomId)
-            .onEach { res -> onResourceSucceed(res, ::onInitBoarding) }
-            .launchIn(viewModelScope)
-    }*/
-
-    /*private fun onInitBoarding(room: Room.Complete) {
-        *//*Log.d(TAG, "onInitBoarding: triggered")
-
-        val model = formState.participant.copy(
-            roomId = room.id, userId = currentUserId, timeLeft = room.minute)
-
-        val asSecond = (room.minute.toFloat() * 60).toDouble()
-
-        caseRoom.timer.start(asSecond)
-
-        onBoarding(room, formState.participant.id)*//*
-
-        *//*caseParticipant.postParticipant(model).onEach { res ->
-            onResource(
-                resources = res,
-                onSuccess = {
-                    caseRoom.timer.start(asSecond)
-                    onBoarding(room, it.id)
-                },
-                onError = { error ->
-                    onStateChange(ResourceState(error = ALREADY_JOINED))
-                    onShowSnackBar(error)
-                }
-            )
-        }.launchIn(viewModelScope)*//*
-    }*/
-
-    /*private fun onBoarding(room: Room.Complete, participantId: String){
-        Log.d(TAG, "onBoarding: triggered")
-        getCurrentUser { currentUser ->
-            val participation = caseParticipant.getParticipation(participantId, room, currentUser)
-
-            //onParticipationStateChange(participation)
-        }
-    }*/
+    }
     private fun onSharePressed(roomId: String) {
         val data = "${BuildConfig.BASE_CLIENT_URL}/who-knows/room/$roomId"
 
@@ -256,7 +165,7 @@ class RoomViewModel
 
     private fun flowUnregisterMessaging(room: Room.Complete, participant: Participant): Flow<Resource<out Any>> {
         val event = "${participant.user?.username} $JUST_KICKED_OUT ${room.title} class"
-        val notifier = caseNotification.getNotification().copy(
+        val notifier = NotificationState().copy(
             userId = userId,
             roomId = participant.roomId,
             event = event,
@@ -286,14 +195,6 @@ class RoomViewModel
         caseRoom.postRoom(room)
             .onEach(::onResource).launchIn(viewModelScope)
     }
-
-    /*var detailedRoom
-        by mutableStateOf<Room.Complete?>(null)
-    private set
-    fun onDetailRoomChange(room: Room.Complete?){
-        detailedRoom = room
-    }*/
-
     override fun getRoom(id: String) {
         if (id.isBlank()){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -304,35 +205,6 @@ class RoomViewModel
             //.onEach{ res -> onResourceSucceed(res, ::onDetailingRoom) }
             .launchIn(viewModelScope)
     }
-
-    /*private fun onDetailingRoom(room: Room.Complete){
-        val isUserOffBoarding = prefs.participationRoomId.isBlank()
-        val isRoomMeetNewUser = room.participants.all{ userId != it.userId }
-        val isRoomMeetOldUser = room.participants.any{ userId == it.userId && !it.expired }
-        val isRoomMeetExactUser = room.participants.any{ userId == it.userId && it.expired }
-
-        if (userId == room.userId) onStateChange(ResourceState(room = room.copy(isOwner = true)))
-        else getCurrentUser{ user ->
-            val isUserIsFree = user.participants.all { it.expired }
-
-            Log.d(TAG, "onDetailingRoom: isUserOffBoarding = $isUserOffBoarding")
-            Log.d(TAG, "onDetailingRoom: isUserIsFree = $isUserIsFree")
-            Log.d(TAG, "onDetailingRoom: isRoomMeetNewUser = $isRoomMeetNewUser")
-            Log.d(TAG, "onDetailingRoom: isRoomMeetOldUser = $isRoomMeetOldUser")
-            Log.d(TAG, "onDetailingRoom: isRoomMeetExactUser = $isRoomMeetExactUser") //ROM-2c2b752f-c45b-43b5-b1a0-13cab9d0c126
-
-            onStateChange(ResourceState(
-                room = room.copy(
-                    isOwner = false,
-                    isJoinAccepted = isUserOffBoarding && isUserIsFree && isRoomMeetNewUser,
-                    isParticipated = isRoomMeetOldUser,
-                    isParticipant = isRoomMeetExactUser
-                )
-            ))
-        }
-
-    }*/
-
     private fun getRoom(id: String, onSucceed: (Room.Complete) -> Unit) {
         if (id.isBlank()){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -394,21 +266,6 @@ class RoomViewModel
         caseRoom.getRooms(page, size)
             .onEach(::onResource).launchIn(viewModelScope)
     }
-
-    /*private fun onResolveCreateMessaging(t: Throwable, keyName: String? = null) {
-        Log.d(TAG, "onResolveCreateMessaging: $keyName ${t.localizedMessage}")
-
-        if (keyName == null) return
-        prefs.createMessaging = keyName
-
-        t.localizedMessage?.let(::onShowSnackBar)
-    }*/
-    /*private fun onResolveAddMessaging(t: Throwable) {
-        Log.d(TAG, "onResolveRegisterMessaging: ${t.message}")
-        prefs.addMessaging = true
-
-        t.localizedMessage?.let(::onShowSnackBar)
-    }*/
     override fun createMessaging(
         messaging: Messaging.GroupCreator, onSucceed: (String) -> Unit) {
         val model = messaging.copy()
@@ -468,10 +325,7 @@ class RoomViewModel
         val option = NavOptions.Builder().setPopUpTo(Screen.Home.route, true).build()
         onScreenStateChange(ScreenState.Navigate.To(Screen.Home.route, option))
     }*/
-    override fun onReNavigateRoom(roomId: String) {
-        onNavigateBack()
-        onNavigateTo(Screen.Home.Summary.RoomDetail.routeWithArgs(roomId/*, IRoomEvent.OWN_IS_TRUE*/))
-    }
+    /*
     private val _isRoomAlarmUp = mutableStateOf(prefs.roomAlarm)
     val isRoomAlarmUp get() = _isRoomAlarmUp.value
     fun onIsAlarmUpChange(minute: Int, selected: Boolean){
@@ -481,11 +335,14 @@ class RoomViewModel
         _isRoomAlarmUp.value = selected
         prefs.roomAlarm = isRoomAlarmUp
     }
-    /*override fun turnOnAlarm(minute: Int) =
-        caseRoom.alarmManager.setupMinute(minute)
-    override fun turnOffAlarm() {
-        caseRoom.alarmManager.cancel()
-    }*/
+    private val _isRoomNotification = mutableStateOf(prefs.roomAlarm)
+    val isRoomNotification get() = _isRoomNotification.value
+    */
+    fun onMessagingChange(selected: Boolean, room: Room.Complete) =
+        caseRoom.patchRoom(selected, room)
+            .onEach(::onResourceStateless)
+            .launchIn(viewModelScope)
+
     override fun onShareRoomPressed(room: Room.Complete) { if(room.questions.size >= 3)
         onSharePressed(room.id) else
             onShowSnackBar(resource.string(R.string.allowed_after_add_3_quest))

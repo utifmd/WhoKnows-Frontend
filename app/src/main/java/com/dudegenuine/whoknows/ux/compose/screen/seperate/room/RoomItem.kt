@@ -84,17 +84,20 @@ fun RoomItem(
                         Spacer(Modifier.size(ButtonDefaults.IconSize))
                         CardFooter(
                             text = "$impressionSize ${if (impressionSize > 1) "like\'s" else "like"}",
-                            icon = if (impressed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            color = if (impressed) MaterialTheme.colors.error else null){
-                            if (impressed) {
-                                setImpressed(false)
-                                setImpressionSize(impressionSize -1)
-                            } else {
-                                setImpressed(true)
-                                setImpressionSize(impressionSize +1)
-                            }
-                            onImpression?.invoke(!impressed)
-                        }
+                            icon = if (onImpression == null || impressed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            color = if (impressed) MaterialTheme.colors.error else null,
+                            onIconClick = if(onImpression != null) {
+                                {
+                                    if (impressed) {
+                                        setImpressed(false)
+                                        setImpressionSize(impressionSize - 1)
+                                    } else {
+                                        setImpressed(true)
+                                        setImpressionSize(impressionSize + 1)
+                                    }
+                                    onImpression(!impressed)
+                                }
+                            } else null)
                     }
                     is Room.Complete -> Row(Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween) {

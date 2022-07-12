@@ -63,8 +63,8 @@ fun FeedScreen(
         lazyPagingQuizzes.refresh()
     }
     fun onRefreshRooms() = props.run {
-        lazyPagingRoomCensored.refresh()
-        lazyPagingRoomComplete.refresh()
+        /*lazyPagingRoomCensored.refresh()
+        lazyPagingRoomComplete.refresh()*/
     }
     Scaffold(modifier.fillMaxSize(),
         topBar = {
@@ -130,7 +130,7 @@ private fun BodyParticipant(
                         0 -> "#1"
                         1 -> "#2"
                         2 -> "#3"
-                        else -> ""}} ${item.fullName.ifBlank { stringResource(R.string.unknown) }}",
+                        else -> "" }} ${item.fullName.ifBlank { stringResource(R.string.unknown) }}",
                     desc = item.username.padStart(1, '@'),
                     data = item.profileUrl
                 )
@@ -160,7 +160,9 @@ private fun BodyRoom(
                     RoomItem(
                         modifier.width(246.dp),
                         model = model,
-                        onImpression = { onImpression?.invoke(it, model) }
+                        onImpression = if(onJoinButtonPressed != null) {
+                            { onImpression?.invoke(it, model) }
+                        } else null
                     )
                 }
             }

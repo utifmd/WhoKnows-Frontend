@@ -11,6 +11,7 @@ interface IResultViewModel {
 
         const val RESULT_USER_ID_SAVED_KEY = "result_user_id_saved_key"
         const val RESULT_ROOM_ID_SAVED_KEY = "result_room_id_saved_key"
+        const val RESULT_ACTION_SAVED_KEY = "result_action_saved_key"
 
     }
     fun postResult(result: Result)

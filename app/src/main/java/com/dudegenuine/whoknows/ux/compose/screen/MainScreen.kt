@@ -34,7 +34,7 @@ fun MainScreen(
     WhoKnowsTheme {
         val scaffoldState = rememberScaffoldState()
         val snackHostState by remember{ mutableStateOf(scaffoldState.snackbarHostState) }
-        val (badge, setBadge) = remember{ mutableStateOf(props.viewModel.auth.user?.notifications?.size ?: 0) }
+        val (badge, setBadge) = remember{ mutableStateOf(props.viewModel.auth.user?.notifications?.count { !it.seen } ?: 0) }
 
         Scaffold(modifier,
             scaffoldState = scaffoldState,

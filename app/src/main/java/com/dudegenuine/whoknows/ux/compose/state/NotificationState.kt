@@ -16,6 +16,7 @@ object NotificationState {
         "Just follow you",
         false,
         "",
+        true,
         Date(),
         null,
         null
