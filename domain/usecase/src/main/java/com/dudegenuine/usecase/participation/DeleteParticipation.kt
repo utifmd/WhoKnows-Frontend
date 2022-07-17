@@ -1,5 +1,7 @@
 package com.dudegenuine.usecase.participation
 
+import com.dudegenuine.model.Messaging
+import com.dudegenuine.model.Notification
 import com.dudegenuine.model.Participant
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -25,18 +27,37 @@ class DeleteParticipation
     private val reposNotify: INotificationRepository){
 
     operator fun invoke(
-        participant: Participant,
-        /*notification: Notification,
-        remover: Messaging.GroupRemover,
-        pusher: Messaging.Pusher*/): Flow<Resource<String>> = flow {
+        participant: Participant, notification: Notification): Flow<Resource<String>> = flow {
+        val remover = Messaging.GroupRemover(notification.roomId, listOf(reposParticipant.prefs.tokenId), notification.to)
+        val pusher = Messaging.Pusher(notification.title, notification.event, notification.imageUrl,
+            listOf(participant.userId, participant.roomId).joinToString("|"), notification.to)
+        try {
+            emit(Resource.Loading())
+            reposParticipant.delete(participant.id)
+            if (participant.expired) {
+                reposResult.delete(participant.roomId, participant.userId)
+                reposNotify.create(notification)
+                if (pusher.to.isNotBlank()) {
+                    reposMessaging.push(pusher)
+                    reposMessaging.remove(remover)
+                }
+            }
+            emit(Resource.Success(participant.id))
+        } catch (e: HttpFailureException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))
+        } catch (e: HttpException){
+            emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_EXCEPTION))
+        } catch (e: IOException){
+            emit(Resource.Error(Resource.IO_EXCEPTION))
+        } catch (e: Exception){
+            emit(Resource.Error(e.localizedMessage ?: Resource.THROWABLE_EXCEPTION))
+        }
+    }
+    operator fun invoke(participant: Participant): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
             reposParticipant.delete(participant.id)
             reposResult.delete(participant.roomId, participant.userId)
-
-            /*reposNotify.create(notification)
-            reposMessaging.remove(remover)
-            reposMessaging.push(pusher)*/
             emit(Resource.Success(participant.id))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

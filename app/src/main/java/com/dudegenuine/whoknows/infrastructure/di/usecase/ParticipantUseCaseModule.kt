@@ -19,7 +19,7 @@ class ParticipantUseCaseModule(
     private val reposMessaging: IMessagingRepository): IParticipantUseCaseModule {
 
     override val postParticipant: PostParticipant
-        get() = PostParticipant(reposParticipant)
+        get() = PostParticipant(reposParticipant, reposMessaging)
 
     override val getParticipant: GetParticipant
         get() = GetParticipant(reposParticipant)

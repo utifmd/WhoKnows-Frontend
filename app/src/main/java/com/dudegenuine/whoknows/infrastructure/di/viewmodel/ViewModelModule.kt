@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 import com.dudegenuine.repository.contract.dependency.local.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract.IViewModelModule
@@ -70,12 +71,11 @@ object ViewModelModule: IViewModelModule {
         caseParticipant: IParticipantUseCaseModule,
         caseMessaging: IMessageUseCaseModule,
         caseQuiz: IQuizUseCaseModule,
-        caseNotification: INotificationUseCaseModule,
-        caseResult: IResultUseCaseModule,
-        savedStateHandle: SavedStateHandle
-    ): IRoomViewModel {
-        return RoomViewModel(caseMessaging, caseFile, caseNotification,
-            caseRoom, caseUser, caseParticipant, caseQuiz, caseResult, savedStateHandle)
+        resource: IResourceDependency,
+        savedStateHandle: SavedStateHandle): IRoomViewModel {
+
+        return RoomViewModel(caseMessaging, caseFile, //caseNotification,
+            caseRoom, caseUser, caseParticipant, caseQuiz, resource,/* caseResult,*/ savedStateHandle)
     }
 
     @Provides

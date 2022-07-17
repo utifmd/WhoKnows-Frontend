@@ -28,8 +28,9 @@ object AppUseCaseModule: IAppUseCaseModule {
     @Provides
     @ViewModelScoped
     override fun provideMessagingUseCaseModule(
-        repository: IMessagingRepository): IMessageUseCaseModule {
-        return MessageUseCaseModule(repository)
+        repository: IMessagingRepository,
+        reposNotifier: INotificationRepository): IMessageUseCaseModule {
+        return MessageUseCaseModule(repository, reposNotifier)
     }
 
     @Provides
@@ -71,8 +72,12 @@ object AppUseCaseModule: IAppUseCaseModule {
     override fun provideRoomUseCaseModule(
         repository: IRoomRepository,
         reposUser: IUserRepository,
-        reposMessaging: IMessagingRepository): IRoomUseCaseModule =
-        RoomUseCaseModule(repository, reposUser, reposMessaging)
+        reposResult: IResultRepository,
+        reposNotifier: INotificationRepository,
+        reposFile: IFileRepository,
+        reposMessaging: IMessagingRepository
+    ): IRoomUseCaseModule =
+        RoomUseCaseModule(repository, reposUser, reposResult, reposNotifier, reposFile, reposMessaging)
 
     @Provides
     @ViewModelScoped
@@ -87,7 +92,7 @@ object AppUseCaseModule: IAppUseCaseModule {
     @Provides
     @ViewModelScoped
     override fun provideNotificationUseCaseModule(
-        repository: INotificationRepository): INotificationUseCaseModule {
-        return NotificationUseCaseModule(repository)
+        repository: INotificationRepository, reposMessaging: IMessagingRepository): INotificationUseCaseModule {
+        return NotificationUseCaseModule(repository, reposMessaging)
     }
 }

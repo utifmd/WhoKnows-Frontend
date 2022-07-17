@@ -19,10 +19,10 @@ class UserUseCaseModule(
     private val messagingRepository: IMessagingRepository,
 
     override val signInUser:
-        SignInUser = SignInUser(userRepository, messagingRepository),
+        SignInUser = SignInUser(userRepository),
 
     override val postUser:
-        PostUser = PostUser(userRepository, messagingRepository),
+        PostUser = PostUser(userRepository),
 
     override val getUser:
         GetUser = GetUser(userRepository),

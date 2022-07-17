@@ -12,7 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -34,16 +34,23 @@ fun NotificationItem(
     model: Notification,
     modifier: Modifier = Modifier,
     onItemLongPressed: () -> Unit, onItemPressed: (Boolean) -> Unit) {
-    val (seen, setSeen) = remember { mutableStateOf(model.seen) }
+    val (seen, setSeen) = rememberSaveable{ mutableStateOf(model.seen) }
 
     fun onSeen(){
         onItemPressed(!seen)
         setSeen(true)
     }
-    Box(modifier.fillMaxWidth().combinedClickable(
-        onLongClick = onItemLongPressed, onClick = ::onSeen)) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onLongClick = onItemLongPressed, onClick = ::onSeen
+            )) {
 
-        Row(modifier.fillMaxSize().padding(12.dp, 8.dp),
+        Row(
+            modifier
+                .fillMaxSize()
+                .padding(12.dp, 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
 
@@ -56,7 +63,9 @@ fun NotificationItem(
                     contentScale = ContentScale.Crop,
                     placeholder = {
                         Icon(Icons.Default.Person,
-                            modifier = modifier.fillMaxSize().padding(4.dp),
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(4.dp),
                             tint = MaterialTheme.colors.secondaryVariant,
                             contentDescription = null
                         )

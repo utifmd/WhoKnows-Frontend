@@ -50,8 +50,9 @@ fun NotificationScreen(
                 onLeadsPressed = viewModel::onBackPressed
             )
         },
-        content = {
-            SwipeRefresh(swipeRefreshState, onRefresh = lazyPagingItems::refresh) {
+        content = { padding ->
+            SwipeRefresh(swipeRefreshState, onRefresh = lazyPagingItems::refresh,
+                modifier = modifier.padding(padding).fillMaxSize()) {
                 LazyColumn{
                     if (user != null && user.participants.isNotEmpty())
                         bodyParticipated(modifier, user, viewModel::onDetailRoomPressed)

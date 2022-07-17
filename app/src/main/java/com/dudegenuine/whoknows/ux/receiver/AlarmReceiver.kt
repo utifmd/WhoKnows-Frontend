@@ -10,9 +10,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.graphics.drawable.toBitmap
 import com.dudegenuine.repository.contract.dependency.local.IAlarmManager.Companion.RECEIVER_ALARM_KEY
+import com.dudegenuine.repository.contract.dependency.local.IIntentFactory
 import com.dudegenuine.repository.contract.dependency.local.INotifyManager
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.ux.activity.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.random.Random
@@ -25,18 +25,15 @@ import kotlin.random.Random
 class AlarmReceiver: BroadcastReceiver() {
     private val TAG: String = javaClass.simpleName
     @Inject lateinit var notifier: INotifyManager
+    @Inject lateinit var intentFactory: IIntentFactory
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val roomAlarm = intent?.getBooleanExtra(RECEIVER_ALARM_KEY, false) ?: return
 
         Log.d(TAG, "onReceive: $roomAlarm")
         if (context == null) return
-
-        val mainIntent = MainActivity.createInstance(context, "onReceive: $roomAlarm").apply{
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
-        val mainPendingIntent = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        notification(context, mainPendingIntent)
+        notification(context,
+            intentFactory.activityIntent("onReceive $roomAlarm", PendingIntent.FLAG_UPDATE_CURRENT))
     }
     private fun notification(context: Context, pendingIntent: PendingIntent){
         val builder = notifier.onBuilt(
@@ -46,8 +43,8 @@ class AlarmReceiver: BroadcastReceiver() {
         with(builder) {
             priority = NotificationCompat.PRIORITY_MAX
 
-            setContentTitle("Your class has been going on")
-            setContentText("Just check out and close the class early!")
+            setContentTitle(context.getString(R.string.notification_title_alarm_receiver))
+            setContentText(context.getString(R.string.notification_body_alarm_receiver))
             setSmallIcon(R.drawable.ic_outline_fact_check_24)
             getDrawable(context, R.mipmap.ic_launcher)?.toBitmap()?.let(::setLargeIcon)
             setAutoCancel(true)

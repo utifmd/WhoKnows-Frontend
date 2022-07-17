@@ -1,6 +1,5 @@
 package com.dudegenuine.usecase.room
 
-import android.util.Log
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -45,11 +44,11 @@ class GetRoom
                 hasImpressedBefore = room.impressions.any { it.userId == currentUserId }
                 impressed = room.impressions.any { it.userId == currentUserId && it.good }
             }
-            Log.d(TAG, "onDetailingRoom: isUserOffBoarding = $isUserOffBoarding")
-            Log.d(TAG, "onDetailingRoom: isUserIsFree = $isUserIsFree")
+            /*Log.d(TAG, "onDetailingRoom: isUserOffBoarding = $isUserOffBoarding") // notification screen by room participated
+            Log.d(TAG, "onDetailingRoom: isUserIsFree = $isUserIsFree") // delete room directly complete
             Log.d(TAG, "onDetailingRoom: isRoomMeetNewUser = $isRoomMeetNewUser")
             Log.d(TAG, "onDetailingRoom: isRoomMeetOldUser = $isRoomMeetOldUser")
-            Log.d(TAG, "onDetailingRoom: isRoomMeetExactUser = $isRoomMeetExactUser")
+            Log.d(TAG, "onDetailingRoom: isRoomMeetExactUser = $isRoomMeetExactUser")*/
             emit(Resource.Success(room))
 
         } catch (e: HttpFailureException){

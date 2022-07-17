@@ -78,6 +78,8 @@ interface IRepositoryModule {
     fun provideNotificationRepository(
         service: INotificationService,
         mapper: INotificationDataMapper,
-        pref: IPreferenceManager
-    ): INotificationRepository
+        prefs: IPrefsFactory,
+        intent: IIntentFactory,
+        notifier: INotifyManager,
+        resource: IResourceDependency): INotificationRepository
 }

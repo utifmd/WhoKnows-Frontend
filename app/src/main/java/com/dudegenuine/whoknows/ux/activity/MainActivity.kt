@@ -22,41 +22,34 @@ class MainActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         with(viewModel) {
-            //registerPrefsListener()
-            registerReceiver(messagingReceiver, receiver.messagingIntent)
             registerReceiver(connectionReceiver, receiver.connectionIntent)
+            registerReceiver(tokenReceiver, receiver.tokenIntent)
 
             setContent {
-                MainScreen(
-                    props = MainProps(
-                        context = applicationContext,
-                        intent = intent,
-                        viewModel = this,
-                        router = rememberNavController(),
-                        lazyPagingQuizzes = questionsFlow.collectAsLazyPagingItems(),
-                        lazyPagingRoomComplete = roomCompleteFlow.collectAsLazyPagingItems(),
-                        lazyPagingRoomCensored = roomsCensoredFlow.collectAsLazyPagingItems(),
-                        lazyPagingParticipants = participantsFlow.collectAsLazyPagingItems(),
-                        lazyPagingNotification = notificationsFlow.collectAsLazyPagingItems()
-                    )
+                val properties = MainProps(
+                    applicationContext, rememberNavController(), this, intent,
+                    roomCompleteFlow.collectAsLazyPagingItems(),
+                    roomsCensoredFlow.collectAsLazyPagingItems(),
+                    participantsFlow.collectAsLazyPagingItems(),
+                    questionsFlow.collectAsLazyPagingItems(),
+                    notificationsFlow.collectAsLazyPagingItems()
                 )
+                MainScreen(props = properties)
             }
         }
     }
-
     override fun onDestroy() {
         super.onDestroy()
         with (viewModel) {
-            //unregisterPrefsListener()
-            messagingReceiver.apply(::unregisterReceiver)
             connectionReceiver.apply(::unregisterReceiver)
+            tokenReceiver.apply(::unregisterReceiver)
         }
     }
 
     companion object {
         private const val INITIAL_DATA_KEY = "initial_data_key"
 
-        fun createInstance(context: Context, data: String):
+        fun instance(context: Context, data: String):
                 Intent = Intent(context, MainActivity::class.java).apply {
             putExtra(INITIAL_DATA_KEY, data)
         }

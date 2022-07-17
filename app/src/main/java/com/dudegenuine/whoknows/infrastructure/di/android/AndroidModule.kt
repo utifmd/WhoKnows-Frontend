@@ -107,6 +107,13 @@ object AndroidModule: IAndroidModule {
 
     @Provides
     @Singleton
+    override fun provideIntentFactories(
+        @ApplicationContext context: Context): IIntentFactory {
+        return IntentFactory(context)
+    }
+
+    @Provides
+    @Singleton
     override fun provideBroadcastReceiverModule(
         @ApplicationContext context: Context): IReceiverFactory {
         return ReceiverFactory()

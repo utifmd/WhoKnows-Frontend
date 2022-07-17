@@ -3,10 +3,15 @@ package com.dudegenuine.repository
 import androidx.paging.PagingSource
 import com.dudegenuine.model.Notification
 import com.dudegenuine.model.ResourcePaging
+import com.dudegenuine.model.common.Utility
 import com.dudegenuine.remote.mapper.contract.INotificationDataMapper
 import com.dudegenuine.remote.service.contract.INotificationService
 import com.dudegenuine.repository.contract.INotificationRepository
-import com.dudegenuine.repository.contract.dependency.local.IPreferenceManager
+import com.dudegenuine.repository.contract.dependency.local.IIntentFactory
+import com.dudegenuine.repository.contract.dependency.local.INotifyManager
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -17,8 +22,10 @@ class NotificationRepository
     @Inject constructor(
     private val service: INotificationService,
     private val mapper: INotificationDataMapper,
-    private val prefs: IPreferenceManager
-    ): INotificationRepository {
+    override val resource: IResourceDependency,
+    override val notifier: INotifyManager,
+    override val intent: IIntentFactory,
+    override val prefs: IPrefsFactory): INotificationRepository {
 
     override suspend fun create(notification: Notification): Notification {
         return mapper.asNotification(
@@ -55,17 +62,34 @@ class NotificationRepository
         )
     }
 
-    override suspend fun listComplete(recipientId: String, page: Int, size: Int): List<Notification> {
-        return mapper.asNotifications(
-            service.pages(recipientId, page, size)
-        )
-    }
+    override suspend fun listComplete(
+        recipientId: String, page: Int, size: Int): List<Notification> = mapper.asNotifications(
+        service.pages(recipientId, "", page, size)
+    )
 
-    override fun pages(recipientId: String, batchSize: Int): PagingSource<Int, Notification> = try {
+    override fun pages(
+        recipientId: String, batchSize: Int): PagingSource<Int, Notification> = try {
         ResourcePaging { page -> listComplete(recipientId, page, batchSize) }
     } catch (e: Exception) {
         ResourcePaging { emptyList() }
     }
+
+    override val initial: Notification
+        get() = Notification(
+            "NTF-${UUID.randomUUID()}",
+            Utility.EMPTY_STRING,
+            Utility.EMPTY_STRING,
+            "Notification description",
+            false,
+            Utility.EMPTY_STRING,
+            true,
+            "Klibbor",
+            Utility.EMPTY_STRING,
+            Utility.EMPTY_STRING,
+            Date(),
+            null,
+            null
+        )
 
 
     /*override val currentUserId: () ->

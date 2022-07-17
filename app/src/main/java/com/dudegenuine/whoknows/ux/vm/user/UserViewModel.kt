@@ -63,8 +63,7 @@ class UserViewModel
     val userState get() = _userState.value
     init {
         val navigated = savedStateHandle.get<String>(USER_ID_SAVED_KEY)
-        navigated?.let(::getUser) // ?: getUser()
-        //if (prefs.userId.isNotBlank()) getUser()
+        navigated?.let(::getUser) // ?: getUser() //if (prefs.userId.isNotBlank()) getUser()
     }
     fun onSharePressed(userId: String) {
         val data = "${BuildConfig.BASE_CLIENT_URL}/who-knows/user/$userId"
@@ -239,8 +238,13 @@ class UserViewModel
         if(fileId.isNullOrBlank()) return
         onNavigateTo(Screen.Home.Preview.routeWithArgs(fileId))
     }
-    override fun onFullNamePressed(it: String) =
-        onNavigateTo(Screen.Home.Setting.ProfileEditor.routeWithArgs(NAME, it))
+    override fun onFullNamePressed(text: String){
+        val route = Screen.Home.Setting.ProfileEditor.routeWithArgs(NAME, text)
+
+        Log.d(TAG, "onFullNamePressed: $text")
+        Log.d(TAG, "onFullNamePressed: $route")
+        onNavigateTo(route)
+    }
     override fun onPhonePressed(it: String) =
         onNavigateTo(Screen.Home.Setting.ProfileEditor.routeWithArgs(PHONE, it))
     override fun onEmailPressed(it: String) =
@@ -256,8 +260,8 @@ class UserViewModel
         )
         onScreenStateChange(dialog)
     }
-    private val fieldValue = savedStateHandle.get<String>(KEY_EDIT_FIELD_VALUE) ?: EMPTY_STRING
     val fieldKey = savedStateHandle.get<String>(KEY_EDIT_FIELD_TYPE) ?: NO_RESULT
+    val fieldValue = savedStateHandle.get<String>(KEY_EDIT_FIELD_VALUE) ?: EMPTY_STRING
 
     fun onUpdateUser(
         currentUser: User.Complete) {

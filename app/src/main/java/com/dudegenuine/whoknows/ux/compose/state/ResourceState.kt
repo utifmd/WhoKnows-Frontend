@@ -59,7 +59,7 @@ data class ResourceState(
     )
 
     companion object {
-        const val DONT_EMPTY = "Text must not be blank."
+        const val DONT_EMPTY = "Parameter must not be blank."
         const val USERNAME_EXIST = "Username already used."
         const val MISS_MATCH = "Password mismatch."
         const val DONT_EMPTY_IMG = "Pick single picture first."

@@ -30,6 +30,22 @@ class MessagingRepository
     override val workerManager: IWorkerManager): IMessagingRepository {
     private val TAG: String = javaClass.simpleName
 
+    /*private inline fun tryCatch(
+        response: () -> Messaging.Getter.Response): Messaging.Getter.Response = try { response() }
+    catch (e: IOException){
+        Log.d(TAG, "tryCatch: IOException")
+        Messaging.Getter.Response(error = e.localizedMessage)
+    } catch (e: HttpException){
+        Log.d(TAG, "tryCatch: HttpException")
+        Messaging.Getter.Response(error = e.localizedMessage)
+    } catch (e: IllegalStateException){
+        Log.d(TAG, "tryCatch: IllegalStateException")
+        Messaging.Getter.Response(error = e.localizedMessage)
+    } catch (e: Exception){
+        Log.d(TAG, "tryCatch: Exception")
+        Messaging.Getter.Response(error = e.localizedMessage)
+    }*/
+
     override suspend fun readFlow(keyName: String) =
         flowOf(get(keyName)).onStart { emit(Messaging.Getter.Response("")) }
 
@@ -89,17 +105,14 @@ class MessagingRepository
         .mapLatest { "unregistering" }*/
         //.retryWhen{ cause, attempt -> cause is IOException || attempt < 3 }
 
-    override suspend fun get(keyName: String): Messaging.Getter.Response {
-        return mapper.asMessagingGetterResponse(
-            service.get(keyName)
-        )
-    }
+    override suspend fun get(keyName: String): Messaging.Getter.Response =
+        (mapper.asMessagingGetterResponse(service.get(keyName)))
+
     override suspend fun create(messaging: Messaging): ResponseBody {
         return mapper.asResponseBody(
             service.create(mapper.asMessagingCreateEntity(messaging))
         )
     }
-
     override suspend fun create(messaging: Messaging.GroupCreator): Messaging.Getter.Response =
         mapper.asMessagingGetterResponse(service.create(mapper.asMessagingCreateEntity(messaging)))
 
@@ -108,18 +121,29 @@ class MessagingRepository
             service.add(mapper.asMessagingAddEntity(messaging))
         )
     }
-
     override suspend fun add(messaging: Messaging.GroupAdder): Messaging.Getter.Response =
         mapper.asMessagingGetterResponse(service.add(mapper.asMessagingAddEntity(messaging)))
 
-    override suspend fun remove(messaging: Messaging): ResponseBody {
-        return mapper.asResponseBody(
-            service.remove(mapper.asMessagingRemoveEntity(messaging))
-        )
+    override suspend fun addOrCreate(messaging: Messaging.GroupAdder): Messaging.Getter.Response {
+        val (notification_key, error) = add(messaging)
+        return error?.let { message ->
+            Log.d(TAG, "error?.let $message")
+            create(Messaging.GroupCreator(messaging.keyName, messaging.tokens))
+        } ?: Messaging.Getter.Response(notification_key = notification_key)
     }
+
+    override suspend fun remove(messaging: Messaging): ResponseBody = mapper.asResponseBody(
+        service.remove(mapper.asMessagingRemoveEntity(messaging))
+    )
+    override suspend fun remove(messaging: Messaging.GroupRemover): Messaging.Getter.Response =
+        mapper.asMessagingGetterResponse(service.remove(mapper.asMessagingRemoveEntity(messaging)))
+
     override suspend fun push(messaging: Messaging): ResponseBody {
         return mapper.asResponseBody(
             service.push(mapper.asMessagingPushEntity(messaging))
         )
     }
+
+    override suspend fun push(messaging: Messaging.Pusher): Messaging.Getter.Response =
+        mapper.asMessagingGetterResponse(service.push(mapper.asMessagingPushEntity(messaging)))
 }

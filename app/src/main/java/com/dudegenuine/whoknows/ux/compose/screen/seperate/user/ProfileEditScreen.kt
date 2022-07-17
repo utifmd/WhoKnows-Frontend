@@ -31,7 +31,7 @@ fun ProfileEditScreen(
     modifier: Modifier = Modifier,
     currentState: User.Complete?,
     viewModel: UserViewModel = hiltViewModel()) {
-    val (field, setField) = remember{ mutableStateOf(EMPTY_STRING) }
+    val (field, setField) = remember{ mutableStateOf(viewModel.fieldValue) }
     fun updateChanges() = currentState?.let(viewModel::onUpdateUser)
 
     Scaffold(topBar = {

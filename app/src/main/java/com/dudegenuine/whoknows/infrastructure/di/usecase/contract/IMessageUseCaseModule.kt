@@ -16,6 +16,7 @@ interface IMessageUseCaseModule {
     val createMessaging: CreateMessaging
     val addMessaging: AddMessaging
     val removeMessaging: RemoveMessaging
+    val retrieveMessaging: RetrieveMessaging
 
     val receiver: IReceiverFactory
     val preference: IPrefsFactory

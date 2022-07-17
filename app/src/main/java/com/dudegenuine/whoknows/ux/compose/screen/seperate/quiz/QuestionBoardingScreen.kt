@@ -16,6 +16,7 @@ fun QuestionBoardingScreen(
     modifier: Modifier = Modifier,
     quiz: Quiz.Complete,
     exactAnswer: Quiz.Answer.Exact?,
+    onPicturePressed: (fileId: String?) -> Unit,
     onAnswer: (Quiz.Answer.Exact) -> Unit,
     onAction: (Int, Quiz.Action.Type) -> Unit) {
 
@@ -46,6 +47,7 @@ fun QuestionBoardingScreen(
         }
 
         override fun onAction(id: Int, type: Quiz.Action.Type) = onAction(id, type)
+        override fun onPicturePressed(fileId: String?) = onPicturePressed(fileId)
     }
 
     QuizScreen(
@@ -54,6 +56,6 @@ fun QuestionBoardingScreen(
             override val model: Quiz.Complete = quiz
             override val answer: Quiz.Answer.Exact? = exactAnswer
             override val event: IQuizPrivateEvent = exactEvent
-        },
+        }
     )
 }

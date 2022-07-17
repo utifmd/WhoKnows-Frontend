@@ -57,9 +57,8 @@
             </intent-filter>
         </service>
 
-        <receiver
-            android:name=".ux.receiver.AlarmReceiver"
-            android:exported="false" />
+        <receiver android:name=".ux.receiver.AlarmReceiver" android:exported="false" />
+        <!--<receiver android:name=".ux.receiver.InternetStatusReceiver" android:exported="false" />-->
 
         <provider
             android:name="androidx.startup.InitializationProvider"

@@ -1,8 +1,6 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
-import com.dudegenuine.repository.contract.IMessagingRepository
-import com.dudegenuine.repository.contract.IRoomRepository
-import com.dudegenuine.repository.contract.IUserRepository
+import com.dudegenuine.repository.contract.*
 import com.dudegenuine.repository.contract.dependency.local.*
 import com.dudegenuine.usecase.participation.DeleteBoarding
 import com.dudegenuine.usecase.participation.GetBoarding
@@ -19,6 +17,9 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseM
 class RoomUseCaseModule(
     private val repository: IRoomRepository,
     private val reposUser: IUserRepository,
+    private val reposResult: IResultRepository,
+    private val reposNotifier: INotificationRepository,
+    private val reposFile: IFileRepository,
     private val reposMessaging: IMessagingRepository,
 
     override val postRoom:
@@ -28,10 +29,10 @@ class RoomUseCaseModule(
         GetRoom = GetRoom(repository, reposUser),
 
     override val patchRoom:
-        PatchRoom = PatchRoom(repository),
+        PatchRoom = PatchRoom(repository, reposMessaging),
 
     override val deleteRoom:
-        DeleteRoom = DeleteRoom(repository, reposMessaging),
+        DeleteRoom = DeleteRoom(repository, reposResult, reposNotifier, reposFile, reposMessaging),
 
     override val getRooms:
         GetRooms = GetRooms(repository),

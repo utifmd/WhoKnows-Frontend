@@ -23,8 +23,11 @@ interface IMessagingRepository {
     suspend fun create(messaging: Messaging.GroupCreator): Messaging.Getter.Response
     suspend fun add(messaging: Messaging): ResponseBody
     suspend fun add(messaging: Messaging.GroupAdder): Messaging.Getter.Response
+    suspend fun addOrCreate(messaging: Messaging.GroupAdder): Messaging.Getter.Response
     suspend fun remove(messaging: Messaging): ResponseBody
+    suspend fun remove(messaging: Messaging.GroupRemover): Messaging.Getter.Response
     suspend fun push(messaging: Messaging): ResponseBody
+    suspend fun push(messaging: Messaging.Pusher): Messaging.Getter.Response
 
     suspend fun readFlow(keyName: String): Flow<Messaging.Getter.Response>
     suspend fun removeFlow(keyName: String, key: String): Flow<String>

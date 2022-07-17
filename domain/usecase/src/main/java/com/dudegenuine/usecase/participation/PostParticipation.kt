@@ -14,6 +14,7 @@ import javax.inject.Inject
  * Sat, 25 Jun 2022
  * WhoKnows by utifmd
  **/
+@OptIn(ExperimentalCoroutinesApi::class)
 class PostParticipation
     @Inject constructor(
     private val reposParticipant: IParticipantRepository,
@@ -21,23 +22,19 @@ class PostParticipation
     private val reposResult: IResultRepository,
     private val reposMessaging: IMessagingRepository,
     private val reposNotify: INotificationRepository) {
+    private val storedParticipantId
+        get() = reposParticipant.prefs.participationParticipantId
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(
-        participant: Participant,
-        result: Result,
-        notification: Notification,
-        addMessaging: Messaging.GroupAdder,
-        pushMessaging: Messaging.Pusher): Flow<Resource<String>> = flow {
+        participant: Participant, result: Result, notification: Notification): Flow<Resource<String>> = flow {
+        val messaging = Messaging.Pusher(notification.title, notification.event, notification.imageUrl, to = notification.to)
         try {
             emit(Resource.Loading())
-            reposRoom.timer.stop()
-            reposMessaging.add(addMessaging)
-            reposParticipant.update(participant.id, participant.copy(expired = true))
+            reposParticipant.update(storedParticipantId, participant.copy(expired = true))
             reposResult.create(result)
             reposNotify.create(notification)
+            reposMessaging.push(messaging)
             reposRoom.deleteBoardingLocal()
-            reposMessaging.push(pushMessaging)
             emit(Resource.Success(participant.id))
 
         } catch (e: HttpFailureException){

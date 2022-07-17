@@ -1,6 +1,5 @@
 package com.dudegenuine.usecase.user
 
-import android.util.Log
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.User
 import com.dudegenuine.model.common.validation.HttpFailureException
@@ -49,9 +48,6 @@ class GetUser
         try {
             emit(Resource.Loading())
             val localUser = repository.localRead()
-
-            Log.d(TAG, localUser.toString())
-
             emit(Resource.Success(localUser))
 
         } catch (e: HttpFailureException){

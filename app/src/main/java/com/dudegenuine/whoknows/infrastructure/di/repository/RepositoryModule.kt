@@ -50,7 +50,7 @@ object RepositoryModule: IRepositoryModule {
         timer: ITimerLauncher,
         share: IShareLauncher): IRoomRepository {
 
-        return RoomRepository(service, mapper, local, workManager, workRequest, alarmManager, receiver, iPrefsFactory, clip, timer, share)
+        return RoomRepository(service, local, mapper, workManager, workRequest, alarmManager, receiver, iPrefsFactory, clip, timer, share)
     }
 
     @Provides
@@ -122,9 +122,12 @@ object RepositoryModule: IRepositoryModule {
     override fun provideNotificationRepository(
         service: INotificationService,
         mapper: INotificationDataMapper,
-        pref: IPreferenceManager
+        prefs: IPrefsFactory,
+        intent: IIntentFactory,
+        notifier: INotifyManager,
+        resource: IResourceDependency
     ): INotificationRepository {
 
-        return NotificationRepository(service, mapper, pref)
+        return NotificationRepository(service, mapper, resource, notifier, intent, prefs)
     }
 }

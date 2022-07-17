@@ -75,7 +75,6 @@ class NotificationViewModel
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-
         caseNotify.postNotification(notification)
             .onEach(this::onResource).launchIn(viewModelScope)
     }

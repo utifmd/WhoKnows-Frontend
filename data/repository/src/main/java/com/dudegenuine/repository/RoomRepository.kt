@@ -26,8 +26,8 @@ import javax.inject.Inject
 class RoomRepository
     @Inject constructor(
     private val service: IRoomService,
-    val mapper: IRoomDataMapper,
     private val local: IWhoKnowsDatabase,
+    val mapper: IRoomDataMapper,
 
     override val workManager: IWorkerManager,
     override val workRequest: ITokenWorkManager,
@@ -82,9 +82,14 @@ class RoomRepository
     override suspend fun clearParticipation(): Flow<Unit> = flowOf(deleteBoardingLocal())
 
     override suspend fun createBoardingLocal(participation: Participation) {
-        daoBoarding.create(mapper.asParticipationTable(participation)).also {
-            onParticipantRoomIdChange(participation.roomId)
-            onParticipantTimeLeftChange(participation.roomMinute)
+        val taskDuration = (participation.roomMinute.toFloat() * 60).toDouble()
+        daoBoarding.create(mapper.asParticipationTable(participation))
+
+        participation.apply {
+            timer.start(taskDuration)
+            onParticipantRoomIdChange(roomId)
+            onParticipantPpnIdChange(participantId)
+            onParticipantTimeLeftChange(roomMinute)
         }
     }
     override suspend fun readBoardingLocal(): Participation { //val model = preference.participationId
@@ -97,9 +102,10 @@ class RoomRepository
     }
     override suspend fun deleteBoardingLocal() {
         //val store = daoBoarding.read(/*preference.participationId*/)
-
+        timer.stop()
         daoBoarding.delete()
         onParticipantRoomIdChange("")
+        onParticipantPpnIdChange("")
         onParticipantTimeLeftChange(0)
 
         /*if (store != null) {
@@ -118,5 +124,9 @@ class RoomRepository
     private fun onParticipantRoomIdChange(roomId: String){
         Log.d(TAG, "onParticipantRoomIdChange: $roomId")
         preference.participationRoomId = roomId
+    }
+    private fun onParticipantPpnIdChange(participantId: String){
+        Log.d(TAG, "onParticipantPpnIdChange: $participantId")
+        preference.participationParticipantId = participantId
     }
 }

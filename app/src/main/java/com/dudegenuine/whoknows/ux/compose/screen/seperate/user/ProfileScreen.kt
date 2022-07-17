@@ -7,7 +7,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
@@ -21,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dudegenuine.model.common.ImageUtil.asBitmap
 import com.dudegenuine.whoknows.R
+import com.dudegenuine.whoknows.ux.compose.component.GeneralButton
 import com.dudegenuine.whoknows.ux.compose.component.GeneralPicture
 import com.dudegenuine.whoknows.ux.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ux.compose.component.misc.FieldTag
@@ -38,7 +42,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
-    viewModel: UserViewModel = hiltViewModel(), state: ResourceState){ /*val state = viewModel.state val formState = viewModel.formState val byteArray = viewModel.formState.profileImage*/
+    viewModel: UserViewModel = hiltViewModel(), state: ResourceState){
     val context = LocalContext.current
     val scrollState: ScrollState = rememberScrollState()
     val swipeRefreshState = rememberSwipeRefreshState(viewModel.auth.loading || viewModel.state.loading)
@@ -57,7 +61,9 @@ fun ProfileScreen(
                     { state.user.id.let(viewModel::onSharePressed) }} else null )}) { padding ->
 
         SwipeRefresh(swipeRefreshState, { state.user?.id?.let(viewModel::getUser) },
-            modifier = Modifier.fillMaxSize().padding(padding)) {
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)) {
             state.user?.let { user ->
                 Column(modifier.verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally) {
@@ -110,7 +116,7 @@ fun ProfileScreen(
 
                         FieldTag(
                             key = stringResource(R.string.username),
-                            editable = false,
+                            editable = false, //user.isCurrentUser,
                             value = user.username,
                             onValuePressed = { viewModel.onUsernamePressed(user.username.ifBlank{ "Not Set" }) })
 
@@ -135,11 +141,11 @@ fun ProfileScreen(
                             onValuePressed = { viewModel.onPasswordPressed(user.password) })
                     }
                     if (user.isCurrentUser){
-                        Button(viewModel::onSignOutPressed) {
-                            Icon(Icons.Default.Logout, tint = MaterialTheme.colors.onPrimary, contentDescription = null)
-                            Spacer(modifier.size(ButtonDefaults.IconSize))
-                            Text(stringResource(R.string.sign_out), color = MaterialTheme.colors.onPrimary)
-                        }
+                        GeneralButton(
+                            label = stringResource(R.string.sign_out),
+                            trailingIcon = Icons.Default.Logout,
+                            onClick = viewModel::onSignOutPressed
+                        )
                     }
                     Spacer(modifier.size(12.dp))
                 }

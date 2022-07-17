@@ -28,7 +28,7 @@ class GetNotifications
         repository.pages(recipientId, size)
     }.flow.map { data ->
         data.map { notify ->
-            notify.copy(isDetail = !notify.event.contains("like"))
+            notify.copy(isDetail = notify.event.contains("has joined"))
         }
     }
 

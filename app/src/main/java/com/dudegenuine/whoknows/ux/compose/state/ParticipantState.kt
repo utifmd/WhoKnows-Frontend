@@ -13,7 +13,7 @@ object ParticipantState {
         id = "PPN-${UUID.randomUUID()}",
         roomId = EMPTY_STRING,
         userId = EMPTY_STRING,
-        currentPage = EMPTY_STRING,
+        currentPage = "0",
         timeLeft = null,
         expired = false,
         createdAt = Date(),

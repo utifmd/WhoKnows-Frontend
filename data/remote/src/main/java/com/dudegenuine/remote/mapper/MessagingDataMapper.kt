@@ -73,13 +73,17 @@ class MessagingDataMapper
         return body
     }
 
-    override fun asMessagingGetterResponse(response: Response<ResponseBody>): Messaging.Getter.Response {
-        val key = gson.fromJson(asResponseBody(response).string(),
-            Messaging.Getter.Response::class.java)
+    override fun asMessagingGetterResponse(
+        response: Response<ResponseBody>): Messaging.Getter.Response {
+        val body = response.body()?.string() ?: "{\"error\": \"body string not found\"}"
+        return gson.fromJson(body, Messaging.Getter.Response::class.java)
 
-        if (key.notification_key.isBlank())
-            throw IllegalStateException()
+    /*val getter = */
+        //val getter = gson.fromJson(asResponseBody(response).string(), Messaging.Getter.Response::class.java)
 
-        return key
+        /*if (getter.notification_key.isBlank())
+            throw IllegalStateException()*/
+
+        //return getter
     }
 }

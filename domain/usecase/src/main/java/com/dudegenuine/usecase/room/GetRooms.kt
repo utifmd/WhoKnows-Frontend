@@ -1,6 +1,5 @@
 package com.dudegenuine.usecase.room
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -28,7 +27,6 @@ class GetRooms
 
     operator fun invoke(size: Int): Flow<PagingData<Room.Censored>> {
         val config = PagingConfig(size, enablePlaceholders = true, maxSize = 200)
-
         val pager = Pager(config){ repository.pageCensoredRemote(size) }
 
         return pager.flow.map{ data -> data.map{ room -> room.copy(
@@ -43,18 +41,14 @@ class GetRooms
                 .any{ it.userId == currentUserId && it.good }
         )}}
     }
-
     operator fun invoke(userId: String, size: Int): Flow<PagingData<Room.Complete>> {
-        Log.d(TAG, "invoke: Flow<PagingData<Room.Complete>>")
         val config = PagingConfig(size, enablePlaceholders = true, maxSize = 200)
         val pager = Pager(config) { repository.pageCompleteRemote(userId, size) }
 
         return pager.flow
     }
-
     operator fun invoke(page: Int, size: Int): Flow<Resource<List<Room.Complete>>> = flow {
         try {
-            Log.d(TAG, "invoke: Flow<Resource<List<Room.Complete>>>")
             emit(Resource.Loading())
             val rooms = repository.listCompleteRemote(page, size)
 

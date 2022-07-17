@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.quiz
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,10 +24,10 @@ import com.dudegenuine.whoknows.ux.compose.component.GeneralTopBar
 import com.dudegenuine.whoknows.ux.compose.component.misc.FieldTag
 import com.dudegenuine.whoknows.ux.compose.screen.ErrorScreen
 import com.dudegenuine.whoknows.ux.compose.screen.LoadingScreen
+import com.dudegenuine.whoknows.ux.vm.quiz.QuizViewModel
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizPrivateState
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizPublicState
 import com.dudegenuine.whoknows.ux.vm.quiz.contract.IQuizState
-import com.dudegenuine.whoknows.ux.vm.quiz.QuizViewModel
 import okhttp3.internal.http.toHttpDateString
 
 /**
@@ -37,8 +38,7 @@ import okhttp3.internal.http.toHttpDateString
 fun QuizScreen(
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
-    stateCompose: IQuizState
-) {
+    stateCompose: IQuizState) {
 
     when(stateCompose){
         is IQuizPrivateState -> PrivateBody(
@@ -93,8 +93,7 @@ private fun Body(
                 .fillMaxWidth()
                 .background(
                     color = backgroundColor,
-                    shape = MaterialTheme.shapes.small
-                )) {
+                    shape = MaterialTheme.shapes.small)) {
             Text(
                 text = model.question,
                 style = MaterialTheme.typography.subtitle1,
@@ -157,6 +156,7 @@ private fun PrivateBody (
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 private fun PublicBody (
     modifier: Modifier = Modifier,

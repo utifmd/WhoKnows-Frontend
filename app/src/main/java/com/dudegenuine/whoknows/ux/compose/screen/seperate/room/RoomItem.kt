@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.room
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -49,9 +48,6 @@ fun RoomItem(
             is Room.Complete -> mutableStateOf(model.impressionSize)
             is Room.Censored -> mutableStateOf(model.impressionSize)
         }
-    }
-    SideEffect {
-        Log.d("RoomItem", model.toString())
     }
     GeneralCardView(
         modifier = modifier

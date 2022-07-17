@@ -21,8 +21,8 @@ class CreateMessaging @Inject constructor(
         try {
             emit(Resource.Loading())
 
-            val model = repository.create(messaging).notification_key
-            emit(Resource.Success(model))
+            val (notification_key, error) = repository.create(messaging)
+            emit(Resource.Success(error ?: notification_key))
 
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

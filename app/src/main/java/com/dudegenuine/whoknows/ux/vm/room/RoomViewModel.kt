@@ -1,18 +1,14 @@
 package com.dudegenuine.whoknows.ux.vm.room
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavOptions
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.work.workDataOf
 import com.dudegenuine.model.*
+import com.dudegenuine.model.common.Utility.EMPTY_STRING
 import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
-import com.dudegenuine.repository.contract.dependency.local.IWorkerManager.Companion.KEY_ROOM_TOKEN_RESULT
-import com.dudegenuine.repository.contract.dependency.local.IWorkerManager.Companion.TAG_ROOM_TOKEN
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ux.compose.model.Dialog
@@ -42,17 +38,13 @@ class RoomViewModel
     @Inject constructor(
     private val caseMessaging: IMessageUseCaseModule,
     private val caseFile: IFileUseCaseModule,
-    private val caseNotification: INotificationUseCaseModule,
     private val caseRoom: IRoomUseCaseModule,
     private val caseUser: IUserUseCaseModule,
     private val caseParticipant: IParticipantUseCaseModule,
     private val caseQuiz: IQuizUseCaseModule,
-    private val caseResult: IResultUseCaseModule,
-    private val savedStateHandle: SavedStateHandle): IRoomViewModel() {
-    @Inject lateinit var resource: IResourceDependency
-    private val TAG: String = javaClass.simpleName
-    private val worker = caseRoom.workManager.instance()
-    private val prefs = caseRoom.preferences
+    private val resource: IResourceDependency,
+    private val savedStateHandle: SavedStateHandle): IRoomViewModel() { //@Inject lateinit var resource: IResourceDependency //private val TAG: String = javaClass.simpleName
+    private val prefs = caseRoom.preferences //private val worker = caseRoom.workManager.instance()
 
     private val userId get() = prefs.userId
     val receiver get() = caseRoom.receiver
@@ -60,28 +52,10 @@ class RoomViewModel
     private val _roomState = mutableStateOf(RoomState())
     val roomState get() = _roomState.value
 
-    init {
-        //onParticipationRouted()
-        //onParticipationStored()
-        onDetailRouted()
-        //onParticipated()
-    }
-    internal fun subscribeTokenWorker(){
-        val tokenWorkRequest = caseRoom.workRequest.onTime() /*.periodicTime(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)*/
-            .addTag(TAG_ROOM_TOKEN)
-            .setInputData(workDataOf(KEY_ROOM_TOKEN_RESULT to "Parameter value from $TAG"))//.setConstraints(networkConnectedConstrains)
-            .build()
+    init{ onDetailRouted() }
 
-        worker.enqueue(tokenWorkRequest)
-
-        worker.getWorkInfoByIdLiveData(tokenWorkRequest.id).asFlow()
-            .onEach(::onWorkResult)
-            .onCompletion { if(it == null) Log.d(TAG, "subscribeAlarmWorker: complete") }
-            .launchIn(viewModelScope)
-    }
-    internal fun cancelWork() = worker.cancelAllWorkByTag(TAG_ROOM_TOKEN)
-    private fun onDetailRouted() =
-        savedStateHandle.get<String>(ROOM_ID_SAVED_KEY)?.let(::getRoom)
+    private fun onDetailRouted() = savedStateHandle
+        .get<String>(ROOM_ID_SAVED_KEY)?.let(::getRoom)
 
     fun onExclusiveClassChange(
         room: Room.Complete, selected: Boolean, onSelected: () -> Unit){
@@ -94,9 +68,6 @@ class RoomViewModel
         }
         onScreenStateChange(ScreenState.AlertDialog(dialog))
     }
-    fun onLeaveRoomPressed(room: Room.Complete){
-
-    }
     private fun onSharePressed(roomId: String) {
         val data = "${BuildConfig.BASE_CLIENT_URL}/who-knows/room/$roomId"
 
@@ -104,6 +75,23 @@ class RoomViewModel
     }
     private fun onCopyRoomIdPressed(roomId: String) =
         caseRoom.clipboard.applyPlainText("ROOM ID", roomId)
+
+    /*
+    internal fun subscribeTokenWorker(){
+        val tokenWorkRequest = caseRoom.workRequest.onTime() /*.periodicTime(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)*/
+            .addTag(TAG_ROOM_TOKEN)
+            .setInputData(workDataOf(KEY_ROOM_TOKEN_RESULT to "Parameter value from $TAG")) //.setConstraints(networkConnectedConstrains)
+            .build()
+
+        worker.enqueue(tokenWorkRequest)
+
+        worker.getWorkInfoByIdLiveData(tokenWorkRequest.id).asFlow()
+            .onEach(::onWorkResult)
+            .onCompletion { if(it == null) onToast("Token update complete") }
+            .launchIn(viewModelScope)
+    }
+    internal fun cancelWork() = worker.cancelAllWorkByTag(TAG_ROOM_TOKEN)
+    * * */
 
     fun onCreatePressed() {
         val model = roomState.room.copy(userId = userId)
@@ -120,24 +108,26 @@ class RoomViewModel
             .onCompletion{ if (it == null) onNavigateBackThenRefresh() }
             .launchIn(viewModelScope)
     }
-    private fun onDeleteRoom(
-        room: Room.Complete) {
-        if (room.id.isBlank() || room.token.isBlank()){
-            onStateChange(ResourceState(error = DONT_EMPTY))
-            return
-        }
-        caseRoom.deleteRoom(room)
+    private fun onDeleteRoom(room: Room.Complete) {
+        val notifier = NotificationState().copy(
+            userId = userId,
+            roomId = room.id,
+            event = "@${room.user?.username} just removed the ${room.title} class",
+            recipientId = room.userId,
+            imageUrl = room.user?.profileUrl ?: EMPTY_STRING,
+            title = room.title,
+            to = room.token,
+        )
+        caseRoom.deleteRoom(room, notifier)
             .onEach(::onResource)
             .onCompletion{ if (it == null) onNavigateBackThenRefresh() }
             .launchIn(viewModelScope)
     }
-
     override fun onNavigateBackThenRefresh() =
         onScreenStateChange(ScreenState.Navigate.Back(refresh = true))
 
     private fun onDeleteQuestionPressed(quiz: Quiz.Complete, setIsRefresh: (Boolean) -> Unit) {
         val flowFileIds = quiz.images.map { it.substringAfterLast("/") }
-        Log.d(TAG, "onDeleteQuestionPressed: triggered")
 
         flowOf(
             caseQuiz.deleteQuiz(quiz.id),
@@ -150,40 +140,56 @@ class RoomViewModel
             }
             .launchIn(viewModelScope)
     }
-
+    fun onLeaveRoomPressed(
+        enabled: Boolean, room: Room.Complete, setIsRefresh: (Boolean) -> Unit){
+        val participant = room.participants.find { it.userId == userId } ?: let {
+            onShowSnackBar("Invalid class participant")
+            return
+        }
+        val notifier = NotificationState().copy(
+            userId = userId,
+            roomId = room.id,
+            event = "@${participant.user?.username} just left the ${room.title} class",
+            recipientId = room.userId,
+            imageUrl = participant.user?.profileUrl ?: EMPTY_STRING,
+            title = room.title,
+            to = room.user?.tokens?.first() ?: EMPTY_STRING,
+        )
+        fun submit() = onDeleteParticipation(participant, notifier, setIsRefresh)
+        onShowDialog(Dialog(resource.string(R.string.leave_as_a_participant),
+            if (!enabled) resource.string(R.string.allowed_when_class_opened) else null,
+            onSubmitted = if(enabled) ::submit else null)
+        )
+    }
     private fun onDeleteParticipantPressed(
         participant: Participant, setIsRefresh: (Boolean) -> Unit){
-
-        caseParticipant.deleteParticipation(participant)
-            .onEach(::onResourceStateless)
-            .onCompletion{
-                if (it == null) getRoom(participant.roomId)
-                setIsRefresh(true)
-            }
-            .launchIn(viewModelScope)
-    }
-
-    private fun flowUnregisterMessaging(room: Room.Complete, participant: Participant): Flow<Resource<out Any>> {
-        val event = "${participant.user?.username} $JUST_KICKED_OUT ${room.title} class"
+        val room = state.room ?: let {
+            onShowSnackBar("Invalid selected class")
+            return
+        }
         val notifier = NotificationState().copy(
             userId = userId,
             roomId = participant.roomId,
-            event = event,
-            recipientId = participant.userId
+            event = "@${participant.user?.username} just kicked out by @${room.user?.username ?: "admin"} from the ${room.title}",
+            recipientId = participant.userId,
+            title = room.title,
+            to = room.token, //participant.userId
+            imageUrl = participant.user?.profileUrl ?: EMPTY_STRING,
         )
-        val pusher = Messaging.Pusher(room.title, event,
-            largeIcon = participant.user?.profileUrl ?: "",
-            args = mapOf("roomId" to room.id, "userId" to participant.user?.userId).toString())
-
-        return flowOf(
-            caseNotification.postNotification(notifier),
-            caseMessaging.getMessaging(participant.roomId)
-                .flatMapConcat { res -> onResourceFlow(res) { key ->
-                    caseMessaging.pushMessaging(pusher.copy(to = key))
-                }})
-            .flattenMerge()
+        onDeleteParticipation(participant, notifier, setIsRefresh)
     }
+    private fun onDeleteParticipation(
+        participant: Participant, notification: Notification, setIsRefresh: (Boolean) -> Unit){
 
+        fun complete(it: Throwable?) {
+            if (it == null) getRoom(participant.roomId)
+            setIsRefresh(true)
+        }
+        caseParticipant.deleteParticipation(participant, notification)
+            .onEach(::onResourceStateless)
+            .onCompletion{ complete(it) }
+            .launchIn(viewModelScope)
+    }
     override fun postRoom(room: Room.Complete) {
         if (room.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
@@ -201,8 +207,7 @@ class RoomViewModel
             return
         }
         caseRoom.getRoom(id)
-            .onEach(::onResource)
-            //.onEach{ res -> onResourceSucceed(res, ::onDetailingRoom) }
+            .onEach(::onResource) //.onEach{ res -> onResourceSucceed(res, ::onDetailingRoom) }
             .launchIn(viewModelScope)
     }
     private fun getRoom(id: String, onSucceed: (Room.Complete) -> Unit) {
@@ -226,18 +231,17 @@ class RoomViewModel
             .launchIn(viewModelScope)
     }
 
-    fun expireRoom(current: Room.Complete, finished: () -> Unit) {
-        val model = current.copy(expired = true, updatedAt = Date())
+    private fun expireRoom(current: Room.Complete, onFinish: () -> Unit) {
+        val model = current.copy(expired = true, private = true, updatedAt = Date())
         if (model.id.isBlank() || model.isPropsBlank){
             onStateChange(ResourceState(error = DONT_EMPTY))
         }
-
+        fun stating(it: Room.Complete){
+            onStateChange(ResourceState(room = it))
+            onFinish()
+        }
         caseRoom.patchRoom(model.id, model)
-            .onEach{ res -> onResourceSucceed(res) {
-                onStateChange(ResourceState(room = it))
-
-                finished() //onSucceed(it)
-            }}
+            .onEach{ res -> onResourceSucceed(res, ::stating) }
             .launchIn(viewModelScope)
     }
 
@@ -297,9 +301,12 @@ class RoomViewModel
     fun onRoomFinderButtonGoPressed(roomId: String) =
         getRoom(roomId){ onNavigateTo(Screen.Home.Discover.RoomDetail.routeWithArgs(roomId)) }
 
-    //override fun onImpressed() { TODO("Not yet implemented") }
-    override fun onNewClassPressed() =
-        onNavigateTo(Screen.Home.Summary.RoomCreator.route)
+    override fun onNewClassPressed(){
+        caseMessaging.createMessaging(Messaging.GroupCreator("soekarno", listOf("prefs.tokenId")))
+            .onEach(::onResourceStateless)
+            .launchIn(viewModelScope)
+        //= onNavigateTo(Screen.Home.Summary.RoomCreator.route)
+    }
     override fun onNotificationPressed() =
         onNavigateTo(Screen.Home.Summary.Notification.route)
     override fun onButtonJoinRoomWithACodePressed() =
@@ -317,7 +324,7 @@ class RoomViewModel
     override fun onParticipantItemPressed(userId: String) =
         onNavigateTo(Screen.Home.Summary.RoomDetail.ProfileDetail.routeWithArgs(userId))
     override fun onResultPressed(roomId: String, userId: String) =
-        onNavigateTo(Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(roomId, userId))
+        onNavigateTo(Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(roomId, userId, "no_action"))
     override fun onQuestionItemPressed(quizId: String) =
         onNavigateTo(Screen.Home.Summary.RoomDetail.QuizDetail.routeWithArgs(quizId))
     override fun onBackPressed() = onNavigateBack()
@@ -338,11 +345,12 @@ class RoomViewModel
     private val _isRoomNotification = mutableStateOf(prefs.roomAlarm)
     val isRoomNotification get() = _isRoomNotification.value
     */
-    fun onMessagingChange(selected: Boolean, room: Room.Complete) =
+    fun onMessagingChange(selected: Boolean, room: Room.Complete) {
+        fun stating(it: Room.Complete) = onStateChange(ResourceState(room = it))
         caseRoom.patchRoom(selected, room)
-            .onEach(::onResourceStateless)
+            .onEach{ onResourceStateless(it, ::stating) }
             .launchIn(viewModelScope)
-
+    }
     override fun onShareRoomPressed(room: Room.Complete) { if(room.questions.size >= 3)
         onSharePressed(room.id) else
             onShowSnackBar(resource.string(R.string.allowed_after_add_3_quest))
@@ -369,16 +377,17 @@ class RoomViewModel
     }
     override fun onDeleteRoomPressed(
         room: Room.Complete) {
-        val disclaimer = when {
+        /*val disclaimer = when {
             room.participants.isNotEmpty() -> resource.string(R.string.already_participantion)
             room.questions.any { it.images.isNotEmpty() } -> resource.string(R.string.there_is_no_quest)
             else -> null
         }
-        val accepted = room.participants.isEmpty() && room.questions.all { it.images.isEmpty() }
+        val accepted = room.participants.isEmpty() && room.questions.all{ it.images.isEmpty() }*/
+        val disclaimer = if (room.expired) resource.string(R.string.allowed_when_class_opened) else null
+        fun submit() = onDeleteRoom(room)
         onShowDialog(
             Dialog(resource.string(R.string.delete_class), disclaimer,
-            onSubmitted = if (accepted) {
-                { onDeleteRoom(room) }} else null)
+            onSubmitted = if (!room.expired) ::submit else null)
         )
     }
     override fun onParticipantLongPressed(

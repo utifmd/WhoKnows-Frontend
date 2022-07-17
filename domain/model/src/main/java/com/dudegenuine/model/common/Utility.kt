@@ -18,6 +18,7 @@ object Utility {
         return listOf(*lists).flatten()
     }
 
+    const val EMPTY_STRING = ""
     const val DEFAULT_BATCH_SIZE = 5
 
     private const val ALGORITHM = "AES"

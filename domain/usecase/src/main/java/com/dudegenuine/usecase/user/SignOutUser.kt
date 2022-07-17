@@ -28,6 +28,7 @@ class SignOutUser
     operator fun invoke(): Flow<Resource<String>> = flow {
         try {
             emit(Resource.Loading())
+
             val localUser = repoUser.localRead()
             val tokens = localUser.tokens.filter{ it != preferences.tokenId }
             val latestUser = localUser.copy(tokens = tokens)

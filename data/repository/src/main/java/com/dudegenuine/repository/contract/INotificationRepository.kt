@@ -2,6 +2,10 @@ package com.dudegenuine.repository.contract
 
 import androidx.paging.PagingSource
 import com.dudegenuine.model.Notification
+import com.dudegenuine.repository.contract.dependency.local.IIntentFactory
+import com.dudegenuine.repository.contract.dependency.local.INotifyManager
+import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 
 /**
  * Thu, 10 Feb 2022
@@ -18,6 +22,12 @@ interface INotificationRepository {
     suspend fun listComplete(recipientId: String, page: Int, size: Int): List<Notification>
 
     fun pages(recipientId: String, batchSize: Int): PagingSource<Int, Notification>
+
+    val notifier: INotifyManager
+    val resource: IResourceDependency
+    val prefs: IPrefsFactory
+    val intent: IIntentFactory
+    val initial: Notification
 
     companion object {
         const val NOT_FOUND = "Notification not found."

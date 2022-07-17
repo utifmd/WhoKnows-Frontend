@@ -1,6 +1,5 @@
 package com.dudegenuine.whoknows.ux.service
 
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -8,12 +7,9 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
-import com.dudegenuine.repository.contract.dependency.local.INotifyManager
+import com.dudegenuine.repository.contract.dependency.local.*
 import com.dudegenuine.repository.contract.dependency.local.INotifyManager.Companion.CHANNEL_ID_TIMER
-import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
-import com.dudegenuine.repository.contract.dependency.local.ITimerService
 import com.dudegenuine.whoknows.R
-import com.dudegenuine.whoknows.ux.activity.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import javax.inject.Inject
@@ -26,6 +22,8 @@ import javax.inject.Inject
 class TimerService: ITimerService() {
     private val TAG = javaClass.simpleName
     @Inject lateinit var notifier: INotifyManager
+    @Inject lateinit var resource: IResourceDependency
+    @Inject lateinit var intentFactory: IIntentFactory
     @Inject lateinit var prefsFactory: IPrefsFactory
     private val currentTime = mutableStateOf(0.0)
 
@@ -73,22 +71,19 @@ class TimerService: ITimerService() {
     }
 
     private fun onStartTimerForeground(flags: Int){
-        val activityIntent: Intent = MainActivity.createInstance(this, TIME_RUNNING)
-            .apply { addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) }
-
-        val pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, flags)
-
-        val actionIntent = NotificationCompat.Action.Builder(
-            R.drawable.ic_baseline_task_24, "Go back", pendingIntent).build()
+        val intent = intentFactory.activityIntent(TIME_RUNNING, flags)
+        val action = NotificationCompat.Action.Builder(
+            R.drawable.ic_baseline_task_24, getString(R.string.go_back), intent)
 
         val builder = notifier.onBuilt(CHANNEL_ID_TIMER, IMPORTANCE_DEFAULT)
 
         with(builder) {
-            setContentTitle("The class still going")
-            setContentText("Just go back don\'t waste your time!")
+            setContentTitle(getString(R.string.notification_title_timer_service))
+            setContentText(getString(R.string.notification_body_timer_service))
             setSmallIcon(R.drawable.ic_outline_timer_24)
             setAutoCancel(true)
-            addAction(actionIntent)
+            addAction(action.build())
+            setLargeIcon(resource.appIcon)
         }
 
         startForeground(FOREGROUND_TIMER_SERVICE_ID, builder.build())

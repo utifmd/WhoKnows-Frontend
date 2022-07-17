@@ -20,7 +20,7 @@ interface IParticipantRepository {
     suspend fun list(page: Int, size: Int): List<Participant>
 
     fun page(batchSize: Int): PagingSource<Int, Participant>
-    fun save(participant: Participant)
+    //fun save(participant: Participant)
 
     val prefs: IPrefsFactory
 

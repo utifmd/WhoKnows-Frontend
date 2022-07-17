@@ -17,16 +17,9 @@ fun SummaryScreen(
     roomViewModel: RoomViewModel) {
     RoomHomeScreen(viewModel = roomViewModel, props = props)
 
-    LaunchedEffect(props.viewModel.auth.user){
+    LaunchedEffect(Unit){
         with(props.viewModel as MainViewModel){
             auth.user?.id?.let(::onUserIndicatorChange)
         }
-
-        /*with(props.viewModel as MainViewModel){
-            onRoomCompleteParameterChange(FlowParameter.RoomComplete(auth.user?.id ?: EMPTY_STRING))
-            onRoomCensoredParameterChange(FlowParameter.RoomCensored(auth.user?.id ?: EMPTY_STRING))
-            onNotificationParameterChange(FlowParameter.Notification(auth.user?.id ?: EMPTY_STRING))
-            //props.lazyPagingRoomCensored.refresh()
-        }*/
     }
 }

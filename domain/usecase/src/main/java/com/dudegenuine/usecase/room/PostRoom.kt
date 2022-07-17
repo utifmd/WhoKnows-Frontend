@@ -3,6 +3,7 @@ package com.dudegenuine.usecase.room
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
+import com.dudegenuine.model.common.Utility.EMPTY_STRING
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.repository.contract.IRoomRepository
@@ -21,12 +22,12 @@ class PostRoom
     private val repository: IRoomRepository,
     private val reposMessaging: IMessagingRepository) {
 
-    operator fun invoke(body: Room.Complete): Flow<Resource<Room.Complete>> = flow {
+    operator fun invoke(current: Room.Complete): Flow<Resource<Room.Complete>> = flow {
         try {
             emit(Resource.Loading())
-            val creator = Messaging.GroupCreator(keyName = body.id, tokens = listOf(repository.preference.tokenId))
-            val notificationKey = reposMessaging.create(creator).notification_key
-            val room = repository.createRemote(body.copy(token = notificationKey))
+            val creator = Messaging.GroupCreator(current.id, listOf(repository.preference.tokenId))
+            val (notificationKey, error) = reposMessaging.create(creator)
+            val room = repository.createRemote(current.copy(token = error?.let{ EMPTY_STRING } ?: notificationKey))
             emit(Resource.Success(room))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

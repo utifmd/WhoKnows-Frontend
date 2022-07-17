@@ -44,7 +44,6 @@ fun ParticipationScreen(
                 context.registerReceiver(receiver, intention)
                 onDispose {
                     viewModel.patchBoarding(state)
-                    //viewModel.patchParticipant(state.participantId, )
                     context.unregisterReceiver(receiver)
                 }
             }
@@ -119,6 +118,7 @@ fun ParticipationScreen(
                         QuestionBoardingScreen(
                             quiz = boardingState.quiz,
                             exactAnswer = boardingState.answer,
+                            onPicturePressed = viewModel::onPicturePressed,
                             onAction = viewModel::onBoardingActionPressed,
                             onAnswer = { chosenAnswer ->
                                 boardingState.apply {

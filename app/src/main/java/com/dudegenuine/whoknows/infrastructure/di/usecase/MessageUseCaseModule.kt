@@ -1,6 +1,7 @@
 package com.dudegenuine.whoknows.infrastructure.di.usecase
 
 import com.dudegenuine.repository.contract.IMessagingRepository
+import com.dudegenuine.repository.contract.INotificationRepository
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IReceiverFactory
 import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
@@ -14,24 +15,16 @@ import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IMessageUseCa
  **/
 class MessageUseCaseModule(
     repository: IMessagingRepository,
+    reposNotifier: INotificationRepository,
     override val preference: IPrefsFactory = repository.preference,
     override val receiver: IReceiverFactory = repository.receiver,
     override val firebase: IFirebaseManager = repository.firebase,
-    override val workerManager: IWorkerManager = repository.workerManager
-): IMessageUseCaseModule {
+    override val workerManager: IWorkerManager = repository.workerManager): IMessageUseCaseModule {
 
-    override val pushMessaging: PushMessaging =
-        PushMessaging(repository)
-
-    override val getMessaging: GetMessaging =
-        GetMessaging(repository)
-
-    override val createMessaging: CreateMessaging =
-        CreateMessaging(repository)
-
-    override val addMessaging: AddMessaging =
-        AddMessaging(repository)
-
-    override val removeMessaging: RemoveMessaging =
-        RemoveMessaging(repository)
+    override val pushMessaging = PushMessaging(repository)
+    override val getMessaging = GetMessaging(repository)
+    override val createMessaging = CreateMessaging(repository)
+    override val addMessaging = AddMessaging(repository)
+    override val removeMessaging = RemoveMessaging(repository)
+    override val retrieveMessaging = RetrieveMessaging(reposNotifier)
 }

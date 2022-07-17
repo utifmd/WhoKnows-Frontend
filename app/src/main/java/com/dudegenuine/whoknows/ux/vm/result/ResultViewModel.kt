@@ -12,6 +12,7 @@ import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EM
 import com.dudegenuine.whoknows.ux.compose.state.ScreenState
 import com.dudegenuine.whoknows.ux.vm.BaseViewModel
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel
+import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_ACTION_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_ROOM_ID_SAVED_KEY
 import com.dudegenuine.whoknows.ux.vm.result.contract.IResultViewModel.Companion.RESULT_USER_ID_SAVED_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -107,7 +108,7 @@ class ResultViewModel
     fun onDonePressed() {
         val option = NavOptions.Builder().setPopUpTo(
             Screen.Home.Summary.RoomDetail.ResultDetail.routeWithArgs(
-                "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}"), true).build()
+                "{$RESULT_ROOM_ID_SAVED_KEY}", "{$RESULT_USER_ID_SAVED_KEY}", "{$RESULT_ACTION_SAVED_KEY}"), true).build()
         onScreenStateChange(ScreenState.Navigate.To(Screen.Home.Summary.route, option))
     }
 }

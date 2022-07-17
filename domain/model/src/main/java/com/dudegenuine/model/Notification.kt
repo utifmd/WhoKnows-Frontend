@@ -1,5 +1,6 @@
 package com.dudegenuine.model
 
+import com.dudegenuine.model.common.Utility.EMPTY_STRING
 import java.util.*
 
 /**
@@ -13,11 +14,14 @@ data class Notification(
     val event: String,
     var seen: Boolean,
     val recipientId: String,
-    val isDetail: Boolean = true,
+    val isDetail: Boolean = false,
+    val title: String = EMPTY_STRING,
+    val to: String = EMPTY_STRING,
+    val imageUrl: String = EMPTY_STRING,
     val createdAt: Date,
     val updatedAt: Date?,
     val sender: User.Censored?){
 
     val isPropsBlank: Boolean = notificationId.isBlank() || userId.isBlank() ||
-            roomId.isBlank() || event.isBlank() || recipientId.isBlank()
+            roomId.isBlank() || event.isBlank() || recipientId.isBlank() || to.isBlank()
 }

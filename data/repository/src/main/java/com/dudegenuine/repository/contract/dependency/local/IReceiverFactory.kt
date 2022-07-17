@@ -19,13 +19,11 @@ interface IReceiverFactory {
         const val MOBILE_CONNECTED = "Cellular connected"
         const val ETHERNET_CONNECTED = "Ethernet connected"
     }
-
     val connectionIntent: IntentFilter
     val timerIntent: IntentFilter
-    val messagingIntent: IntentFilter
+    val tokenIntent: IntentFilter
 
-    val timerReceiver: ((time: Double, finished: Boolean) -> Unit) -> BroadcastReceiver
-    val connectionReceiver: ((connected :String) -> Unit) -> BroadcastReceiver
-    val messagingReceiver: ((token: String) -> Unit) -> BroadcastReceiver
-
+    fun onConnectionReceived(onReceived: (connected :String) -> Unit): BroadcastReceiver
+    fun onTokenReceived(onReceived: (token: String) -> Unit): BroadcastReceiver
+    fun onTimerReceived(onReceived: (time: Double, finished: Boolean) -> Unit): BroadcastReceiver
 }

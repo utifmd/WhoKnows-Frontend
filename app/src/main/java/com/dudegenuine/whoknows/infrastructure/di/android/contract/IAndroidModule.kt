@@ -22,6 +22,7 @@ interface IAndroidModule {
     fun provideTimerLauncher(context: Context): ITimerLauncher
     fun provideShareModule(context: Context): IShareLauncher
     fun providePrefsFactories(prefs: IPreferenceManager): IPrefsFactory
+    fun provideIntentFactories(context: Context): IIntentFactory
     fun provideBroadcastReceiverModule(context: Context): IReceiverFactory
     fun provideResourceDependency(context: Context): IResourceDependency
 }

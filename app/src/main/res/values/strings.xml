@@ -30,6 +30,7 @@
     <string name="notify_args">Default args configuration</string>
     <string name="confirm">Confirm</string>
     <string name="share">Share</string>
+    <string name="leave_as_a_participant">tinggalkan kelas</string>
     <string name="delete_participant">hapus participant</string>
     <string name="close_the_class">tutup kelas</string>
     <string name="participate_the_class">partisipasi kelas</string>
@@ -62,4 +63,9 @@
     <string name="porifile_edit">Profile edit</string>
     <string name="update">Update</string>
     <string name="leave_the_class">Leave the class</string>
+    <string name="go_back">Go back</string>
+    <string name="notification_title_timer_service">The class still going</string>
+    <string name="notification_body_timer_service">"Just go back do not waste your time!"</string>
+    <string name="notification_title_alarm_receiver">Your class has been going on</string>
+    <string name="notification_body_alarm_receiver">Just check out and close the class early!</string>
 </resources>

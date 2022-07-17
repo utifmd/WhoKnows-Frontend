@@ -10,7 +10,9 @@ import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
  **/
 interface IAppUseCaseModule {
     fun provideFileUseCaseModule(context: Context, repository: IFileRepository): IFileUseCaseModule
-    fun provideMessagingUseCaseModule(repository: IMessagingRepository): IMessageUseCaseModule
+    fun provideMessagingUseCaseModule(
+        repository: IMessagingRepository,
+        reposNotifier: INotificationRepository): IMessageUseCaseModule
     fun provideParticipantUseCaseModule(
         reposParticipant: IParticipantRepository,
         reposRoom: IRoomRepository,
@@ -27,6 +29,9 @@ interface IAppUseCaseModule {
     fun provideRoomUseCaseModule(
         repository: IRoomRepository,
         reposUser: IUserRepository,
+        reposResult: IResultRepository,
+        reposNotifier: INotificationRepository,
+        reposFile: IFileRepository,
         reposMessaging: IMessagingRepository): IRoomUseCaseModule
     fun provideUserUseCaseModule(
         userRepository: IUserRepository,
@@ -34,7 +39,7 @@ interface IAppUseCaseModule {
         messagingRepository: IMessagingRepository,
         preferences: IPrefsFactory,
     ): IUserUseCaseModule
-    fun provideNotificationUseCaseModule(repository: INotificationRepository): INotificationUseCaseModule
+    fun provideNotificationUseCaseModule(repository: INotificationRepository, reposMessaging: IMessagingRepository): INotificationUseCaseModule
 
     companion object {
         const val EMPTY_STRING = ""

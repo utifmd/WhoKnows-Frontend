@@ -24,6 +24,9 @@ dependencies {
     implementation project(':domain:model')
     implementation project(':data:repository')
 
+    // Firebase
+    implementation "com.google.firebase:firebase-messaging-ktx:$firebase_messaging_version"
+
     // Network
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
 }

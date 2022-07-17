@@ -15,7 +15,7 @@ interface INotificationService {
     suspend fun delete(roomId: String, userId: String)
     suspend fun list(page: Int, size: Int): Response<List<NotificationEntity>>
     suspend fun list(recipientId: String, page: Int, size: Int): Response<List<NotificationEntity>>
-    suspend fun pages(recipientId: String, page: Int, size: Int): Response<List<NotificationEntity>>
+    suspend fun pages(recipientId: String, roomId: String, page: Int, size: Int): Response<List<NotificationEntity>>
 
     companion object {
         const val API_KEY = "X-Api-Key: utif.pages.dev"

@@ -15,10 +15,10 @@ import javax.inject.Inject
  **/
 class ParticipantRepository
     @Inject constructor(
-        private val service: IParticipantService,
-        private val mapperUser: IUserDataMapper,
-        private val mapperPpn: IParticipantDataMapper,
-        override val prefs: IPrefsFactory): IParticipantRepository {
+    private val service: IParticipantService,
+    private val mapperUser: IUserDataMapper,
+    private val mapperPpn: IParticipantDataMapper,
+    override val prefs: IPrefsFactory): IParticipantRepository {
 
     override fun participationPage(
         room: Room.Complete, participantId: String): List<ParticipationPage> {
@@ -28,7 +28,6 @@ class ParticipantRepository
             mapperPpn.asParticipationPage(index, questionsLength, quiz)
         }
     }
-
     override fun participation(
         participantId: String, room: Room.Complete, currentUser: User.Complete): Participation {
         val pages = participationPage(room, participantId)
@@ -36,7 +35,6 @@ class ParticipantRepository
 
         return mapperPpn.asAnParticipation(participantId, room, pages, participant)
     }
-
     override suspend fun create(participant: Participant): Participant = mapperPpn.asParticipant(
         service.create(mapperPpn.asEntity(participant)))
 
@@ -46,9 +44,13 @@ class ParticipantRepository
     override suspend fun read(userId: String, roomId: String): Participant = mapperPpn.asParticipant(
         service.read(userId, roomId)
     )
+    override suspend fun update(id: String, participant: Participant): Participant {
+        val timeLeftInMinute = (participant.timeLeft?.toFloat()?.div(60))?.toInt()
 
-    override suspend fun update(id: String, participant: Participant): Participant = mapperPpn.asParticipant(
-        service.update(id, mapperPpn.asEntity(participant)))
+        return mapperPpn.asParticipant(
+            service.update(id, mapperPpn.asEntity(participant.copy(timeLeft = timeLeftInMinute)))
+        )
+    }
 
     override suspend fun delete(id: String) =
         service.delete(id)
@@ -60,9 +62,8 @@ class ParticipantRepository
         mapperPpn.asPagingResource { page ->
             list(page, batchSize)
         }
-
-
-    override fun save(participant: Participant) {
-        TODO("Not yet implemented")
+    private fun onParticipantPpnIdChange(participantId: String){
+        //Log.d(TAG, "onParticipantPpnIdChange: $participantId")
+        prefs.participationParticipantId = participantId
     }
 }

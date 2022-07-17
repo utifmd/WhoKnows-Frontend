@@ -2,6 +2,7 @@ package com.dudegenuine.whoknows.infrastructure.di.viewmodel.contract
 
 import androidx.lifecycle.SavedStateHandle
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
+import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
 import com.dudegenuine.repository.contract.dependency.local.IShareLauncher
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
 import com.dudegenuine.whoknows.ux.vm.file.IFileViewModel
@@ -40,8 +41,9 @@ interface IViewModelModule {
         caseParticipant: IParticipantUseCaseModule,
         caseMessaging: IMessageUseCaseModule,
         caseQuiz: IQuizUseCaseModule,
-        caseNotification: INotificationUseCaseModule,
-        caseResult: IResultUseCaseModule,
+        resource: IResourceDependency,
+        //caseNotification: INotificationUseCaseModule,
+        //caseResult: IResultUseCaseModule,
         savedStateHandle: SavedStateHandle): IRoomViewModel
 
     fun provideQuizViewModel(

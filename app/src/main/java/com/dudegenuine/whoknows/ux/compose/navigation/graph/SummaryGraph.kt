@@ -192,8 +192,8 @@ fun NavGraphBuilder.summaryGraph(props: IMainProps) {
             navArgument(RESULT_USER_ID_SAVED_KEY){ type = NavType.StringType; defaultValue = "" },
             navArgument(RESULT_ACTION_SAVED_KEY){ type = NavType.StringType; defaultValue = "" })){ entry ->
         val vmResult: ResultViewModel = hiltViewModel()
-        val action = entry.arguments?.getString(RESULT_ACTION_SAVED_KEY)
+        val action = entry.arguments?.getString(RESULT_ACTION_SAVED_KEY) == "action"
         LoggingSubscriber(vmMain, vmResult)
-        ResultDetail(viewModel = vmResult, onBackPressed = props.router::popBackStack, action = action.isNullOrBlank())
+        ResultDetail(viewModel = vmResult, onBackPressed = props.router::popBackStack, action = action)
     }
 }

@@ -18,7 +18,7 @@ import com.dudegenuine.whoknows.ux.vm.user.contract.IProfileEvent.Companion.KEY_
 fun NavGraphBuilder.settingGraph(props: IMainProps){
 
     composable(
-        route = Screen.Home.Setting.ProfileEditor.routeWithArgs("{$KEY_EDIT_FIELD_TYPE}", "{$KEY_EDIT_FIELD_VALUE}")){ entry ->
+        route = Screen.Home.Setting.ProfileEditor.routeWithArgs("{$KEY_EDIT_FIELD_TYPE}", "{$KEY_EDIT_FIELD_VALUE}")){// entry ->
         val viewModel: UserViewModel = hiltViewModel()
 
         LoggingSubscriber(props.viewModel, viewModel)

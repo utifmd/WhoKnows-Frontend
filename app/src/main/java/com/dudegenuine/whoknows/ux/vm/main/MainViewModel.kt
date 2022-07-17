@@ -6,10 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.work.ExistingWorkPolicy
 import com.dudegenuine.model.Impression
-import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Room
 import com.dudegenuine.repository.contract.dependency.local.IResourceDependency
-import com.dudegenuine.repository.contract.dependency.local.IWorkerManager.Companion.WORK_NAME_ROOM_TOKEN
+import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
 import com.dudegenuine.repository.contract.dependency.remote.IFirebaseManager.Companion.TOPIC_COMMON
 import com.dudegenuine.whoknows.R
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.*
@@ -64,52 +63,14 @@ class MainViewModel
         _userIndicator.emit(userId)
     }
     init {
-        messagingSubscribeTopic()
-        //initialFeedState()
-        //userSubscribeAuthenticated()
+        subscribeMessaging()
+
         if (prefs.tokenId.isBlank()) messagingInitToken()
         else Log.d(TAG, "currentToken: ${prefs.tokenId}")
 
         if (isLoggedIn) getLatestUser() //getUser()
     }
-    val roomCompleteFlow = userIndicator
-        .flatMapLatest{ caseRoom.getRooms(it ?: userId, DEFAULT_BATCH_ROOM) }
-        .distinctUntilChanged()
-        .cachedIn(viewModelScope)
-    val notificationsFlow = userIndicator
-        .flatMapLatest{ caseNotifier.getNotifications(it ?: userId, DEFAULT_NOTIFIER_BATCH_SIZE) }
-        .distinctUntilChanged()
-        .cachedIn(viewModelScope)
-    val roomsCensoredFlow = userIndicator
-        .flatMapLatest{ caseRoom.getRooms(DEFAULT_BATCH_ROOM) }
-        .distinctUntilChanged()
-        .cachedIn(viewModelScope)
-    val participantsFlow = caseUser
-        .getUsersParticipation(DEFAULT_BATCH_PARTICIPANT)
-        .distinctUntilChanged()
-        .cachedIn(viewModelScope)
-    val questionsFlow = caseQuiz
-        .getQuestions(DEFAULT_PARTICIPANT_BATCH_SIZE)
-        .distinctUntilChanged()
-        .cachedIn(viewModelScope)
-
-    val connectionReceiver = receiver.connectionReceiver { message ->
-        if (message.isNotBlank()) if(prefs.tokenId.isBlank()) messagingInitToken()
-        onShowSnackBar(message)
-    }
-    val messagingReceiver = receiver.messagingReceiver { token ->
-        val serverRequest = TokenWorker.oneTimeBuilder(token).build()
-        val chainer = worker.beginUniqueWork(
-            WORK_NAME_ROOM_TOKEN,
-            ExistingWorkPolicy.KEEP,
-            serverRequest
-        )
-        token.let(::onTokenIdChange)
-        if (isLoggedIn) chainer.enqueue() /*.then(onPreRegisterMessaging)*/
-    }
-
-    // TODO: please do magic with worker here
-    private fun messagingSubscribeTopic() {
+    private fun subscribeMessaging() {
         messaging.apply {
             isAutoInitEnabled = true
             subscribeToTopic(TOPIC_COMMON)
@@ -128,6 +89,41 @@ class MainViewModel
             }
         }
     }
+    val roomCompleteFlow = userIndicator
+        .flatMapLatest{ caseRoom.getRooms(it ?: userId, DEFAULT_BATCH_ROOM) }
+        .cachedIn(viewModelScope)
+
+    val notificationsFlow = userIndicator
+        .flatMapLatest{ caseNotifier.getNotifications(it ?: userId, DEFAULT_NOTIFIER_BATCH_SIZE) }
+
+    val roomsCensoredFlow = userIndicator
+        .flatMapLatest{ caseRoom.getRooms(DEFAULT_BATCH_ROOM) }
+        .cachedIn(viewModelScope)
+
+    val participantsFlow = caseUser
+        .getUsersParticipation(DEFAULT_BATCH_PARTICIPANT)
+        .distinctUntilChanged()
+        .cachedIn(viewModelScope)
+
+    val questionsFlow = caseQuiz
+        .getQuestions(DEFAULT_PARTICIPANT_BATCH_SIZE)
+        .distinctUntilChanged()
+        .cachedIn(viewModelScope)
+
+    val connectionReceiver = receiver.onConnectionReceived { message ->
+        if (message.isNotBlank() && prefs.tokenId.isBlank()) messagingInitToken()
+        onShowSnackBar(message)
+    }
+    val tokenReceiver = receiver.onTokenReceived { token ->
+        val serverRequest = TokenWorker.oneTimeBuilder(token).build()
+        val chainer = worker.beginUniqueWork(
+            IWorkerManager.WORK_NAME_ROOM_TOKEN,
+            ExistingWorkPolicy.KEEP,
+            serverRequest
+        )
+        token.let(::onTokenIdChange)
+        if (isLoggedIn) chainer.enqueue()
+    }
     private fun getUser() = caseUser.getUser()
         .onEach(::onAuth)
         .onCompletion{ if(it == null) Log.d(TAG, "getUser: complete") }
@@ -138,30 +134,23 @@ class MainViewModel
         .launchIn(viewModelScope)
 
     fun onImpression(impressed: Boolean, room: Room.Censored, onFinish: () -> Unit){
-        val username = auth.user?.username ?: resource.string(R.string.unknown)
-        val actor = auth.user?.fullName?.ifBlank{ resource.string(R.string.unknown) } ?: username
-
-        val event = "@$username just like the ${room.title} class"
-        val pusher = Messaging.Pusher(
-            title = actor,
-            body = event,
-            largeIcon = auth.user?.profileUrl ?: EMPTY_STRING,
-            to = room.token
-        )
-        val notification = NotificationState().copy(
-            userId = userId,
-            roomId = room.roomId,
-            event = event,
-            recipientId = room.userId
-        )
         val impression = Impression(
             impressionId = "IMP-${UUID.randomUUID()}",
             postId = room.roomId,
             userId = userId,
             good = impressed
         )
-        Log.d(TAG, "onImpression: $impressed")
-        caseImpression.operateImpression(impressed, room, notification, impression, pusher)
+        val username = auth.user?.username ?: resource.string(R.string.unknown)
+        val notification = NotificationState().copy(
+            userId = userId,
+            roomId = room.roomId,
+            event = "@$username just like the ${room.title} class",
+            recipientId = room.userId,
+            imageUrl = auth.user?.profileUrl ?: EMPTY_STRING,
+            title =  auth.user?.fullName?.ifBlank{ resource.string(R.string.unknown) } ?: username,
+            to = room.token
+        )
+        caseImpression.operateImpression(impressed, room, notification, impression)
             .onCompletion{ onFinish() }
             .launchIn(viewModelScope)
     }

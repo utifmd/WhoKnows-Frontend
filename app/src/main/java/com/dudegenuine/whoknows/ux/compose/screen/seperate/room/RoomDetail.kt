@@ -68,6 +68,7 @@ fun RoomDetail(
             backLayerContent = {
                 BackLayer(
                     model = model,
+                    setIsRefresh = setIsRefresh ?: {},
                     viewModel = viewModel,
                     toggle = ::toggle
                 )
@@ -90,7 +91,7 @@ fun RoomDetail(
 @Composable
 private fun BackLayer(
     model: Room.Complete, viewModel: RoomViewModel,
-    toggle: () -> Unit) {
+    setIsRefresh: (Boolean) -> Unit, toggle: () -> Unit) {
     val enabled = !model.expired
     val (exclusive, setExclusive) = remember { mutableStateOf(model.private) }
     val (messaging, setMessaging) = remember { mutableStateOf(model.token.isNotBlank()) }
@@ -127,13 +128,13 @@ private fun BackLayer(
                 label = stringResource(R.string.notification_class),
                 enabled = enabled,
                 checked = messaging) { selected ->
-                viewModel.onMessagingChange(selected, model.id, model.token)
+                viewModel.onMessagingChange(selected, model)
                 setMessaging(!messaging)
             }
         } else if (model.isParticipant) ButtonBackLayer(
             label = stringResource(R.string.leave_the_class),
             enabled = enabled) {
-            viewModel.onLeaveRoomPressed(model)
+            viewModel.onLeaveRoomPressed(enabled, model, setIsRefresh)
         } else ButtonBackLayer(
             label = stringResource(R.string.join_the_room),
             enabled = enabled) {
