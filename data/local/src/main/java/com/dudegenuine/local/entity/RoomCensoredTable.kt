@@ -50,5 +50,8 @@ data class RoomCensoredTable(
     val impressions: List<Impression>,
 
     @ColumnInfo(name = "participantSize")
-    val participantSize: Int
+    val participantSize: Int,
+
+    @ColumnInfo(name = "participantIds")
+    val participantIds: List<String>,
 )

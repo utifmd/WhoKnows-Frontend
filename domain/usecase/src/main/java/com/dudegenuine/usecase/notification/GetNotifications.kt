@@ -23,18 +23,15 @@ class GetNotifications
     @Inject constructor(
     private val repository: INotificationRepository) {
 
-    operator fun invoke(recipientId: String, size: Int):
-            Flow<PagingData<Notification>> = Pager(PagingConfig(size, enablePlaceholders = true, maxSize = 200)){
-        repository.pages(recipientId, size)
+    operator fun invoke(recipientId: String, size: Int): Flow<PagingData<Notification>> = Pager(
+        PagingConfig(size, enablePlaceholders = true, maxSize = 200)){
+        repository.list(recipientId, size)
     }.flow.map { data ->
         data.map { notify ->
             notify.copy(isDetail = notify.event.contains("has joined"))
         }
     }
-
-    operator fun invoke(page: Int, size: Int):
-            Flow<Resource<List<Notification>>> = flow {
-
+    operator fun invoke(page: Int, size: Int): Flow<Resource<List<Notification>>> = flow {
         try {
             emit(Resource.Loading())
 

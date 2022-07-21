@@ -25,6 +25,7 @@ class NotificationDataMapper
             event = notification.event,
             seen = notification.seen,
             recipientId = notification.recipientId,
+            recipientIds = notification.recipientIds,
             createdAt = notification.createdAt,
             updatedAt = notification.updatedAt,
             sender = notification.sender?.
@@ -41,6 +42,7 @@ class NotificationDataMapper
             event = entity.event,
             seen = entity.seen,
             recipientId = entity.recipientId,
+            recipientIds = entity.recipientIds,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
             sender = entity.sender?.

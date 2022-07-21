@@ -23,7 +23,9 @@ class OperateImpression
     operator fun invoke(
         impressed: Boolean, room: Room.Censored, notification: Notification,
         impression: Impression): Flow<Resource<String>> = flow {
-        val messaging = Messaging.Pusher(notification.title, notification.event, notification.imageUrl)
+        val messaging = Messaging.Pusher(notification.title, notification.event, notification.imageUrl,
+            args = "${notification.userId}|${notification.roomId}"
+        )
         try {
             emit(Resource.Loading())
             if (!room.hasImpressedBefore) {

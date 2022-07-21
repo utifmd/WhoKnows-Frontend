@@ -26,7 +26,8 @@ sealed class Room {
         var hasImpressedBefore: Boolean = false,
         var impression: Impression?,
 
-        val participantSize: Int): Room()
+        val participantSize: Int,
+        val participantIds: List<String>): Room()
     
     data class Complete(
         val id: String,

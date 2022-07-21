@@ -26,6 +26,9 @@ data class NotificationEntity(
     @SerializedName("recipientId")
     val recipientId: String,
 
+    @SerializedName("recipientIds")
+    val recipientIds: List<String>,
+
     @SerializedName("createdAt")
     val createdAt: Date,
 

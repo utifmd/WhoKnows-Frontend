@@ -55,21 +55,20 @@ class NotificationRepository
             service.list(page, size)
         )
     }
-
     override suspend fun list(recipientId: String, page: Int, size: Int): List<Notification> {
         return mapper.asNotifications(
             service.list(recipientId, page, size)
-        )
+        ).distinct()
     }
 
-    override suspend fun listComplete(
+    /*override suspend fun listComplete(
         recipientId: String, page: Int, size: Int): List<Notification> = mapper.asNotifications(
         service.pages(recipientId, "", page, size)
-    )
+    )*/
 
-    override fun pages(
+    override fun list(
         recipientId: String, batchSize: Int): PagingSource<Int, Notification> = try {
-        ResourcePaging { page -> listComplete(recipientId, page, batchSize) }
+        ResourcePaging { page -> list(recipientId, page, batchSize) }
     } catch (e: Exception) {
         ResourcePaging { emptyList() }
     }
@@ -82,6 +81,7 @@ class NotificationRepository
             "Notification description",
             false,
             Utility.EMPTY_STRING,
+            emptyList(),
             true,
             "Klibbor",
             Utility.EMPTY_STRING,

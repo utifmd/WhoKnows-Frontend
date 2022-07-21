@@ -43,7 +43,10 @@ object RoomEntity {
         val questionSize: Int,
 
         @SerializedName("participantSize")
-        val participantSize: Int
+        val participantSize: Int,
+
+        @SerializedName("participantIds")
+        val participantIds: List<String>,
     )
 
     data class Complete (

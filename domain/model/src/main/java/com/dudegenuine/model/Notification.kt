@@ -14,6 +14,7 @@ data class Notification(
     val event: String,
     var seen: Boolean,
     val recipientId: String,
+    val recipientIds: List<String>,
     val isDetail: Boolean = false,
     val title: String = EMPTY_STRING,
     val to: String = EMPTY_STRING,

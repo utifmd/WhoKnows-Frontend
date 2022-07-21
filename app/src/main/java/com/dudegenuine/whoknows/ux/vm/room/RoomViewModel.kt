@@ -301,12 +301,11 @@ class RoomViewModel
     fun onRoomFinderButtonGoPressed(roomId: String) =
         getRoom(roomId){ onNavigateTo(Screen.Home.Discover.RoomDetail.routeWithArgs(roomId)) }
 
-    override fun onNewClassPressed(){
+    override fun onNewClassPressed() = onNavigateTo(Screen.Home.Summary.RoomCreator.route) /*{
         caseMessaging.createMessaging(Messaging.GroupCreator("soekarno", listOf("prefs.tokenId")))
             .onEach(::onResourceStateless)
             .launchIn(viewModelScope)
-        //= onNavigateTo(Screen.Home.Summary.RoomCreator.route)
-    }
+    }*/
     override fun onNotificationPressed() =
         onNavigateTo(Screen.Home.Summary.Notification.route)
     override fun onButtonJoinRoomWithACodePressed() =

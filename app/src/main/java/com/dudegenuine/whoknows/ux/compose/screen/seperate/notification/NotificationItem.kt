@@ -11,7 +11,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,20 +37,20 @@ fun NotificationItem(
     modifier: Modifier = Modifier,
     onItemLongPressed: () -> Unit, onItemPressed: (Boolean) -> Unit) {
     val (seen, setSeen) = rememberSaveable{ mutableStateOf(model.seen) }
+    val exclusive by remember{ mutableStateOf(model.recipientIds.isEmpty()) }
 
     fun onSeen(){
         onItemPressed(!seen)
         setSeen(true)
     }
-    Box(
-        modifier
+    Box(modifier
             .fillMaxWidth()
             .combinedClickable(
-                onLongClick = onItemLongPressed, onClick = ::onSeen
-            )) {
+                onLongClick = onItemLongPressed,
+                onClick = ::onSeen,
+                enabled = exclusive)) {
 
-        Row(
-            modifier
+        Row(modifier
                 .fillMaxSize()
                 .padding(12.dp, 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -77,8 +79,9 @@ fun NotificationItem(
                 Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" - "+ model.event,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = if (!seen) MaterialTheme.colors.secondaryVariant
-                        else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+                    color = if (seen or !exclusive)
+                        MaterialTheme.colors.onSurface.copy(alpha = 0.5f) else
+                            MaterialTheme.colors.secondaryVariant,
                     style = MaterialTheme.typography.caption)
 
                 Text(timeAgo(model.createdAt),

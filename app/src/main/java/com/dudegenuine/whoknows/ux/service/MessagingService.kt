@@ -2,7 +2,6 @@ package com.dudegenuine.whoknows.ux.service
 
 import android.util.Log
 import androidx.work.ExistingWorkPolicy
-import com.dudegenuine.model.Notification
 import com.dudegenuine.repository.contract.dependency.local.IPrefsFactory
 import com.dudegenuine.repository.contract.dependency.local.IWorkerManager
 import com.dudegenuine.usecase.messaging.RetrieveMessaging
@@ -40,12 +39,12 @@ class MessagingService: FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        suspend fun synchronize() = caseRetriever(
-            message.data, ::onRemoveParticipation, ::onForwardNotification)
         message.notification?.let(caseRetriever::invoke)
-        Log.d(TAG, "onMessageReceived: triggered")
         if (isLoggedIn) return
-        messagingScope.launch{ synchronize() }
+        Log.d(TAG, "onMessageReceived: $userId")
+        messagingScope.launch{
+            caseRetriever(message.data, ::onRemoveParticipation)
+        }
     }
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -64,10 +63,10 @@ class MessagingService: FirebaseMessagingService() {
         .onEach{ Log.d(TAG, "onRemoveParticipation: $it") }
         .launchIn(messagingScope)
 
-    private fun onForwardNotification(notification: Notification) =
+    /*private fun onForwardNotification(notification: Notification) =
         caseNotification.plus(notification)
             .onEach{ Log.d(TAG, "onForwardNotification: $it") }
-            .launchIn(messagingScope)
+            .launchIn(messagingScope)*/
 
     private fun onTokenIdChange(token: String) {
         prefs.tokenId = token
@@ -76,8 +75,8 @@ class MessagingService: FirebaseMessagingService() {
         super.onDestroy()
         messagingJob.cancel()
     }
-    //companion object { const val MESSAGE_INTENT = "MessagingService message intent" }
 }
+//companion object { const val MESSAGE_INTENT = "MessagingService message intent" }
 /*@EntryPoint
     @InstallIn(SingletonComponent::class)
     interface IRepositories {

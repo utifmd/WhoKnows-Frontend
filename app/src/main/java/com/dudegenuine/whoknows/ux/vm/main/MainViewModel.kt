@@ -95,6 +95,7 @@ class MainViewModel
 
     val notificationsFlow = userIndicator
         .flatMapLatest{ caseNotifier.getNotifications(it ?: userId, DEFAULT_NOTIFIER_BATCH_SIZE) }
+        .cachedIn(viewModelScope)
 
     val roomsCensoredFlow = userIndicator
         .flatMapLatest{ caseRoom.getRooms(DEFAULT_BATCH_ROOM) }
@@ -146,6 +147,7 @@ class MainViewModel
             roomId = room.roomId,
             event = "@$username just like the ${room.title} class",
             recipientId = room.userId,
+            recipientIds = room.participantIds,
             imageUrl = auth.user?.profileUrl ?: EMPTY_STRING,
             title =  auth.user?.fullName?.ifBlank{ resource.string(R.string.unknown) } ?: username,
             to = room.token

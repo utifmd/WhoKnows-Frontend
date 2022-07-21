@@ -38,6 +38,9 @@ sealed class User {
         var rooms: List<Room.Censored>,
         var notifications: List<Notification>){
 
+        val badge get() = notifications
+            .filter{ it.recipientIds.isEmpty() }.count{ !it.seen }
+
         val sortedParticipants
             get() = participants.sortedByDescending{ it.createdAt }
 

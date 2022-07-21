@@ -48,9 +48,8 @@ class MainActivity: ComponentActivity() {
 
     companion object {
         private const val INITIAL_DATA_KEY = "initial_data_key"
-
-        fun instance(context: Context, data: String):
-                Intent = Intent(context, MainActivity::class.java).apply {
+        fun instance(context: Context, data: String) =
+            Intent(context, MainActivity::class.java).apply {
             putExtra(INITIAL_DATA_KEY, data)
         }
     }

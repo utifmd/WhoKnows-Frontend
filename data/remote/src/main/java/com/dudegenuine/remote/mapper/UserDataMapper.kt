@@ -198,6 +198,7 @@ class UserDataMapper
             event = notification.event,
             seen = notification.seen,
             recipientId = notification.recipientId,
+            recipientIds = notification.recipientIds,
             createdAt = notification.createdAt,
             updatedAt = notification.updatedAt,
             sender = null,
@@ -212,6 +213,7 @@ class UserDataMapper
             event = entity.event,
             seen = entity.seen,
             recipientId = entity.recipientId,
+            recipientIds = entity.recipientIds,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
             sender = null,
@@ -263,6 +265,7 @@ class UserDataMapper
             user = room.user?.let(::asUserCensoredEntity),
             questionSize = room.questionSize,
             participantSize = room.participantSize,
+            participantIds = room.participantIds,
             impressions = emptyList()
         )
     }
@@ -281,6 +284,7 @@ class UserDataMapper
             user = entity.user?.let(::asUserCensored),
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
+            participantIds = entity.participantIds,
             isOwner = entity.userId == currentUserId,
             private = entity.private ?: false,
 

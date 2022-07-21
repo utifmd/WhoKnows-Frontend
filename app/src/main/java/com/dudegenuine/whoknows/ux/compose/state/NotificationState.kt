@@ -16,6 +16,7 @@ object NotificationState {
         "Notification description",
         false,
         EMPTY_STRING,
+        emptyList(),
         true,
         "Klibbor",
         EMPTY_STRING,

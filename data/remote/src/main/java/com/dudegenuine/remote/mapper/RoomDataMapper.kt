@@ -222,6 +222,7 @@ class RoomDataMapper
             user = room.user?.let(mapperUser::asUserCensoredEntity),
             questionSize = room.questionSize,
             participantSize = room.participantSize,
+            participantIds = room.participantIds,
             impressions = emptyList(),
         )
     }
@@ -238,6 +239,7 @@ class RoomDataMapper
             user = entity.user?.let(mapperUser::asUserCensored),
             questionSize = entity.questionSize,
             participantSize = entity.participantSize,
+            participantIds = entity.participantIds,
             private = entity.private ?: false,
 
             isOwner = entity.userId == currentUserId,
@@ -276,6 +278,7 @@ class RoomDataMapper
             user = tableRoom.user,
             questionSize = tableRoom.questionSize,
             participantSize = tableRoom.participantSize,
+            participantIds = tableRoom.participantIds,
             private = tableRoom.privation,
 
             isOwner = tableRoom.isOwner,

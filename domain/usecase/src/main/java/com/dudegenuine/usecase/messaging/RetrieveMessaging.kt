@@ -2,12 +2,10 @@ package com.dudegenuine.usecase.messaging
 
 import android.app.Notification
 import android.app.PendingIntent
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_MAX
-import com.dudegenuine.model.common.Utility.EMPTY_STRING
 import com.dudegenuine.repository.contract.INotificationRepository
 import com.dudegenuine.repository.contract.dependency.local.INotifyManager
 import com.dudegenuine.repository.contract.dependency.local.INotifyManager.Companion.CHANNEL_ID_JOINED
@@ -28,26 +26,13 @@ class RetrieveMessaging(
     private fun notify(it: Notification) = notifier.manager.notify(Random.nextInt(), it)
 
     suspend operator fun invoke(
-        params: Map<String, String>, onRemoveParticipation: () -> Unit,
-        onForwardNotification: (com.dudegenuine.model.Notification) -> Unit) {
+        params: Map<String, String>, onRemoveParticipation: () -> Unit) {
         val title = params["title"] ?: return
         val body = params["body"] ?: return
         val largeIcon = params["largeIcon"]
         val args = params["args"]?.split("|")
-        val notification = reposNotifier.initial.copy(
-            title = title,
-            event = body,
-            userId = args?.component1() ?: "undefined",
-            roomId = args?.component2() ?: "undefined",
-            recipientId = userId,
-            imageUrl = largeIcon ?: EMPTY_STRING,
-            isDetail = false
-        )
         if (args?.component1() != userId) {
-            if (body.contains("just removed") ||
-                body.contains("kicked out") ||
-                body.contains("just left")) onForwardNotification(notification)
-            if (body.contains("kicked out")) onRemoveParticipation()
+            if (body.contains("kicked out")) onRemoveParticipation() //if (body.contains("just removed") || body.contains("kicked out") || body.contains("just left")) onForwardNotification(notification)
         }
         with (notifier.onBuilt(CHANNEL_ID_JOINED, IMPORTANCE_MAX)) {
             priority = NotificationCompat.PRIORITY_MAX
@@ -59,12 +44,11 @@ class RetrieveMessaging(
             setStyle(asBigStyle(body))
             setAutoCancel(true)
 
-            fun loaded(bitmap: Bitmap){
+            if (largeIcon.isNullOrBlank()) notify(build())
+            else resource.bitmapAsync(largeIcon){ bitmap -> //bitmapFlow(largeIcon).onEach(::loaded).launchIn(coroutineScope)
                 setLargeIcon(bitmap)
                 notify(build())
             }
-            if (largeIcon.isNullOrBlank()) notify(build())
-            else resource.bitmapAsync(largeIcon, ::loaded) //bitmapFlow(largeIcon).onEach(::loaded).launchIn(coroutineScope)
         }
     }
     operator fun invoke(params: RemoteMessage.Notification) {

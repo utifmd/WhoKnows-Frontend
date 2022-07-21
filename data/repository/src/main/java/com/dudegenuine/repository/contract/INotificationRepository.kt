@@ -19,9 +19,9 @@ interface INotificationRepository {
     suspend fun delete(roomId: String, userId: String)
     suspend fun list(page: Int, size: Int): List<Notification>
     suspend fun list(recipientId: String, page: Int, size: Int): List<Notification>
-    suspend fun listComplete(recipientId: String, page: Int, size: Int): List<Notification>
+    //suspend fun listComplete(recipientId: String, page: Int, size: Int): List<Notification>
 
-    fun pages(recipientId: String, batchSize: Int): PagingSource<Int, Notification>
+    fun list(recipientId: String, batchSize: Int): PagingSource<Int, Notification>
 
     val notifier: INotifyManager
     val resource: IResourceDependency

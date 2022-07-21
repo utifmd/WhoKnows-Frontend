@@ -57,7 +57,7 @@ interface NotificationService: INotificationService {
 
     @Headers(API_KEY, ACCEPT)
     @GET("$ENDPOINT/owner/with_args")
-    override suspend fun pages(
+    override suspend fun pages( // unused
         @Query("recipientId") recipientId: String,
         @Query("roomId") roomId: String,
         @Query("page") page: Int,

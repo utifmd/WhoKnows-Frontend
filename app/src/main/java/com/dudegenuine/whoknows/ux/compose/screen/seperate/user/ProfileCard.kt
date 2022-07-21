@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.user
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
@@ -15,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.dudegenuine.whoknows.ux.compose.component.GeneralCardView
 import com.dudegenuine.whoknows.ux.compose.component.GeneralImage
 import com.dudegenuine.whoknows.ux.theme.SmoothBackground
 
@@ -32,11 +32,7 @@ fun ProfileCard(
     onPressed: (() -> Unit)? = null,
     onLongPressed: (() -> Unit)? = null) {
 
-    GeneralCardView(modifier.combinedClickable(
-            enabled = onPressed != null && onLongPressed != null,
-            onClick = { onPressed?.invoke() },
-            onLongClick = onLongPressed),
-        colorBorder = colorBorder) {
+    val content: @Composable () -> Unit = {
         Row(modifier.padding(8.dp)) {
             Surface(modifier.size(50.dp),
                 shape = CircleShape,
@@ -46,7 +42,8 @@ fun ProfileCard(
                     data = data,
                     contentScale = ContentScale.Crop,
                     placeholder = {
-                        Icon(Icons.Default.Person,
+                        Icon(
+                            Icons.Default.Person,
                             modifier = modifier
                                 .fillMaxSize()
                                 .padding(4.dp),
@@ -68,4 +65,16 @@ fun ProfileCard(
             }
         }
     }
+    Surface(
+        modifier = modifier.fillMaxWidth().combinedClickable(
+            enabled = onPressed != null && onLongPressed != null,
+            onClick = { onPressed?.invoke() },
+            onLongClick = onLongPressed
+        ),
+        shape = MaterialTheme.shapes.small,
+        border = BorderStroke(
+            width = (0.5).dp,
+            color = colorBorder ?: MaterialTheme.colors.onSurface.copy(alpha = 0.12f)),
+        content = content
+    )
 }
