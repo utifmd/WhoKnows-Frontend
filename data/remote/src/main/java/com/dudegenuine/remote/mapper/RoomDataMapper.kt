@@ -83,7 +83,10 @@ class RoomDataMapper
             questions = entity.questions
                 .map { mapperQuiz.asQuiz(it) },
             participants = entity.participants
-                .map { mapperParticipant.asParticipant(it) }//.filter { it.expired }
+                .map { mapperParticipant.asParticipant(it) }
+                .sortedBy{ it.userId == currentUserId }
+                .sortedBy{ it.expired }
+                .sortedByDescending{ it.createdAt }//.filter { it.expired }
         )
     }
 
@@ -117,6 +120,8 @@ class RoomDataMapper
             roomTitle = participation.roomTitle,
             roomDesc = participation.roomDesc,
             roomMinute = participation.roomMinute,
+            roomToken = participation.roomToken,
+            roomRecipientIds = participation.roomRecipientIds,
             currentQuestionIdx = participation.currentQuestionIdx,
             pages = participation.pages.map(::asParticipationPageTable)
         )
@@ -144,6 +149,8 @@ class RoomDataMapper
             roomTitle = table.roomTitle,
             roomDesc = table.roomDesc,
             roomMinute = table.roomMinute,
+            roomRecipientIds = table.roomRecipientIds,
+            roomToken = table.roomToken,
             pages = table.pages.map(::asParticipationPage)).apply {
 
             currentQuestionIdx = table.currentQuestionIdx

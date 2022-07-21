@@ -29,8 +29,7 @@ class DeleteParticipation
     operator fun invoke(
         participant: Participant, notification: Notification): Flow<Resource<String>> = flow {
         val remover = Messaging.GroupRemover(notification.roomId, listOf(reposParticipant.prefs.tokenId), notification.to)
-        val pusher = Messaging.Pusher(notification.title, notification.event, notification.imageUrl,
-            listOf(participant.userId, participant.roomId).joinToString("|"), notification.to)
+        val pusher = Messaging.Pusher(notification.title, notification.event, notification.imageUrl, participant.userId.plus("|"), notification.to)
         try {
             emit(Resource.Loading())
             reposParticipant.delete(participant.id)

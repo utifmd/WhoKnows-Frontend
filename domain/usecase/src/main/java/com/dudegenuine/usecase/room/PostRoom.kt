@@ -3,10 +3,10 @@ package com.dudegenuine.usecase.room
 import com.dudegenuine.model.Messaging
 import com.dudegenuine.model.Resource
 import com.dudegenuine.model.Room
-import com.dudegenuine.model.common.Utility.EMPTY_STRING
 import com.dudegenuine.model.common.validation.HttpFailureException
 import com.dudegenuine.repository.contract.IMessagingRepository
 import com.dudegenuine.repository.contract.IRoomRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
@@ -26,8 +26,12 @@ class PostRoom
         try {
             emit(Resource.Loading())
             val creator = Messaging.GroupCreator(current.id, listOf(repository.preference.tokenId))
-            val (notificationKey, error) = reposMessaging.create(creator)
-            val room = repository.createRemote(current.copy(token = error?.let{ EMPTY_STRING } ?: notificationKey))
+            val responseBodyString = reposMessaging.create(creator as Messaging).string()
+            val getter = Gson().fromJson(responseBodyString, Messaging.Getter.Response::class.java)
+
+            if (getter.notification_key.isBlank())
+                throw IllegalStateException()
+            val room = repository.createRemote(current.copy(token = getter.notification_key))
             emit(Resource.Success(room))
         } catch (e: HttpFailureException){
             emit(Resource.Error(e.localizedMessage ?: Resource.HTTP_FAILURE_EXCEPTION))

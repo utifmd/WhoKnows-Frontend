@@ -15,7 +15,6 @@ import com.dudegenuine.whoknows.ux.compose.model.Dialog
 import com.dudegenuine.whoknows.ux.compose.navigation.Screen
 import com.dudegenuine.whoknows.ux.compose.state.NotificationState
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState
-import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DESC_TOO_LONG
 import com.dudegenuine.whoknows.ux.compose.state.ResourceState.Companion.DONT_EMPTY
 import com.dudegenuine.whoknows.ux.compose.state.RoomState
 import com.dudegenuine.whoknows.ux.compose.state.ScreenState
@@ -100,11 +99,8 @@ class RoomViewModel
             onStateChange(ResourceState(error = DONT_EMPTY))
             return
         }
-        if (roomState.desc.text.length > 225){
-            onStateChange(ResourceState(error = DESC_TOO_LONG))
-            return
-        }
         caseRoom.postRoom(model)
+            .onEach(::onResource)
             .onCompletion{ if (it == null) onNavigateBackThenRefresh() }
             .launchIn(viewModelScope)
     }
@@ -114,6 +110,7 @@ class RoomViewModel
             roomId = room.id,
             event = "@${room.user?.username} just removed the ${room.title} class",
             recipientId = room.userId,
+            recipientIds = room.participantIds,
             imageUrl = room.user?.profileUrl ?: EMPTY_STRING,
             title = room.title,
             to = room.token,
@@ -151,6 +148,7 @@ class RoomViewModel
             roomId = room.id,
             event = "@${participant.user?.username} just left the ${room.title} class",
             recipientId = room.userId,
+            recipientIds = room.participantIds,
             imageUrl = participant.user?.profileUrl ?: EMPTY_STRING,
             title = room.title,
             to = room.user?.tokens?.first() ?: EMPTY_STRING,
@@ -172,6 +170,7 @@ class RoomViewModel
             roomId = participant.roomId,
             event = "@${participant.user?.username} just kicked out by @${room.user?.username ?: "admin"} from the ${room.title}",
             recipientId = participant.userId,
+            recipientIds = room.participantIds,
             title = room.title,
             to = room.token, //participant.userId
             imageUrl = participant.user?.profileUrl ?: EMPTY_STRING,

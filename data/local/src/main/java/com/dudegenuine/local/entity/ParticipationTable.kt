@@ -33,6 +33,12 @@ data class ParticipationTable(
     @ColumnInfo(name = "roomMinute")
     val roomMinute: Int,
 
+    @ColumnInfo(name = "roomToken")
+    val roomToken: String,
+
+    @ColumnInfo(name = "roomRecipientIds")
+    val roomRecipientIds: List<String>,
+
     @ColumnInfo(name = "currentQuestionIdx")
     val currentQuestionIdx: Int,
 

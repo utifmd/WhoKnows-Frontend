@@ -10,11 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dudegenuine.whoknows.ux.compose.component.GeneralImage
 import com.dudegenuine.whoknows.ux.theme.SmoothBackground
@@ -52,12 +50,9 @@ fun ProfileCard(
                     }
                 )
             }
-            Column(
-                modifier
-                    .fillMaxHeight()
-                    .align(Alignment.CenterVertically)
-                    .padding(horizontal = 8.dp)) {
-                Text(name, fontWeight = FontWeight.Bold)
+            Column(modifier.fillMaxHeight().padding(horizontal = 8.dp),
+                verticalArrangement = Arrangement.Center) {
+                Text(name, style = MaterialTheme.typography.body1)
 
                 CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                     Text(desc, style = MaterialTheme.typography.body2)

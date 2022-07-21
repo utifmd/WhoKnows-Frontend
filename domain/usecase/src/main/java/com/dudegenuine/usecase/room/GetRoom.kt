@@ -43,6 +43,7 @@ class GetRoom
                 impressionSize = room.impressions.count{ it.good }
                 hasImpressedBefore = room.impressions.any { it.userId == currentUserId }
                 impressed = room.impressions.any { it.userId == currentUserId && it.good }
+                participants = participants.map { it.copy(isCurrentUser = currentUserId == it.userId) }
             }
             /*Log.d(TAG, "onDetailingRoom: isUserOffBoarding = $isUserOffBoarding") // notification screen by room participated
             Log.d(TAG, "onDetailingRoom: isUserIsFree = $isUserIsFree") // delete room directly complete

@@ -57,13 +57,7 @@ sealed class Room {
         val isPropsBlank: Boolean =
             minute == 0 || title.isBlank() || userId.isBlank() || description.isBlank()
 
-        val sortedParticipants
-            get() = participants
-                .sortedBy{ isOwner }
-                .sortedBy{ it.expired }
-                .sortedByDescending{ it.createdAt }
-
-        val completeParticipants
-            get() = participants.filter{ it.expired }
+        val participantIds
+            get() = participants.filter{ it.expired }.map { it.userId }
     }
 }

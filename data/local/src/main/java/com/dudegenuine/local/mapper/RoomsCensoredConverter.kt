@@ -6,18 +6,19 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 /**
- * Thu, 21 Jul 2022
+ * Tue, 01 Mar 2022
  * WhoKnows by utifmd
  **/
-object RoomCensoredConverter {
+object RoomsCensoredConverter {
     @TypeConverter
-    fun fromJson(data: String?): Room.Censored {
-        val type = object: TypeToken<Room.Censored?>(){}.type
+    fun fromJson(data: String?): List<Room.Censored?>?{
+        val type = object: TypeToken<List<Room.Censored?>?>(){}.type
+
         return Gson().fromJson(data, type)
     }
-
     @TypeConverter
-    fun toJson(data: Room.Censored?): String {
+    fun toJson(data: List<Room.Censored>?): String?{
+
         return Gson().toJson(data)
     }
 }

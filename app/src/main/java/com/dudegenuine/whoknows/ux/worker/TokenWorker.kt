@@ -21,9 +21,11 @@ class TokenWorker
     @Assisted params: WorkerParameters,
     private val userRepository: IUserRepository): CoroutineWorker(context, params) {
     private val TAG: String = javaClass.simpleName
+    private val isLoggedOut get() = userRepository.preference.userId.isBlank()
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "suspend doWork: begin..")
+        if (isLoggedOut) return Result.failure()
 
         val currentUser = userRepository.localRead()
         val token = inputData.getString(KEY_ROOM_TOKEN_PARAM) ?: return Result.failure()

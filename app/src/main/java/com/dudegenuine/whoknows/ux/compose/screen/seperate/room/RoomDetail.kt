@@ -1,5 +1,6 @@
 package com.dudegenuine.whoknows.ux.compose.screen.seperate.room
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -124,7 +125,9 @@ private fun BackLayer(
             }
             Divider(thickness = (0.5).dp)
             ToggleBackLayer(
-                icon = if (messaging) Icons.Default.NotificationsActive else Icons.Default.NotificationsOff,
+                icon = if (messaging)
+                    Icons.Default.NotificationsActive else
+                        Icons.Default.NotificationsOff,
                 label = stringResource(R.string.notification_class),
                 enabled = enabled,
                 checked = messaging) { selected ->
@@ -211,16 +214,22 @@ private fun FrontLayer(
                     .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)) {
 
-                items(model.sortedParticipants){ participant ->
-                    ProfileCard(modifier,
+                items(model.participants){ participant ->
+                    ProfileCard(modifier.fillMaxSize(),
                         name = participant.user?.fullName ?: stringResource(R.string.unknown),
                         desc = timeAgo(participant.createdAt).plus(" ~ ${if(participant.expired) "done" else "in progress"}"),
                         data = participant.user?.profileUrl ?: EMPTY_STRING,
                         colorBorder = if (!participant.expired)
                             MaterialTheme.colors.onError else null,
                         onPressed = {
-                            if (model.isOwner || participant.isCurrentUser) viewModel.onResultPressed(participant.roomId, participant.userId)
-                            else  viewModel.onParticipantItemPressed(participant.userId)
+                            Log.d("TAG", "model.isOwner: ${model.isOwner}")
+                            Log.d("TAG", "model.isParticipated: ${model.isParticipated}")
+                            Log.d("TAG", "model.isParticipant: ${model.isParticipant}")
+                            Log.d("TAG", "participant.isCurrentUser: ${participant.isCurrentUser}")
+
+                            if (model.isOwner || model.isParticipant)
+                                viewModel.onResultPressed(participant.roomId, participant.userId)
+                            else viewModel.onParticipantItemPressed(participant.userId)
                         },
                         onLongPressed = {
                             if (model.isOwner) viewModel.onParticipantLongPressed(!model.expired, participant, setIsRefresh)
@@ -229,7 +238,6 @@ private fun FrontLayer(
                 }
             }
         }
-
         Spacer(modifier.size(ButtonDefaults.IconSize))
         Chip({}, modifier = modifier.padding(horizontal = 24.dp)){
             Icon(Icons.Default.Task, contentDescription = null)

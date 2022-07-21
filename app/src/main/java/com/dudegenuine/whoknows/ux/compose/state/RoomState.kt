@@ -79,7 +79,7 @@ class RoomState {
     }
 
     fun onDescChange (it: String){
-        _desc.value = TextFieldValue(text = it)
+        if (it.length <= 250) _desc.value = TextFieldValue(text = it)
     }
 
     fun onMinuteChange (it: String){

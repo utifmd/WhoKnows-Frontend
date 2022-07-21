@@ -27,6 +27,8 @@ class ParticipantDataMapper
             roomTitle = room.title,
             roomDesc = room.description,
             roomMinute = room.minute,
+            roomToken = room.token,
+            roomRecipientIds = room.participantIds,
             /*roomIsParticipant = room.isParticipant,
             roomIsParticipated = room.isParticipated,*/
             pages = pages,

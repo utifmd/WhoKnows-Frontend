@@ -79,9 +79,10 @@ fun NotificationItem(
                 Text((model.sender?.fullName ?: stringResource(R.string.unknown)) +" - "+ model.event,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = if (seen or !exclusive)
-                        MaterialTheme.colors.onSurface.copy(alpha = 0.5f) else
-                            MaterialTheme.colors.secondaryVariant,
+                    color = if (seen)
+                        MaterialTheme.colors.onSurface.copy(alpha = 0.5f) else if(!exclusive)
+                            MaterialTheme.colors.onBackground else
+                                MaterialTheme.colors.secondaryVariant,
                     style = MaterialTheme.typography.caption)
 
                 Text(timeAgo(model.createdAt),

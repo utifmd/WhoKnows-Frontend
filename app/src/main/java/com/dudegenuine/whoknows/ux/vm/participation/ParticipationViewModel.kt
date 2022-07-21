@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavOptions
 import com.dudegenuine.model.*
-import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IAppUseCaseModule.Companion.EMPTY_STRING
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IParticipantUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IRoomUseCaseModule
 import com.dudegenuine.whoknows.infrastructure.di.usecase.contract.IUserUseCaseModule
@@ -91,7 +90,7 @@ class ParticipationViewModel
         val participant = ParticipantState().copy(
             roomId = room.id, userId = prefs.userId, timeLeft = room.minute)
         onBoarding(room, participant)
-        postParticipant(participant)
+        postParticipant(room.token, participant)
     }
     private fun onUpdateAndParticipant(room: Room.Complete) {
         Log.d(TAG, "onUpdateAndParticipant: ${room.id}")
@@ -134,7 +133,8 @@ class ParticipationViewModel
             imageUrl = participation.user.profileUrl,
             event = event,
             title = participation.roomTitle,
-            to = state.room?.token ?: EMPTY_STRING,
+            recipientIds = participation.roomRecipientIds,
+            to = participation.roomToken
         )
         caseParticipation.postParticipation(participant, result, notification)
             .onEach(::onResourceStateless)
@@ -221,8 +221,7 @@ class ParticipationViewModel
     override fun onTimerChange(time: Double){
         _timer.value = time
     }
-    override fun postParticipant(participant: Participant) {
-        val roomToken = state.room?.token ?: EMPTY_STRING
+    override fun postParticipant(roomToken: String, participant: Participant) {
         caseParticipation.postParticipant(participant, roomToken)
             .onEach(::onResourceStateless)
             .launchIn(viewModelScope)

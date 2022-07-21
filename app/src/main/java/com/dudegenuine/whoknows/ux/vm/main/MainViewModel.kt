@@ -123,7 +123,7 @@ class MainViewModel
             serverRequest
         )
         token.let(::onTokenIdChange)
-        if (isLoggedIn) chainer.enqueue()
+        chainer.enqueue()
     }
     private fun getUser() = caseUser.getUser()
         .onEach(::onAuth)

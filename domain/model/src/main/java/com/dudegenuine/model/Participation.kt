@@ -16,6 +16,8 @@ data class Participation(
     val roomTitle: String,
     val roomDesc: String,
     val roomMinute: Int,
+    val roomToken: String,
+    val roomRecipientIds: List<String>,
     val pages: List<ParticipationPage>) {
     var currentQuestionIdx by mutableStateOf(0) //var duration: Double = (room.minute.toFloat() * 60).toDouble()
 }

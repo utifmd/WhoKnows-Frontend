@@ -38,6 +38,7 @@ import com.dudegenuine.local.service.IUsersDao
     NotificationConverter::class,
     QuizConverter::class,
     UserCensoredConverter::class,
+    RoomsCensoredConverter::class,
     RoomCensoredConverter::class,
     ImpressionsConverter::class,
     AnswerConverter::class,

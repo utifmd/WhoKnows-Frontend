@@ -56,7 +56,7 @@ class MessagingService: FirebaseMessagingService() {
             serverRequest
         )
         token.let(::onTokenIdChange)
-        if (isLoggedIn) chainer.enqueue()
+        chainer.enqueue()
         Log.d(TAG, "onNewToken: ended")
     }
     private fun onRemoveParticipation() = caseParticipation()

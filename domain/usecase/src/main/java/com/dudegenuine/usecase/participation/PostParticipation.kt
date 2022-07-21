@@ -27,7 +27,7 @@ class PostParticipation
 
     operator fun invoke(
         participant: Participant, result: Result, notification: Notification): Flow<Resource<String>> = flow {
-        val messaging = Messaging.Pusher(notification.title, notification.event, notification.imageUrl, to = notification.to)
+        val messaging = Messaging.Pusher(notification.title, notification.event, notification.imageUrl, notification.userId.plus("|"), notification.to)
         try {
             emit(Resource.Loading())
             reposParticipant.update(storedParticipantId, participant.copy(expired = true))
